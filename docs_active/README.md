@@ -1,15 +1,13 @@
 # docs_active の入口
 
-今日は `docs_active` をこの 2 本だけ見る前提に整理しています。
+後続の `CLOUSEAU` 実験に必要なものだけ残しています。
 
-- [ATLASv2_進捗整理と今日やること_2026-05-10.md](/c:/Users/komat/OneDrive/Desktop/ATLAS以外のデータセット/docs_active/ATLASv2_進捗整理と今日やること_2026-05-10.md:1)
-- [LOF_小集合ログ_9マス分析_2026-05-10.md](/c:/Users/komat/OneDrive/Desktop/ATLAS以外のデータセット/docs_active/LOF_小集合ログ_9マス分析_2026-05-10.md:1)
-
-それ以外の詳細メモ、途中分析、出力ファイルは `docs/` に移しています。
-
-今の起点選定に直接使う補助資料:
-
-- [top10micro_noncore_process_analysis_2026-05-10/summary.md](/c:/Users/komat/OneDrive/Desktop/ATLAS以外のデータセット/docs_active/top10micro_noncore_process_analysis_2026-05-10/summary.md:1)
-- [起点別_追跡可能性実験設計_2026-05-10.md](/c:/Users/komat/OneDrive/Desktop/ATLAS以外のデータセット/docs_active/起点別_追跡可能性実験設計_2026-05-10.md:1)
 - [CLOUSEAU_追跡実験計画_2026-05-10.md](/c:/Users/komat/OneDrive/Desktop/ATLAS以外のデータセット/docs_active/CLOUSEAU_追跡実験計画_2026-05-10.md:1)
-- [偽陽性重視_9マス拡張ユースケース計画_2026-05-10.md](/c:/Users/komat/OneDrive/Desktop/ATLAS以外のデータセット/docs_active/偽陽性重視_9マス拡張ユースケース計画_2026-05-10.md:1)
+- [9マス拡張とユースケース作成ロジック_2026-05-10.md](/c:/Users/komat/OneDrive/Desktop/ATLAS以外のデータセット/docs_active/9マス拡張とユースケース作成ロジック_2026-05-10.md:1)
+- [偽陽性重視_9マスユースケース完成版_2026-05-10.md](/c:/Users/komat/OneDrive/Desktop/ATLAS以外のデータセット/docs_active/偽陽性重視_9マスユースケース完成版_2026-05-10.md:1)
+- [正解データ試作_v0_2026-05-10.md](/c:/Users/komat/OneDrive/Desktop/ATLAS以外のデータセット/docs_active/正解データ試作_v0_2026-05-10.md:1)
+- [ground_truth_trial_v0_2026-05-10.csv](/c:/Users/komat/OneDrive/Desktop/ATLAS以外のデータセット/docs_active/ground_truth_trial_v0_2026-05-10.csv:1)
+- [usecase_candidate_ranking_2026-05-10.csv](/c:/Users/komat/OneDrive/Desktop/ATLAS以外のデータセット/docs_active/usecase_candidate_ranking_2026-05-10.csv:1)
+- [usecase_review_workbook_2026-05-10.xlsx](/c:/Users/komat/OneDrive/Desktop/ATLAS以外のデータセット/docs_active/usecase_review_workbook_2026-05-10.xlsx)
+
+それ以外の途中分析、元レビュー、補助メモ、帯域別の生ログ出力は `docs/` に移しています。
