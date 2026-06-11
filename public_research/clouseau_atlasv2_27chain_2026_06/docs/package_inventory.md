@@ -31,6 +31,15 @@
 - `results/gpt-5.4-mini/final_score_aggregate.json`
 - `results/cost_estimates_conservative.csv`
 
+## Raw runs
+
+- `raw_runs/gpt-4.1-mini/stage1/*.json`
+- `raw_runs/gpt-4.1-mini/stage2/*.json`
+- `raw_runs/gpt-4.1-mini/stage3/*.json`
+- `raw_runs/gpt-5.4-mini/stage1/*.json`
+- `raw_runs/gpt-5.4-mini/stage2/*.json`
+- `raw_runs/gpt-5.4-mini/stage3/*.json`
+
 ## Rubrics and scripts
 
 - `rubrics/score_rubric.md`

@@ -10,6 +10,7 @@ It contains the research purpose, experiment design, current LaTeX manuscript, s
 - `docs/`: research direction, experiment design, scenario taxonomy, data scope, result summary, cost estimates, and incident notes.
 - `experiment_metadata/`: sanitized case metadata, chain summary, chain index, run settings, and token/cost summary.
 - `results/`: final score CSV/JSON files and aggregate tables.
+- `raw_runs/`: per-run raw CLOUSEAU output JSON files for all 162 model/stage runs.
 - `rubrics/`: scoring rubrics used for double review / final review.
 - `scripts/`: selected scripts used to build cases, run the 27-chain experiment, validate gold chains, and score outputs.
 
@@ -33,7 +34,7 @@ It contains the research purpose, experiment design, current LaTeX manuscript, s
 
 ## Data exclusion policy
 
-The package does not include source DB files, raw logs, EVTX files, scenario databases, or full per-run model outputs. See `docs/data_scope.md`.
+The package includes per-run model output JSON files, but does not include source DB files, EVTX files, scenario databases, or external dataset archives. See `docs/data_scope.md`.
 
 ## Notes
 
