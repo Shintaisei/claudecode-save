@@ -1,0 +1,396 @@
+% !TEX program = lualatex
+\documentclass[a4paper,twocolumn,10pt]{ltjsarticle}
+
+\usepackage[top=30mm,bottom=25mm,left=20mm,right=20mm]{geometry}
+\setlength{\columnsep}{7mm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{fontspec}
+\usepackage[deluxe,haranoaji]{luatexja-preset}
+\setmainfont{TeX Gyre Termes}
+\setsansfont{TeX Gyre Heros}
+\setmonofont{Inconsolata}
+\renewcommand{\headfont}{\sffamily\bfseries}
+\pagestyle{empty}
+
+\newcommand{\code}[1]{{\small\ttfamily\addfontfeatures{Scale=0.95}#1}}
+
+\begin{document}
+
+\title{\vspace{-8mm}少数のSOC調査起点からの証跡付き行動列復元に向けた\\エージェント型ログ探索のプレ実験}
+\author{著者名$^{1}$ \quad 共著者名$^{2}$\\
+{\small $^{1}$所属1 \quad $^{2}$所属2}}
+\date{}
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+本稿では，少数のSOC調査起点からWindowsエンドポイントログを探索し，観測証跡に基づく行動列を復元するエージェント型パイプラインの評価設計とプレ実験を報告する．
+対象手法は，アラート名の分類や自然文要約ではなく，host，process，timestamp，および必要に応じてEDRアラート情報を起点として，プロセス実行，コマンドライン，レジストリ操作などの観測事実を探索し，\code{code\_steps} と \code{code\_sequence} として出力する．
+プレ実験ではDiscord Run key persistence事例を対象に，入力情報とデータベース条件を段階的に変えた3条件を設定し，gpt-4.1-miniとgpt-5.4-miniの復元結果を比較した．
+gpt-5.4-miniは，アラートを初期入力に含む条件で13/14，アラートを初期入力に含めないfull DB条件で14/14のrequired itemsを満たした．
+一方，full DB条件でも行動順序は1/2に留まり，アラート要約行をDBから除外した条件ではrequired-item scoreが8/14に低下した．
+この結果は単一ケースのプレ実験に限られるが，このケースではアラート要約行の有無が対象行動への到達性に影響した可能性，またalert summary rowsを除外した低レベルログ条件で主行動列を選別する難しさを示唆する．
+\end{abstract}
+
+\section{はじめに}
+
+SOC（Security Operation Center）におけるエンドポイント調査では，検知アラートが示す短い名称や理由だけでは，端末上で実際にどのような行動が起きたかを十分に説明できない場合がある．
+例えば，永続化の典型であるRegistry Run keyへの登録では，アラートは「レジストリ書込み」や「永続化疑い」として発火するが，調査者が確認したいのは，どのプロセスが，どの親子関係で起動され，どのコマンドラインにより，どのレジストリ値を照会または変更したかである．
+MITRE ATT\&CKではRegistry Run Keys / Startup FolderがWindowsにおける永続化・権限昇格に関連する技法として整理されており，Run keyに登録されたプログラムはユーザログオン時に実行され得る\cite{mitre_t1547_001}．
+したがって，SOC調査では最終的な悪性・良性判定だけでなく，観測ログに基づく行動列の再構成が重要になる．
+
+本研究が扱う問題は，少数の調査起点から行動列を復元することである．
+調査起点とは，例えばhost名，process名，timestamp，またはEDRアラートの一部である．
+このような起点は実務上よく得られるが，そこから対象行動の親子プロセス，コマンドライン，レジストリ対象，関連証跡を横断的にたどる作業は，人手では時間を要し，LLMに任せる場合にも事実の作り込みや近傍行動の混入が問題になる．
+特に，アラート要約は調査の足場になる一方で，その名称や理由をそのまま行動として出力すると，ログから復元したとは言い難い．
+
+本稿では，CLOUSEAU型の階層型エージェントパイプラインを用い，少数のSOC調査起点からWindows endpoint logを探索して証跡付き行動列を復元する評価設計を提示する．
+本稿の段階では本格的な複数ケース評価は未実施であり，Discord Run key persistenceの単一ケースに対するプレ実験を報告する．
+そのため，本稿の貢献は性能の一般化ではなく，(1) アラート要約に依存しすぎない行動列復元タスクの定義，(2) action claim単位の評価指標，(3) 本実験に先立つ単一ケースでの失敗様式の整理にある．
+
+\section{課題設定}
+
+\subsection{アラート分類ではなく行動列復元}
+
+本稿では，モデル出力を「アラート名の分類」や「インシデント要約」として扱わない．
+出力対象は，ログで観測できる行動ステップである．
+各ステップは，主体，操作，対象，必要に応じたコマンドライン，および根拠証跡を持つ．
+例えば，Discordの自動更新プロセスが \code{reg.exe} を起動し，ユーザRun key配下の \code{Discord} 値を照会し，続いて同値へ \code{Update.exe --processStart Discord.exe} を登録する，という系列を復元対象とする．
+
+この課題設定で重要なのは，アラートを使わないことではなく，アラートを最終答えとして扱わないことである．
+アラートは探索の入口や証跡として有用である．
+しかし，\code{alert\_name} や \code{alert\_reason} をそのまま \code{operation} として出力すると，実際のプロセス実行やレジストリ操作をログからたどったことにならない．
+そこで本稿では，アラート情報を「探索を助ける高密度な観測行」と位置付け，最終出力はプロセス，コマンドライン，レジストリ対象などの観測値に基づかせる．
+
+\subsection{事実主張と推定の分離}
+
+Windowsログには，Security，Sysmon，EDR telemetry，DNS，browser historyなど複数のsource streamが含まれる．
+Sysmonはプロセス作成時の完全なコマンドラインや親プロセス情報，ProcessGUID，ネットワーク接続，レジストリ変更などを記録できる\cite{sysmon}．
+一方で，ログに存在しない意図，ファイル内容，ユーザの業務目的，最終的な悪性確定は，観測行だけからは直接主張できない．
+本稿のパイプラインでは，観測事実，解釈，限界を分けて扱い，証跡のない値を作らないことを制約とする．
+
+\section{提案パイプライン}
+
+\subsection{全体像}
+
+図\ref{fig:pipeline}に，提案パイプラインの概要を示す．
+入力はSOC clue，CBC alert，またはprocess-time clueである．
+Chief agentは，初期手がかりから「何を確認すべきか」という調査論点を作る．
+Investigation agentは，その論点をQAAgent / SQL expertに渡す自然言語の質問へ変換する．
+QAAgent / SQL expertはSQLite化されたendpoint logを検索し，観測行とsource fieldsを返す．
+Final synthesisは，得られた証跡を統合し，主行動列と近傍行動を分離して \code{code\_steps} と \code{code\_sequence} を生成する．
+
+\begin{figure*}[t]
+\centering
+\fbox{\begin{minipage}{0.92\linewidth}
+\small
+\centering
+SOC clue / CBC alert / process-time clue\\
+$\downarrow$\\
+Chief agent: 調査論点を生成\\
+$\downarrow$\\
+Investigation agent: 検索すべき事実を質問化\\
+$\downarrow$\\
+QAAgent / SQL expert: SQLite endpoint logsから観測行を取得\\
+$\downarrow$\\
+Final synthesis: 近傍行動を分離し，主行動列を統合\\
+$\downarrow$\\
+\code{code\_steps} + \code{code\_sequence} + limitations\\
+$\downarrow$\\
+action-claim scoring
+\end{minipage}}
+\caption{少数の調査起点から証跡付き行動列を復元するパイプライン}
+\label{fig:pipeline}
+\end{figure*}
+
+この役割分担の狙いは，仮説生成と観測検索を分離することである．
+Chief agentはSQLを書かず，alert titleやcommand lineを仮定しない．
+Investigation agentは，直前回答で見えた観測値から次の質問を決める．
+QAAgent / SQL expertだけがDBに問い合わせ，PID，timestamp，command line，query resultを作らない．
+Final synthesisは，複数の近傍rowが存在する場合に，接続関係が観測証拠で支えられるかを確認する．
+
+\subsection{出力形式}
+
+表\ref{tab:output}に出力フィールドを示す．
+\code{code\_steps}は主出力であり，採点時にはaction claimへ分解される．
+\code{code\_sequence}は，観測されたcommand lineまたはtarget operationだけを短く並べた系列であり，アラート名やreasonの言い換えを入れない．
+\code{evidence}は行動を支えるログ証跡であるが，多く列挙しても主指標の分母は増やさない．
+\code{excluded\_nearby\_evidence}は，近傍にあるが主行動列ではない証跡を分離するために用いる．
+
+\begin{table}[t]
+\centering
+\small
+\caption{出力フィールドと採点上の扱い}
+\label{tab:output}
+\begin{tabular}{p{0.33\linewidth}p{0.57\linewidth}}
+\toprule
+Field & 意味 \\
+\midrule
+steps & 主体，操作，対象，command line，証跡を持つ行動ステップ．主な採点対象．\\
+sequence & 観測commandまたはtarget operationの短い系列．alert title/reasonは含めない．\\
+evidence & source stream，row id，timestamp，PID，command lineなどの根拠．\\
+nearby evidence & 近傍だが主系列ではない証跡．混入を明示的に避ける．\\
+limitations & 観測できない値，未確認の関係，復元上の限界．\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{プレ実験設計}
+
+\subsection{対象ケース}
+
+プレ実験では，Discord Run key persistence事例を対象とした．
+起点は \code{host=WIN-32-H1}，\code{process=reg.exe}，\code{timestamp=2022-07-16 15:07:46} である．
+正解行動列は3ステップからなる．
+第一に，\code{Discord.exe} が \code{reg.exe} を子プロセスとして起動する．
+第二に，\code{reg.exe query} がRun keyの \code{Discord} 値を照会する．
+第三に，\code{reg.exe add} が同値へ \code{Update.exe --processStart Discord.exe} を追加または更新する．
+
+このケースは，Run keyという明確な対象があり，親子プロセス，query，add，registry object，command lineが評価可能であるため，プレ実験として扱いやすい．
+ただし，扱いやすいケースである分，結果は本実験より楽観的に出る可能性がある．
+一方で，単一host・単一chain・単一attack patternであり，この結果だけから一般的なendpoint investigation性能を主張することはできない．
+
+\subsection{比較条件}
+
+表\ref{tab:stages}に3つの比較条件を示す．
+Stage 1は，CBC alert triage情報とhost/process/timestampを初期入力に含める実務寄りの条件である．
+Stage 2は，初期入力からアラート情報を外し，host/process/timestampのみを与えるが，DB内にはCBC alert summaryとtelemetryを残す．
+Stage 3は，初期入力をStage 2と同じにしつつ，DBからCBC alert summary rowsのみを除外する．
+ただし，CBC EDR/NGAV event telemetry，Security，Sysmon，DNS，browser historyは残す．
+
+\begin{table*}[t]
+\centering
+\small
+\caption{プレ実験の3条件}
+\label{tab:stages}
+\begin{tabular}{p{0.12\linewidth}p{0.25\linewidth}p{0.34\linewidth}p{0.20\linewidth}}
+\toprule
+Stage & 初期入力 & DB条件 & 確認したい点 \\
+\midrule
+Stage 1 & CBC alert triage + host/process/timestamp & alert summary，CBC telemetry，OS側ログを保持 & アラート起点の実務ベースライン \\
+Stage 2 & host/process/timestampのみ & Stage 1と同じfull DB & 最小clueからDB内の高密度要約を含む証跡へ到達できるか \\
+Stage 3 & host/process/timestampのみ & CBC alert summary rowsのみ除外し，CBC telemetryとOS側ログは保持 & アラート要約なしで低レベルtelemetryから統合できるか \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Stage 3でalert summary rowsだけを外す理由は，モデルを不自然に不利にするためではない．
+CBC alert summaryには，alert name，reason，対象プロセス，対象レジストリ，検知理由など，調査者にとって「ほぼ答え」に近い情報が集約されている場合がある．
+この状態だけを評価すると，モデルが低レベルログを探索・統合できたのか，alert summaryを言い換えただけなのかを分離しにくい．
+Stage 3では正解証跡そのものをすべて消すのではなく，高密度な要約行だけを外し，低レベルtelemetryの探索・統合能力を見る．
+
+ここで用語を整理する．
+CBC alert triageとは，初期入力としてモデルに渡すアラート名，理由，識別子などの情報である．
+alert summary rowsとは，DB内に残るアラート要約行であり，Stage 2では探索対象に含め，Stage 3では除外する．
+CBC telemetryとは，alert summaryではない低レベルのEDR/NGAV event rowsであり，Stage 3でも残す．
+
+Stage 3が評価条件として成立するためには，gold required itemsがalert summary rowsを除外した後も観測可能でなければならない．
+表\ref{tab:observability}に，プレ実験前に確認した可観測性を示す．
+この表は，Stage 3の失点を「必要証跡を消したため」と解釈しないための前提である．
+ただし，実際にモデルがそれらを探索できるか，また主行動列として統合できるかは別問題である．
+可観測性の根拠は，gold artifactのrequired elementsとacceptable termsである．
+具体的には，D1は\code{parent\_process\_name}，\code{parent\_command\_line}，\code{pid/ppid}，D2は\code{process\_cmdline}およびquery command line，D3は\code{ACTION\_WRITE\_VALUE}，\code{regmod\_name}，value dataをacceptable evidenceとして保持している．
+完全なelement id，許容語，alert id，hash付きscore resultは付録相当のartifactとして保存しており，本文では紙幅の都合で要約する．
+さらに，単一ケースのStage 3条件では，\code{cbc-edr}/\code{cbc-ngav}の低レベルtelemetryにcommand lineやparent process系の証跡が残り，\code{msft-security}にはregistry object系の証跡が残る．
+したがって，Stage 3の可観測性は単一sourceだけでなく，CBC低レベルtelemetryとOS側object evidenceを組み合わせて確認する前提である．
+また，本実験用のDB照合artifactでは，alert summary除去後のstage3 supportをraw DB supportと分けて記録しており，この方針でanswerable goldを判定する．
+
+\begin{table*}[t]
+\centering
+\small
+\caption{Stage 3におけるgold required itemsの可観測性}
+\label{tab:observability}
+\begin{tabular}{p{0.12\linewidth}p{0.31\linewidth}p{0.39\linewidth}p{0.10\linewidth}}
+\toprule
+Step & required items & Stage 3で残る観測値の例 & 判定 \\
+\midrule
+D1 & \code{Discord.exe}が\code{reg.exe}を子プロセスとして起動，およびその証跡 & \code{cbc-edr}の\code{process\_name}，\code{parent\_process\_name=discord.exe}，\code{parent\_command\_line}，\code{pid/ppid} & 可 \\
+D2 & \code{reg.exe query}，Run key \code{Discord}値，command line，critical evidence & \code{reg.exe query ... Run /v Discord}を含む低レベルCBC eventまたはprocess command evidence & 可 \\
+D3 & \code{reg.exe add}，Run key \code{Discord}値，登録data，command line，critical evidence & \code{ACTION\_WRITE\_VALUE}，\code{regmod\_name=...Run\textbackslash Discord}，\code{Update.exe --processStart Discord.exe}を含むevent fields & 可 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{評価指標}
+
+評価単位はaction claimである．
+Discord Run keyのgoldは，3つのaction step，合計14個のrequired itemsに固定した．
+D1は \code{Discord.exe} が \code{reg.exe} を子プロセスとして起動する行動であり，subject，operation，object，critical evidenceの4項目を持つ．
+D2は \code{reg.exe query} がRun keyの \code{Discord} 値を照会する行動であり，subject，operation，object，command line，critical evidenceの5項目を持つ．
+D3は \code{reg.exe add} がRun keyの \code{Discord} 値を追加・更新する行動であり，同じく5項目を持つ．
+D1を独立stepに含めるのは，D2/D3の主体である \code{reg.exe} がどの実行文脈から生じたかを説明するためである．
+したがってD1は単なる補助証跡ではなく，行動列の入口となるprocess creation stepとして扱う．
+
+\begin{table}[t]
+\centering
+\small
+\caption{gold action stepとrequired items}
+\label{tab:gold}
+\begin{tabular}{p{0.13\linewidth}p{0.48\linewidth}p{0.23\linewidth}}
+\toprule
+Step & 内容 & 数 \\
+\midrule
+D1 & \code{Discord.exe}が\code{reg.exe}を子プロセスとして起動 & 4 \\
+D2 & \code{reg.exe query}がRun keyの\code{Discord}値を照会 & 5 \\
+D3 & \code{reg.exe add}がRun keyの\code{Discord}値を追加・更新 & 5 \\
+\midrule
+合計 & subject，operation，object，command line，critical evidence & 14 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+主指標は，gold required items 14項目のうち候補出力が満たした割合を表すrequired-item scoreである．
+採点器は固定14項目分母の\code{recall\_fraction}と\code{precision\_fraction}を出力するが，このプレ実験では両者が同じ値になるため，表ではrequired-item scoreとして一本化して報告する．
+通常の情報検索におけるprecisionとは異なるため，本稿ではこの固定分母指標をprecisionとは呼ばない．
+この設計により，candidateが大量のevidenceを列挙しても，evidenceの数だけ分母や分子が増えることを避ける．
+candidate側の過剰主張は，\code{candidate\_claim\_precision}と\code{overclaim\_slot\_count}で補助的に診断する．
+また，行動順序はD1 $\rightarrow$ D2，D2 $\rightarrow$ D3の2ペアで評価し，critical evidenceは各step 1 slot，合計3項目として評価する．
+
+\subsection{Gold作成と採点規則}
+
+Goldは，対象caseのログ証跡を人手で確認し，process creation，registry query，registry add/updateの3 stepに正規化して作成した．
+各stepについて，ログから直接確認できる主体，操作，対象，command line，critical evidenceだけをrequired itemに含めた．
+推定されたユーザ意図，悪性判定，ファイル内容，アプリケーションの業務目的はgold required itemに含めない．
+
+Candidate出力は，\code{code\_steps} と \code{code\_sequence} からaction claimへ分解する．
+1つのcandidate stepに複数の主体，操作，対象が含まれる場合，それぞれを別claimとして数える．
+各claimは，subject，operation，object，command line，critical evidence slotに正規化され，gold required itemに対応するものだけをrequired-item scoreの分子に入れる．
+一方，candidate claim precisionの分母は，candidateが出力したrequired-item-like slotsの総数である．
+例えばStage 2のgpt-5.4-miniでは，candidate側に32 slotが抽出され，そのうちgoldに対応したものが14 slotであったため，candidate claim precisionは14/32となる．
+overclaim slot countは，このcandidate側slotのうちgoldに対応しなかったものを数える．
+この補助指標により，gold required itemsを満たした出力でも，近傍行動や重複claimを過剰に含む場合を区別する．
+採点の完全な再現には，本文の要約だけでなく，gold fileとscore artifactsを併用する．
+本稿で参照するgold fileは\code{gold\_behavior\_node.json}であり，14個のelement id，gold value，acceptable terms，order pairsを含む．
+score resultsはrerun版の\code{score\_result.json}群に保存し，canonical summaryは検証用hashとrun数を確認した\code{validation\_report\_20260606.json}に基づく．
+したがって，本文の表は採点規則の要約であり，部分一致，重複claim，command line/path一致，critical evidence slotの詳細はartifactで固定する．
+
+\section{プレ実験結果}
+
+表\ref{tab:result}に，プレ実験の結果を示す．
+数値は，固定14項目分母のrerun結果から作成したcanonical summaryに基づく．
+canonical summaryは，2モデル×3条件の6 runすべてについて同一scorerのrerun出力を読み込み，検証用ハッシュとrun数を確認したうえで，古い集計ファイルを使わずに再生成したものであり，最良値の選択や複数runの平均化ではない．
+なお，本稿の段階では単一ケースのプレ実験であり，本実験では複数ケースに置き換える予定である．
+モデル名は実行時のAPI model idとして記録し，実行日，prompt，runner option，score artifactを保存した．
+本稿中のモデル比較は，この実行設定下での比較であり，モデル系列一般の恒久的な性能差を主張するものではない．
+
+\begin{table*}[t]
+\centering
+\scriptsize
+\caption{Discord Run key事例におけるプレ実験結果}
+\label{tab:result}
+\begin{tabular}{llllllll}
+\toprule
+model & stage & condition & req. score & claim precision & order & crit. ev. & overclaim \\
+\midrule
+gpt-4.1-mini & Stage 1 & CBC alert input & 4/14 & 4/19 & 0/2 & 1/3 & 15 \\
+gpt-4.1-mini & Stage 2 & process-time full DB & 0/14 & 0/10 & 0/2 & 0/3 & 10 \\
+gpt-4.1-mini & Stage 3 & alert summary removed & 0/14 & 0/17 & 0/2 & 0/3 & 17 \\
+gpt-5.4-mini & Stage 1 & CBC alert input & 13/14 & 13/26 & 1/2 & 2/3 & 13 \\
+gpt-5.4-mini & Stage 2 & process-time full DB & 14/14 & 14/32 & 1/2 & 3/3 & 18 \\
+gpt-5.4-mini & Stage 3 & alert summary removed & 8/14 & 8/18 & 0/2 & 1/3 & 10 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+gpt-5.4-miniは，Stage 1でrequired-item score 13/14を示した．
+これは，alert triage情報が初期入力として与えられる場合に，対象行動の大半を抽出できたことを示す．
+ただし，順序は1/2であり，すべての行動要素が正しく拾われても，時系列または因果的な構成が完全になるとは限らない．
+
+Stage 2では，gpt-5.4-miniがrequired-item score 14/14となった．
+この条件ではアラートを初期入力から外しているため，モデルはhost/process/timestampから探索を始める．
+この単一実行では，DB内にalert summaryと関連telemetryが残っている場合に，正解行動要素へ到達できた．
+一方で，candidate claim precisionは14/32であり，overclaim slot countは18であった．
+したがって，主行動要素の復元と，出力の絞り込みは別の課題である．
+
+Stage 3では，gpt-5.4-miniのrequired-item scoreは8/14，orderは0/2，critical evidenceは1/3に低下した．
+alert summary rowsを除外しても，CBC EDR/NGAV telemetryやOS側ログは残っているため，少なくとも表\ref{tab:observability}に示したrequired itemsの観測可能性は残る設計である．
+しかし，低レベルtelemetryからquery step，add step，親子関係，critical evidenceを正しく統合する必要があり，近傍のSquirrel/Discord関連行動やRun key周辺操作の混入が起きやすい．
+
+gpt-4.1-miniは，Stage 1で4/14を復元したが，Stage 2およびStage 3ではgold required itemsに対応する主張を復元できなかった．
+この差は，この設定下での出力形式追従，探索深度，関連rowの接続，近傍行動の切り分けに失敗様式の違いが出る可能性を示す．
+ただし，この比較も単一ケースに限られるため，モデル能力一般の優劣ではなく，本実験で確認すべき仮説として扱う．
+
+\section{考察}
+
+\subsection{アラート要約の役割}
+
+プレ実験から得られる慎重な示唆は，このケースではalert summary rowsの有無が対象行動への到達性に影響した可能性である．
+Stage 1ではアラート情報が初期入力に含まれ，Stage 2では初期入力には含まれないがDB内に残っている．
+gpt-5.4-miniはこの2条件で高いrequired-item scoreを示した．
+一方，Stage 3でalert summary rowsだけを除外すると，正解証跡の一部が残っていても性能が低下した．
+これは，アラート要約が低レベルログへの索引として機能した可能性を示すが，探索ログの詳細分析なしに一般化はできない．
+
+ただし，Stage 2とStage 3の差には交絡が残る．
+Stage 3ではalert summary rowsを除外するため，単に情報量が減るだけでなく，agentが次に発行する質問，探索経路，ヒットするrow密度も変わり得る．
+したがって，本稿ではStage 3の低下を「alert summaryがないため」と断定せず，alert summary rowsの有無，質問生成，検索経路，近傍行動密度が組み合わさった失敗様式として扱う．
+本実験では，探索ログとSQL履歴を保存し，どの段階で対象rowへ到達できなかったかを分離して分析する．
+
+この結果は，アラート利用を否定するものではない．
+実務では，アラートは調査優先度や探索方向を決める重要な情報である．
+問題は，アラート名を行動そのものとして出力することである．
+本稿の設計では，アラートは入口または証跡として利用しつつ，最終的な行動ステップは観測されたprocess，command line，registry object，source rowに基づかせる．
+
+\subsection{required-item scoreと過剰主張}
+
+Stage 2のgpt-5.4-miniはrequired-item scoreで14/14を達成したが，candidate claim precisionは14/32であった．
+これは，評価上の「gold required itemsをすべて満たす」ことと，「余分な主張を含まない」ことが異なることを示す．
+探索型エージェントは，関連しそうなrowを広く拾うほどrequired-item scoreを上げやすいが，同時に近傍行動や重複claimを出力しやすい．
+SOC支援システムとしては，調査者に候補を広く提示することに価値がある場合もあるが，論文上の行動列復元としては，主行動列と補助証跡を明確に分ける必要がある．
+
+このため，本実験ではoverclaimの内訳をさらに分解する予定である．
+例えば，(1) gold chainに属さない近傍行動，(2) 同一行動の重複表現，(3) evidenceから支持されない否定主張，(4) command lineやregistry pathの不完全な一般化を分けて記録する．
+これにより，単にcandidate claim precisionが低いというだけでなく，どの種類の混入が生じたのかを分析できる．
+
+\subsection{順序評価の難しさ}
+
+Stage 2ではrequired-item scoreが14/14である一方，orderは1/2に留まった．
+この点は，評価設計上重要な観察である．
+行動要素をすべて含んでいても，D1，D2，D3の順序関係が正しく表現されなければ，調査者が読む行動列としては不十分である．
+特に，queryとaddが近い時間帯に発生し，関連するプロセスやregistry objectが重なる場合，モデルは個別要素を拾えても，系列としての構成を誤る可能性がある．
+
+したがって，本実験では，required-item score，critical evidence，orderを分けて報告する．
+また，\code{code\_sequence}だけでなく，\code{code\_steps}内のtimestamp，parent-child relation，evidence orderingが順序評価にどう影響するかを確認する．
+
+\section{限界と本実験への拡張}
+
+本稿には明確な限界がある．
+第一に，プレ実験は単一ケースであり，一般化はできない．
+第二に，対象データは既にSQLite化されたendpoint logであり，ログ収集，正規化，欠損処理そのものの評価ではない．
+第三に，評価にはLLM judgeと人手確認を含むため，採点基準の安定性を別途検証する必要がある．
+第四に，モデル名やAPIの世代差は時間とともに変わるため，本実験では実行日，prompt，runner option，score artifactを保存し，再現可能な形で報告する必要がある．
+
+また，本稿は悪性判定の自動化を目的としていない．
+Discord Run keyへの登録は，攻撃者による永続化にも，正規アプリケーションの自動起動にも現れ得る．
+本稿の評価対象は，その行動が悪性かどうかではなく，ログ上で観測された行動列を証跡付きで復元できるかである．
+
+本実験では，対象ケースを複数host，複数process chain，複数attack/benign patternへ拡張し，Stage 1/2/3の比較を全ケースで実行する．
+各ケースのgoldは，(1) 起点となる観測行の特定，(2) process creation，process action，object operationへのstep分解，(3) 各stepのrequired items定義，(4) critical evidence slotの固定，(5) 近傍だがgold chainに属さない行動の除外，という手順で作成する．
+これにより，Discord Run key専用のD1/D2/D3をそのまま流用するのではなく，各ケースの行動chainに応じたrequired-item setを作る．
+また，candidate overclaimの内訳を，gold chainに属さない近傍行動，同一行動の重複表現，証跡で支持されない主張，不完全なcommand lineやregistry pathに分けて記録する．
+複数ケースでもStage 3の低下が再現しない場合には，本稿の考察をDiscord Run key固有の観察として位置付け直す．
+
+\section{おわりに}
+
+本稿では，少数のSOC調査起点からWindows endpoint logを探索し，証跡付き行動列を復元するエージェント型パイプラインの評価設計とプレ実験を報告した．
+Discord Run key persistenceの単一ケースでは，gpt-5.4-miniがfull DB条件で14/14のrequired itemsを満たしたが，順序は1/2に留まった．
+また，CBC alert summary rowsを除外した条件では8/14へ低下し，このケースではアラート要約行の有無が到達性に影響した可能性が示された．
+今後は，本稿で定義したaction claim評価を複数ケースへ拡張し，alert summaryに依存しない低レベルtelemetry探索，主行動列と近傍行動の分離，順序構成の改善を検証する．
+
+\begin{thebibliography}{9}
+\bibitem{mitre_t1547_001}
+MITRE ATT\&CK,
+``Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder, T1547.001,''
+\url{https://attack.mitre.org/techniques/T1547/001/}
+（参照 2026-06-09）.
+
+\bibitem{sysmon}
+Microsoft,
+``Sysmon - Sysinternals,''
+\url{https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon}
+（参照 2026-06-09）.
+\end{thebibliography}
+
+\end{document}
