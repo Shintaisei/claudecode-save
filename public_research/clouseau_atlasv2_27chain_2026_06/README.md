@@ -11,6 +11,7 @@ It contains the research purpose, experiment design, current LaTeX manuscript, s
 - `docs/`: research direction, experiment design, scenario taxonomy, data scope, result summary, cost estimates, and incident notes.
 - `experiment_metadata/`: sanitized case metadata, chain summary, chain index, run settings, and token/cost summary.
 - `results/`: final score CSV/JSON files and aggregate tables.
+- `results_23chain_20260614/`: current final 23-chain experiment result tables and definitions. Use this first for paper writing.
 - `raw_runs/`: per-run raw CLOUSEAU output JSON files for all 162 model/stage runs.
 - `exp_20260614/`: latest component-rubric experiment handoff package. This includes 23-chain filtered outputs, scoring ledgers, aggregate tables, cost audit, and discussion/deep-dive materials.
 - `rubrics/`: scoring rubrics used for double review / final review.
@@ -26,6 +27,11 @@ It contains the research purpose, experiment design, current LaTeX manuscript, s
 
 ## Main result files
 
+- `results_23chain_20260614/README.md`
+- `results_23chain_20260614/RESULT_DEFINITIONS_23CHAIN.md`
+- `results_23chain_20260614/overall.csv`
+- `results_23chain_20260614/by_stage.csv`
+- `results_23chain_20260614/ledgers/final_comparison_per_run_component_scores.csv`
 - `docs/method_changes_for_paper_20260615.md`
 - `docs/method_section_points_ja_20260615.md`
 - `results/score_summary_overall.csv`
@@ -51,4 +57,4 @@ The package includes per-run model output JSON files and scoring/discussion arti
 
 The aggregate tables report both percentages and numerator/denominator fractions. Use the fractions when checking metric definitions or comparing score pipelines.
 
-For the latest paper discussion, start with `docs/method_changes_for_paper_20260615.md`, `docs/method_section_points_ja_20260615.md`, `fit2026_manuscript/paper/main.tex`, `exp_20260614/03_aggregated_results/summary.md`, and `exp_20260614/04_discussion_base/detailed_discussion_20260614.md`.
+For the latest paper discussion, start with `results_23chain_20260614/README.md`, `docs/method_changes_for_paper_20260615.md`, `docs/method_section_points_ja_20260615.md`, `fit2026_manuscript/paper/main.tex`, and `exp_20260614/04_discussion_base/detailed_discussion_20260614.md`.
