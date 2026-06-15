@@ -1,0 +1,55 @@
+\begin{document}
+
+\section{提案手法}
+
+\subsection{パイプライン}
+
+図\ref{figure:pipeline}に，本研究で用いるCLOUSEAU型のエージェント型ログ探索パイプラインを示す．
+入力は，CBC alert rows，またはhost/process/time windowである．
+CLOUSEAU本来のPOI起点調査\cite{clouseau}にならい，Chief agentは初期手がかりから調査方針を生成する．
+Investigation agentは，確認すべき事実をQAAgent / SQL expertへの質問に変換する．
+QAAgent / SQL expertは，SQLite化されたエンドポイントログに問い合わせ，timestamp，source stream，PID/PPID，process tree，command line，registry path，source row idなどを返す．
+Final synthesisは観測結果を統合し，主行動列，補助証跡，limitationsを出力する．
+
+\begin{figure}[ht]
+    \centering
+    \fbox{
+    \begin{minipage}{0.92\linewidth}
+        \small
+        \centering
+        SOC clue / CBC alert / process-time clue\\
+        $\downarrow$\\
+        Chief agent: 調査方針を生成\\
+        $\downarrow$\\
+        Investigation agent: 確認事項を質問へ変換\\
+        $\downarrow$\\
+        QAAgent / SQL expert: 観測行を取得\\
+        $\downarrow$\\
+        Final synthesis: 主行動列と近傍行動を分離\\
+        $\downarrow$\\
+        行動ステップ列 + evidence + limitations
+    \end{minipage}}
+    \caption{SOC調査起点から証跡付き行動列を復元するパイプライン}
+    \label{figure:pipeline}
+\end{figure}
+
+本手法の設計上の要点は，仮説生成と観測ログ検索を分離することである．
+Chief agentは直接SQLを書かず，Investigation agentが観測済みの値に基づいて次の確認事項を作る．
+DBに問い合わせるのはQAAgent / SQL expertであり，Final synthesisは観測行で支えられる行動だけを主系列に含める．
+これにより，alert nameやreasonの言い換えを行動復元と誤認しないようにする．
+
+\subsection{出力と評価単位}
+
+出力は，\texttt{steps}，\texttt{sequence}，\texttt{evidence}，\texttt{nearby}，\texttt{limitations}からなる．
+\texttt{steps}は主体，操作，対象，コマンドライン，証跡を持つ主行動ステップである．
+\texttt{sequence}は観測された操作を短く並べた系列であり，アラート名ではなくログ上の操作を表す．
+\texttt{evidence}はsource stream，row id，timestamp，PID，command lineなどの根拠である．
+\texttt{nearby}は時刻や対象が近いが主系列に含めない行動を明示する．
+
+採点では，gold chainを行動itemに分解する．
+必須itemは，ログから直接確認できる主体，操作，対象，コマンドライン，critical evidenceである．
+観測行だけから主張できない悪性判定，ユーザ意図，業務目的，ファイル内容の推定は必須itemに含めない．
+候補出力の主張は正規化され，gold itemと照合される．
+主指標は，行動item recall，critical evidence recall，sequence order，candidate claim precision，overclaim slot countである．
+
+\end{document}

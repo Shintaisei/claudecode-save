@@ -40,8 +40,92 @@ Status: passed
 
 ## Round 3 Global
 
-Status: pending
+Status: passed
+
+Professor-style checks:
+
+- ATLAS position: passed. The manuscript now distinguishes ATLAS as prior attack investigation work, ATLASv2 as the log/data environment, and this paper as a post-alert SOC behavior reconstruction evaluation.
+- Incident-analysis scope: passed. The target is clearly limited to endpoint behavior reconstruction after alerts or process/time clues, not malware detection, attribution, or full incident-response automation.
+- Formal experiment reflection: passed. The paper now uses the 27-chain, 3-stage, 2-model result set instead of the old single-case pre-experiment.
+- Metric consistency: passed with note. `gpt-4.1-mini` legacy action totals are normalized in the paper by separating critical-evidence slots; critical evidence remains reported separately.
+- Limitations: passed. The manuscript states the single ATLASv2 benign environment boundary and the Stage 3 alert-summary-only exclusion boundary.
 
 ## Round 3 Local
 
-Status: pending
+Status: passed
+
+Local checks:
+
+- Removed stale single-case / pre-experiment claims.
+- Checked for old fractions such as `14/14`, `8/14`, `321/860`, and old Discord-only result wording; none remain.
+- Checked LaTeX brace balance: open and close brace counts match.
+- FIT2026 page/margin assumptions checked against the official page: A4, top 30mm, bottom 25mm, left/right 20mm, column gap 7mm, no page numbers are consistent with the manuscript settings.
+
+Remaining risk:
+
+- Local TeX tools (`latexmk`, `pdflatex`, `lualatex`, `tectonic`) are not installed in this environment, so PDF page count and overfull/underfull warnings could not be verified here.
+
+## CLOUSEAU Follow-up Round 1 Global
+
+Status: addressed, pending re-review
+
+Findings addressed:
+
+- Added explicit citation to the CLOUSEAU paper.
+- Defined CLOUSEAU as a hierarchical multi-agent framework with Chief Inspector, Investigator, and QA agents.
+- Clarified that this manuscript uses CLOUSEAU as the investigation pipeline basis, not as an unnamed generic LLM agent.
+- Added the key distinction: CLOUSEAU originally targets attack narrative reconstruction from a POI, while this paper evaluates post-alert SOC behavior-chain reconstruction including benign/normal chains.
+
+## CLOUSEAU Follow-up Round 1 Local
+
+Status: addressed, pending re-review
+
+Findings addressed:
+
+- Added `\bibitem{clouseau}` before other related-work references.
+- Added `\cite{clouseau}` in introduction, related work, and method sections.
+- Updated the abstract to say "CLOUSEAU-based LLM agent workflow".
+
+## CLOUSEAU Follow-up Round 2 Global
+
+Status: addressed, pending re-review
+
+Findings addressed:
+
+- Checked that CLOUSEAU is not presented as the paper's original invention.
+- Checked that the paper's novelty is framed as evaluation/re-scoping: POI-start attack investigation -> SOC post-alert behavior-chain reconstruction.
+- Added wording that the work does not replace or re-evaluate CLOUSEAU's original attack narrative task.
+
+## CLOUSEAU Follow-up Round 2 Local
+
+Status: passed
+
+Local checks:
+
+- Verified multiple mentions of CLOUSEAU exist across abstract, introduction, related work, method, experiment setup, discussion, and conclusion.
+- Verified brace balance still matches after edits.
+
+## CLOUSEAU Follow-up Round 3 Global
+
+Status: passed
+
+Professor-style checks:
+
+- Citation adequacy: passed. CLOUSEAU is cited where the system concept is introduced, where prior LLM-agent investigation work is discussed, and where the pipeline is described.
+- Novelty boundary: passed. The paper states that it does not claim CLOUSEAU itself as original and does not simply re-evaluate CLOUSEAU's attack-narrative task.
+- Research positioning: passed. The manuscript now frames the contribution as adapting/evaluating CLOUSEAU-style POI investigation for SOC post-alert behavior-chain reconstruction on ATLASv2 benign logs.
+- ATLAS/CLOUSEAU relationship: passed. CLOUSEAU is the investigation pipeline basis; ATLASv2 is the log environment; this paper's target is evidence-backed behavior reconstruction.
+
+## CLOUSEAU Follow-up Round 3 Local
+
+Status: passed
+
+Local checks:
+
+- Confirmed `\cite{clouseau}` appears in introduction, related work, and method sections.
+- Confirmed the bibliography contains authors, title, year, and URL for the CLOUSEAU paper.
+- Checked LaTeX brace balance again after CLOUSEAU edits: open and close brace counts match.
+
+Remaining risk:
+
+- PDF build/page count remains unverified because local TeX tools are unavailable in this environment.

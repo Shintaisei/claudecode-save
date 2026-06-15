@@ -4,7 +4,6 @@
 \usepackage[top=30mm,bottom=25mm,left=20mm,right=20mm]{geometry}
 \setlength{\columnsep}{7mm}
 \usepackage{CJKutf8}
-% CJKutf8's min family has no bold shape under pdfLaTeX; reuse regular min.
 \DeclareFontShape{C70}{min}{b}{n}{<->ssub*min/m/n}{}
 \DeclareFontShape{C70}{min}{bx}{n}{<->ssub*min/m/n}{}
 \usepackage{graphicx}
@@ -13,11 +12,11 @@
 \usepackage{url}
 \usepackage{titlesec}
 \usepackage{setspace}
-\titlespacing*{\section}{0pt}{1.2ex plus .3ex minus .2ex}{0.7ex}
-\titlespacing*{\subsection}{0pt}{0.9ex plus .2ex minus .2ex}{0.5ex}
+\titlespacing*{\section}{0pt}{1.1ex plus .3ex minus .2ex}{0.6ex}
+\titlespacing*{\subsection}{0pt}{0.8ex plus .2ex minus .2ex}{0.4ex}
 \titleformat{\section}{\large\bfseries\sffamily}{\thesection}{0.7em}{}
 \titleformat{\subsection}{\normalsize\bfseries\sffamily}{\thesubsection}{0.6em}{}
-\setstretch{1.08}
+\setstretch{1.06}
 \pagestyle{empty}
 
 \newcommand{\code}[1]{{\small\ttfamily\bfseries #1}}
@@ -34,39 +33,47 @@
 \maketitle
 \thispagestyle{empty}
 
+\begin{abstract}
+Security Operation Center (SOC) analysts must connect alerts and endpoint telemetry into an evidence-backed behavior story. This paper evaluates a CLOUSEAU-based LLM agent workflow for reconstructing behavior chains from ATLASv2-derived Windows endpoint logs. We use 27 benign behavior chains and three staged input conditions: alert-assisted, process/time clue, and process/time clue without alert summary rows. The stronger model reconstructed 83.9\% of required behavior items and 80.9\% of critical evidence items across 81 runs, while the smaller model showed weaker evidence grounding and ordering. The results clarify the role of alert summaries and the remaining challenges of overclaim control and sequence construction.
+\end{abstract}
+
 \section{はじめに}
 
-SOC（Security Operation Center）におけるエンドポイント調査では，検知アラートの名称や短い検知理由だけでは，端末上で実際にどのような行動が発生したかを十分に説明できない場合がある．例えば，Windowsの永続化手法であるRegistry Run Keyへの登録では，調査者が確認したい対象は「永続化の疑い」というラベルそのものではなく，どのプロセスが起動し，どのコマンドラインで，どのレジストリ値を照会または変更したかである．MITRE ATT\&CKではRegistry Run Keys / Startup FolderがBoot or Logon Autostart Executionの一手法として整理されており，Run Keyに登録されたプログラムはユーザログオン時に実行され得る\cite{mitre_t1547_001}．したがって，アラート後の調査では，最終的な悪性・良性判定だけでなく，観測ログに基づく行動列の再構成が重要となる．
+SOC（Security Operation Center）におけるインシデント分析では，検知アラートを受け取った後に，端末上で実際に何が起きたかを説明可能な形で再構成する必要がある．アラート名や検知理由は調査の入口として有用である一方，それだけでは親子プロセス，コマンドライン，ファイル・レジストリ・ネットワーク操作，それらを支えるログ行の対応関係を十分に説明できない．調査者が最終的に必要とするのは，「怪しい」というラベルではなく，観測証跡に基づいて，どの主体が，どの対象に，どの順序で操作したかを示す行動列である．
 
-このような行動列の復元では，プロセス生成，親子関係，コマンドライン，レジストリ操作，関連するEDR telemetryなど，複数のログソースを横断する必要がある．一方で，SOCで得られる初期手がかりは必ずしも十分ではない．調査者は，host，process，timestampのような少数の起点，またはEDRアラート要約の一部から探索を開始することが多い．LLMを用いたエージェント型調査は，このような少数の手がかりから検索方針を立て，ログを反復的に探索できる可能性を持つ．しかし，モデルがアラート名を言い換えるだけで，ログ上の証跡に基づかない行動を出力する危険もある．
+本研究が対象とするのは，マルウェア検知そのものではなく，検知後のエンドポイント調査である．特に，SOCが少数の手がかりから調査を開始する状況を想定する．入力は，CBC alertの要約，またはhost，process，time window程度のprocess/time clueであり，出力は証跡付きの行動ステップ列である．この設定では，CLOUSEAUのようなLLM階層型調査エージェント\cite{clouseau}が，自然言語の手がかりから探索方針を作り，SQLite化されたログに対して反復的に問い合わせを行うことで，関連する観測行を集められる可能性がある．しかし，アラート理由を言い換えただけの出力，近傍の無関係な行動の混入，証跡で支えられない推定，行動順序の誤りが生じる危険もある．
 
-本研究の目的は，少数のSOC調査起点からWindowsエンドポイントログを探索し，調査者が検証可能な証跡付き行動列を復元できるかを評価することである．本稿では，行動列を，主体，操作，対象，コマンドライン，根拠ログを含むステップ列として扱い，エージェント型パイプラインの出力を構造化された行動ステップ列および短い行動系列として評価する．対象事例はDiscord Run Key persistenceであり，現段階では正式な複数事例実験の前段階として，単一事例に対するプレ実験結果を報告する．
+本稿では，ATLASv2 benign H1 / benign-1由来のWindowsホストログを用い，27個の良性セキュリティ行動chainを対象に，CLOUSEAUを基盤とするエージェント型ログ探索手法を評価する．ここで既存研究との立ち位置を明確にしておく．CLOUSEAUは，Point-of-Interest（POI）から攻撃調査を開始し，Chief Inspector，Investigator，Question-Answering agentが協調してattack narrativeを復元する階層型multi-agent frameworkである\cite{clouseau}．ATLASはaudit logから攻撃ストーリを復元する攻撃調査支援手法であり\cite{atlas}，ATLASv2はその攻撃エンゲージメントと通常業務活動を拡張したデータセットである\cite{atlasv2}．本研究はCLOUSEAUやATLASを置き換える攻撃調査アルゴリズムではない．CLOUSEAUの調査パイプラインとATLASv2のログ環境を用い，SOCの検知後調査を模した行動列復元ベンチマークとして，アラート要約への依存度，低レベルtelemetryからの復元可能性，証跡同定の成否を測る研究である．
 
-本稿の貢献は次の3点である．第一に，SOC調査起点から行動列を復元するエージェント型ログ探索手法の評価枠組みを設計し，入力情報の強さが異なる複数条件で予備的に確認する．第二に，評価単位を自然文の類似度ではなく，行動ステップを構成する必須項目に分解し，復元率，行動順序，証跡同定，過剰主張を測定する．第三に，EDRアラート要約が初期入力として与えられる場合，DB内の探索対象としてのみ存在する場合，およびDBから除外される場合を比較し，単一事例において復元に寄与する情報源を分析する．
+本稿の貢献は次の3点である．第一に，CLOUSEAUのPOI起点調査をSOCの検知後行動復元へ読み替え，行動item，critical evidence，sequence order，candidate precision，overclaimに分解した評価枠組みとして定義する．第二に，27 chainを3段階の入力条件で実行し，アラート支援条件，process/time clue条件，アラート要約行を隠したtelemetry中心条件を比較する．第三に，ATLASv2由来ログを用いた検知後インシデント分析の位置づけを明確化し，明示的実行チェーン，複数段ツールチェーン，意味解釈型チェーンごとの失敗傾向を分析する．
 
-\section{関連研究}
+\section{関連研究と課題設定}
 
-\subsection{エンドポイントログを用いた調査支援}
+\subsection{検知後調査としての行動列復元}
 
-エンドポイント調査では，Windows Securityログ，Sysmon，EDR telemetry，DNS，ブラウザ履歴など，異なる粒度のログを統合して分析する．Sysmonはプロセス生成時のコマンドライン，親プロセス情報，ProcessGUID，ネットワーク接続，レジストリ変更などを記録できる\cite{sysmon}．これらのログは，攻撃行動の観測証跡を得る上で有用である一方，ログソースごとに時刻，識別子，記録項目が異なるため，人手で一貫した行動列にまとめるには時間を要する．
+エンドポイント調査では，Windows Securityログ，Sysmon，EDR telemetry，DNS，ブラウザ履歴など，粒度や記録目的の異なるログを横断する．Sysmonはプロセス生成，親プロセス，コマンドライン，ネットワーク接続，レジストリ操作などを記録できる\cite{sysmon}．EDRは検知理由やプロセス情報をまとめたalert summaryを提供する場合がある．これらは調査に有用だが，alert summaryは観測された全行動を代表するものではない．したがって，最終出力はアラート文面ではなく，ログ上で確認できる行動主張に限定する必要がある．
 
-既存のアラート調査では，アラート名やルール説明が調査の入口として用いられる．しかし，アラート要約は調査対象を絞り込むための情報であり，それ自体が観測された行動を完全に表すわけではない．特に，アラート理由をそのまま「行動」として出力すると，ログ証跡に基づく説明ではなく，検知ロジックの再記述になってしまう．本研究では，アラート情報を探索の入口または証跡の一部として利用しつつ，最終出力は観測ログで確認できる行動に限定する．
+本研究の課題は，異常検知モデルの精度評価ではない．DeepLogのような系列異常検知研究は，ログ系列から異常を検出・診断することに焦点を置く\cite{deeplog}．一方，本研究は検知後のSOC調査において，調査者が検証可能な証跡付き行動列を復元できるかを問う．この違いは評価単位にも表れる．本研究では自然文の類似度ではなく，主体，操作，対象，コマンドライン，証跡行などの必須itemを採点する．
 
-\subsection{LLMエージェントによるログ探索}
+\subsection{LLMエージェントによる探索}
 
-LLMを用いたエージェント型手法は，自然言語の手がかりから調査方針を生成し，検索結果に応じて次の質問を変更できる点に特徴がある．ReActは，推論と外部環境への行動を交互に行う枠組みを示し，知識源や環境と相互作用しながら回答を構成する有効性を報告している\cite{react}．ログ調査でも，初期手がかりから関連時刻範囲やプロセス木を探索し，得られた行をもとに追加のSQL問い合わせを行うような反復が必要になる．この処理は，単発の分類や要約とは異なり，仮説生成，検索，証跡確認，統合の段階を持つ．
+LLMエージェントは，初期手がかりから仮説を立て，外部環境への問い合わせ結果に応じて次の探索を変更できる．ReActは推論と行動を交互に進める枠組みを示しており\cite{react}，ログ調査でも，時刻範囲，プロセス木，ファイル・レジストリ対象を段階的に確認する流れと親和性がある．
 
-一方，LLMエージェントの出力には，近傍の無関係な行動の混入や，証跡で支えられない主張が含まれる可能性がある．そのため，評価では「正解要素を含んだか」だけでなく，「過剰な主張をどれだけ含んだか」，「行動順序を正しく構成したか」，「根拠ログを対応付けられたか」を分けて見る必要がある．本研究では，この点を行動主張単位で評価する．
+セキュリティ分野では，CLOUSEAUが階層型multi-agentによる自律的な攻撃調査を提案している\cite{clouseau}．CLOUSEAUは，raw incident logsをLLMが扱いやすい構造化形式へ変換し，QA agentを通じてログを自然言語的に検索可能にし，Investigator agentとChief Inspector agentが調査leadの生成，証跡収集，attack storyの統合を行う．本研究はこの設計思想に基づくが，評価対象を「攻撃story全体の復元」から「SOCアラートやprocess/time clue周辺の良性を含む行動chainの証跡付き復元」へ移す．そのため，最終判定の正否ではなく，観測ログで支えられた行動itemと過剰主張を採点する．
 
-\subsection{ログ異常検知とデータセット}
+ただし，セキュリティログ調査では，もっともらしい説明は十分ではない．エージェントが関連しそうなログを広く集めるほど，主行動列に属さない近傍行動や，同じ操作の重複表現も出力しやすい．そのため本研究では，正しいitemを拾えたかだけでなく，余分な主張をどれだけ抑えたか，critical evidenceを対応付けられたか，行動順序を構成できたかを分けて評価する．
 
-ログを用いたセキュリティ分析では，正常系列からの逸脱を検出する研究が多く行われてきた．DeepLogは，システムログを系列として扱い，LSTMにより異常検知と診断を行う手法を提案している\cite{deeplog}．これらの研究は異常の検出に重点を置く一方，本研究は検知後のSOC調査において，観測された行動列を証跡付きで復元する点に焦点を置く．また，本研究で扱うログはATLASv2由来のWindowsホストログである．ATLASは，audit logから攻撃ストーリを復元するために因果依存グラフと系列学習を組み合わせた攻撃調査支援手法である\cite{atlas}．ATLASv2は，ATLASの攻撃シナリオを再現しつつ，通常業務活動とSysmonおよびCarbon Black Cloud由来のログを拡充したデータセットとして報告されている\cite{atlasv2}．本研究では，この種のデータセットを，異常検知そのものではなく，検知後調査の行動復元評価に用いる．
+\subsection{ATLAS/ATLASv2の位置づけ}
+
+ATLASは，audit logに基づいて攻撃ストーリを復元するため，因果依存グラフと系列学習を組み合わせた攻撃調査支援手法である\cite{atlas}．ATLASv2は，ATLASの攻撃シナリオを再現しつつ，通常業務活動とSysmonおよびCarbon Black Cloud由来のログを拡充したデータセットとして報告されている\cite{atlasv2}．本研究では，ATLASv2を「攻撃検知済みの答えを読むデータ」ではなく，「SOCでアラートやtelemetryを受け取った後，端末上の行動を証跡付きで説明する能力を測るデータ」として利用する．
+
+この立ち位置により，本研究の対象インシデント分析は明確になる．対象は，侵害全体の帰属や最終判定ではなく，アラート周辺の端末行動復元である．たとえばDNS packet capture，Python SimpleHTTPServer，Sublime経由のscript execution，cmd.exe周辺操作，Discord Run Key関連操作など，良性環境内でもセキュリティアラートや調査対象になり得る行動について，観測ログから説明可能なchainを作れるかを評価する．
 
 \section{提案手法}
 
-\subsection{パイプライン構成}
+\subsection{パイプライン}
 
-図\ref{fig:pipeline}に，本研究で用いるエージェント型ログ探索パイプラインの概要を示す．入力は，SOC clue，CBC alert，またはprocess-time clueである．Chief agentは，初期手がかりから何を確認すべきかという調査方針を生成する．Investigation agentは，その方針をQAAgent / SQL expertへ渡す具体的な質問に変換する．QAAgent / SQL expertは，SQLite化されたエンドポイントログを検索し，timestamp，source stream，PID/PPID，process tree，command line，registry path，source row idなどの観測値を返す．Final synthesisは，得られた観測結果を統合し，主行動列と近傍行動を分離して行動ステップ列と短縮行動系列を生成する．
+図\ref{fig:pipeline}に，本研究で用いるCLOUSEAU型のエージェント型ログ探索パイプラインを示す．入力は，CBC alert rows，またはhost/process/time windowである．CLOUSEAU本来のPOI起点調査\cite{clouseau}にならい，Chief agentは初期手がかりから調査方針を生成する．Investigation agentは，確認すべき事実をQAAgent / SQL expertへの質問に変換する．QAAgent / SQL expertは，SQLite化されたエンドポイントログに問い合わせ，timestamp，source stream，PID/PPID，process tree，command line，registry path，source row idなどを返す．Final synthesisは観測結果を統合し，主行動列，補助証跡，limitationsを出力する．
 
 \begin{figure*}[t]
 \centering
@@ -83,7 +90,7 @@ QAAgent / SQL expert: SQLite endpoint logsから観測行を取得\\
 $\downarrow$\\
 Final synthesis: 主行動列と近傍行動を分離\\
 $\downarrow$\\
-行動ステップ列 + 短縮行動系列 + limitations\\
+行動ステップ列 + 短縮行動系列 + evidence + limitations\\
 $\downarrow$\\
 行動主張単位の採点
 \end{minipage}}
@@ -91,143 +98,155 @@ $\downarrow$\\
 \label{fig:pipeline}
 \end{figure*}
 
-本手法の特徴は，仮説生成と観測ログ検索を分離する点にある．Chief agentはSQLを直接書かず，アラート名やコマンドラインを仮定しない．Investigation agentは，前回までの検索で得られた観測値から次の確認事項を決める．QAAgent / SQL expertだけがDBに問い合わせ，観測行を返す．Final synthesisは，複数の近傍行が存在する場合，親子関係や時刻順，対象オブジェクトの一致が証跡で支えられるかを確認して主行動列を構成する．
+本手法の設計上の要点は，仮説生成と観測ログ検索を分離することである．Chief agentは直接SQLを書かず，Investigation agentが観測済みの値に基づいて次の確認事項を作る．DBに問い合わせるのはQAAgent / SQL expertであり，Final synthesisは観測行で支えられる行動だけを主系列に含める．これにより，alert nameやreasonの言い換えを行動復元と誤認しないようにする．
 
-\subsection{出力形式}
+\subsection{出力と評価単位}
 
-表\ref{tab:output}に，出力フィールドと評価上の扱いを示す．行動ステップ列（実装上の\code{code\_steps}）は主出力であり，採点時には個別の行動主張へ分解される．短縮行動系列（実装上の\code{code\_sequence}）は，観測されたコマンドまたは対象操作だけを短く並べた系列であり，アラート名やreasonの言い換えを含めない．\code{evidence}は行動を支えるログ証跡である．\code{excluded\_nearby\_evidence}は，時刻や対象が近いが主行動列には含めない行を明示するために用いる．
+出力は，\code{steps}，\code{sequence}，\code{evidence}，\code{nearby}，\code{limitations}からなる．\code{steps}は主体，操作，対象，コマンドライン，証跡を持つ主行動ステップである．\code{sequence}は観測された操作を短く並べた系列であり，アラート名ではなくログ上の操作を表す．\code{evidence}はsource stream，row id，timestamp，PID，command lineなどの根拠である．\code{nearby}は時刻や対象が近いが主系列に含めない行動を明示する．
+
+採点では，gold chainを行動itemに分解する．必須itemは，ログから直接確認できる主体，操作，対象，コマンドライン，critical evidenceである．観測行だけから主張できない悪性判定，ユーザ意図，業務目的，ファイル内容の推定は必須itemに含めない．候補出力の主張は正規化され，gold itemと照合される．主指標は，行動item recall，critical evidence recall，sequence order，candidate claim precision，overclaim slot countである．
+
+\section{実験設定}
+
+\subsection{データとchain}
+
+実験には，ATLASv2 benign H1 / benign-1環境をCLOUSEAUのログ探索形式へ変換したWindowsホストログを用いた．評価単位は27個のbehavior chainである．chainは，DNS packet capture batch，Python SimpleHTTPServer network，Sublime Python script execution，cmd.exe周辺操作，Discord Run Key registryの5種類のraw chain typeから構成される．分析時には，これらを明示的実行チェーン，複数段ツールチェーン，意味解釈型チェーンの3群にまとめる．
+
+明示的実行チェーンは，親子プロセスとコマンドラインが比較的直接的に観測できるchainである．複数段ツールチェーンは，batch，packet capture tool，editor，script，file/network side effectなど，複数の道具や中間ステップを結ぶ必要があるchainである．意味解釈型チェーンは，Discord/Update.exeとRun Keyのように，アプリケーション固有またはレジストリ固有の意味解釈を必要とするchainである．
+
+\subsection{3段階の入力条件}
+
+表\ref{tab:stages}に，3つのstageを示す．Stage 1はCBC alert rowsを入力に含めるアラート支援条件である．Stage 2はhost，focus process，time windowのみを入力とし，DB内にはalert summary rowsを残す．Stage 3はStage 2と同じ初期入力だが，検索対象からCBC alert summary rowsを除外する．ただし，CBC EDR/NGAV event telemetry，Security，Sysmon，DNS，browser historyは残す．
 
 \begin{table}[t]
 \centering
 \small
-\caption{出力フィールドと評価上の扱い}
-\label{tab:output}
-\begin{tabular}{p{0.30\linewidth}p{0.60\linewidth}}
+\caption{入力条件}
+\label{tab:stages}
+\begin{tabular}{p{0.17\linewidth}p{0.34\linewidth}p{0.37\linewidth}}
 \toprule
-Field & 役割 \\
+Stage & 入力 & 意味 \\
 \midrule
-\code{steps} & 主体，操作，対象，コマンドライン，証跡を持つ行動ステップ \\
-\code{sequence} & 観測された操作を時系列に短く表した系列 \\
-\code{evidence} & source stream，row id，timestamp，PID，command lineなどの根拠 \\
-\code{nearby} & 近傍にあるが主系列ではない証跡 \\
-\code{limitations} & 観測できない値，未確認の関係，復元上の限界 \\
+Stage 1 & CBC alert rows & アラート支援の復元 \\
+Stage 2 & host/process/time & DB内の要約行は利用可能 \\
+Stage 3 & host/process/time & alert summary rowsを検索対象から除外 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\section{実験設定}
+この設計により，初期入力の強さと，DB内の高密度なアラート要約行の有無を分けて観察できる．Stage 2とStage 3の差は，alert summaryが最終出力として使われるかではなく，探索経路や証跡同定の足場として機能するかを調べるためのものである．
 
-\subsection{対象データセット}
+\subsection{実行と採点}
 
-実験には，ATLASv2 benign h1のWindowsホストログをCLOUSEAU用に変換したSQLiteデータベースを用いた．データベースには，正規化ログを格納する\code{audit\_logs}，DNS要求を格納する\code{dns\_requests}，ブラウザ履歴を格納する\code{browser\_history}が含まれる．\code{audit\_logs}には，Security，Sysmon，CBC EDR/NGAV events，CBC alertsを正規化して格納し，\code{source\_stream}により\code{msft-security}，\code{sysmon}，\code{cbc-edr}，\code{cbc-ngav}，\code{cbc-edr-alerts}，\code{cbc-ngav-alerts}などの出所を区別する．
+比較対象は\code{gpt-4.1-mini}と\code{gpt-5.4-mini}である．各モデルについて，27 chainを3 stageで実行し，81 runを得た．2モデル合計で162 raw runを保存し，最終採点は各モデル81 runずつに対して行った．採点対象のgoldは，起点となる観測行の特定，process actionまたはobject operationへの分解，必須item定義，critical evidence slot固定，gold chainに属さない近傍行動の除外という手順で作成した．
 
-プレ実験で用いた変換済みDBは，\code{audit\_logs} 7,531,007行，うちSysmon由来6,406行，CBC event telemetry由来1,010,918行，CBC alert summary由来232行を含む．また，\code{dns\_requests}は82,410行，\code{browser\_history}は53,069行である．DBの主要カラムは，time，pid，ppid，process name，access，object，event id，source stream，command lineであり，証跡保持のためにparent process，parent command line，process GUID，alert name，alert reason，registry/file/network関連フィールド，source row idも保持する．
+本稿の集計では，Stage 1/2は75 behavior steps，Stage 3は65 answerable behavior stepsを基準とする．各stepは主体，操作，対象の3つのaction itemと，1つのcritical evidence itemを持つ．Stage 3で分母が小さいのは，alert summary rowsを隠した条件で直接答えられないstepを除外し，残存telemetryから回答可能な範囲に評価を限定したためである．なお，\code{gpt-4.1-mini}の保存済み集計はlegacy形式でaction欄にcritical evidence slotを含んでいたため，本文のcross-model表ではcritical evidence分を分離した正規化action recallを用いる．
 
-\subsection{対象事例}
+公開用パッケージには，case metadata，chain summary，gold index，runごとのモデル出力JSON，採点rubric，集計CSV/JSONを含めた．一方，元の\code{incident.db}，\code{scenario.db}，EVTX，外部データセット本体は含めない．したがって，本稿の表とrun-level挙動は検査可能であるが，完全な再実行にはローカルのATLASv2/CLOUSEAUデータベース環境が必要である．
 
-プレ実験では，Discord Run Key persistence事例を対象とした．調査起点は\code{host=WIN-32-H1}，\code{process=reg.exe}，\code{timestamp=2022-07-16 15:07:46}である．正解行動列は3ステップからなる．第一に，\code{Discord.exe}が\code{reg.exe}を子プロセスとして起動する．第二に，\code{reg.exe query}がユーザRun Key配下の\code{Discord}値を照会する．第三に，\code{reg.exe add}が同じ値へ\code{Update.exe --processStart Discord.exe}を指すデータを追加または更新する．
+\section{結果}
 
-この事例は，Run Keyという明確な対象，親子プロセス，queryとaddの操作，レジストリオブジェクト，コマンドラインが評価可能であるため，プレ実験として扱いやすい．ただし，単一host，単一chain，単一attack patternの結果であるため，この結果だけから一般的なエンドポイント調査性能を主張することはできない．
+\subsection{全体結果}
 
-\subsection{比較条件}
-
-表\ref{tab:stages}に，3つの比較条件を示す．Stage 1は，CBC alert triage情報とhost/process/timestampを初期入力に含める実運用寄りの条件である．Stage 2は，初期入力からアラート情報を外し，host/process/timestampのみを与えるが，DB内にはCBC alert summaryとtelemetryを残す．Stage 3は，初期入力をStage 2と同じにしつつ，DBからCBC alert summary rowsのみを除外する．ただし，CBC EDR/NGAV event telemetry，Security，Sysmon，DNS，browser historyは残す．
+表\ref{tab:overall}に，全体結果を示す．\code{gpt-5.4-mini}は81 run全体で行動item recall 83.9\%（541/645），critical evidence recall 80.9\%（174/215）を示した．一方，\code{gpt-4.1-mini}は正規化した行動item recallが47.8\%（308/645），critical evidence recallが6.0\%（13/215）であり，行動らしい説明を生成できても，必要な証跡に接続する能力が大きく不足した．
 
 \begin{table*}[t]
 \centering
 \small
-\caption{プレ実験における3条件}
-\label{tab:stages}
-\begin{tabular}{p{0.12\linewidth}p{0.25\linewidth}p{0.35\linewidth}p{0.18\linewidth}}
+\caption{全体結果}
+\label{tab:overall}
+\begin{tabular}{lrrrrr}
 \toprule
-Stage & 初期入力 & DB条件 & 確認したい点 \\
+Model & Action recall & Crit. ev. & Order & Claim prec. & Overclaim \\
 \midrule
-Stage 1 & CBC alert triage + host/process/timestamp & alert summary，CBC telemetry，OS側ログを保持 & アラート起点の実運用ベースライン \\
-Stage 2 & host/process/timestampのみ & Stage 1と同じ全ログ保持DB & 少数clueから関連証跡へ到達できるか \\
-Stage 3 & host/process/timestampのみ & CBC alert summary rowsのみ除外し，telemetryとOS側ログは保持 & アラート要約なしで統合できるか \\
+\code{gpt-4.1-mini} & 47.8\% (308/645) & 6.0\% (13/215) & 18.1\% (25/138) & 34.0\% (303/892) & 589 \\
+\code{gpt-5.4-mini} & 83.9\% (541/645) & 80.9\% (174/215) & 62.3\% (86/138) & 51.0\% (126/247) & 121 \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
-Stage 3でalert summary rowsを外す理由は，モデルを不自然に不利にするためではない．CBC alert summaryには，alert name，reason，対象プロセス，対象レジストリ，検知理由など，調査者にとって答えに近い情報が集約されている場合がある．この状態だけを評価すると，モデルが低レベルログを探索・統合できたのか，alert summaryを言い換えただけなのかを区別しにくい．そこでStage 3では，高密度な要約行だけを外し，低レベルtelemetryからの探索能力を見る．
+注目すべき点は，\code{gpt-5.4-mini}でもcandidate claim precisionは51.0\%に留まったことである．これは，強いモデルが正解itemを多く拾える一方で，候補出力に近傍行動や重複主張も残すことを意味する．SOC支援としては広めに候補を出す価値があるが，論文上の行動列復元としては，主系列と補助証跡の分離が依然として課題である．
 
-\subsection{実行設定}
+\subsection{Stage別結果}
 
-比較対象モデルは，\code{gpt-4.1-mini}と\code{gpt-5.4-mini}の2種類であり，実験時点のAPI識別子をそのまま記録した．各モデルについて，Stage 1からStage 3までを1回ずつ実行し，合計6 runを得た．Stage 1はalert入力条件，Stage 2はprocess-time入力条件，Stage 3はprocess-time入力条件に加えてCBC alert summary除外条件として実行した．各runでは最大調査数100，最大質問数200，最大SQL問い合わせ数400，最大出力トークン8192を上限とした．Stage 3では，物理DBを削除するのではなく，SQL toolが参照するviewからCBC alert summary rowsを隠すことで条件を作った．このとき232行のalert summaryは検索対象から外れ，CBC event telemetry 1,010,918行は利用可能なまま残した．
-
-各runの出力は，モデル名，入力条件，run JSON，採点結果を対応付けて保存した．本稿では，2026年6月6日に検証済みの6 runを対象とし，集計値ではなく各条件の結果をそのまま報告する．なお，本実験の目的はモデルの一般性能比較ではなく，入力情報とDB内要約行の有無が行動列復元に与える影響を予備的に確認することである．
-
-\subsection{評価方法}
-
-評価には，行動主張単位の採点指標を用いる．Goldは，対象事例のログ証跡を人手で確認し，process creation，registry query，registry add/updateの3ステップに正規化して作成した．各ステップについて，ログから直接確認できる主体，操作，対象，コマンドライン，critical evidenceを必須項目に含めた．推定されたユーザ意図，悪性判定，ファイル内容，アプリケーションの業務目的など，観測行だけから直接主張できない項目は必須項目に含めない．
-
-本プレ実験では，正解行動列を合計14個の必須項目として固定した．D1は\code{Discord.exe}が\code{reg.exe}を子プロセスとして起動する行動であり，4項目を持つ．D2は\code{reg.exe query}によるRun Keyの\code{Discord}値照会であり，5項目を持つ．D3は\code{reg.exe add}によるRun Keyの\code{Discord}値追加または更新であり，5項目を持つ．主指標のrecallとprecisionはこの14項目を分母とする．また，候補側精度は候補出力に現れた必須項目相当の主張のうちgoldに対応した割合を表し，overclaim slot countはgoldに対応しない過剰な主張数を表す．
-
-採点では，候補出力に含まれる主体，操作，対象，コマンドライン，critical evidenceを正規化し，goldの各項目と照合した．同じ意味を持つ表記揺れは許容するが，alert nameやalert reasonを操作そのものとして出力した場合は正解としない．証跡は，該当するログ行または同一行に含まれるmaterial termsで支えられる場合にのみ正解とした．過剰主張は，gold chainに属さない近傍行動，同一行動の重複表現，証跡で支えられない推定，および不完全なcommand lineやregistry pathの一般化として数えた．
-
-\section{結果}
-
-表\ref{tab:result}に，プレ実験の結果を示す．数値は，2026年6月6日に同一の採点規則で再採点し，6 runすべての入力・出力・採点ファイルの対応を確認した結果に基づく．本稿では，単一事例の結果であることを明確にするため，複数runの平均値ではなく，各モデルと条件の実行結果をそのまま報告する．
+表\ref{tab:bystage}にStage別結果を示す．\code{gpt-5.4-mini}はStage 1で88.9\%（200/225），Stage 2で80.4\%（181/225），Stage 3で82.1\%（160/195）の行動item recallを示した．Stage 3でも高いrecallを維持したことから，強いモデルはalert summary rowsが隠された条件でも，残存telemetryから多くのchainを復元できることが分かる．
 
 \begin{table*}[t]
 \centering
 \scriptsize
-\caption{Discord Run Key事例におけるプレ実験結果．claim prec.は候補側精度，crit. ev.はcritical evidenceを表す}
-\label{tab:result}
-\begin{tabular}{llllllll}
+\caption{Stage別結果}
+\label{tab:bystage}
+\begin{tabular}{llrrrrr}
 \toprule
-model & stage & condition & recall & claim prec. & order & crit. ev. & overclaim \\
+Model & Stage & Action recall & Crit. ev. & Order & Claim prec. & Overclaim \\
 \midrule
-gpt-4.1-mini & Stage 1 & CBC alert input & 4/14 & 4/19 & 0/2 & 1/3 & 15 \\
-gpt-4.1-mini & Stage 2 & all logs retained & 0/14 & 0/10 & 0/2 & 0/3 & 10 \\
-gpt-4.1-mini & Stage 3 & alert summary removed & 0/14 & 0/17 & 0/2 & 0/3 & 17 \\
-gpt-5.4-mini & Stage 1 & CBC alert input & 13/14 & 13/26 & 1/2 & 2/3 & 13 \\
-gpt-5.4-mini & Stage 2 & all logs retained & 14/14 & 14/32 & 1/2 & 3/3 & 18 \\
-gpt-5.4-mini & Stage 3 & alert summary removed & 8/14 & 8/18 & 0/2 & 1/3 & 10 \\
+\code{gpt-4.1-mini} & Stage 1 & 64.0\% (144/225) & 17.3\% (13/75) & 33.3\% (16/48) & 40.2\% (151/376) & 225 \\
+\code{gpt-4.1-mini} & Stage 2 & 44.0\% (99/225) & 0.0\% (0/75) & 8.3\% (4/48) & 26.5\% (91/344) & 253 \\
+\code{gpt-4.1-mini} & Stage 3 & 33.3\% (65/195) & 0.0\% (0/65) & 11.9\% (5/42) & 35.5\% (61/172) & 111 \\
+\code{gpt-5.4-mini} & Stage 1 & 88.9\% (200/225) & 85.3\% (64/75) & 81.3\% (39/48) & 59.0\% (49/83) & 34 \\
+\code{gpt-5.4-mini} & Stage 2 & 80.4\% (181/225) & 76.0\% (57/75) & 45.8\% (22/48) & 53.2\% (41/77) & 36 \\
+\code{gpt-5.4-mini} & Stage 3 & 82.1\% (160/195) & 81.5\% (53/65) & 59.5\% (25/42) & 41.4\% (36/87) & 51 \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
-gpt-5.4-miniは，Stage 1で13/14の必須項目を復元した．これは，alert triage情報が初期入力として与えられる場合に，対象行動の大半を抽出できたことを示す．ただし，行動順序は1/2であり，すべての行動要素が正しく拾われていても，時系列または因果的な構成が完全になるとは限らない．
+一方で，Stage 2のorderは45.8\%であり，Stage 1の81.3\%から大きく低下した．process/time clueだけで探索を開始する場合，必要なitemに到達できても，それらを正しい順序または因果的構造として並べることは難しい．Stage 3ではclaim precisionが41.4\%へ下がり，overclaimも51へ増えた．alert summaryがない条件では，低レベルtelemetryを広く探索するため，主系列に含めるべき行動と近傍行動の境界が曖昧になりやすい．
 
-Stage 2では，gpt-5.4-miniのrecallは14/14となった．この条件では，アラート情報を初期入力から外しているため，モデルはhost/process/timestampから探索を開始する．それでも，DB内にalert summaryと関連telemetryが残っている場合には，正解行動要素へ到達できた．一方で，候補側精度は14/32であり，overclaimは18であった．したがって，主行動要素の復元と，余分な近傍行動を抑制することは別の課題である．
+\subsection{Scenario別結果}
 
-Stage 3では，gpt-5.4-miniのrecallは8/14に低下し，行動順序は0/2となった．CBC alert summary rowsを除外しても，EDR telemetryやOS側ログは残っているため，少なくとも一部の必須項目は観測可能である．しかし，query stepやcritical evidenceの同定が崩れ，Discord Run Key周辺の近いレジストリ操作が混入した．この結果は，alert summaryが最終出力として直接使われていない場合でも，探索経路と証跡同定の足場として機能している可能性を示している．
+表\ref{tab:scenario}に\code{gpt-5.4-mini}のscenario group別結果を示す．明示的実行チェーンではaction recall 88.2\%，critical evidence recall 86.0\%，order 79.2\%であり，親子プロセスやコマンドラインが直接観測できるchainでは高い性能を示した．複数段ツールチェーンではaction recall 81.1\%を維持したが，orderは54.8\%，claim precisionは40.3\%に低下した．複数ツールをまたぐchainでは，中間ステップの接続と過剰主張の抑制が難しい．意味解釈型チェーンは3 runのみであるが，critical evidence recall 55.6\%，order 33.3\%に留まり，registry/app固有の意味解釈が難所であることを示唆する．
 
-gpt-4.1-miniは，Stage 1で4/14を復元したが，Stage 2およびStage 3ではgoldの必須項目に対応する主張を復元できなかった．今回の設定では，少数のprocess-time clueから関連ログを探索し，複数証跡を統合する能力において，gpt-5.4-miniとの差が大きく表れた．ただし，この比較は単一事例に限られるため，モデル系列一般の優劣としては扱わない．
+\begin{table}[t]
+\centering
+\scriptsize
+\caption{\code{gpt-5.4-mini}のscenario別結果}
+\label{tab:scenario}
+\begin{tabular}{lrrr}
+\toprule
+Group & Action & Crit. ev. & Order \\
+\midrule
+明示的実行 & 88.2\% & 86.0\% & 79.2\% \\
+複数段ツール & 81.1\% & 78.8\% & 54.8\% \\
+意味解釈 & 74.1\% & 55.6\% & 33.3\% \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{考察}
 
+\subsection{ATLASv2上で何を評価できたか}
+
+本研究の結果は，CLOUSEAUとATLASv2を組み合わせることで，検知後の端末行動復元を評価できることを示している．CLOUSEAUは攻撃narrative復元のための階層型調査エージェントであり，ATLAS/ATLASv2は攻撃調査文脈のデータ・手法として位置づけられてきた．本研究では，CLOUSEAUのPOI起点探索をSOCのアラート後分析に引き寄せ，ATLASv2のログ環境上で，検知ラベルの分類ではなく，アラートやprocess/time clueからログ証跡で支えられた行動chainを構成する能力を測った．この位置づけにより，攻撃ストーリ復元研究と実運用のアラートtriageの間にある，「検知後に何が起きたかを説明する」タスクを切り出せた．
+
+また，良性chainを対象にした点も重要である．SOCでは，悪性攻撃だけでなく，管理操作，開発作業，ツール実行，アプリケーション更新なども調査対象になる．これらはアラートを発生させたり，攻撃手法に似たtelemetryを持ったりする．したがって，良性行動を証跡付きで説明できることは，誤検知低減や調査記録作成に直結する．
+
 \subsection{アラート要約の役割}
 
-プレ実験から得られる重要な示唆は，alert summary rowsの有無が対象行動への到達性に影響した可能性である．Stage 1ではアラート情報が初期入力に含まれ，Stage 2では初期入力には含まれないがDB内に残っている．gpt-5.4-miniはこの2条件で高いrecallを示した．一方，Stage 3でalert summary rowsだけを除外すると，低レベルtelemetryが残っていても性能が低下した．
+Stage 1はアラート情報を入力に含み，Stage 2は入力から外すがDBには残し，Stage 3は検索対象からalert summary rowsを隠す．\code{gpt-5.4-mini}がStage 3でも高いrecallを維持したことは，出力がalert summaryの単純な言い換えではなく，残存telemetryからも多くの行動itemを復元できたことを示す．
 
-この結果は，アラート要約が「答え」そのものとして使われたことを意味しない．本手法では，アラート名やreasonを最終行動として出力することを避け，プロセス，コマンドライン，レジストリ対象，source rowに基づく行動を要求している．むしろ，alert summaryは，探索対象の時刻範囲や関連プロセス，関連レジストリを絞るためのインデックスとして機能したと解釈できる．今後は，Stage 2とStage 3のSQL履歴を比較し，どの段階で対象rowへ到達できなくなったかを分離して分析する必要がある．
+ただし，Stage 3でclaim precisionが下がりoverclaimが増えたことから，alert summaryは探索の近道や境界設定として機能していた可能性がある．特に，時刻範囲，対象プロセス，対象レジストリ，検知理由が要約された行は，主系列の候補を絞る索引として働く．今後はSQL履歴を用いて，Stage 2とStage 3でどの問い合わせ段階から探索経路が分岐したかを分析する必要がある．
 
-\subsection{過剰主張と行動順序}
+\subsection{残る課題}
 
-Stage 2のgpt-5.4-miniは，必須項目をすべて満たした一方で，候補側精度は14/32であった．これは，探索型エージェントが関連しそうなログ行を広く拾うほど，正解要素だけでなく近傍行動や重複主張も出力しやすいことを示す．SOC支援システムとしては，候補を広く提示することに価値がある場合もあるが，論文上の行動列復元としては，主行動列と補助証跡を明確に分ける必要がある．
+第一の課題は，主行動列と近傍行動の分離である．強いモデルでもcandidate claim precisionは51.0\%であり，正解itemの高recallと低overclaimは同時に達成できていない．Final synthesisで，timestamp，parent-child relation，object identity，source row idの一致条件をより明示的に使い，主系列へ昇格する条件を厳しくする必要がある．
 
-また，Stage 2ではrecallが14/14であっても，orderは1/2に留まった．行動要素を個別に拾うことと，D1からD3までの順序関係を正しく構成することは異なる．特に，queryとaddが近い時間帯に発生し，同じプロセスやレジストリ対象を共有する場合，モデルは要素を列挙できても系列としての構造を誤る可能性がある．今後は，短縮行動系列だけでなく，行動ステップ列内のtimestamp，parent-child relation，evidence orderingを用いた順序制約を強化する．
+第二の課題は，順序構成である．Stage 2ではitem recallが80.4\%であるのに対し，orderは45.8\%であった．これは，必要な部品を集めることと，因果的または時系列的な行動storyへ組み上げることが別問題であることを示す．プロセス生成，子プロセスの操作，ファイル・レジストリ・ネットワーク副作用を，単なる列挙ではなく制約付き系列として扱う必要がある．
 
-\subsection{本実験への拡張}
+第三の課題は，意味解釈型chainである．Discord Run Keyのような事例では，レジストリpath，値名，データ，アプリケーション更新機構の関係を解釈する必要がある．これは低レベルログの検索だけではなく，対象オブジェクトの意味を誤らずに説明する能力を要求する．
 
-本稿の結果はプレ実験であり，単一ケースに限定される．正式実験用の評価集合として，27個のbehavior chain，Stage 1/2用の75 behavior stepsおよび300必須項目，Stage 3用の65 answerable behavior stepsおよび260必須項目を準備している．各chainのgoldは，起点となる観測行の特定，process actionまたはobject operationへのstep分解，必須項目定義，critical evidence slotの固定，gold chainに属さない近傍行動の除外という手順で作成する．本稿では，この評価集合全体の結果ではなく，評価手順を単一事例で確認した結果のみを扱う．
-
-この拡張により，Discord Run Key固有の観察にとどまらず，DNS packet capture，Python simple HTTP server，Sublime Text経由のscript execution，cmd.exe周辺操作など，複数の行動パターンで同じ評価枠組みが機能するかを検証できる．Stage 3の低下が複数ケースで再現する場合には，alert summaryに依存しない低レベルtelemetry探索，主行動列と近傍行動の分離，および順序構成の改善が中心課題となる．
+本評価の限界として，対象は単一のATLASv2 benign環境から構成した27 chainであり，組織横断のSOCログや攻撃キャンペーン全体を代表するものではない．また，Stage 3はalert summary rowsのみを検索対象から除外する条件であり，EDR telemetry全体を除外した条件ではない．このため，本稿の結論は「alert summaryなしでも一定の行動復元が可能」という範囲に留め，「任意の低レベルログだけで十分」とは主張しない．
 
 \section{おわりに}
 
-本稿では，少数のSOC調査起点からWindowsエンドポイントログを探索し，証跡付き行動列を復元するエージェント型ログ探索手法の評価枠組みを設計し，単一事例で予備的に検証した．Discord Run Key persistence事例のプレ実験では，gpt-5.4-miniが全ログ保持条件で14/14の必須項目を復元した一方，行動順序は1/2に留まり，過剰主張も残った．また，CBC alert summary rowsを除外した条件では8/14へ低下し，alert summaryが探索経路と証跡同定に寄与する可能性が示された．
+本稿では，CLOUSEAUを基盤とするエージェント型ログ探索手法により，SOC調査起点からWindowsエンドポイントログを探索し，証跡付き行動列を復元する課題を，ATLASv2 benign H1 / benign-1由来の27 behavior chainで評価した．\code{gpt-5.4-mini}は81 run全体で行動item recall 83.9\%，critical evidence recall 80.9\%を示し，alert summary rowsを隠したStage 3でも82.1\%の行動item recallを維持した．一方で，candidate claim precision，overclaim，sequence orderには課題が残った．
 
-今後は，27 chainの正式実験を完了し，複数host，複数process chain，複数行動パターンにおいて，Stage 1/2/3の差を定量的に分析する．あわせて，低レベルtelemetryのみからのquery planning，主行動列と近傍行動の分離，および時系列順序制約の改善を進める．
+本研究の立ち位置は，CLOUSEAUの攻撃narrative復元をそのまま再評価するものでも，ATLAS/ATLASv2を用いた攻撃検知評価でもなく，検知後のSOCインシデント分析における行動列復元評価である．今後は，SQL探索履歴の分析，主系列昇格条件の強化，順序制約を持つsynthesis，意味解釈型chainの拡充により，調査者がそのまま検証できる行動storyの品質を高める．
 
 \begin{thebibliography}{9}
-\bibitem{mitre_t1547_001}
-MITRE ATT\&CK,
-``Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder, T1547.001,''
-\url{https://attack.mitre.org/techniques/T1547/001/}
-（参照 2026-06-09）．
+\bibitem{clouseau}
+A. Aldaihan, F. Alotaibi, and S. Maffeis,
+``Clouseau: A Hierarchical Multi-Agent Approach For Autonomous Attack Investigation,''
+2025. \url{https://www.doc.ic.ac.uk/~maffeis/papers/acsac25.pdf}
 
 \bibitem{sysmon}
 Microsoft,

@@ -1,0 +1,90 @@
+\begin{document}
+
+\section{実験設定}
+
+\subsection{データとchain}
+
+実験には，ATLASv2 benign H1 / benign-1環境をCLOUSEAUのログ探索形式へ変換したWindowsホストログを用いた．
+評価単位は27個のbehavior chainである．
+chainは，DNS packet capture batch，Python SimpleHTTPServer network，Sublime Python script execution，cmd.exe周辺操作，Discord Run Key registryの5種類のraw chain typeから構成される．
+分析時には，これらを明示的実行チェーン，複数段ツールチェーン，意味解釈型チェーンの3群にまとめる．
+
+明示的実行チェーンは，親子プロセスとコマンドラインが比較的直接的に観測できるchainである．
+複数段ツールチェーンは，batch，packet capture tool，editor，script，file/network side effectなど，複数の道具や中間ステップを結ぶ必要があるchainである．
+意味解釈型チェーンは，Discord/Update.exeとRun Keyのように，アプリケーション固有またはレジストリ固有の意味解釈を必要とするchainである．
+
+\subsection{3段階の入力条件}
+
+表\ref{table:stages}に，3つのstageを示す．
+Stage 1はCBC alert rowsを入力に含めるアラート支援条件である．
+Stage 2はhost，focus process，time windowのみを入力とし，DB内にはalert summary rowsを残す．
+Stage 3はStage 2と同じ初期入力だが，検索対象からCBC alert summary rowsを除外する．
+ただし，CBC EDR/NGAV event telemetry，Security，Sysmon，DNS，browser historyは残す．
+
+\begin{table}[ht]
+    \centering
+    \caption{入力条件}
+    \label{table:stages}
+    \begin{tabularx}{\linewidth}{lXX}
+        \toprule
+        Stage & 入力 & 意味 \\
+        \midrule
+        Stage 1 & CBC alert rows & アラート支援の復元 \\
+        Stage 2 & host/process/time & DB内の要約行は利用可能 \\
+        Stage 3 & host/process/time & alert summary rowsを検索対象から除外 \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+この設計により，初期入力の強さと，DB内の高密度なアラート要約行の有無を分けて観察できる．
+Stage 2とStage 3の差は，alert summaryが最終出力として使われるかではなく，探索経路や証跡同定の足場として機能するかを調べるためのものである．
+
+\subsection{実行と採点}
+
+比較対象は\texttt{gpt-4.1-mini}と\texttt{gpt-5.4-mini}である．
+各モデルについて，27 chainを3 stageで実行し，81 runを得た．
+2モデル合計で162 raw runを保存し，最終採点は各モデル81 runずつに対して行った．
+採点対象のgoldは，起点となる観測行の特定，process actionまたはobject operationへの分解，必須item定義，critical evidence slot固定，gold chainに属さない近傍行動の除外という手順で作成した．
+
+採点では，単に似た説明文が出ているかではなく，行動を構成する最小単位がログ証跡に接続しているかを重視した．
+たとえば，``Pythonが実行された''という説明だけでは，主体，実行対象，親子関係，コマンドライン，時刻のいずれを根拠としているかが曖昧である．
+そこで各stepを，主体，操作，対象のaction itemに分け，それとは独立に，該当stepを支えるcritical evidence itemを定義した．
+この分離により，モデルが行動の概略を当てたが証跡を示せない場合と，証跡行を拾ったが行動列として整理できない場合を区別できる．
+
+また，候補出力の品質を見るため，candidate claim precisionとoverclaimも記録した．
+candidate claim precisionは，モデルが主張した候補claimのうちgold chainに対応するものの割合である．
+overclaimは，近傍イベント，時刻窓内に存在するが主系列ではない操作，または証跡からは断定できない因果関係を，chainの一部として述べた件数である．
+SOC調査支援では広めの候補提示が有用な場面もあるため，overclaimをただちに失敗とは見なさない．
+しかし，FIT原稿で評価したいのは「証跡に基づく行動列復元」であるため，正解itemを多く拾うrecallだけでなく，主系列と補助情報の境界をどれだけ保てるかを併せて評価した．
+
+本稿の集計では，Stage 1/2は75 behavior steps，Stage 3は65 answerable behavior stepsを基準とする．
+各stepは主体，操作，対象の3つのaction itemと，1つのcritical evidence itemを持つ．
+Stage 3で分母が小さいのは，alert summary rowsを隠した条件で直接答えられないstepを除外し，残存telemetryから回答可能な範囲に評価を限定したためである．
+なお，\texttt{gpt-4.1-mini}の保存済み集計はlegacy形式でaction欄にcritical evidence slotを含んでいたため，本文のcross-model表ではcritical evidence分を分離した正規化action recallを用いる．
+
+この正規化は，モデル間比較のために重要である．
+legacy形式のままでは，証跡slotをaction itemとして二重に数えるため，行動列そのものの復元率と証跡提示能力が混ざってしまう．
+本稿では，\texttt{gpt-4.1-mini}の保存結果を再採点し，action recallとcritical evidence recallを分けて報告する．
+したがって，本文のcross-model差は，旧採点表の数値をそのまま並べたものではなく，同じ分母と同じitem定義に揃えた比較である．
+
+\subsection{評価範囲と除外条件}
+
+本研究の評価範囲は，alertまたはprocess/time clueを起点として，端末上の具体的な行動chainを復元することである．
+マルウェア分類，攻撃キャンペーン attribution，MITRE ATT\&CK technique labelの推定，検知ルールの良否評価は主目的ではない．
+この限定は，ATLASv2とCLOUSEAUを利用する本研究の立ち位置を明確にするためである．
+ATLASv2は攻撃調査に近いログ環境を提供し，CLOUSEAUはPOIから証跡を探索してnarrativeを組み立てる枠組みを与える．
+本稿はその上で，SOCがアラート後に行う「何が起きたかを証跡付きで説明する」作業に対象を絞る．
+
+除外したものも明示しておく．
+第一に，出力が最終的に悪性か良性かを判定できたかは採点しない．
+対象chainには良性操作が含まれるため，悪性判定を正解とする評価は本研究の目的とずれる．
+第二に，長い自然文として読みやすいかは補助的に確認するが，主指標にはしない．
+読みやすい報告書であっても，証跡IDやイベント行に接続できなければSOCの検証対象としては不十分である．
+第三に，Stage 3はalert summary rowsを隠す条件であり，すべてのEDR telemetryを取り除く条件ではない．
+このため，Stage 3の結果は，低レベルログだけで常に十分であることではなく，高密度なsummaryを欠いても残存telemetryから復元可能な部分があることを示す．
+
+公開用パッケージには，case metadata，chain summary，gold index，runごとのモデル出力JSON，採点rubric，集計CSV/JSONを含めた．
+一方，元の\texttt{incident.db}，\texttt{scenario.db}，EVTX，外部データセット本体は含めない．
+したがって，本稿の表とrun-level挙動は検査可能であるが，完全な再実行にはローカルのATLASv2/CLOUSEAUデータベース環境が必要である．
+
+\end{document}

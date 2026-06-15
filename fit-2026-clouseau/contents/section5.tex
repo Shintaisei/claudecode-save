@@ -1,0 +1,191 @@
+\begin{document}
+
+\section{結果と考察}
+
+\subsection{全体結果}
+
+表\ref{table:overall}に，全体結果を示す．
+\texttt{gpt-5.4-mini}は81 run全体で行動item recall 83.9\%（541/645），critical evidence recall 80.9\%（174/215）を示した．
+一方，\texttt{gpt-4.1-mini}は正規化した行動item recallが47.8\%（308/645），critical evidence recallが6.0\%（13/215）であり，行動らしい説明を生成できても，必要な証跡に接続する能力が大きく不足した．
+
+\begin{table}[ht]
+    \centering
+    \caption{全体結果}
+    \label{table:overall}
+    \begin{tabular}{lrrr}
+        \toprule
+        Model & Action & Crit. ev. & Order \\
+        \midrule
+        \texttt{gpt-4.1-mini} & 47.8\% & 6.0\% & 18.1\% \\
+        \texttt{gpt-5.4-mini} & 83.9\% & 80.9\% & 62.3\% \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+注目すべき点は，\texttt{gpt-5.4-mini}でもcandidate claim precisionは51.0\%に留まったことである．
+これは，強いモデルが正解itemを多く拾える一方で，候補出力に近傍行動や重複主張も残すことを意味する．
+SOC支援としては広めに候補を出す価値があるが，論文上の行動列復元としては，主系列と補助証跡の分離が依然として課題である．
+
+表\ref{table:claimquality}に，claim qualityの補助指標を示す．
+\texttt{gpt-4.1-mini}はcandidate precisionが34.0\%で，overclaimが589件であった．
+一方，\texttt{gpt-5.4-mini}はcandidate precisionを51.0\%まで改善し，overclaimも121件まで減らした．
+ただし，半数近い候補claimがgold chainに直接対応しない点は残っている．
+この結果は，LLMが調査文脈で有用な候補生成器になり得る一方，そのまま最終報告書として使うには，claimの昇格・棄却を制御する仕組みが必要であることを示す．
+
+\begin{table}[ht]
+    \centering
+    \caption{候補claim品質}
+    \label{table:claimquality}
+    \begin{tabular}{lrr}
+        \toprule
+        Model & Precision & Overclaim \\
+        \midrule
+        \texttt{gpt-4.1-mini} & 34.0\% & 589 \\
+        \texttt{gpt-5.4-mini} & 51.0\% & 121 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+この差は，単なる表現力の差だけでは説明しにくい．
+\texttt{gpt-4.1-mini}は，時刻窓内に存在するイベントを広く拾い，それらをchainの一部として結合しがちであった．
+これに対して\texttt{gpt-5.4-mini}は，親子プロセス，ファイルパス，コマンドライン，引数，通信先などの証跡を比較して，主系列らしい候補を選ぶ傾向が強かった．
+しかし，Stage 3や複数段ツールチェーンでは，packet capture toolの実行，script fileの編集，HTTP server起動，browser accessなどが時刻的に近接するため，主系列と周辺操作を完全に分けることは難しい．
+この点が，recallの高さとprecisionの伸び悩みが同時に現れる理由である．
+
+\subsection{Stage別結果}
+
+表\ref{table:bystage}にStage別結果を示す．
+\texttt{gpt-5.4-mini}はStage 1で88.9\%（200/225），Stage 2で80.4\%（181/225），Stage 3で82.1\%（160/195）の行動item recallを示した．
+Stage 3でも高いrecallを維持したことから，強いモデルはalert summary rowsが隠された条件でも，残存telemetryから多くのchainを復元できることが分かる．
+
+\begin{table}[ht]
+    \centering
+    \caption{Stage別結果}
+    \label{table:bystage}
+    \begin{tabular}{llrr}
+        \toprule
+        Model & Stage & Action & Crit. ev. \\
+        \midrule
+        \texttt{4.1-mini} & S1 & 64.0\% & 17.3\% \\
+        \texttt{4.1-mini} & S2 & 44.0\% & 0.0\% \\
+        \texttt{4.1-mini} & S3 & 33.3\% & 0.0\% \\
+        \texttt{5.4-mini} & S1 & 88.9\% & 85.3\% \\
+        \texttt{5.4-mini} & S2 & 80.4\% & 76.0\% \\
+        \texttt{5.4-mini} & S3 & 82.1\% & 81.5\% \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+一方で，Stage 2のorderは45.8\%であり，Stage 1の81.3\%から大きく低下した．
+process/time clueだけで探索を開始する場合，必要なitemに到達できても，それらを正しい順序または因果的構造として並べることは難しい．
+Stage 3ではclaim precisionが41.4\%へ下がり，overclaimも51へ増えた．
+alert summaryがない条件では，低レベルtelemetryを広く探索するため，主系列に含めるべき行動と近傍行動の境界が曖昧になりやすい．
+
+表\ref{table:stageorder}に，\texttt{gpt-5.4-mini}のStage別orderとclaim precisionを示す．
+Stage 1ではalert rowsが起点と順序の足場を与えるため，orderは81.3\%であった．
+Stage 2では，DB内にalert summary rowsが残っているにもかかわらず，入力がhost/process/time clueへ弱まることでorderが45.8\%へ低下した．
+つまり，探索対象にsummaryが存在することと，最初からalert文脈が入力されることは等価ではない．
+Stage 3ではorderが59.5\%へ戻る一方，precisionは41.4\%へ下がる．
+これは，summaryを検索できないことで，モデルが低レベル証跡に寄った順序付けを試みる一方，候補claimを多めに保持するためと考えられる．
+
+\begin{table}[ht]
+    \centering
+    \caption{\texttt{gpt-5.4-mini}のStage別補助指標}
+    \label{table:stageorder}
+    \begin{tabular}{lrrr}
+        \toprule
+        Stage & Order & Precision & Overclaim \\
+        \midrule
+        S1 & 81.3\% & 60.8\% & 28 \\
+        S2 & 45.8\% & 53.5\% & 42 \\
+        S3 & 59.5\% & 41.4\% & 51 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+この結果から，alert summary rowsには少なくとも二つの働きがあると解釈できる．
+第一に，調査開始時の意味的な手掛かりとして，どのprocessやobjectを中心に見るべきかを制限する働きである．
+第二に，探索途中で発見した低レベルイベントを，chainのどの位置に置くかを決める境界条件としての働きである．
+Stage 2は後者を利用できるが前者が弱く，Stage 3は両者のうちsummary由来の足場をさらに失う．
+そのため，Stage 3でrecallが高くても，それはsummary不要という意味ではない．
+むしろ，summaryがない場合には，候補claimの剪定と順序制約がより重要になることを示している．
+
+\subsection{Scenario別結果}
+
+表\ref{table:scenario}に\texttt{gpt-5.4-mini}のscenario group別結果を示す．
+明示的実行チェーンではaction recall 88.2\%，critical evidence recall 86.0\%，order 79.2\%であり，親子プロセスやコマンドラインが直接観測できるchainでは高い性能を示した．
+複数段ツールチェーンではaction recall 81.1\%を維持したが，orderは54.8\%，claim precisionは40.3\%に低下した．
+意味解釈型チェーンは3 runのみであるが，critical evidence recall 55.6\%，order 33.3\%に留まり，registry/app固有の意味解釈が難所であることを示唆する．
+
+\begin{table}[ht]
+    \centering
+    \caption{\texttt{gpt-5.4-mini}のscenario別結果}
+    \label{table:scenario}
+    \begin{tabular}{lrrr}
+        \toprule
+        Group & Action & Crit. ev. & Order \\
+        \midrule
+        明示的実行 & 88.2\% & 86.0\% & 79.2\% \\
+        複数段ツール & 81.1\% & 78.8\% & 54.8\% \\
+        意味解釈 & 74.1\% & 55.6\% & 33.3\% \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{考察}
+
+本研究の結果は，CLOUSEAUとATLASv2を組み合わせることで，検知後の端末行動復元を評価できることを示している．
+CLOUSEAUは攻撃narrative復元のための階層型調査エージェントであり，ATLAS/ATLASv2は攻撃調査文脈のデータ・手法として位置づけられてきた．
+本研究では，CLOUSEAUのPOI起点探索をSOCのアラート後分析に引き寄せ，ATLASv2のログ環境上で，検知ラベルの分類ではなく，アラートやprocess/time clueからログ証跡で支えられた行動chainを構成する能力を測った．
+
+良性chainを対象にした点も重要である．
+SOCでは，悪性攻撃だけでなく，管理操作，開発作業，ツール実行，アプリケーション更新なども調査対象になる．
+これらはアラートを発生させたり，攻撃手法に似たtelemetryを持ったりする．
+したがって，良性行動を証跡付きで説明できることは，誤検知低減や調査記録作成に直結する．
+
+Stage 1はアラート情報を入力に含み，Stage 2は入力から外すがDBには残し，Stage 3は検索対象からalert summary rowsを隠す．
+\texttt{gpt-5.4-mini}がStage 3でも高いrecallを維持したことは，出力がalert summaryの単純な言い換えではなく，残存telemetryからも多くの行動itemを復元できたことを示す．
+ただし，Stage 3でclaim precisionが下がりoverclaimが増えたことから，alert summaryは探索の近道や境界設定として機能していた可能性がある．
+
+\subsection{CLOUSEAUとの差分}
+
+本研究はCLOUSEAUに強く依存しているため，CLOUSEAUとの違いを曖昧にすると，貢献が見えにくくなる．
+CLOUSEAUは，POIを起点としてChief Inspector，Investigator，QA agentが協調し，攻撃narrativeを再構成する階層型multi-agent frameworkである．
+本稿はこの枠組みを，攻撃キャンペーン全体のnarrative復元ではなく，SOCのアラート後調査で頻出する短いbehavior chain復元に適用し，入力条件と評価粒度を変えて検証した．
+特に，良性chainを含む点，Stage 1--3でalert summaryの有無を分ける点，action itemとcritical evidence itemを分離して採点する点が異なる．
+
+この違いは，研究目的の違いでもある．
+CLOUSEAUの主眼は，攻撃を説明するnarrativeをエージェントが構築できるかである．
+本研究の主眼は，SOC調査者が最終判断を行う前段として，モデルがログ上の行動単位と根拠行をどれだけ正確に揃えられるかである．
+そのため，本稿では自然文としてもっとも説得的なstoryよりも，gold step，critical evidence，order，overclaimを重視した．
+これは，実運用のインシデント分析では，華麗な説明よりも，後から検証可能な証跡列が必要になるためである．
+
+\subsection{失敗傾向}
+
+失敗は三つに整理できる．
+第一は，近傍イベントの巻き込みである．
+同じ時刻窓に複数の管理操作や開発作業が存在すると，モデルはそれらを一つのchainに結合しやすい．
+これはStage 3で特に目立ち，alert summaryによる境界が消えると，関連しそうな低レベルイベントを広く残す傾向が強まる．
+
+第二は，意味解釈型chainでの根拠不足である．
+Discord/Update.exeとRun Key registryのようなchainでは，プロセス名やレジストリパスの意味を理解する必要がある．
+単にイベント行を拾うだけでは，永続化，更新処理，アプリ固有挙動のどれとして読むべきかが決まらない．
+このため，critical evidence recallとorderがともに低下した．
+
+第三は，順序と因果の混同である．
+ログ上の時刻順は，行動の因果順と一致するとは限らない．
+特に，ファイル作成，プロセス起動，ネットワーク接続，DNS queryが短時間に発生するchainでは，モデルが観測順をそのまま因果順として述べる場合があった．
+この問題を解くには，単なる検索結果の列挙ではなく，親子関係，object identity，command line argument，network endpointを束ねる制約付きのsynthesisが必要である．
+
+\subsection{実用上の含意}
+
+実用上，本結果はLLMを単独の自動判定器として使うよりも，調査者が確認すべき候補chainを作る補助器として使う方が現実的であることを示す．
+\texttt{gpt-5.4-mini}は，多くの正解itemとcritical evidenceを拾えるため，初動調査の探索範囲を狭める用途に向く．
+一方で，candidate precisionが51.0\%である以上，出力をそのままインシデント報告書へ転記する設計は危険である．
+モデル出力は，証跡行，主系列claim，補助claim，棄却候補に分け，調査者が昇格判断を行うUIやworkflowと組み合わせる必要がある．
+
+また，Stage 3の結果は，アラートsummaryが失われた環境でも一定の復元が可能であることを示すが，summaryを不要化できることを意味しない．
+むしろ，summaryは調査対象を狭め，overclaimを抑え，順序を安定させる補助情報として有用である．
+SOCにおける望ましい運用は，alert summaryを根拠として鵜呑みにすることではなく，summaryを起点に低レベルtelemetryへ降り，モデルに再構成させたchainを再び証跡で検証する循環である．
+
+\end{document}

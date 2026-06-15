@@ -1,0 +1,32 @@
+\begin{document}
+
+\section{おわりに}
+
+本稿では，CLOUSEAUを基盤とするエージェント型ログ探索手法により，SOC調査起点からWindowsエンドポイントログを探索し，証跡付き行動列を復元する課題を，ATLASv2 benign H1 / benign-1由来の27 behavior chainで評価した．
+\texttt{gpt-5.4-mini}は81 run全体で行動item recall 83.9\%，critical evidence recall 80.9\%を示し，alert summary rowsを隠したStage 3でも82.1\%の行動item recallを維持した．
+一方で，candidate claim precision，overclaim，sequence orderには課題が残った．
+
+本研究の立ち位置は，CLOUSEAUの攻撃narrative復元をそのまま再評価するものでも，ATLAS/ATLASv2を用いた攻撃検知評価でもなく，検知後のSOCインシデント分析における行動列復元評価である．
+今後は，SQL探索履歴の分析，主系列昇格条件の強化，順序制約を持つsynthesis，意味解釈型chainの拡充により，調査者がそのまま検証できる行動storyの品質を高める．
+
+本評価の限界として，対象は単一のATLASv2 benign環境から構成した27 chainであり，組織横断のSOCログや攻撃キャンペーン全体を代表するものではない．
+また，Stage 3はalert summary rowsのみを検索対象から除外する条件であり，EDR telemetry全体を除外した条件ではない．
+このため，本稿の結論は「alert summaryなしでも一定の行動復元が可能」という範囲に留め，「任意の低レベルログだけで十分」とは主張しない．
+
+妥当性への脅威は三点ある．
+第一に，gold chainの作成はログ構造と実験目的を理解した上で行っており，完全に自動的な正解ではない．
+このため，step境界の切り方やcritical evidence slotの選び方に，作成者の判断が入る．
+本稿では，主体，操作，対象，根拠行を分けて定義し，Stage 3で回答不能なitemを分母から除くことで，恣意的な高得点化を避けた．
+第二に，評価対象のchainは良性環境に由来するため，攻撃者が意図的に痕跡を隠すケース，複数ホストへ横展開するケース，長時間に分散するキャンペーンは含まれていない．
+したがって，本結果は攻撃調査全体の代替ではなく，単一ホストのアラート後分析に近い短いchain復元の結果として読む必要がある．
+第三に，本稿の比較は二つのモデルに限られる．
+特に，\texttt{gpt-5.5}についてはコスト見積りの記録はあるが，同一rubricで採点済みの81 run結果が公開パッケージ内に存在しないため，性能表には含めなかった．
+未採点または分母の異なる結果を混ぜると，モデル比較として不正確になるためである．
+
+今後の実装では，モデル出力を一つの文章として受け取るのではなく，claim graphとして扱う．
+各claimに，対応するevent row，親子process関係，object identity，時刻範囲，confidence，gold chain候補への対応を付与し，主系列claimと補助claimを明示的に分ける．
+その上で，調査者がclaimを採用，保留，棄却できるUIを用意すれば，高recallな探索と人間によるprecision改善を両立できる．
+また，CLOUSEAUのQA agentに相当する検証段を，単なる自然文批評ではなく，未接続claim，証跡不足claim，順序矛盾claimを検出する形式へ拡張することが有効である．
+これにより，Stage 3で顕在化したoverclaimを，報告書生成前に抑制できる可能性がある．
+
+\end{document}
