@@ -3,7 +3,7 @@
 \section{おわりに}
 
 本稿では，CLOUSEAUを基盤とするエージェント型ログ探索手法により，SOC調査起点からWindowsエンドポイントログを探索し，証跡付き行動列を復元する課題を，ATLASv2 benign H1 / benign-1由来の27 behavior chainで評価した．
-\texttt{gpt-5.4-mini}は81 run全体で行動item recall 83.9\%，critical evidence recall 80.9\%を示し，alert summary rowsを隠したStage 3でも82.1\%の行動item recallを維持した．
+\model{gpt-5.4-mini}は81 run全体で行動item recall 83.9\%，critical evidence recall 80.9\%を示し，alert summary rowsを隠したStage 3でも82.1\%の行動item recallを維持した．
 一方で，candidate claim precision，overclaim，sequence orderには課題が残った．
 
 本研究の立ち位置は，CLOUSEAUの攻撃narrative復元をそのまま再評価するものでも，ATLAS/ATLASv2を用いた攻撃検知評価でもなく，検知後のSOCインシデント分析における行動列復元評価である．
@@ -20,8 +20,9 @@
 第二に，評価対象のchainは良性環境に由来するため，攻撃者が意図的に痕跡を隠すケース，複数ホストへ横展開するケース，長時間に分散するキャンペーンは含まれていない．
 したがって，本結果は攻撃調査全体の代替ではなく，単一ホストのアラート後分析に近い短いchain復元の結果として読む必要がある．
 第三に，本稿の比較は二つのモデルに限られる．
-特に，\texttt{gpt-5.5}についてはコスト見積りの記録はあるが，同一rubricで採点済みの81 run結果が公開パッケージ内に存在しないため，性能表には含めなかった．
-未採点または分母の異なる結果を混ぜると，モデル比較として不正確になるためである．
+特に，\model{gpt-5.5}についてはraw text salvageの補助結果とコスト・token・時間の記録を示したが，同一rubricで採点済みの27 chain $\times$ 3 stage正式JSON結果ではない．
+未採点または分母の異なる結果を正式比較へ混ぜると，モデル比較として不正確になるためである．
+ただし，\model{gpt-5.5}が高い復元率を示した点は，出力契約と費用制御を改善した次実験の有力な候補であることを示す．
 
 今後の実装では，モデル出力を一つの文章として受け取るのではなく，claim graphとして扱う．
 各claimに，対応するevent row，親子process関係，object identity，時刻範囲，confidence，gold chain候補への対応を付与し，主系列claimと補助claimを明示的に分ける．

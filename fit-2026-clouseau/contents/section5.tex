@@ -5,8 +5,8 @@
 \subsection{全体結果}
 
 表\ref{table:overall}に，全体結果を示す．
-\texttt{gpt-5.4-mini}は81 run全体で行動item recall 83.9\%（541/645），critical evidence recall 80.9\%（174/215）を示した．
-一方，\texttt{gpt-4.1-mini}は正規化した行動item recallが47.8\%（308/645），critical evidence recallが6.0\%（13/215）であり，行動らしい説明を生成できても，必要な証跡に接続する能力が大きく不足した．
+\model{gpt-5.4-mini}は81 run全体で行動item recall 83.9\%（541/645），critical evidence recall 80.9\%（174/215）を示した．
+一方，\model{gpt-4.1-mini}は正規化した行動item recallが47.8\%（308/645），critical evidence recallが6.0\%（13/215）であり，行動らしい説明を生成できても，必要な証跡に接続する能力が大きく不足した．
 
 \begin{table}[ht]
     \centering
@@ -16,19 +16,19 @@
         \toprule
         Model & Action & Crit. ev. & Order \\
         \midrule
-        \texttt{gpt-4.1-mini} & 47.8\% & 6.0\% & 18.1\% \\
-        \texttt{gpt-5.4-mini} & 83.9\% & 80.9\% & 62.3\% \\
+        \model{gpt-4.1-mini} & 47.8\% & 6.0\% & 18.1\% \\
+        \model{gpt-5.4-mini} & 83.9\% & 80.9\% & 62.3\% \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-注目すべき点は，\texttt{gpt-5.4-mini}でもcandidate claim precisionは51.0\%に留まったことである．
+注目すべき点は，\model{gpt-5.4-mini}でもcandidate claim precisionは51.0\%に留まったことである．
 これは，強いモデルが正解itemを多く拾える一方で，候補出力に近傍行動や重複主張も残すことを意味する．
 SOC支援としては広めに候補を出す価値があるが，論文上の行動列復元としては，主系列と補助証跡の分離が依然として課題である．
 
 表\ref{table:claimquality}に，claim qualityの補助指標を示す．
-\texttt{gpt-4.1-mini}はcandidate precisionが34.0\%で，overclaimが589件であった．
-一方，\texttt{gpt-5.4-mini}はcandidate precisionを51.0\%まで改善し，overclaimも121件まで減らした．
+\model{gpt-4.1-mini}はcandidate precisionが34.0\%で，overclaimが589件であった．
+一方，\model{gpt-5.4-mini}はcandidate precisionを51.0\%まで改善し，overclaimも121件まで減らした．
 ただし，半数近い候補claimがgold chainに直接対応しない点は残っている．
 この結果は，LLMが調査文脈で有用な候補生成器になり得る一方，そのまま最終報告書として使うには，claimの昇格・棄却を制御する仕組みが必要であることを示す．
 
@@ -40,22 +40,22 @@ SOC支援としては広めに候補を出す価値があるが，論文上の�
         \toprule
         Model & Precision & Overclaim \\
         \midrule
-        \texttt{gpt-4.1-mini} & 34.0\% & 589 \\
-        \texttt{gpt-5.4-mini} & 51.0\% & 121 \\
+        \model{gpt-4.1-mini} & 34.0\% & 589 \\
+        \model{gpt-5.4-mini} & 51.0\% & 121 \\
         \bottomrule
     \end{tabular}
 \end{table}
 
 この差は，単なる表現力の差だけでは説明しにくい．
-\texttt{gpt-4.1-mini}は，時刻窓内に存在するイベントを広く拾い，それらをchainの一部として結合しがちであった．
-これに対して\texttt{gpt-5.4-mini}は，親子プロセス，ファイルパス，コマンドライン，引数，通信先などの証跡を比較して，主系列らしい候補を選ぶ傾向が強かった．
+\model{gpt-4.1-mini}は，時刻窓内に存在するイベントを広く拾い，それらをchainの一部として結合しがちであった．
+これに対して\model{gpt-5.4-mini}は，親子プロセス，ファイルパス，コマンドライン，引数，通信先などの証跡を比較して，主系列らしい候補を選ぶ傾向が強かった．
 しかし，Stage 3や複数段ツールチェーンでは，packet capture toolの実行，script fileの編集，HTTP server起動，browser accessなどが時刻的に近接するため，主系列と周辺操作を完全に分けることは難しい．
 この点が，recallの高さとprecisionの伸び悩みが同時に現れる理由である．
 
 \subsection{Stage別結果}
 
 表\ref{table:bystage}にStage別結果を示す．
-\texttt{gpt-5.4-mini}はStage 1で88.9\%（200/225），Stage 2で80.4\%（181/225），Stage 3で82.1\%（160/195）の行動item recallを示した．
+\model{gpt-5.4-mini}はStage 1で88.9\%（200/225），Stage 2で80.4\%（181/225），Stage 3で82.1\%（160/195）の行動item recallを示した．
 Stage 3でも高いrecallを維持したことから，強いモデルはalert summary rowsが隠された条件でも，残存telemetryから多くのchainを復元できることが分かる．
 
 \begin{table}[ht]
@@ -66,12 +66,12 @@ Stage 3でも高いrecallを維持したことから，強いモデルはalert s
         \toprule
         Model & Stage & Action & Crit. ev. \\
         \midrule
-        \texttt{4.1-mini} & S1 & 64.0\% & 17.3\% \\
-        \texttt{4.1-mini} & S2 & 44.0\% & 0.0\% \\
-        \texttt{4.1-mini} & S3 & 33.3\% & 0.0\% \\
-        \texttt{5.4-mini} & S1 & 88.9\% & 85.3\% \\
-        \texttt{5.4-mini} & S2 & 80.4\% & 76.0\% \\
-        \texttt{5.4-mini} & S3 & 82.1\% & 81.5\% \\
+        \model{4.1-mini} & S1 & 64.0\% & 17.3\% \\
+        \model{4.1-mini} & S2 & 44.0\% & 0.0\% \\
+        \model{4.1-mini} & S3 & 33.3\% & 0.0\% \\
+        \model{5.4-mini} & S1 & 88.9\% & 85.3\% \\
+        \model{5.4-mini} & S2 & 80.4\% & 76.0\% \\
+        \model{5.4-mini} & S3 & 82.1\% & 81.5\% \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -81,7 +81,7 @@ process/time clueだけで探索を開始する場合，必要なitemに到達�
 Stage 3ではclaim precisionが41.4\%へ下がり，overclaimも51へ増えた．
 alert summaryがない条件では，低レベルtelemetryを広く探索するため，主系列に含めるべき行動と近傍行動の境界が曖昧になりやすい．
 
-表\ref{table:stageorder}に，\texttt{gpt-5.4-mini}のStage別orderとclaim precisionを示す．
+表\ref{table:stageorder}に，\model{gpt-5.4-mini}のStage別orderとclaim precisionを示す．
 Stage 1ではalert rowsが起点と順序の足場を与えるため，orderは81.3\%であった．
 Stage 2では，DB内にalert summary rowsが残っているにもかかわらず，入力がhost/process/time clueへ弱まることでorderが45.8\%へ低下した．
 つまり，探索対象にsummaryが存在することと，最初からalert文脈が入力されることは等価ではない．
@@ -90,7 +90,7 @@ Stage 3ではorderが59.5\%へ戻る一方，precisionは41.4\%へ下がる．
 
 \begin{table}[ht]
     \centering
-    \caption{\texttt{gpt-5.4-mini}のStage別補助指標}
+    \caption{\model{gpt-5.4-mini}のStage別補助指標}
     \label{table:stageorder}
     \begin{tabular}{lrrr}
         \toprule
@@ -112,14 +112,14 @@ Stage 2は後者を利用できるが前者が弱く，Stage 3は両者のうち
 
 \subsection{Scenario別結果}
 
-表\ref{table:scenario}に\texttt{gpt-5.4-mini}のscenario group別結果を示す．
+表\ref{table:scenario}に\model{gpt-5.4-mini}のscenario group別結果を示す．
 明示的実行チェーンではaction recall 88.2\%，critical evidence recall 86.0\%，order 79.2\%であり，親子プロセスやコマンドラインが直接観測できるchainでは高い性能を示した．
 複数段ツールチェーンではaction recall 81.1\%を維持したが，orderは54.8\%，claim precisionは40.3\%に低下した．
 意味解釈型チェーンは3 runのみであるが，critical evidence recall 55.6\%，order 33.3\%に留まり，registry/app固有の意味解釈が難所であることを示唆する．
 
 \begin{table}[ht]
     \centering
-    \caption{\texttt{gpt-5.4-mini}のscenario別結果}
+    \caption{\model{gpt-5.4-mini}のscenario別結果}
     \label{table:scenario}
     \begin{tabular}{lrrr}
         \toprule
@@ -131,6 +131,54 @@ Stage 2は後者を利用できるが前者が弱く，Stage 3は両者のうち
         \bottomrule
     \end{tabular}
 \end{table}
+
+\subsection{gpt-5.5と運用コスト}
+
+\model{gpt-5.5}については，正式なJSON契約を満たした81 runの採点結果がないため，表\ref{table:overall}の正式比較には含めない．
+一方，23 chainに対するraw text salvage結果は存在する．
+この補助分析では，\model{gpt-5.5 low raw}は69 runでaction recall 94.0\%，critical evidence recall 92.8\%，order 88.9\%，candidate precision 66.7\%を示した．
+ただし，これはraw textから後処理で抽出した単一replicateの結果であり，\model{gpt-4.1-mini}および\model{gpt-5.4-mini}の3 replicate正式JSON評価とは同列に扱わない．
+
+\begin{table}[ht]
+    \centering
+    \caption{23 chain補助分析における\model{gpt-5.5}}
+    \label{table:gpt55}
+    \begin{tabular}{lrrrr}
+        \toprule
+        Model & Runs & Action & Crit. & Order \\
+        \midrule
+        \model{5.4-mini} & 207 & 79.8\% & 70.3\% & 55.3\% \\
+        \model{5.5 raw} & 69 & 94.0\% & 92.8\% & 88.9\% \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+表\ref{table:cost}に，運用コストと実行時間の補助集計を示す．
+\model{gpt-5.5 low raw}は，69 runで入力1.83M tokens，出力0.73M tokensを消費し，推定費用は31.00 USDであった．
+平均実行時間は9.32分で，直列合計は10.72時間，4並列相当では2.68時間である．
+\model{gpt-5.4-mini}は207 runで4.35 USD，平均2.05分であり，費用・時間の両面で軽い．
+したがって，\model{gpt-5.5}は復元品質の上限を探る参照点として有用だが，出力契約失敗と高い出力token費用を考えると，全量実験の標準モデルとしては扱いにくい．
+
+\begin{table}[ht]
+    \centering
+    \caption{モデル別コスト・token・時間}
+    \label{table:cost}
+    \begin{tabular}{lrrrr}
+        \toprule
+        Model & Runs & Cost & Tok. & Avg min \\
+        \midrule
+        \model{4.1-mini} & 207 & \$3.64 & 7.40M & 6.81 \\
+        \model{5.4-mini} & 207 & \$4.35 & 2.67M & 2.05 \\
+        \model{5.5 raw} & 69 & \$31.00 & 2.56M & 9.32 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+この結果から，教授レビュー上の論点は二つに分かれる．
+第一に，品質だけを見れば\model{gpt-5.5}は有望であり，低レベルtelemetryからの証跡接続や順序構成で\model{gpt-5.4-mini}を上回る可能性がある．
+第二に，実験方法としては，出力schemaを守れないrunを正式比較へ混ぜると再現性が弱くなる．
+そのため本稿では，\model{gpt-5.5}を「本評価の結論」ではなく，「高性能・高コストモデルを使う場合の上限的参考値」として位置づける．
+今後\model{gpt-5.5}を正式採用するには，少数pilotでJSON契約，max output tokens，累積費用停止条件を確認してから，27 chain $\times$ 3 stageの同一rubricで再実行する必要がある．
 
 \subsection{考察}
 
@@ -144,7 +192,7 @@ SOCでは，悪性攻撃だけでなく，管理操作，開発作業，ツー�
 したがって，良性行動を証跡付きで説明できることは，誤検知低減や調査記録作成に直結する．
 
 Stage 1はアラート情報を入力に含み，Stage 2は入力から外すがDBには残し，Stage 3は検索対象からalert summary rowsを隠す．
-\texttt{gpt-5.4-mini}がStage 3でも高いrecallを維持したことは，出力がalert summaryの単純な言い換えではなく，残存telemetryからも多くの行動itemを復元できたことを示す．
+\model{gpt-5.4-mini}がStage 3でも高いrecallを維持したことは，出力がalert summaryの単純な言い換えではなく，残存telemetryからも多くの行動itemを復元できたことを示す．
 ただし，Stage 3でclaim precisionが下がりoverclaimが増えたことから，alert summaryは探索の近道や境界設定として機能していた可能性がある．
 
 \subsection{CLOUSEAUとの差分}
@@ -180,7 +228,7 @@ Discord/Update.exeとRun Key registryのようなchainでは，プロセス名�
 \subsection{実用上の含意}
 
 実用上，本結果はLLMを単独の自動判定器として使うよりも，調査者が確認すべき候補chainを作る補助器として使う方が現実的であることを示す．
-\texttt{gpt-5.4-mini}は，多くの正解itemとcritical evidenceを拾えるため，初動調査の探索範囲を狭める用途に向く．
+\model{gpt-5.4-mini}は，多くの正解itemとcritical evidenceを拾えるため，初動調査の探索範囲を狭める用途に向く．
 一方で，candidate precisionが51.0\%である以上，出力をそのままインシデント報告書へ転記する設計は危険である．
 モデル出力は，証跡行，主系列claim，補助claim，棄却候補に分け，調査者が昇格判断を行うUIやworkflowと組み合わせる必要がある．
 
