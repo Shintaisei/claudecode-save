@@ -34,6 +34,7 @@ It contains the research purpose, experiment design, current LaTeX manuscript, s
 - `results_23chain_20260614/ledgers/final_comparison_per_run_component_scores.csv`
 - `docs/method_changes_for_paper_20260615.md`
 - `docs/method_section_points_ja_20260615.md`
+- `docs/gpt55_remaining_budget_request_20260615.md`
 - `results/score_summary_overall.csv`
 - `results/score_summary_by_stage.csv`
 - `results/score_summary_by_scenario_group.csv`
