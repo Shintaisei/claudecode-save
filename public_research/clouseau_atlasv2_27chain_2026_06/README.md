@@ -35,6 +35,7 @@ It contains the research purpose, experiment design, current LaTeX manuscript, s
 - `exp_20260614/03_aggregated_results/summary.md`
 - `exp_20260614/03_aggregated_results/overall.csv`
 - `exp_20260614/03_aggregated_results/by_stage.csv`
+- `exp_20260614/UPLOAD_AUDIT_20260615.md`
 - `exp_20260614/04_discussion_base/detailed_discussion_20260614.md`
 - `exp_20260614/04_discussion_base/usecase_deep_dive_20260614/usecase_deep_dive.md`
 - `exp_20260614/04_discussion_base/model_argument_deep_dive_20260614/model_argument_deep_dive.md`

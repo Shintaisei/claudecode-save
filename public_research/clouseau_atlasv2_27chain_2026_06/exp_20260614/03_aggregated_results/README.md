@@ -1,32 +1,35 @@
 # Aggregated Results
 
-このフォルダの表を、現時点の発表・論文考察の土台にする。
+This folder contains the aggregate tables used as the current paper/discussion baseline.
+
+## Final Comparison Scope
+
+| model | runs | chain count | stage count | set count | note |
+| --- | ---: | ---: | ---: | ---: | --- |
+| `gpt-4.1-mini` | 207 | 23 | 3 | 3 | 2 formal 23-chain sets plus 1 filtered legacy27 set |
+| `gpt-5.4-mini` | 207 | 23 | 3 | 3 | 2 formal 23-chain sets plus 1 filtered legacy27 set |
+| `gpt-5.5 low raw` | 69 | 23 | 3 | 1 | raw-output salvage scoring only |
 
 ## Primary Tables
 
 | file | use |
 | --- | --- |
-| `summary.md` | 人間が読むための最終比較サマリ。まずこれを見る。 |
-| `overall.csv` | モデル全体の代表値。 |
-| `by_stage.csv` | stage1 / stage2 / stage3 別の代表値。 |
-| `by_replicate_4_1_5_4.csv` | 4.1/5.4 の3セット内訳。3セット目が legacy27 filtered であることを確認する表。 |
-| `by_scenario_group.csv` | 3分類の場面別集計。 |
-| `by_stage_scenario_group.csv` | stage x 3分類の場面別集計。 |
-| `by_framework_group.csv` | より細かい行動フレームワーク別集計。 |
-| `by_stage_framework_group.csv` | stage x 行動フレームワーク別集計。 |
-| `ledgers/final_comparison_per_run_component_scores.csv` | 最終比較に入れた全483 run相当の per-run ledger。 |
-| `ledgers/4_1_5_4_3run_filtered23_per_run_component_scores.csv` | 4.1/5.4 の3セット filtered23 ledger。 |
+| `summary.md` | Human-readable final summary. Start here. |
+| `overall.csv` | Overall model-level metrics. |
+| `by_stage.csv` | Stage-level metrics for stage1 / stage2 / stage3. |
+| `by_replicate_4_1_5_4.csv` | 4.1/5.4 three-set breakdown. The third set is the filtered legacy27 subset. |
+| `by_scenario_group.csv` | Three-scenario-group aggregate table. |
+| `by_stage_scenario_group.csv` | Stage x scenario-group aggregate table. |
+| `by_framework_group.csv` | Detailed behavior-framework aggregate table. |
+| `by_stage_framework_group.csv` | Stage x behavior-framework aggregate table. |
+| `ledgers/final_comparison_per_run_component_scores.csv` | Per-run ledger for all 483 comparison rows: 207 + 207 + 69. |
+| `ledgers/4_1_5_4_3run_filtered23_per_run_component_scores.csv` | Per-run ledger for the 4.1/5.4 three-set filtered23 comparison only. |
+| `openai_cost_audit_note_20260614.md` | Cost audit note explaining the GPT-5.5 undercount and API spend mismatch. |
+| `openai_usage_audit_20260614.csv` | Token/cost audit detail. |
 
-## Current Final Comparison Scope
+## Metric Notes
 
-| model | scope |
-| --- | --- |
-| `gpt-4.1-mini` | 23 chains x 3 stages x 3 sets = 207 runs |
-| `gpt-5.4-mini` | 23 chains x 3 stages x 3 sets = 207 runs |
-| `gpt-5.5 low raw` | 23 chains x 3 stages x 1 set = 69 runs |
-
-## Notes For Tables
-
-- 4.1/5.4 の3セット目は formal23 replicate_03 ではなく、旧27チェーンを現在の23チェーンへフィルタしたもの。
-- GPT-5.5 は raw text salvage。高スコアでも、構造化 JSON 契約には失敗している点を必ず併記する。
-- `by_scenario_group.csv` は空分類を避けるため、同一 `chain_id` の legacy27 側分類から formal23/GPT-5.5 行へ補完済み。
+- The main component fields are `action_step_recall`, `critical_evidence_recall`, `order_score`, `precision_proxy`, and overclaim counts.
+- Fractions in the CSVs should be preferred when checking denominator definitions.
+- GPT-5.5 has high component scores in this table, but must be reported with the caveat that its raw output did not follow the structured output contract.
+- Scenario-group tables use the current 23-chain chain IDs. The legacy27 set is filtered to those same 23 chain IDs before aggregation.

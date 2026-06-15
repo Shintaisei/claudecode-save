@@ -45,6 +45,7 @@
 ## Latest component-rubric experiment package
 
 - `exp_20260614/README.md`
+- `exp_20260614/UPLOAD_AUDIT_20260615.md`
 - `exp_20260614/01_experiment_raw_outputs/`
 - `exp_20260614/02_scoring_ledgers/`
 - `exp_20260614/03_aggregated_results/summary.md`
