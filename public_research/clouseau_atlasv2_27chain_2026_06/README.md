@@ -1,27 +1,28 @@
-# CLOUSEAU ATLASv2 27-chain experiment package
+# CLOUSEAU ATLASv2 / FIT2026 experiment package
 
-This folder is a cleaned public package for the current CLOUSEAU / ATLASv2 behavior reconstruction experiment.
+This folder is a cleaned public package for the CLOUSEAU / ATLASv2 behavior reconstruction experiment and the FIT2026 manuscript draft.
 
-It contains the research purpose, experiment design, current LaTeX manuscript, scoring rubrics, sanitized metadata, and aggregate result files needed to discuss and reproduce the reported tables. It intentionally excludes raw databases, EVTX files, external datasets, and full run outputs.
+It contains the research purpose, experiment design, current LaTeX manuscript, scoring rubrics, sanitized metadata, aggregate result files, per-run model outputs, and the latest discussion materials. It intentionally excludes raw databases, EVTX files, external datasets, local virtual environments, and API keys.
 
 ## Folder layout
 
-- `paper/`: current LaTeX manuscript files.
+- `paper/`: earlier public LaTeX manuscript copy.
+- `fit2026_manuscript/`: current FIT2026 manuscript workspace, including the working LaTeX draft and draft notes.
 - `docs/`: research direction, experiment design, scenario taxonomy, data scope, result summary, cost estimates, and incident notes.
 - `experiment_metadata/`: sanitized case metadata, chain summary, chain index, run settings, and token/cost summary.
 - `results/`: final score CSV/JSON files and aggregate tables.
 - `raw_runs/`: per-run raw CLOUSEAU output JSON files for all 162 model/stage runs.
+- `exp_20260614/`: latest component-rubric experiment handoff package. This includes 23-chain filtered outputs, scoring ledgers, aggregate tables, cost audit, and discussion/deep-dive materials.
 - `rubrics/`: scoring rubrics used for double review / final review.
-- `scripts/`: selected scripts used to build cases, run the 27-chain experiment, validate gold chains, and score outputs.
+- `scripts/`: selected scripts used to build cases, run experiments, validate gold chains, score outputs, and generate the 2026-06-14 component-rubric discussion assets.
 
 ## Current experiment
 
 - Dataset context: ATLASv2 benign H1 / benign-1, reconstructed through CLOUSEAU.
-- Evaluation unit: 27 behavior chains.
-- Stage design: 27 chains x 3 input conditions = 81 runs per model.
-- Models in the completed result set: `gpt-4.1-mini`, `gpt-5.4-mini`.
-- Raw model runs completed: 162 / 162.
-- Final scored results included here: 81 / 81 for each model.
+- Earlier public package: 27 behavior chains x 3 input conditions = 81 runs per model.
+- Latest analysis package: 23 behavior chains x 3 stages, component-level scoring, 3-run average for `gpt-4.1-mini` and `gpt-5.4-mini`, and one available `gpt-5.5` low-effort run.
+- Models in the completed structured result set: `gpt-4.1-mini`, `gpt-5.4-mini`.
+- GPT-5.5 status: included as raw/salvaged one-run evidence because the output contract differed from the structured runs.
 
 ## Main result files
 
@@ -31,11 +32,20 @@ It contains the research purpose, experiment design, current LaTeX manuscript, s
 - `results/score_summary_by_stage_and_scenario_group.csv`
 - `results/gpt-4.1-mini/final_scores.csv`
 - `results/gpt-5.4-mini/final_scores.csv`
+- `exp_20260614/03_aggregated_results/summary.md`
+- `exp_20260614/03_aggregated_results/overall.csv`
+- `exp_20260614/03_aggregated_results/by_stage.csv`
+- `exp_20260614/04_discussion_base/detailed_discussion_20260614.md`
+- `exp_20260614/04_discussion_base/usecase_deep_dive_20260614/usecase_deep_dive.md`
+- `exp_20260614/04_discussion_base/model_argument_deep_dive_20260614/model_argument_deep_dive.md`
+- `exp_20260614/04_discussion_base/investigator_sql_deep_dive_20260614/investigator_sql_deep_dive.md`
 
 ## Data exclusion policy
 
-The package includes per-run model output JSON files, but does not include source DB files, EVTX files, scenario databases, or external dataset archives. See `docs/data_scope.md`.
+The package includes per-run model output JSON files and scoring/discussion artifacts, but does not include source DB files, EVTX files, scenario databases, external dataset archives, virtual environments, or `.env` files. See `docs/data_scope.md`.
 
 ## Notes
 
 The aggregate tables report both percentages and numerator/denominator fractions. Use the fractions when checking metric definitions or comparing score pipelines.
+
+For the latest paper discussion, start with `fit2026_manuscript/paper/main.tex`, `exp_20260614/03_aggregated_results/summary.md`, and `exp_20260614/04_discussion_base/detailed_discussion_20260614.md`.
