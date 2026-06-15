@@ -1,0 +1,194 @@
+{
+  "run_id": "20260613T074038Z_chain_07_e05_sublime_python_script_execution_chain_stage3_gpt-5.4-mini_official",
+  "pipeline": "external/Clouseau/artifact official chief_inspector.investigate_atlas",
+  "model": "gpt-5.4-mini",
+  "instance_id": "chain_07_e05_sublime_python_script_execution_chain_stage3",
+  "gold_reference": {
+    "instance_id": "chain_07_e05_sublime_python_script_execution_chain_stage3",
+    "case_id": "chain_07_e05_sublime_python_script_execution_chain_stage3",
+    "input_id": "chain_input_007",
+    "stage": "stage3",
+    "scenario": "benign-h1-cbc-27-chain",
+    "database": "Clouseau/artifact/scenarios/atlasv2/benign/h1/benign-1/incident.db",
+    "host": "WIN-32-H1",
+    "process_name": "cmd.exe; python.exe",
+    "actor": "cmd.exe; python.exe",
+    "expected_behavior": "Sublime-triggered Python script execution",
+    "expected_behavior_category": "sublime_python_script_execution_chain",
+    "context_label": "cbc_alert_behavior_chain_gold",
+    "quality": "finalized_2026-06-09",
+    "difficulty": "process_time",
+    "time_window_utc": {
+      "episode_start": "2022-07-16T13:25:00Z",
+      "episode_end": "2022-07-16T13:35:00Z",
+      "analysis_scope": "finalized chain window; runner may inspect surrounding DB evidence but primary chain must stay in scope"
+    },
+    "anchor_event": {
+      "source_stream": "scope",
+      "timestamp_utc": "2022-07-16T13:25:00Z",
+      "database_time": "2022-07-16 13:25:00",
+      "alert_id": null,
+      "alert_name": null,
+      "process_name": "cmd.exe",
+      "process_path": null,
+      "process_cmdline": null,
+      "parent_path": null,
+      "parent_cmdline": null,
+      "severity": null,
+      "reason": null,
+      "event_record_id": null,
+      "action": "scope"
+    },
+    "input_alert_rows": [],
+    "model_ready_input": {
+      "input_id": "chain_input_007",
+      "stage": "stage3",
+      "input": {
+        "host": "WIN-32-H1",
+        "focus_processes": [
+          "cmd.exe",
+          "python.exe"
+        ],
+        "chain_window_start_utc": "2022-07-16T13:25:00Z",
+        "chain_window_end_utc": "2022-07-16T13:35:00Z"
+      },
+      "db_filter": "remove cbc_alerts / cbc-edr-alerts / cbc-ngav-alerts summary rows; retain cbc_events telemetry"
+    },
+    "gold_chain_file": "by_chain/chain_07_e05_sublime_python_script_execution_chain/chain_gold.json",
+    "chain_id": "chain_07_e05_sublime_python_script_execution_chain",
+    "chain_type": "sublime_python_script_execution_chain",
+    "source_window_ids": "W07; W08; W09; W10",
+    "formal_gold_root": "data/current_experiment/gold/cbc_alert_behavior_chain_gold",
+    "stage3_answerable_policy": "For stage3, use validation stage3_status=pass steps as answerable gold; alert-only unsupported steps are reported separately.",
+    "environment_context": "CLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。"
+  },
+  "source_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\Clouseau\\artifact\\scenarios\\atlasv2\\benign\\h1\\benign-1\\incident.db",
+  "adapter_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260613T074038Z_chain_07_e05_sublime_python_script_execution_chain_stage3_gpt-5.4-mini_official\\scenario.db",
+  "adapter_counts": {
+    "audit_logs": 7531007,
+    "sysmon_audit_rows": 6406,
+    "cbc_event_audit_rows": 1010918,
+    "cbc_alert_audit_rows": 232,
+    "dns_requests": 82410,
+    "browser_history": 53069,
+    "adapter_version": "v3_evidence_preserving_parent_context",
+    "cbc_alert_summary_filter_mode": "sql_tool_temp_view",
+    "cbc_alert_summary_rows_hidden_from_stage3_sql": 232,
+    "post_filter_cbc_alert_summary_rows": 0,
+    "post_filter_cbc_event_telemetry_rows": 1010918
+  },
+  "clue": "これは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage3\n- host: WIN-32-H1\n- process: cmd.exe; python.exe\n- timestamp: 2022-07-16 13:25:00\n- 参考 UTC 時間範囲: 2022-07-16T13:25:00Z から 2022-07-16T13:35:00Z\n- 参考 database 時間範囲: 2022-07-16 13:25:00 から 2022-07-16 13:35:00\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 3: 入力は host、process、timestamp のみである。\n- CBC alert summary rows は SQL tools から audit_logs_stage3 view により hidden である。\n- CBC EDR/NGAV event telemetry は利用可能である。\n- adapter database は物理フィルタされない。alert summary rows が SQL tools で見えないことだけで、行動が存在しないと結論しない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n",
+  "dry_run": false,
+  "difficulty": "process_time",
+  "experiment_stage": "stage3",
+  "expected_input_fields": [
+    "host",
+    "process",
+    "timestamp"
+  ],
+  "configs": {
+    "max_investigations": 300,
+    "max_questions": 800,
+    "max_queries": 1600,
+    "max_tokens": 24576
+  },
+  "official_messages": [
+    {
+      "type": "HumanMessage",
+      "content": "## 役割\nあなたは CLOUSEAU の階層型調査パイプラインにおける Chief エージェントである。\n\n## 目的\nプロセス時刻起点から Windows エンドポイントのコード行動列を復元する。\n\n## 出力言語\n- 調査リード、要約、最終報告の自然言語値はすべて日本語で書く。\n- raw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま残す。\n\n## 調査リード作成ルール\n- SQL を書かない。\n- database column の列挙を調査リードにしない。\n- alert title、command line、parent process、target object、application intent、behavior category を仮定しない。\n- CBC alert 内容は起点情報の一部ではない。調査担当が database 内で発見した場合にだけ使う。\n- 各調査リードには、調査対象、調査理由、確認したい証拠を含める。\n- parent process、command line、target object、related rows をログから発見させる調査リードを優先する。\n- 近傍 row の接続関係は、先に決め打ちせず、観測証拠で検証する。\n- 最終回答は valid JSON のみである。\n\n## 環境\nCLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。\n\n## SOC からの起点情報\nこれは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage3\n- host: WIN-32-H1\n- process: cmd.exe; python.exe\n- timestamp: 2022-07-16 13:25:00\n- 参考 UTC 時間範囲: 2022-07-16T13:25:00Z から 2022-07-16T13:35:00Z\n- 参考 database 時間範囲: 2022-07-16 13:25:00 から 2022-07-16 13:35:00\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 3: 入力は host、process、timestamp のみである。\n- CBC alert summary rows は SQL tools から audit_logs_stage3 view により hidden である。\n- CBC EDR/NGAV event telemetry は利用可能である。\n- adapter database は物理フィルタされない。alert summary rows が SQL tools で見えないことだけで、行動が存在しないと結論しない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n\n"
+    },
+    {
+      "type": "AIMessage",
+      "content": "",
+      "usage_metadata": {
+        "input_tokens": 1734,
+        "output_tokens": 247,
+        "total_tokens": 1981,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "host WIN-32-H1 で 2022-07-16 13:25:00 前後に出現した cmd.exe と python.exe について、親子関係と実行ツリーを確認し、関連する command line と PID/PPID、timestamp を復元したい。これらのプロセスが開始・派生した証拠と、近傍で発生した関連プロセスを確認したい。"
+          },
+          "id": "call_2sdFMmnmnQOfjbHUj1gYTzvb",
+          "type": "tool_call"
+        },
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "host WIN-32-H1 の 2022-07-16 13:25:00 前後における cmd.exe と python.exe のネットワーク接続、ファイル操作、プロセス生成を追跡し、関連する対象オブジェクトや command line の証拠を確認したい。観測された code 行動列を組み立てるために、近傍の関連行も確認したい。"
+          },
+          "id": "call_dFfaIgKWTwFgIptiPKq0wYLb",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "type": "ToolMessage",
+      "content": "### 仮説\nhost `WIN-32-H1` では、`2022-07-16 13:23:29` 前後に `cmd.exe` と `python.exe` を含む実行ツリーが観測されており、Chief の起点時刻 `13:25:00` 近傍より少し前の実行が、関連のある起点候補である可能性があります。\n\n### 観測事実\n- `2022-07-16 13:25:18` に `C:\\Windows\\System32\\cmd.exe` が記録されています。\n  - PID: `3292`\n  - PPID: `None`\n  - 親プロセス名: `None`\n  - command line: `None`\n- `2022-07-16 13:23:29` には `cmd.exe` と `python.exe` が関連する row が複数あります。\n  - `pid=2244`, `ppid=3376`\n    - parent_process_name: `plugin_host.exe`\n    - parent_process_path: `c:\\program files\\sublime text 3\\plugin_host.exe`\n    - parent_command_line: ``\"C:\\Program Files\\Sublime Text 3/plugin_host.exe\" \"3964\" \"--auto-shell-env\"``\n  - `pid=1108`, `ppid=2244`\n    - parent_process_name: `cmd.exe`\n    - parent_process_path: `c:\\windows\\system32\\cmd.exe`\n    - parent_command_line: ``C:\\Windows\\system32\\cmd.exe /c \"python -u \"C:\\Program Files\\Sublime Text 3\\helloworld.py\"\"``\n  - `pid=2244` の行に `c:\\python27\\python.exe` が childproc_name として見えます。\n  - `pid=3376`, `ppid=3964`\n    - parent_process_name: `sublime_text.exe`\n    - parent_process_path: `c:\\program files\\sublime text 3\\sublime_text.exe`\n    - parent_command_line: `C:\\Program Files\\Sublime Text 3\\Sublime Text 3.exe` は見えていませんが、`C:\\Program Files\\Sublime Text 3\\sublime_text.exe` が親として記録されています。\n\n### 解釈\n- 観測できた範囲では、`cmd.exe` は単独で 13:25:18 にも出ていますが、親情報が欠落しているため、起点の特定はできません。\n- 一方で、`13:23:29` の実行ツリーでは `sublime_text.exe -> plugin_host.exe -> cmd.exe -> python.exe` のつながりが見えます。\n- したがって、`cmd.exe` と `python.exe` の関係は、`Sublime Text` 系の処理から派生した可能性がある実行連鎖として観測されています。\n\n### 限界\n- `13:25:18` の `cmd.exe` については、PPID や parent evidence が欠落しており、親子関係を確定できません。\n- `python.exe` は `13:25:00` 前後そのものでは観測されず、主な観測は `13:23:29` に集中しています。\n- 近傍 row の一部は `None` や空欄があり、完全な実行ツリー復元には追加確認が必要です。\n\n### 次の調査理由\n`13:25:18` の `cmd.exe` の親を補強するため、`13:23:00〜13:27:40` に範囲を広げて、同じ PID/PPID 系列の連続観測や、`parent_process_name` / `parent_process_path` / `command_line` が埋まる row を確認する必要があります。",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "ToolMessage",
+      "content": "### 仮説\nhost WIN-32-H1 の 2022-07-16 13:25:00 前後では、`cmd.exe` の実行は確認できたが、`python.exe` はこの狭い時間窓では観測できず、両者の接続関係はまだ未確認である可能性が高い。\n\n### 質問1への観測結果\n**観測事実**\n- `2022-07-16 13:25:18` に `cmd.exe` が観測された。\n- `pid=3292`\n- `ppid=None`\n- `process_name=C:\\Windows\\System32\\cmd.exe`\n- `pname=cmd.exe`\n- 同時刻帯に `event_id=4656`、`4663`、`4658` などの `cmd.exe` 関連行が複数ある。\n- これらは同じ `pid=3292` の観測として見えている。\n- `python.exe` に一致する行はこの時間窓では見つからなかった。\n\n**解釈**\n- `cmd.exe` の存在は確認できるが、親プロセス情報がこの行からは取れない。\n- `cmd.exe` から `python.exe` への起動や連鎖は、この範囲だけでは証明できない。\n\n**限界**\n- `command_line` がこの行では見えていない。\n- `parent_process_name`、`parent_process_path`、`parent_command_line` がない。\n- `python.exe` の起動行がないため、プロセス生成の連鎖確認が未完了。\n\n### 次の調査理由\n直前の観測値では `cmd.exe` の PID が `3292` と分かったので、次はこの PID の前後で**親プロセス**と**子プロセス**の実体を確認し、`python.exe` が別時刻で起動していないかを追う必要がある。\n\n### 次のQAAgent向け質問\n`pid=3292` の `cmd.exe` について、起動元の親プロセスと、その後に生成した子プロセスを確認してください。`time`、`pid`、`ppid`、`process_name/pname`、`parent_process_name`、`parent_process_path`、`parent_command_line`、`childproc_name`、`command_line` を含め、近傍の関連行も時系列で示してください。また、`python.exe` が観測されるなら、その起動行と関連する親子関係も示してください。",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\"host\":\"WIN-32-H1\",\"time_range\":{\"start\":\"2022-07-16 13:25:00\",\"end\":\"2022-07-16 13:35:00\"},\"observed_processes\":[{\"time\":\"2022-07-16 13:25:18\",\"pid\":3292,\"ppid\":null,\"process_name\":\"C:\\\\Windows\\\\System32\\\\cmd.exe\",\"pname\":\"cmd.exe\",\"source_stream\":\"cbc-edr\",\"event_record_id\":null,\"parent_process_name\":null,\"parent_process_path\":null,\"parent_command_line\":null,\"command_line\":null},{\"time\":\"2022-07-16 13:23:29\",\"pid\":2244,\"ppid\":3376,\"process_name\":\"cmd.exe\",\"pname\":\"cmd.exe\",\"source_stream\":\"cbc-edr\",\"event_record_id\":null,\"parent_process_name\":\"plugin_host.exe\",\"parent_process_path\":\"c:\\\\program files\\\\sublime text 3\\\\plugin_host.exe\",\"parent_command_line\":\"\\\"C:\\\\Program Files\\\\Sublime Text 3/plugin_host.exe\\\" \\\"3964\\\" \\\"--auto-shell-env\\\"\",\"command_line\":\"C:\\\\Windows\\\\system32\\\\cmd.exe /c \\\"python -u \\\"C:\\\\Program Files\\\\Sublime Text 3\\\\helloworld.py\\\"\\\"\"},{\"time\":\"2022-07-16 13:23:29\",\"pid\":1108,\"ppid\":2244,\"process_name\":\"python.exe\",\"pname\":\"python.exe\",\"source_stream\":\"cbc-edr\",\"event_record_id\":null,\"parent_process_name\":\"cmd.exe\",\"parent_process_path\":\"c:\\\\windows\\\\system32\\\\cmd.exe\",\"parent_command_line\":\"C:\\\\Windows\\\\system32\\\\cmd.exe /c \\\"python -u \\\"C:\\\\Program Files\\\\Sublime Text 3\\\\helloworld.py\\\"\\\"\",\"command_line\":null}],\"code_steps\":[{\"step\":1,\"time\":\"2022-07-16 13:23:29\",\"process\":\"cmd.exe\",\"evidence\":\"parent_process_name=plugin_host.exe, parent_process_path=c:\\\\program files\\\\sublime text 3\\\\plugin_host.exe, parent_command_line=\\\"C:\\\\Program Files\\\\Sublime Text 3/plugin_host.exe\\\" \\\"3964\\\" \\\"--auto-shell-env\\\"\",\"description\":\"plugin_host.exe から cmd.exe が起動された観測がある。\"},{\"step\":2,\"time\":\"2022-07-16 13:23:29\",\"process\":\"python.exe\",\"evidence\":\"parent_process_name=cmd.exe, parent_process_path=c:\\\\windows\\\\system32\\\\cmd.exe, parent_command_line=C:\\\\Windows\\\\system32\\\\cmd.exe /c \\\"python -u \\\"C:\\\\Program Files\\\\Sublime Text 3\\\\helloworld.py\\\"\\\"\",\"description\":\"cmd.exe から python.exe が起動された観測がある。\"},{\"step\":3,\"time\":\"2022-07-16 13:25:18\",\"process\":\"cmd.exe\",\"evidence\":\"pid=3292, ppid=null, process_name=C:\\\\Windows\\\\System32\\\\cmd.exe\",\"description\":\"13:25:18 に別の cmd.exe 観測があるが、親子関係や command_line はこの範囲では確定できない。\"}],\"code_sequence\":[\"C:\\\\Windows\\\\system32\\\\cmd.exe /c \\\"python -u \\\"C:\\\\Program Files\\\\Sublime Text 3\\\\helloworld.py\\\"\\\"\"],\"summary\":\"観測できた行動列では、13:23:29 に plugin_host.exe 由来の cmd.exe が起動され、その cmd.exe から python.exe が派生している。13:25:18 にも cmd.exe の観測はあるが、親情報と command_line が欠落しており、同一連鎖かは確定できない。\",\"confidence\":\"中\",\"notes\":[\"python.exe の観測は主に 13:23:29 に集中しており、入力時刻ちょうどの範囲では確認できなかった。\",\"13:25:18 の cmd.exe は PPID と command_line が欠落しているため、別系統の可能性を排除できない。\"]}",
+      "usage_metadata": {
+        "input_tokens": 3513,
+        "output_tokens": 891,
+        "total_tokens": 4404,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 1664
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"cmd.exe; python.exe\",\n    \"timestamp\": \"2022-07-16 13:25:00\",\n    \"condition\": \"stage3\",\n    \"input_fields_used\": [\n      \"host\",\n      \"process\",\n      \"timestamp\"\n    ]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-16 13:23:29\",\n      \"subject_process\": {\n        \"name\": \"cmd.exe\",\n        \"pid\": 2244,\n        \"path\": null\n      },\n      \"operation\": \"起動\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"python.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"C:\\\\Windows\\\\system32\\\\cmd.exe /c \\\"python -u \\\"C:\\\\Program Files\\\\Sublime Text 3\\\\helloworld.py\\\"\\\"\",\n      \"execution_context\": {\n        \"parent_process\": \"plugin_host.exe\",\n        \"parent_pid\": 3376,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Sublime Text 3/plugin_host.exe\\\" \\\"3964\\\" \\\"--auto-shell-env\\\"\",\n        \"child_process\": \"python.exe\",\n        \"child_pid\": 1108\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_process_name\",\n          \"value\": \"plugin_host.exe\",\n          \"pid\": 2244,\n          \"ppid\": 3376\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_process_path\",\n          \"value\": \"c:\\\\program files\\\\sublime text 3\\\\plugin_host.exe\",\n          \"pid\": 2244,\n          \"ppid\": 3376\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_command_line\",\n          \"value\": \"\\\"C:\\\\Program Files\\\\Sublime Text 3/plugin_host.exe\\\" \\\"3964\\\" \\\"--auto-shell-env\\\"\",\n          \"pid\": 2244,\n          \"ppid\": 3376\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"command_line\",\n          \"value\": \"C:\\\\Windows\\\\system32\\\\cmd.exe /c \\\"python -u \\\"C:\\\\Program Files\\\\Sublime Text 3\\\\helloworld.py\\\"\\\"\",\n          \"pid\": 2244,\n          \"ppid\": 3376\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"childproc_name\",\n          \"value\": \"python.exe\",\n          \"pid\": 2244,\n          \"ppid\": 3376\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"pid/ppid\",\n          \"value\": \"pid=2244, ppid=3376\",\n          \"pid\": 2244,\n          \"ppid\": 3376\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"subject_process の path は観測行から明示されていない。\",\n        \"python.exe の command_line はこの行では null である。\"\n      ]\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-16 13:23:29\",\n      \"subject_process\": {\n        \"name\": \"python.exe\",\n        \"pid\": 1108,\n        \"path\": null\n      },\n      \"operation\": \"起動\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": null,\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"cmd.exe\",\n        \"parent_pid\": 2244,\n        \"parent_command_line\": \"C:\\\\Windows\\\\system32\\\\cmd.exe /c \\\"python -u \\\"C:\\\\Program Files\\\\Sublime Text 3\\\\helloworld.py\\\"\\\"\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_process_name\",\n          \"value\": \"cmd.exe\",\n          \"pid\": 1108,\n          \"ppid\": 2244\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_process_path\",\n          \"value\": \"c:\\\\windows\\\\system32\\\\cmd.exe\",\n          \"pid\": 1108,\n          \"ppid\": 2244\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_command_line\",\n          \"value\": \"C:\\\\Windows\\\\system32\\\\cmd.exe /c \\\"python -u \\\"C:\\\\Program Files\\\\Sublime Text 3\\\\helloworld.py\\\"\\\"\",\n          \"pid\": 1108,\n          \"ppid\": 2244\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"pid/ppid\",\n          \"value\": \"pid=1108, ppid=2244\",\n          \"pid\": 1108,\n          \"ppid\": 2244\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"python.exe 自身の command_line は観測行から取得できない。\"\n      ]\n    },\n    {\n      \"step_id\": \"S3\",\n      \"order\": 3,\n      \"time\": \"2022-07-16 13:25:18\",\n      \"subject_process\": {\n        \"name\": \"cmd.exe\",\n        \"pid\": 3292,\n        \"path\": \"C:\\\\Windows\\\\System32\\\\cmd.exe\"\n      },\n      \"operation\": \"実行\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": null,\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": null,\n        \"parent_pid\": null,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:25:18\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"process_name\",\n          \"value\": \"C:\\\\Windows\\\\System32\\\\cmd.exe\",\n          \"pid\": 3292,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:25:18\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"pname\",\n          \"value\": \"cmd.exe\",\n          \"pid\": 3292,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:25:18\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"pid/ppid\",\n          \"value\": \"pid=3292, ppid=None\",\n          \"pid\": 3292,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"この観測行では parent evidence と command_line が欠落しているため、実行元や後続処理は確定できない。\"\n      ]\n    }\n  ],\n  \"code_sequence\": [\n    \"C:\\\\Windows\\\\system32\\\\cmd.exe /c \\\"python -u \\\"C:\\\\Program Files\\\\Sublime Text 3\\\\helloworld.py\\\"\\\"\"\n  ],\n  \"supporting_alert_evidence\": [],\n  \"excluded_nearby_evidence\": [\n    {\n      \"time\": \"2022-07-16 13:25:18\",\n      \"source_stream\": \"cbc-edr\",\n      \"description\": \"cmd.exe の別観測はあるが、PPID と command_line が欠落しており、13:23:29 の cmd.exe/python.exe 連鎖と同一であると断定できない。\"\n    }\n  ],\n  \"global_limitations\": [\n    \"入力条件の時刻付近では python.exe は 13:23:29 に観測されており、13:25:00 ちょうどの範囲では確認できない。\",\n    \"13:25:18 の cmd.exe は親情報と command_line が欠落しているため、behavior chain への接続は未確定である。\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-16 13:23:29 に plugin_host.exe から cmd.exe が起動された。\",\n    \"同じ 2022-07-16 13:23:29 に cmd.exe から python.exe が起動された。\",\n    \"2022-07-16 13:25:18 に別の cmd.exe 観測があるが、親子関係は不明である。\"\n  ]\n}",
+      "usage_metadata": {
+        "input_tokens": 4534,
+        "output_tokens": 2382,
+        "total_tokens": 6916,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    }
+  ],
+  "output_text": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"cmd.exe; python.exe\",\n    \"timestamp\": \"2022-07-16 13:25:00\",\n    \"condition\": \"stage3\",\n    \"input_fields_used\": [\n      \"host\",\n      \"process\",\n      \"timestamp\"\n    ]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-16 13:23:29\",\n      \"subject_process\": {\n        \"name\": \"cmd.exe\",\n        \"pid\": 2244,\n        \"path\": null\n      },\n      \"operation\": \"起動\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"python.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"C:\\\\Windows\\\\system32\\\\cmd.exe /c \\\"python -u \\\"C:\\\\Program Files\\\\Sublime Text 3\\\\helloworld.py\\\"\\\"\",\n      \"execution_context\": {\n        \"parent_process\": \"plugin_host.exe\",\n        \"parent_pid\": 3376,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Sublime Text 3/plugin_host.exe\\\" \\\"3964\\\" \\\"--auto-shell-env\\\"\",\n        \"child_process\": \"python.exe\",\n        \"child_pid\": 1108\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_process_name\",\n          \"value\": \"plugin_host.exe\",\n          \"pid\": 2244,\n          \"ppid\": 3376\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_process_path\",\n          \"value\": \"c:\\\\program files\\\\sublime text 3\\\\plugin_host.exe\",\n          \"pid\": 2244,\n          \"ppid\": 3376\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_command_line\",\n          \"value\": \"\\\"C:\\\\Program Files\\\\Sublime Text 3/plugin_host.exe\\\" \\\"3964\\\" \\\"--auto-shell-env\\\"\",\n          \"pid\": 2244,\n          \"ppid\": 3376\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"command_line\",\n          \"value\": \"C:\\\\Windows\\\\system32\\\\cmd.exe /c \\\"python -u \\\"C:\\\\Program Files\\\\Sublime Text 3\\\\helloworld.py\\\"\\\"\",\n          \"pid\": 2244,\n          \"ppid\": 3376\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"childproc_name\",\n          \"value\": \"python.exe\",\n          \"pid\": 2244,\n          \"ppid\": 3376\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"pid/ppid\",\n          \"value\": \"pid=2244, ppid=3376\",\n          \"pid\": 2244,\n          \"ppid\": 3376\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"subject_process の path は観測行から明示されていない。\",\n        \"python.exe の command_line はこの行では null である。\"\n      ]\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-16 13:23:29\",\n      \"subject_process\": {\n        \"name\": \"python.exe\",\n        \"pid\": 1108,\n        \"path\": null\n      },\n      \"operation\": \"起動\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": null,\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"cmd.exe\",\n        \"parent_pid\": 2244,\n        \"parent_command_line\": \"C:\\\\Windows\\\\system32\\\\cmd.exe /c \\\"python -u \\\"C:\\\\Program Files\\\\Sublime Text 3\\\\helloworld.py\\\"\\\"\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_process_name\",\n          \"value\": \"cmd.exe\",\n          \"pid\": 1108,\n          \"ppid\": 2244\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_process_path\",\n          \"value\": \"c:\\\\windows\\\\system32\\\\cmd.exe\",\n          \"pid\": 1108,\n          \"ppid\": 2244\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_command_line\",\n          \"value\": \"C:\\\\Windows\\\\system32\\\\cmd.exe /c \\\"python -u \\\"C:\\\\Program Files\\\\Sublime Text 3\\\\helloworld.py\\\"\\\"\",\n          \"pid\": 1108,\n          \"ppid\": 2244\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:23:29\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"pid/ppid\",\n          \"value\": \"pid=1108, ppid=2244\",\n          \"pid\": 1108,\n          \"ppid\": 2244\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"python.exe 自身の command_line は観測行から取得できない。\"\n      ]\n    },\n    {\n      \"step_id\": \"S3\",\n      \"order\": 3,\n      \"time\": \"2022-07-16 13:25:18\",\n      \"subject_process\": {\n        \"name\": \"cmd.exe\",\n        \"pid\": 3292,\n        \"path\": \"C:\\\\Windows\\\\System32\\\\cmd.exe\"\n      },\n      \"operation\": \"実行\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": null,\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": null,\n        \"parent_pid\": null,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:25:18\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"process_name\",\n          \"value\": \"C:\\\\Windows\\\\System32\\\\cmd.exe\",\n          \"pid\": 3292,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:25:18\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"pname\",\n          \"value\": \"cmd.exe\",\n          \"pid\": 3292,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-16 13:25:18\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"pid/ppid\",\n          \"value\": \"pid=3292, ppid=None\",\n          \"pid\": 3292,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"この観測行では parent evidence と command_line が欠落しているため、実行元や後続処理は確定できない。\"\n      ]\n    }\n  ],\n  \"code_sequence\": [\n    \"C:\\\\Windows\\\\system32\\\\cmd.exe /c \\\"python -u \\\"C:\\\\Program Files\\\\Sublime Text 3\\\\helloworld.py\\\"\\\"\"\n  ],\n  \"supporting_alert_evidence\": [],\n  \"excluded_nearby_evidence\": [\n    {\n      \"time\": \"2022-07-16 13:25:18\",\n      \"source_stream\": \"cbc-edr\",\n      \"description\": \"cmd.exe の別観測はあるが、PPID と command_line が欠落しており、13:23:29 の cmd.exe/python.exe 連鎖と同一であると断定できない。\"\n    }\n  ],\n  \"global_limitations\": [\n    \"入力条件の時刻付近では python.exe は 13:23:29 に観測されており、13:25:00 ちょうどの範囲では確認できない。\",\n    \"13:25:18 の cmd.exe は親情報と command_line が欠落しているため、behavior chain への接続は未確定である。\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-16 13:23:29 に plugin_host.exe から cmd.exe が起動された。\",\n    \"同じ 2022-07-16 13:23:29 に cmd.exe から python.exe が起動された。\",\n    \"2022-07-16 13:25:18 に別の cmd.exe 観測があるが、親子関係は不明である。\"\n  ]\n}",
+  "usage": {
+    "input_tokens": 9781,
+    "output_tokens": 3520,
+    "cached_input_tokens": 0
+  },
+  "formal_27_chain_experiment": {
+    "case_file": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\cases\\cbc_23_chain_stage_cases_2026-06-12.jsonl",
+    "chain_id": "chain_07_e05_sublime_python_script_execution_chain",
+    "stage": "stage3",
+    "gold_chain_file": "by_chain/chain_07_e05_sublime_python_script_execution_chain/chain_gold.json",
+    "copied_from": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260613T074038Z_chain_07_e05_sublime_python_script_execution_chain_stage3_gpt-5.4-mini_official\\run.json",
+    "run_only_guarded": true
+  }
+}
