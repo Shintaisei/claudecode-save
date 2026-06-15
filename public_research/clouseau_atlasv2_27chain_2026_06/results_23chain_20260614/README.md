@@ -13,7 +13,7 @@ Use this folder when writing the FIT2026 paper or slides. The older top-level `r
 | Stages | `stage1`, `stage2`, `stage3` |
 | Main structured models | `gpt-4.1-mini`, `gpt-5.4-mini` |
 | Structured comparison scope | 23 chains x 3 stages x 3 sets = 207 rows per model |
-| GPT-5.5 scope | 23 chains x 3 stages x 1 set = 69 raw-output salvage rows |
+| GPT-5.5 scope | 23 chains x 3 stages x 3 sets = 207 raw-output salvage rows |
 | Scoring rubric | Component rubric with content-inclusion matching |
 | Current final ledger | `ledgers/final_comparison_per_run_component_scores.csv` |
 
@@ -23,7 +23,7 @@ Use this folder when writing the FIT2026 paper or slides. The older top-level `r
 | --- | ---: | ---: | ---: | ---: | --- |
 | `gpt-4.1-mini` | 207 | 23 | 3 | 3 | formal23 rep1 + formal23 rep2 + legacy27 filtered to current 23 |
 | `gpt-5.4-mini` | 207 | 23 | 3 | 3 | formal23 rep1 + formal23 rep2 + legacy27 filtered to current 23 |
-| `gpt-5.5 low raw` | 69 | 23 | 3 | 1 | raw-output salvage; output contract failed |
+| `gpt-5.5 low raw` | 207 | 23 | 3 | 3 | raw-output salvage; output contract failed |
 
 The third set for `gpt-4.1-mini` and `gpt-5.4-mini` is not a newly executed formal23 `replicate_03`. It is the current 23-chain subset extracted from the earlier 27-chain run and used as the practical third set.
 
@@ -61,20 +61,33 @@ Matching uses content inclusion. If the candidate output contains the substantiv
 | `by_stage_scenario_group.csv` | Stage x scenario-group results |
 | `by_framework_group.csv` | Detailed behavior-framework results |
 | `by_stage_framework_group.csv` | Stage x behavior-framework results |
-| `ledgers/final_comparison_per_run_component_scores.csv` | Per-run component-score ledger for all 483 rows |
+| `ledgers/final_comparison_per_run_component_scores.csv` | Per-run component-score ledger for all 621 rows |
 | `ledgers/4_1_5_4_3run_filtered23_per_run_component_scores.csv` | Per-run ledger for the 4.1/5.4 3-set comparison only |
 | `openai_cost_audit_note_20260614.md` | Cost and token audit note |
 | `openai_usage_audit_20260614.csv` | Cost/token detail |
 
 ## Overall Result
 
-| model | rows | action recall | evidence recall | order | precision proxy | overclaims |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `gpt-4.1-mini` | 207 | 0.466 | 0.195 | 0.201 | 0.366 | 1190 |
-| `gpt-5.4-mini` | 207 | 0.798 | 0.703 | 0.553 | 0.584 | 651 |
-| `gpt-5.5 low raw` | 69 | 0.940 | 0.928 | 0.889 | 0.667 | 350 |
+| model | run_count | chain_count | action_step_recall | critical_evidence_recall | behavior_sequence_order | candidate_claim_precision | overclaim_slot_count |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| gpt-4.1-mini | 207 | 23 | 0.466 | 0.195 | 0.201 | 0.366 | 1190 |
+| gpt-5.4-mini | 207 | 23 | 0.798 | 0.703 | 0.553 | 0.584 | 651 |
+| gpt-5.5 low raw | 207 | 23 | 0.918 | 0.906 | 0.868 | 0.640 | 1235 |
+
+## By Stage
+
+| model | stage | run_count | action_step_recall | critical_evidence_recall | behavior_sequence_order | candidate_claim_precision | overclaim_slot_count |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| gpt-4.1-mini | stage1 | 69 | 0.639 | 0.292 | 0.341 | 0.433 | 422 |
+| gpt-4.1-mini | stage2 | 69 | 0.414 | 0.128 | 0.111 | 0.285 | 506 |
+| gpt-4.1-mini | stage3 | 69 | 0.345 | 0.164 | 0.151 | 0.382 | 262 |
+| gpt-5.4-mini | stage1 | 69 | 0.791 | 0.574 | 0.579 | 0.559 | 215 |
+| gpt-5.4-mini | stage2 | 69 | 0.800 | 0.754 | 0.540 | 0.597 | 213 |
+| gpt-5.4-mini | stage3 | 69 | 0.802 | 0.779 | 0.540 | 0.594 | 223 |
+| gpt-5.5 low raw | stage1 | 69 | 0.937 | 0.908 | 0.897 | 0.658 | 374 |
+| gpt-5.5 low raw | stage2 | 69 | 0.915 | 0.908 | 0.857 | 0.620 | 415 |
+| gpt-5.5 low raw | stage3 | 69 | 0.903 | 0.903 | 0.849 | 0.643 | 446 |
 
 ## Reporting Caveat
 
 Use `gpt-5.5 low raw` as a raw-output salvage result. It is useful for discussing substantive reconstruction ability, but it is not directly contract-equivalent to the structured `gpt-4.1-mini` and `gpt-5.4-mini` results.
-
