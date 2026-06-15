@@ -20,7 +20,10 @@ METRIC_PAIRS = [
 ]
 
 MODEL_ORDER = ["gpt-4.1-mini", "gpt-5.4-mini", "gpt-5.5 low raw"]
-MOJIBAKE_MARKERS = ("縺", "蜿", "蠕", "騾", "邱", "荳", "譁", "髯", "邏", "噪")
+MOJIBAKE_MARKERS = tuple(chr(code) for code in (
+    0x7e3a, 0x873f, 0x8815, 0x9a3e, 0x90b1,
+    0x8373, 0x8b41, 0x9aef, 0x908f, 0x566a,
+))
 
 
 def read_csv(path):

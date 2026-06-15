@@ -13,7 +13,10 @@ RAW_ROOT = ROOT / "01_experiment_raw_outputs"
 USECASE_MATRIX = ROOT / "04_discussion_base" / "usecase_deep_dive_20260614" / "usecase_interpretation_matrix.csv"
 
 
-MOJIBAKE_MARKERS = ("縺", "蜿", "蠕", "騾", "荳", "譁", "髯", "邏", "噪", "繝")
+MOJIBAKE_MARKERS = tuple(chr(code) for code in (
+    0x7e3a, 0x873f, 0x8815, 0x9a3e, 0x8373,
+    0x8b41, 0x9aef, 0x908f, 0x566a, 0x7e5d,
+))
 MODEL_ORDER = {"gpt-4.1-mini": 0, "gpt-5.4-mini": 1, "gpt-5.5 low raw": 2}
 
 
