@@ -26,6 +26,8 @@ It contains the research purpose, experiment design, current LaTeX manuscript, s
 
 ## Main result files
 
+- `docs/method_changes_for_paper_20260615.md`
+- `docs/method_section_points_ja_20260615.md`
 - `results/score_summary_overall.csv`
 - `results/score_summary_by_stage.csv`
 - `results/score_summary_by_scenario_group.csv`
@@ -49,4 +51,4 @@ The package includes per-run model output JSON files and scoring/discussion arti
 
 The aggregate tables report both percentages and numerator/denominator fractions. Use the fractions when checking metric definitions or comparing score pipelines.
 
-For the latest paper discussion, start with `fit2026_manuscript/paper/main.tex`, `exp_20260614/03_aggregated_results/summary.md`, and `exp_20260614/04_discussion_base/detailed_discussion_20260614.md`.
+For the latest paper discussion, start with `docs/method_changes_for_paper_20260615.md`, `docs/method_section_points_ja_20260615.md`, `fit2026_manuscript/paper/main.tex`, `exp_20260614/03_aggregated_results/summary.md`, and `exp_20260614/04_discussion_base/detailed_discussion_20260614.md`.

@@ -22,6 +22,8 @@
 
 ## Metadata
 
+- `docs/method_changes_for_paper_20260615.md`
+- `docs/method_section_points_ja_20260615.md`
 - `experiment_metadata/case_metadata_81runs.csv`
 - `experiment_metadata/case_metadata_81runs.json`
 - `experiment_metadata/chain_summary.csv`
