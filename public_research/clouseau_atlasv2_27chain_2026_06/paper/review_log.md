@@ -499,3 +499,15 @@ Status: passed after targeted review
 - Added CBC, MITRE ATT&CK, and LOLBAS context plus bibliography entries and inline citations.
 - Confirmed all 9 citation keys used in text have matching `\bibitem` entries.
 - Confirmed canonical, public, and `docs/fit2026_manuscript/paper/main.tex` copies are byte-identical after sync.
+
+## Reviewer Response And Six-Page Expansion Pass 2026-06-16
+
+Status: passed after 3 review checks
+
+- Adjusted FIT geometry to top 30mm, left/right 18mm, bottom 27mm, and removed the negative first-page vertical space.
+- Removed the `gpt-5.5 low` freer-form/raw caveat from the result-table note and kept it as a normal model row.
+- Replaced `evaluation instance` wording with `run`, normalized metric wording to `candidate precision`, and added micro-average/order-denominator definitions.
+- Split interpretation-heavy text out of Experiment into an independent `考察` section, reducing duplicated recommendations while expanding the manuscript toward 6 pages.
+- Added the necessary-condition framing for false-positive triage support, 3-run variation ranges, Stage 3/overclaim novelty framing, and the ATLASv2 2024 year fix.
+- Static review passed: begin/end counts match, brace balance is zero, all 9 citation keys have matching bibliography entries, and no stale `raw` or `evaluation instance` result wording remains.
+- Local TeX engines were not installed, so final PDF page count still needs Overleaf confirmation.
