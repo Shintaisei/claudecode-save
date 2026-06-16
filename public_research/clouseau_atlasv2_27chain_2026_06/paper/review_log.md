@@ -377,3 +377,32 @@ Review:
 
 - Active `main.tex` still contains no removed author or affiliation-3 strings.
 - Active `main.tex` still has no external file, citation, reference, or BibTeX dependency.
+
+## Sample Format Alignment Review 2026-06-16
+
+Status: passed after 3 reviews
+
+Fix:
+
+- Changed `\affmark` to use `\footnotemark[#1]`.
+- Removed the visible affiliation block below the author table.
+- Added two `\footnotetext` affiliations after the `\twocolumn[...]` title block, matching the senior sample's footnote-style affiliation placement while keeping a single-file `main.tex`.
+
+Review 1 - sample format:
+
+- Full-width title block remains in `\twocolumn[...]`.
+- Author table remains Japanese author row followed by English author row.
+- Affiliations are no longer printed as a title-body block.
+
+Review 2 - LaTeX safety:
+
+- No `\maketitle`, `\title`, `\author`, `\input`, `\cite`, `\ref`, `\bibliography`, or manual CJK environment was introduced.
+- One `\begin{document}` and one `\end{document}` remain.
+- `center` and `tabular` environments are balanced.
+
+Review 3 - content and authors:
+
+- The author list remains four authors.
+- Removed author and affiliation strings remain absent.
+- Manuscript and public `main.tex` copies are byte-identical.
+- Local TeX engine is not installed, so final visual page check must be done in Overleaf.
