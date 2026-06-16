@@ -54,4 +54,5 @@ Post-round3 delta review:
 
 ## Remaining Human Check
 
-- The author and affiliation are no longer placeholders, but they were inferred from local project context. Confirm the exact author name and affiliation before final submission.
+- The author name was corrected per user instruction to `小松崎 大世`.
+- Confirm the exact affiliation before final submission.

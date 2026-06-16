@@ -197,4 +197,13 @@ Review outcomes:
 
 Remaining risk:
 
-- Author and affiliation are no longer placeholders, but they were inferred from local project context and should be confirmed before final submission.
+- Author name was corrected per user instruction to `小松崎 大世`. Affiliation should still be confirmed before final submission.
+
+## User Correction 2026-06-16
+
+Status: passed
+
+Changes:
+
+- Removed the English abstract block from `main.tex`.
+- Corrected the author name from `小松崎 慎太郎` to `小松崎 大世`.
