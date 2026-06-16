@@ -210,7 +210,7 @@ Changes:
 
 ## Overleaf Template Conversion 2026-06-16
 
-Status: passed with local-build limitation
+Status: superseded by single-file `main.tex`
 
 Changes:
 
@@ -226,3 +226,29 @@ Review:
 - Action-by-action review was recorded in `review_overleaf_template_20260616.md`.
 - Active source has no English abstract environment and no old placeholder author.
 - Local pLaTeX build was not possible because `platex`, `pbibtex`, `dvipdfmx`, and `latexmk` are not installed in this environment.
+
+## Overleaf Single-File Correction 2026-06-16
+
+Status: passed by static review
+
+Reason:
+
+- The user wants to paste only `main.tex` into Overleaf.
+- The previous split-file/FITpaper structure required auxiliary files and engine settings, which is too fragile for copy-paste use.
+- The attached Overleaf log showed `fontspec` failing under default `pdflatex`; therefore the active source must not use `fontspec`, `xeCJK`, or a custom class.
+
+Actions:
+
+- Rebuilt `main.tex` as a fully self-contained file.
+- Removed dependency on `FITpaper.cls`, `contents/*.tex`, `.latexmkrc`, `fontspec`, and `xeCJK`.
+- Kept the user-specified Japanese and English title.
+- Kept the coauthor/professor block from the senior-paper style.
+- Kept the false-positive-triage framing in the introduction and conclusion.
+- Removed the split-file Overleaf template assets to avoid confusion.
+
+Review:
+
+- Active `main.tex` has no `\input{...}`.
+- Active `main.tex` has no `fontspec`, `xeCJK`, or `FITpaper` dependency.
+- Active `main.tex` has no English abstract environment.
+- Active `main.tex` is intended for Overleaf default `pdflatex` using `CJKutf8`.
