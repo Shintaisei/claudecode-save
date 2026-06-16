@@ -321,3 +321,27 @@ Review:
 - Active `main.tex` still has no `\maketitle`, `\title`, `\author`, `\input`, `\cite`, `\ref`, or external class dependency.
 - Active `main.tex` has exactly one `\twocolumn[...]` title block.
 - Braces and `center` / `tabular` environments are balanced.
+
+## Recreated Single-File main.tex 2026-06-16
+
+Status: passed by static review
+
+Reason:
+
+- The user requested a new `main.tex` rather than incremental patching.
+- The title, author, and affiliation block needed to be closer to the senior-paper sample while staying pasteable as a single Overleaf file.
+
+Actions:
+
+- Recreated `main.tex` as a clean single-file paper.
+- Kept the full-width title block above the two-column body.
+- Used the senior-paper author pattern: Japanese author row with affiliation marks, English author row, then affiliations.
+- Corrected the lead author display to `小松崎　大世`.
+- Kept `pdflatex` + `bxcjkjatype` and removed external class, `\input`, BibTeX, figures, and unresolved references.
+
+Review:
+
+- Active `main.tex` has one `\begin{document}` and one `\end{document}`.
+- Active `main.tex` has one `\twocolumn[...]` title block.
+- Active `main.tex` has no `\maketitle`, `\title`, `\author`, `\input`, `\cite`, `\ref`, `\bibliography`, or external class dependency.
+- Local `pdflatex` is not installed, so compile verification must be done in Overleaf.
