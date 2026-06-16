@@ -207,3 +207,22 @@ Changes:
 
 - Removed the English abstract block from `main.tex`.
 - Corrected the author name from `小松崎 慎太郎` to `小松崎 大世`.
+
+## Overleaf Template Conversion 2026-06-16
+
+Status: passed with local-build limitation
+
+Changes:
+
+- Reworked the paper into the same Overleaf-style structure as `2025_09_FIT_上前諒輔_論文.zip`.
+- Added `styles/FITpaper.cls`, `styles/mystyle.sty`, `.latexmkrc`, and `contents/*.tex`.
+- Replaced the title with `Windowsエンドポイントログを用いた正常行動の行動列復元による偽陽性判断支援の検討`.
+- Added the professor/coauthor block following the senior paper style.
+- Revised the introduction and conclusion so the research framing explicitly targets false positive triage through benign/normal behavior sequence reconstruction.
+- Removed stale alternative source files and the old PDF to avoid Overleaf confusion.
+
+Review:
+
+- Action-by-action review was recorded in `review_overleaf_template_20260616.md`.
+- Active source has no English abstract environment and no old placeholder author.
+- Local pLaTeX build was not possible because `platex`, `pbibtex`, `dvipdfmx`, and `latexmk` are not installed in this environment.

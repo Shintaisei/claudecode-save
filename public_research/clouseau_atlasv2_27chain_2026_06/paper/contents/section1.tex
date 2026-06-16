@@ -1,0 +1,13 @@
+﻿\begin{document}
+
+\section{はじめに}
+
+SOC（Security Operation Center）におけるインシデント分析では，検知アラートを受け取った後に，端末上で実際に何が起きたかを説明可能な形で再構成する必要がある．特に偽陽性判断では，アラートが悪性活動を示すのか，通常業務や管理操作に由来する正常行動なのかを，観測ログに基づいて短時間で切り分ける必要がある．アラート名や検知理由は調査の入口として有用である一方，それだけでは親子プロセス，コマンドライン，ファイル・レジストリ・ネットワーク操作，それらを支えるログ行の対応関係を十分に説明できない．調査者が最終的に必要とするのは，「怪しい」というラベルではなく，観測証跡に基づいて，どの主体が，どの対象に，どの順序で操作したかを示す行動列である．
+
+本研究が対象とするのは，マルウェア検知そのものではなく，検知後のエンドポイント調査，とくに正常行動を説明することで偽陽性判断を支援する課題である．入力は，CBC alertの要約，またはhost，process，time window程度のprocess/time clueであり，出力は証跡付きの行動ステップ列である．この設定では，CLOUSEAUのようなLLM階層型調査エージェント\cite{clouseau}が，自然言語の手がかりから探索方針を作り，SQLite化されたログに対して反復的に問い合わせを行うことで，関連する観測行を集められる可能性がある．しかし，アラート理由を言い換えただけの出力，近傍の無関係な行動の混入，証跡で支えられない推定，行動順序の誤りが生じる危険もある．
+
+本稿では，ATLASv2由来のWindowsホストログを用い，23個の正常行動chainを対象に，CLOUSEAUを基盤とするエージェント型ログ探索手法を評価する．ここで既存研究との立ち位置を明確にしておく．CLOUSEAUは，Point-of-Interest（POI）から攻撃調査を開始し，Chief Inspector，Investigator，Question-Answering agentが協調してattack narrativeを復元する階層型multi-agent frameworkである\cite{clouseau}．ATLASはaudit logから攻撃ストーリを復元する攻撃調査支援手法であり\cite{atlas}，ATLASv2はその攻撃エンゲージメントと通常業務活動を拡張したデータセットである\cite{atlasv2}．本研究はCLOUSEAUやATLASを置き換える攻撃調査アルゴリズムではない．CLOUSEAUの調査パイプラインとATLASv2のログ環境を用い，SOCの検知後調査を模した行動列復元ベンチマークとして，アラート要約への依存度，低レベルtelemetryからの復元可能性，証跡同定の成否を測り，偽陽性判断支援に必要な説明可能性を検討する研究である．
+
+本稿の貢献は次の3点である．第一に，CLOUSEAUのPOI起点調査をSOCの偽陽性判断支援に向けた正常行動復元へ読み替え，action component，critical evidence，sequence order，candidate precision，overclaimに分解した評価枠組みとして定義する．第二に，23 chainを3段階の入力条件で評価し，アラート支援条件，process/time clue条件，アラート要約行を隠したtelemetry中心条件を比較する．第三に，\code{gpt-4.1-mini}，\code{gpt-5.4-mini}，およびraw-output salvage条件である\code{gpt-5.5 low raw}を比較し，精度，過剰主張，コスト，出力契約違反の観点からSOC支援における実用上の境界を整理する．
+
+\end{document}

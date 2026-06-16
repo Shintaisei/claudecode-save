@@ -1,0 +1,29 @@
+﻿\begin{document}
+
+\section{考察}
+
+\subsection{ATLASv2上で何を評価できたか}
+
+本研究が評価したのは，ATLASv2上の正常行動chainに対して，SOC調査起点から証跡付き行動列を復元する能力である．したがって，結果はマルウェア検知率や攻撃キャンペーン全体の再構成率を意味しない．むしろ，検知後調査の局面で，アラートやprocess/time clueからログ探索を始め，調査者が偽陽性判断に利用できるbehavior storyをどの程度作れるかを測ったものである．この設定は，CLOUSEAUのPOI起点調査を，SOCの検知後説明生成および偽陽性判断支援へ転用する際の評価ベンチマークとして位置づけられる．
+
+\subsection{アラート要約の役割}
+
+Stage 3で\code{gpt-5.4-mini}と\code{gpt-5.5 low raw}が大きく崩れなかったことは重要である．alert summary rowsを検索対象から除外しても，CBC EDR/NGAV telemetryやOS側ログに残るprocess，command line，registry，network evidenceから復元できるchainが多い．これは，最終出力がalert summaryの単純な言い換えではないことを示す．
+
+一方で，alert summaryは探索の近道や境界設定として機能していた可能性がある．特に，対象プロセス，対象レジストリ，検知理由が要約された行は，主系列候補を絞る索引として働く．Stage 3で\code{gpt-5.5 low raw}のoverclaimが446まで増えたことは，強いモデルでも，低レベルtelemetryを広く探索するほど，主系列と近傍行動の境界が曖昧になりやすいことを示す．
+
+\subsection{モデル強化で解ける問題と残る問題}
+
+モデル強化は，証跡回収と順序構成の両方に効く．\code{gpt-5.4-mini}は\code{gpt-4.1-mini}に比べてevidence recallを大きく改善し，\code{gpt-5.5 low raw}はさらにorderを0.868まで引き上げた．これは，複数ログソースを横断して，process treeやregistry/network操作を統合する能力がモデル規模に依存することを示す．
+
+しかし，precisionとoverclaimは別の問題として残る．\code{gpt-5.5 low raw}は最も正しい部品を拾う一方で，最も多くのoverclaimを出した．この傾向は，LLMが調査文脈を広く推測し，周辺証跡や類似行動も主系列に含めやすいことを示す．したがって，今後は単に強いモデルへ置き換えるだけでなく，出力schemaの強制，evidence gating，nearby evidenceの別枠化，SQL履歴に基づくpost-processingが必要である．
+
+\subsection{妥当性への脅威}
+
+第一に，対象は単一のATLASv2由来環境から構成した23 chainであり，組織横断のSOCログや攻撃キャンペーン全体を代表するものではない．第二に，\code{gpt-4.1-mini}と\code{gpt-5.4-mini}の第三セットは旧27-chain runを23-chain scopeへ抽出したものであり，完全な同一条件replicateではない．第三に，\code{gpt-5.5 low raw}はraw-output salvageであり，構造化出力契約に従った比較ではない．第四に，Stage 3はalert summary rowsのみを検索対象から除外する条件であり，EDR telemetry全体を除外した条件ではない．第五に，採点はcontent-inclusion matchingを用いるcomponent-rubric judgmentであり，完全に機械的な自然言語一致ではない．2レビューと衝突時の第三レビューで揺れを抑えたが，非盲検のローカルレビューであること，23 chainに対する集計で信頼区間や有意差検定を示していないこと，モデル版・価格が変動し得ることは妥当性上の制約である．これらを踏まえ，本稿の結論は「SOC調査起点からの証跡付き行動列復元におけるモデル・stage・scenarioの傾向」として読むべきである．
+
+\section{おわりに}
+
+本稿では，CLOUSEAUを基盤とするエージェント型ログ探索手法により，SOC調査起点からWindowsエンドポイントログを探索し，正常行動の証跡付き行動列を復元する課題を，ATLASv2由来の23 behavior chainで評価した．構造化出力を満たした\code{gpt-5.4-mini}は，\code{gpt-4.1-mini}に比べてaction recall，critical evidence recall，sequence orderを大きく改善し，overclaimも減らした．raw-output salvageとしての\code{gpt-5.5 low raw}は最も高い復元能力を示したが，出力契約違反，過剰主張，高コストという制約を持つ．また，Stage 3でも強いモデルは多くの行動を復元でき，alert summary rowsは唯一の復元経路ではないことが示された．これらの結果は，検知アラートを単に悪性/良性へ分類するだけでなく，正常行動として説明可能な行動列を提示することが偽陽性判断支援に有用である可能性を示す．今後は，出力schemaの強制，主系列と近傍証跡の分離，SQL履歴を用いた探索経路分析，および複数環境への拡張に取り組む．
+
+\end{document}
