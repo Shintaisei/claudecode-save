@@ -534,3 +534,16 @@ Status: passed after 3 static review checks
 - Canonical `main.tex` increased from about 16,615 to about 17,559 characters to use more of page 6.
 - Static review passed: the new table reference has a matching label, stale wording did not reappear, brace balance is zero, and no external TeX files are required.
 - Local TeX engines were unavailable, so exact Overleaf page count must be checked after paste/upload.
+
+## Critical Reviewer Risk-Reduction Pass 2026-06-16
+
+Status: passed after 3 static review checks
+
+- Reduced claim strength from triage-effect evaluation to reconstruction-quality evaluation for false-positive triage support.
+- Added an explicit scope statement that the paper does not prove CLOUSEAU-style search is superior to single-prompt or other baselines.
+- Added scoring-subjectivity wording: two-stage review is used, but Cohen's kappa / independent annotator agreement is not reported.
+- Added `Over/claim` normalization and a new overclaim-normalization table to separate absolute confirmation load from per-claim error rate.
+- Added gpt-4.1-mini Stage degradation and a cautionary explanation for gpt-5.4-mini evidence recall increasing in Stage 2/3.
+- Removed the semantic n=1 numeric row from the scenario-comparison table and kept it as a qualitative case study.
+- Static review passed: no stale `raw`, `salvage`, `evaluation instance`, `operational suitability`, semantic score row, old scenario values, or 2023 ATLASv2 year remain.
+- Canonical `main.tex` is about 18,997 characters. Local TeX engines were unavailable, so exact Overleaf page count remains to be checked.

@@ -379,3 +379,31 @@ Final review 3 - LaTeX safety:
 
 - Brace balance is zero, table count is consistent with the added use-case table, and no external TeX files are required.
 - Local TeX engines were still unavailable, so exact Overleaf page count must be checked after paste/upload.
+
+## Critical Reviewer Risk-Reduction Pass 2026-06-16
+
+Status: passed after 3 static review checks
+
+Action review:
+
+- Reduced claim strength from triage-effect evaluation to reconstruction-quality evaluation for false-positive triage support.
+- Added an explicit scope statement that the paper does not prove CLOUSEAU-style search is superior to single-prompt or other baselines.
+- Added scoring-subjectivity wording: two-stage review is used, but Cohen's kappa / independent annotator agreement is not reported, so the scores should be read as exploratory reconstruction-quality measurements.
+- Added `Over/claim` normalization and a new overclaim-normalization table. This separates absolute confirmation load from per-claim error rate.
+- Added gpt-4.1-mini Stage degradation as a counterpoint to the gpt-5.4-mini Stage 3 stability claim.
+- Added a possible explanation and caution for gpt-5.4-mini evidence recall increasing in Stage 2/3.
+- Removed the semantic n=1 numeric row from the scenario-comparison table and kept it as a qualitative case study.
+- Replaced "operational suitability" wording with "confirmation load" / "presentation risk" wording.
+
+Final review 1 - stale/high-risk wording:
+
+- No stale `raw`, `salvage`, `evaluation instance`, `operational suitability`, semantic n=1 score row, old scenario values, or 2023 ATLASv2 year remain in active `main.tex`.
+
+Final review 2 - reviewer coverage:
+
+- The semantic n=1 issue, baseline absence, overclaim-rate normalization, claim-tone reduction, gpt-4.1-mini Stage degradation, evidence-recall anomaly, scoring subjectivity, and sequence-order rationale are all addressed in text.
+
+Final review 3 - static LaTeX and page fill:
+
+- `\begin` / `\end` counts match, brace balance is zero, all citation keys and table references resolve statically.
+- Canonical `main.tex` is about 18,997 characters, expanded from about 17,559 to use more of page 6. Local TeX engines were unavailable, so exact Overleaf page count remains to be checked.
