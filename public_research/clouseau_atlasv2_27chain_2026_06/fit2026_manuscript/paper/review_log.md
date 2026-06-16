@@ -354,3 +354,28 @@ Final review 3 - static LaTeX and page risk:
 
 - `\begin` / `\end` counts match, brace balance is zero, and all citation keys have bibliography entries.
 - Canonical `main.tex` is about 16,615 characters. Local TeX engines were unavailable, so exact Overleaf page count remains to be checked, but the manuscript is intentionally expanded from the 5-page version while still avoiding a figure file or extra artifacts.
+
+## Dataset And Use Case Expansion Pass 2026-06-16
+
+Status: passed after 3 static review checks
+
+Action review:
+
+- Expanded the dataset section to explain that each behavior chain is treated as one use case with a host, focus process, time window, and investigator-verifiable normal behavior sequence.
+- Added concrete examples for Python SimpleHTTPServer, cmd.exe / packet-capture batch behavior, Sublime-triggered Python script execution, and Discord Run Key.
+- Added `Table \ref{tab:usecase_type}` summarizing the 15 explicit, 7 multi-step, and 1 semantic use case groups and their reconstruction focus.
+- Kept the single-file `main.tex` structure and avoided adding external figures or assets.
+
+Final review 1 - page allocation:
+
+- Canonical `main.tex` increased from about 16,615 to about 17,559 characters, intended to use more of page 6 without adding a likely page 7-sized section.
+
+Final review 2 - references and stale text:
+
+- The new `tab:usecase_type` reference has a matching label.
+- No stale `raw`, `evaluation instance`, old margin, old title, or old scenario values reappeared.
+
+Final review 3 - LaTeX safety:
+
+- Brace balance is zero, table count is consistent with the added use-case table, and no external TeX files are required.
+- Local TeX engines were still unavailable, so exact Overleaf page count must be checked after paste/upload.
