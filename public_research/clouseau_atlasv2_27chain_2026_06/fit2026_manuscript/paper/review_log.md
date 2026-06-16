@@ -227,3 +227,27 @@ Final review 3 - LaTeX and sync:
 
 - No external dependency commands, removed-author strings, citations, or references were introduced.
 - Manuscript and public `main.tex` copies are byte-identical.
+
+## Page-Length Trim Pass 2026-06-16
+
+Status: passed after action review and 3 final checks
+
+Action review:
+
+- Replaced the vertical metric-definition table with compact formal prose while preserving action recall, critical evidence recall, sequence order, candidate precision, overclaim, and Over/inst definitions.
+- Merged duplicated model interpretation, operation, and improvement discussion into shorter paragraphs.
+- Compressed individual scenario analysis and overall discussion while keeping the explicit/multi-step/semantic distinction, Stage 3 interpretation, and gpt-5.5 overclaim finding.
+
+Final review 1 - content:
+
+- The reviewer-response points remain present after trimming: direct-baseline absence, metric definitions, normalized overclaim, scoring review, and ATLASv2 external-validity limitation.
+
+Final review 2 - structure:
+
+- Major structure remains sections 1--6 with experiment subsections 5.1--5.4.
+- The manuscript stays in single-file `main.tex` form.
+
+Final review 3 - size and sync:
+
+- Canonical `main.tex` was reduced from about 15,989 characters to about 12,800 characters.
+- Manuscript and public `main.tex` copies are byte-identical.

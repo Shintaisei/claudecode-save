@@ -468,3 +468,14 @@ Final review:
 - User-policy check passed: no old-27-chain, 3-set, raw, salvage, or output-contract-failure wording remains.
 - Reviewer-response check passed: normalized overclaim, metric definitions, CLOUSEAU difference, direct-baseline absence, scoring reliability, and external validity are present.
 - LaTeX/sync check passed: no new external dependencies; manuscript and public `main.tex` are byte-identical.
+
+## Page-Length Trim Pass 2026-06-16
+
+Status: passed after action review and 3 final checks
+
+- Replaced the vertical metric-definition table with compact formal prose.
+- Merged duplicated model interpretation, operation, and improvement discussion.
+- Compressed individual scenario analysis and overall discussion while keeping the explicit/multi-step/semantic distinction, Stage 3 interpretation, and gpt-5.5 overclaim finding.
+- Confirmed the reviewer-response points remain present after trimming.
+- Confirmed the structure remains sections 1--6 with experiment subsections 5.1--5.4.
+- Reduced canonical `main.tex` from about 15,989 characters to about 12,800 characters and synced the public copy.
