@@ -431,3 +431,20 @@ Review 3 - sync and title:
 - Manuscript and public `main.tex` copies are byte-identical.
 - Four-author title block and footnote-style affiliations remain intact.
 - Exact page count still requires Overleaf visual confirmation because no local TeX engine is installed.
+
+## Explicit Subsection Numbering and Sample Major-Section Restructure 2026-06-16
+
+Status: passed after 3 reviews
+
+Fix:
+
+- Added explicit subsection numbering controls so subsection labels render as `5.1`, `5.2`, etc.
+- Reworked the manuscript to match the sample major-section structure: `1 はじめに`, `2 関連研究`, `3 提案手法`, `4 データセット`, `5 実験`, `6 おわりに`.
+- Added `5.1 実験目的`, `5.2 実験設定`, `5.3 評価方法`, and `5.4 実験結果`.
+- Moved detailed discussion topics inside `5.4 実験結果` as bold paragraph heads instead of numbered subsections.
+
+Review:
+
+- Static walk now gives exactly sections 1--6 and subsections 5.1--5.4.
+- No removed-author strings, external dependencies, citations, or references were introduced.
+- Manuscript and public `main.tex` copies are byte-identical.

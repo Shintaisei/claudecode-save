@@ -143,3 +143,56 @@ Review 3 - sync and title:
 - Manuscript and public `main.tex` copies are byte-identical.
 - Four-author title block and footnote-style affiliations remain intact.
 - Exact page count still requires Overleaf visual confirmation because no local TeX engine is installed.
+
+## Explicit Subsection Numbering 2026-06-16
+
+Status: passed by static review
+
+Reason:
+
+- The source used `\subsection{...}`, which should normally render as `5.1`, `5.2`, etc., but the user reported that the PDF did not visibly show the intended numbering.
+
+Fix:
+
+- Added explicit numbering controls:
+  - `\setcounter{secnumdepth}{2}`
+  - `\renewcommand{\thesection}{\arabic{section}}`
+  - `\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}`
+
+Review:
+
+- Static section walk now maps `\section{実験と考察}` to section 5.
+- Static section walk maps `\subsection{全体結果}` to 5.1, `\subsection{Stage別結果}` to 5.2, and `\subsection{過剰出力と採点レビュー}` to 5.4.
+- No external dependency commands, removed-author strings, citations, or references were introduced.
+
+## Sample Major-Section Restructure 2026-06-16
+
+Status: passed after 3 reviews
+
+Reason:
+
+- The sample paper uses the major-section structure `1 はじめに`, `2 関連研究`, `3 提案手法`, `4 データセット`, `5 実験`, `6 おわりに`.
+- The prior manuscript still used `4 実験設定`, `5 実験と考察`, and many numbered subsections beyond 5.4.
+
+Fix:
+
+- Renamed section 2 to `関連研究`.
+- Changed section 4 to `データセット`.
+- Changed section 5 to `実験`.
+- Added `5.1 実験目的`, `5.2 実験設定`, `5.3 評価方法`, and `5.4 実験結果`.
+- Moved detailed discussion topics inside `5.4 実験結果` as bold paragraph heads instead of numbered subsections, so no `5.5` or later subsections appear.
+- Folded limitations into the experiment-result discussion and kept section 6 as `おわりに`, matching the sample's major-section style.
+
+Review 1 - sample structure:
+
+- Static walk now gives exactly: sections 1--6 and subsections 5.1--5.4.
+
+Review 2 - LaTeX safety:
+
+- No `\maketitle`, `\input`, citations, references, removed-author strings, or external dependencies were introduced.
+- Document and tabular environments remain balanced.
+
+Review 3 - sync/title:
+
+- Manuscript and public `main.tex` copies are byte-identical.
+- Four-author title block and footnote-style affiliations remain intact.
