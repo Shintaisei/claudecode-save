@@ -448,3 +448,23 @@ Review:
 - Static walk now gives exactly sections 1--6 and subsections 5.1--5.4.
 - No removed-author strings, external dependencies, citations, or references were introduced.
 - Manuscript and public `main.tex` copies are byte-identical.
+
+## External Review Response Pass 2026-06-16
+
+Status: passed after action review and 3 final reviews
+
+Actions:
+
+- Added related-work framing that direct prior work on evidence-backed benign behavior sequence reconstruction after detection is limited.
+- Clarified that the contribution is task formulation, Stage design, and overclaim-aware evaluation rather than a new CLOUSEAU architecture.
+- Added formal metric definitions and normalized overclaim reporting via `Over/inst`.
+- Rewrote experiment description as 23 chains × 3 stages × 3 evaluations.
+- Kept `gpt-5.5 low` in the main comparison tables and removed `raw`, `salvage`, and output-contract-failure framing.
+- Added two-stage scoring-review/adjudication text and strengthened ATLASv2 external-validity limitations.
+- Added inline numeric references for CLOUSEAU, Sysmon, ReAct, DeepLog, and ATLAS/ATLASv2.
+
+Final review:
+
+- User-policy check passed: no old-27-chain, 3-set, raw, salvage, or output-contract-failure wording remains.
+- Reviewer-response check passed: normalized overclaim, metric definitions, CLOUSEAU difference, direct-baseline absence, scoring reliability, and external validity are present.
+- LaTeX/sync check passed: no new external dependencies; manuscript and public `main.tex` are byte-identical.

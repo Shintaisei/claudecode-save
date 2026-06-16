@@ -196,3 +196,34 @@ Review 3 - sync/title:
 
 - Manuscript and public `main.tex` copies are byte-identical.
 - Four-author title block and footnote-style affiliations remain intact.
+
+## External Review Response Pass 2026-06-16
+
+Status: passed after action review and 3 final reviews
+
+Action review:
+
+- Baseline concern: added related-work framing that there is little direct prior work on reconstructing evidence-backed benign behavior sequences after detection; existing work is positioned as anomaly detection, log diagnosis, agent investigation, or dataset construction.
+- CLOUSEAU novelty concern: clarified that the contribution is not a new agent mechanism, but the task formulation, Stage design, and overclaim-aware evaluation.
+- Metric concern: added formal definitions for action recall, critical evidence recall, candidate precision, sequence order, overclaim, and normalized overclaim.
+- Overclaim concern: added `Over/inst` to the model and Stage result tables.
+- Repetition concern: removed confusing wording around old 27-chain extraction and stated the experiment as 23 chains × 3 stages × 3 evaluations.
+- Model handling concern: kept `gpt-5.5 low` in the main tables as a normal comparison model, and removed `raw`, `salvage`, and output-contract-failure framing.
+- Reliability concern: added that scoring used two-stage review and adjudication of disagreements.
+- External validity concern: strengthened the limitation about ATLASv2-derived chains not fully representing diverse enterprise benign activity.
+- Reference concern: added inline numeric references for CLOUSEAU, Sysmon, ReAct, DeepLog, and ATLAS/ATLASv2 without introducing LaTeX citation dependencies.
+
+Final review 1 - user policy:
+
+- No `raw`, `salvage`, output-contract-failure, old-27-chain, or 3-set wording remains.
+- The manuscript states 23 chains × 3 stages × 3 evaluations.
+- `gpt-5.5 low` remains in the main comparison tables.
+
+Final review 2 - reviewer findings:
+
+- Normalized overclaim, formal metric definitions, CLOUSEAU difference, direct-baseline absence, scoring review, and external validity are all present.
+
+Final review 3 - LaTeX and sync:
+
+- No external dependency commands, removed-author strings, citations, or references were introduced.
+- Manuscript and public `main.tex` copies are byte-identical.
