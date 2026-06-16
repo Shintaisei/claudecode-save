@@ -299,3 +299,25 @@ Review:
 - Active `main.tex` has no `\cite`, `\ref`, `\label`, `\begin{table}`, or `\begin{figure}`.
 - Active `main.tex` has balanced braces and matched `center` / `tabular` environments.
 - Active `main.tex` is 194 lines, making full paste into Overleaf less error-prone.
+
+## Overleaf Title Layout Correction 2026-06-16
+
+Status: passed by static review
+
+Reason:
+
+- The minimal fallback compiled more easily, but its title block did not match the senior-paper sample.
+- The title and affiliations were placed like ordinary body content inside the two-column flow.
+
+Actions:
+
+- Moved the title block into `\twocolumn[...]` so it spans the full page width above the two-column body.
+- Changed the author area to match the senior-paper pattern: Japanese author row with affiliation marks, English author row below it, affiliations below the author table.
+- Narrowed the author table with `\small` and trimmed tabular side padding so the five-author row is less likely to overflow.
+- Kept the paper as a single pasteable `main.tex`; no external class or split files were reintroduced.
+
+Review:
+
+- Active `main.tex` still has no `\maketitle`, `\title`, `\author`, `\input`, `\cite`, `\ref`, or external class dependency.
+- Active `main.tex` has exactly one `\twocolumn[...]` title block.
+- Braces and `center` / `tabular` environments are balanced.
