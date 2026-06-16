@@ -252,3 +252,25 @@ Review:
 - Active `main.tex` has no `fontspec`, `xeCJK`, or `FITpaper` dependency.
 - Active `main.tex` has no English abstract environment.
 - Active `main.tex` is intended for Overleaf default `pdflatex` using `CJKutf8`.
+
+## Overleaf Single-File CJK Fix 2026-06-16
+
+Status: passed by static review
+
+Reason:
+
+- The Overleaf log showed `job aborted, no legal \end found`.
+- The active source had a manual `\begin{CJK}...\end{CJK}` wrapper, so the Japanese wrapper became a possible paste/engine failure point.
+
+Actions:
+
+- Replaced `\usepackage{CJKutf8}` and the manual `CJK` environment with `\usepackage[whole]{bxcjkjatype}`.
+- Kept the file as a single self-contained `main.tex`.
+- Kept `\maketitle`, `\title`, and `\author` removed.
+
+Review:
+
+- Active `main.tex` has exactly one `\begin{document}` and one `\end{document}`.
+- Active `main.tex` has no `\begin{CJK}` or `\end{CJK}`.
+- Active `main.tex` has balanced braces and matched table/figure/bibliography environments.
+- Tectonic local compile is not representative here because Tectonic uses an unsupported engine for `bxcjkjatype`; Overleaf default `pdflatex` is the intended engine.
