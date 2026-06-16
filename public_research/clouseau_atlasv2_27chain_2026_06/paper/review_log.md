@@ -491,3 +491,11 @@ Status: passed after action review and 3 final checks
 - Tightened sequence-order and hit-definition wording.
 - Added limitations for missing single-prompt baseline, inter-annotator agreement, and systematic API cost/runtime comparison.
 - Verified citation keys, table labels, single-file structure, and manuscript/public sync by static checks.
+
+## Domain Context Citation Pass 2026-06-16
+
+Status: passed after targeted review
+
+- Added CBC, MITRE ATT&CK, and LOLBAS context plus bibliography entries and inline citations.
+- Confirmed all 9 citation keys used in text have matching `\bibitem` entries.
+- Confirmed canonical, public, and `docs/fit2026_manuscript/paper/main.tex` copies are byte-identical after sync.

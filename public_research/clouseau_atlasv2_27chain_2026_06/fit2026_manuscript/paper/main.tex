@@ -63,7 +63,7 @@ SOCにおけるアラート対応では，検知結果が悪性活動を示す�
 偽陽性判断を支援するには，単に「良性らしい」と分類するだけでなく，観測証跡に基づいて，どの主体が，どの対象に，どの順序で操作したかを示す行動列を復元することが重要である．
 
 本研究では，ATLASv2由来のWindowsエンドポイントログ\cite{atlasv2}を用い，正常行動の行動列を証跡付きで復元する課題を扱う．
-入力は，CBC alertの要約，またはhost，process，time window程度の調査起点である．
+入力は，Carbon Black Cloud（CBC）のalert要約，またはhost，process，time window程度の調査起点である．
 出力は，調査者が確認可能な行動ステップ列と，それを支えるcritical evidenceである．
 CLOUSEAU型のログ探索エージェント\cite{clouseau}を用い，初期手がかりから探索方針を作り，SQLite化したログに問い合わせ，最終的に主行動列を統合する．
 
@@ -81,7 +81,7 @@ CLOUSEAU型のログ探索エージェント\cite{clouseau}を用い，初期手
 
 エンドポイント調査では，Windows Securityログ，Sysmon，EDR telemetry，DNS，ブラウザ履歴など，粒度や記録目的の異なるログを横断する．
 Sysmonはプロセス生成，親プロセス，コマンドライン，ネットワーク接続，レジストリ操作などを記録できる\cite{sysmon}．
-EDRは検知理由やプロセス情報をまとめたalert summaryを提供する場合がある．
+Carbon Black CloudのようなEDRは，継続的な端末活動データに基づく検知・調査機能を提供し\cite{cbc}，検知理由やプロセス情報をまとめたalert summaryを出力する場合がある．
 これらは調査に有用だが，alert summaryは観測された全行動を代表するものではない．
 したがって，最終出力はアラート文面ではなく，ログ上で確認できる行動主張に限定する必要がある．
 
@@ -91,6 +91,7 @@ EDRは検知理由やプロセス情報をまとめたalert summaryを提供す�
 例えば，あるプロセスの近傍で発生したDNS問い合わせや別プロセスの実行を，実際には同じchainに属さないにもかかわらず，行動列に含めてしまう場合がある．
 このため，調査支援の有用性を評価するには，正しい行動部品を拾えたかだけでなく，余計な主張をどの程度抑えられたかも見る必要がある．
 
+攻撃手法の整理では，MITRE ATT\&CK\cite{attack}が実観測に基づく戦術・技術の知識ベースとして広く用いられ，LOLBAS\cite{lolbas}はWindowsの正規バイナリやスクリプトが攻撃に悪用されるLiving-off-the-Landの観点を整理している．
 既存研究には，Sysmon\cite{sysmon}やDeepLog\cite{deeplog}のようにログ収集・異常検知・ログ診断を扱う研究，ReAct\cite{react}のように推論と行動を組み合わせるエージェント設計，ATLAS/ATLASv2\cite{atlas,atlasv2}のように攻撃調査データを整備する研究がある．
 しかし，本研究が扱う「検知後に，正常行動として説明可能な証跡付き行動列を復元する」課題そのものを直接のベースラインとして評価した研究は少ない．
 そのため本稿では，単純な既存手法との精度比較ではなく，CLOUSEAU型探索を用いた場合に，入力条件とモデルの違いが復元可能性と過剰主張へどのように影響するかを評価する．
@@ -132,6 +133,7 @@ goldはCBC alert summaryだけを根拠にしない形へ統一した．
 対象ログには，CBC EDR/NGAV telemetry，Windows Security，Sysmon\cite{sysmon}，DNS，browser historyなどが含まれる．
 本研究では，これらのログをSQLite化し，エージェントがSQLまたはQA形式で検索できるようにした．
 gold chainは，alert summaryの記述をそのまま正解にするのではなく，process，command line，registry path，network evidenceなど，ログ上で確認可能な証跡に基づいて作成した．
+この範囲には，ATT\&CK上の攻撃技術やLOLBAS的な正規ツール悪用と外形が似るが，実際には正常利用として説明できる行動も含まれるため，偽陽性判断支援の評価対象として用いる．
 
 \section{実験}
 
@@ -321,6 +323,15 @@ Y. H. Lee et al., CLOUSEAU: A Hierarchical Multi-Agent Framework for Automated A
 
 \bibitem{sysmon}
 Microsoft, Sysmon - Sysinternals, \url{https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon}.
+
+\bibitem{cbc}
+Broadcom, Carbon Black Cloud, \url{https://www.broadcom.com/products/carbon-black/threat-prevention/carbon-black-cloud}.
+
+\bibitem{attack}
+MITRE, MITRE ATT\&CK, \url{https://attack.mitre.org/}.
+
+\bibitem{lolbas}
+LOLBAS Project, Living Off The Land Binaries, Scripts and Libraries, \url{https://lolbas-project.github.io/}.
 
 \bibitem{react}
 S. Yao et al., ReAct: Synergizing Reasoning and Acting in Language Models, arXiv:2210.03629, 2022.

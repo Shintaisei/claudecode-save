@@ -282,3 +282,21 @@ Final review 3 - scope and sync:
 - The manuscript still states 23 chains × 3 stages × 3 evaluations.
 - The public and manuscript `main.tex` copies are byte-identical after sync.
 - Local TeX engines were not available, so final PDF page count must be checked on Overleaf.
+
+## Domain Context Citation Pass 2026-06-16
+
+Status: passed after targeted review
+
+Actions:
+
+- Added Carbon Black Cloud (CBC) as the EDR source context instead of leaving `CBC` unexplained.
+- Added MITRE ATT&CK as the attack-technique knowledge-base context.
+- Added LOLBAS as the Living-off-the-Land context for benign-looking Windows tool activity.
+- Added `cbc`, `attack`, and `lolbas` bibliography entries and inline citations.
+- Synced canonical, public, and `docs/fit2026_manuscript/paper/main.tex` copies.
+
+Review:
+
+- All 9 citation keys used in text have matching `\bibitem` entries.
+- The added wording keeps the task framed as benign behavior reconstruction for false-positive triage, not attack detection.
+- All three `main.tex` copies are byte-identical after sync.
