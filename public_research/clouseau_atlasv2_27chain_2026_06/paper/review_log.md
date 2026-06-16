@@ -523,3 +523,14 @@ Status: passed after 3 review checks
 - Changed scenario reporting to chain-level macro averages and updated the `gpt-5.4-mini` scenario table accordingly.
 - Static review passed: no stale `raw`, `evaluation instance`, old margin, old title, or old scenario values remain; begin/end counts and citation keys are consistent.
 - Canonical `main.tex` is about 16,615 characters. Local TeX engines were unavailable, so exact Overleaf page count remains to be checked.
+
+## Dataset And Use Case Expansion Pass 2026-06-16
+
+Status: passed after 3 static review checks
+
+- Expanded the dataset section to explain that each behavior chain is treated as one use case with a host, focus process, time window, and investigator-verifiable normal behavior sequence.
+- Added concrete examples for Python SimpleHTTPServer, cmd.exe / packet-capture batch behavior, Sublime-triggered Python script execution, and Discord Run Key.
+- Added a use-case classification table for the 15 explicit, 7 multi-step, and 1 semantic use case groups.
+- Canonical `main.tex` increased from about 16,615 to about 17,559 characters to use more of page 6.
+- Static review passed: the new table reference has a matching label, stale wording did not reappear, brace balance is zero, and no external TeX files are required.
+- Local TeX engines were unavailable, so exact Overleaf page count must be checked after paste/upload.

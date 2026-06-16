@@ -139,6 +139,30 @@ goldはCBC alert summaryだけを根拠にしない形へ統一した．
 gold chainは，alert summaryの記述をそのまま正解にするのではなく，process，command line，registry path，network evidenceなど，ログ上で確認可能な証跡に基づいて作成した．
 この範囲には，ATT\&CK上の攻撃技術やLOLBAS的な正規ツール悪用と外形が似るが，実際には正常利用として説明できる行動も含まれるため，偽陽性判断支援の評価対象として用いる．
 
+本稿では，1つのbehavior chainを1つのuse caseとして扱う．
+各use caseは，特定のhost，focus process，time windowを起点に，調査者が確認したい正常行動のまとまりを表す．
+例えば，PythonのSimpleHTTPServerを起動して待受や通信が発生するchainでは，\code{python.exe}の実行，コマンドライン，待受ポートまたは通信先が主な証跡となる．
+cmd.exeを介したpacket captureやSublimeからのPython script実行では，親子プロセス，バッチ実行，スクリプト名，DNSやファイル操作など複数ログstreamの接続が必要になる．
+Discord Run Keyのchainでは，Run Key登録という攻撃技術に似た外形を，Discord関連の正常な自動起動または更新動作として説明できるかが焦点となる．
+表\ref{tab:usecase_type}に，本稿で用いる3分類と代表例を示す．
+
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{評価対象use caseの分類}
+\label{tab:usecase_type}
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{}p{0.18\linewidth}rp{0.52\linewidth}@{}}
+\toprule
+分類 & n & 代表例と復元上の焦点 \\
+\midrule
+explicit & 15 & Python SimpleHTTPServer，cmd.exe実行など．単一または近接ログで主体・操作・対象を確認しやすい．\\
+multi-step & 7 & packet capture batch，Sublime起点script実行など．複数streamを順序付きに接続する必要がある．\\
+semantic & 1 & Discord Run Key．攻撃技術に似る操作を正常アプリ挙動として説明できるかを確認する．\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \section{実験}
 
 \subsection{実験目的}
