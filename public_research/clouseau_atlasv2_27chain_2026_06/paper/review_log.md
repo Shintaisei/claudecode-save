@@ -511,3 +511,15 @@ Status: passed after 3 review checks
 - Added the necessary-condition framing for false-positive triage support, 3-run variation ranges, Stage 3/overclaim novelty framing, and the ATLASv2 2024 year fix.
 - Static review passed: begin/end counts match, brace balance is zero, all 9 citation keys have matching bibliography entries, and no stale `raw` or `evaluation instance` result wording remains.
 - Local TeX engines were not installed, so final PDF page count still needs Overleaf confirmation.
+
+## Claim-Focused Prize Review Pass 2026-06-16
+
+Status: passed after 3 review checks
+
+- Reframed the title and introduction from "CLOUSEAU application" to an evaluation of evidence-backed benign behavior reconstruction for false-positive triage.
+- Added the central claim that false-positive triage support should be evaluated as evidence-backed benign behavior sequence reconstruction, including evidence recall and overclaim.
+- Promoted two findings into the contribution, results, and conclusion: `gpt-5.4-mini` remains stable when alert summary rows are excluded, and high reconstruction ability does not equal operational suitability because `gpt-5.5 low` has both the highest recall and the highest overclaim.
+- Treated `gpt-5.5 low` as a capability upper-bound probe rather than a simple operational model ranking.
+- Changed scenario reporting to chain-level macro averages and updated the `gpt-5.4-mini` scenario table accordingly.
+- Static review passed: no stale `raw`, `evaluation instance`, old margin, old title, or old scenario values remain; begin/end counts and citation keys are consistent.
+- Canonical `main.tex` is about 16,615 characters. Local TeX engines were unavailable, so exact Overleaf page count remains to be checked.
