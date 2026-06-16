@@ -479,3 +479,15 @@ Status: passed after action review and 3 final checks
 - Confirmed the reviewer-response points remain present after trimming.
 - Confirmed the structure remains sections 1--6 with experiment subsections 5.1--5.4.
 - Reduced canonical `main.tex` from about 15,989 characters to about 12,800 characters and synced the public copy.
+
+## Citation And Table Review Response Pass 2026-06-16
+
+Status: passed after action review and 3 final checks
+
+- Converted references to single-file `thebibliography` with `\bibitem` keys and added 13 inline citations.
+- Converted result tables to numbered floats with captions and labels.
+- Added normalized `Over/run` wording and a short gpt-5.5 low comparability note.
+- Added a scenario-level numeric table for `gpt-5.4-mini`.
+- Tightened sequence-order and hit-definition wording.
+- Added limitations for missing single-prompt baseline, inter-annotator agreement, and systematic API cost/runtime comparison.
+- Verified citation keys, table labels, single-file structure, and manuscript/public sync by static checks.

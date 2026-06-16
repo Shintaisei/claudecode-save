@@ -8,8 +8,14 @@
 \usepackage{array}
 \usepackage{setspace}
 \usepackage{url}
+\usepackage{cite}
 \setstretch{1.05}
 \pagestyle{empty}
+\renewcommand{\tablename}{表}
+\renewcommand{\refname}{参考文献}
+\setlength{\textfloatsep}{7pt}
+\setlength{\floatsep}{6pt}
+\setlength{\intextsep}{6pt}
 \setcounter{secnumdepth}{2}
 \renewcommand{\thesection}{\arabic{section}}
 \renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
@@ -55,10 +61,10 @@ SOCにおけるアラート対応では，検知結果が悪性活動を示す�
 しかし，アラート名や検知理由だけでは，端末上で実際に発生したプロセス実行，コマンドライン，レジストリ操作，ネットワーク接続，およびそれらを支えるログ行の対応関係を十分に説明できない．
 偽陽性判断を支援するには，単に「良性らしい」と分類するだけでなく，観測証跡に基づいて，どの主体が，どの対象に，どの順序で操作したかを示す行動列を復元することが重要である．
 
-本研究では，ATLASv2由来のWindowsエンドポイントログを用い，正常行動の行動列を証跡付きで復元する課題を扱う．
+本研究では，ATLASv2由来のWindowsエンドポイントログ\cite{atlasv2}を用い，正常行動の行動列を証跡付きで復元する課題を扱う．
 入力は，CBC alertの要約，またはhost，process，time window程度の調査起点である．
 出力は，調査者が確認可能な行動ステップ列と，それを支えるcritical evidenceである．
-CLOUSEAU型のログ探索エージェントを用い，初期手がかりから探索方針を作り，SQLite化したログに問い合わせ，最終的に主行動列を統合する．
+CLOUSEAU型のログ探索エージェント\cite{clouseau}を用い，初期手がかりから探索方針を作り，SQLite化したログに問い合わせ，最終的に主行動列を統合する．
 
 本稿の問題意識は，既存の異常検知研究で扱われる「検知できたか」という評価とは異なる．
 実際のSOCでは，検知後に「なぜこのアラートが発生したのか」，「業務操作として説明できるのか」，「追加調査すべき悪性兆候があるのか」を判断する必要がある．
@@ -73,18 +79,18 @@ CLOUSEAU型のログ探索エージェントを用い，初期手がかりから
 \section{関連研究}
 
 エンドポイント調査では，Windows Securityログ，Sysmon，EDR telemetry，DNS，ブラウザ履歴など，粒度や記録目的の異なるログを横断する．
-Sysmonはプロセス生成，親プロセス，コマンドライン，ネットワーク接続，レジストリ操作などを記録できる．
+Sysmonはプロセス生成，親プロセス，コマンドライン，ネットワーク接続，レジストリ操作などを記録できる\cite{sysmon}．
 EDRは検知理由やプロセス情報をまとめたalert summaryを提供する場合がある．
 これらは調査に有用だが，alert summaryは観測された全行動を代表するものではない．
 したがって，最終出力はアラート文面ではなく，ログ上で確認できる行動主張に限定する必要がある．
 
-近年のLLMエージェントを用いたセキュリティ調査では，CLOUSEAU [1]のように，複数のサブエージェントが仮説生成，ログ検索，根拠整理を分担する構成が提案されている．
+近年のLLMエージェントを用いたセキュリティ調査では，CLOUSEAU\cite{clouseau}のように，複数のサブエージェントが仮説生成，ログ検索，根拠整理を分担する構成が提案されている．
 この構成は，単一のプロンプトで長いログを読ませる場合に比べて，探索範囲を段階的に絞れる利点がある．
 一方で，LLMは調査過程で見つけた周辺事象を，主系列の行動と混同することがある．
 例えば，あるプロセスの近傍で発生したDNS問い合わせや別プロセスの実行を，実際には同じchainに属さないにもかかわらず，行動列に含めてしまう場合がある．
 このため，調査支援の有用性を評価するには，正しい行動部品を拾えたかだけでなく，余計な主張をどの程度抑えられたかも見る必要がある．
 
-既存研究には，Sysmon [2]やDeepLog [4]のようにログ収集・異常検知・ログ診断を扱う研究，ReAct [3]のように推論と行動を組み合わせるエージェント設計，ATLAS/ATLASv2 [5][6]のように攻撃調査データを整備する研究がある．
+既存研究には，Sysmon\cite{sysmon}やDeepLog\cite{deeplog}のようにログ収集・異常検知・ログ診断を扱う研究，ReAct\cite{react}のように推論と行動を組み合わせるエージェント設計，ATLAS/ATLASv2\cite{atlas,atlasv2}のように攻撃調査データを整備する研究がある．
 しかし，本研究が扱う「検知後に，正常行動として説明可能な証跡付き行動列を復元する」課題そのものを直接のベースラインとして評価した研究は少ない．
 そのため本稿では，単純な既存手法との精度比較ではなく，CLOUSEAU型探索を用いた場合に，入力条件とモデルの違いが復元可能性と過剰主張へどのように影響するかを評価する．
 
@@ -96,7 +102,7 @@ EDRは検知理由やプロセス情報をまとめたalert summaryを提供す�
 
 \section{提案手法}
 
-本研究で用いるパイプラインは，CLOUSEAU型のエージェント型ログ探索である．
+本研究で用いるパイプラインは，CLOUSEAU型のエージェント型ログ探索\cite{clouseau}である．
 Chief agentは初期手がかりから調査方針を生成する．
 Investigation agentは，確認すべき事実をQAAgentまたはSQL expertへの質問に変換する．
 QAAgentまたはSQL expertは，SQLite化されたエンドポイントログに問い合わせ，timestamp，source stream，PID/PPID，process tree，command line，registry path，source row idなどを返す．
@@ -113,16 +119,16 @@ Final synthesisは観測結果を統合し，主行動列，補助証跡，limit
 例えば，プロセス名，コマンドライン，レジストリパス，通信先，ファイルパスが同じ意味を持つ形で含まれていれば，完全な文言一致でなくても正解とする．
 一方，alert nameやalert reasonを行動そのものとして出した場合，gold chainに属さない近傍行動を主系列として含めた場合，証跡で支えられない推定を含めた場合は，candidate claim precisionの分母またはoverclaimとして扱う．
 
-形式的には，action recallを正解行動部品のhit数/gold行動部品数，critical evidence recallを正解証跡のhit数/gold証跡数，candidate precisionをgoldに対応する候補claim数/総候補claim数として算出する．sequence orderはgold順序と整合して並んだhit stepの割合，overclaimは根拠不足または主系列外のclaim数であり，モデル間比較ではprecisionと1 evaluation instanceあたりのoverclaimも併記する．
+形式的には，action recallを正解行動部品のhit数/gold行動部品数，critical evidence recallを正解証跡のhit数/gold証跡数，candidate precisionをgoldに対応する候補claim数/総候補claim数として算出する．sequence orderはKendall's $\tau$や編集距離ではなく，隣接するgold step順序スロットのうち候補出力で順序関係が保持された数/\(\max(n_{\mathrm{gold}}-1,0)\)として算出する．overclaimは根拠不足または主系列外のclaim数であり，モデル間比較ではprecisionと1 runあたりのoverclaimも併記する．
 
 \section{データセット}
 
-対象はATLASv2由来ログから構成した23 behavior chainである．
+対象はATLASv2由来ログ\cite{atlasv2}から構成した23 behavior chainである．
 goldはCBC alert summaryだけを根拠にしない形へ統一した．
 これにより，Stage 3でalert summary rowsを隠した場合でも，残存telemetryから回答可能な範囲を評価できる．
 
 各chainは，端末上で実際に発生した正常行動を，調査者が確認可能な行動ステップ列として整理したものである．
-対象ログには，CBC EDR/NGAV telemetry，Windows Security，Sysmon，DNS，browser historyなどが含まれる．
+対象ログには，CBC EDR/NGAV telemetry，Windows Security，Sysmon\cite{sysmon}，DNS，browser historyなどが含まれる．
 本研究では，これらのログをSQLite化し，エージェントがSQLまたはQA形式で検索できるようにした．
 gold chainは，alert summaryの記述をそのまま正解にするのではなく，process，command line，registry path，network evidenceなど，ログ上で確認可能な証跡に基づいて作成した．
 
@@ -142,10 +148,14 @@ Stage 1はCBC alert rowsを入力に含めるアラート支援条件である�
 Stage 2はhost，focus process，time windowのみを入力とし，DB内にはalert summary rowsを残す．
 Stage 3はStage 2と同じ初期入力だが，検索対象からCBC alert summary rowsを除外する．
 ただし，CBC EDR/NGAV event telemetry，Security，Sysmon，DNS，browser historyは残す．
-この設計により，モデルがアラート文面を言い換えているだけなのか，残存ログから行動を復元しているのかを切り分けられる．
+この設計により，表\ref{tab:stage_setting}のように，モデルがアラート文面を言い換えているだけなのか，残存ログから行動を復元しているのかを切り分けられる．
 
-\begin{center}
-\scriptsize
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{入力条件のStage設計}
+\label{tab:stage_setting}
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{p{0.16\linewidth}p{0.30\linewidth}p{0.42\linewidth}}
 \toprule
 Stage & 入力 & 意味 \\
@@ -155,7 +165,7 @@ Stage 2 & process/timeのみ & DB内の要約行は利用可能 \\
 Stage 3 & process/timeのみ & alert summary rowsをSQL検索対象から除外 \\
 \bottomrule
 \end{tabular}
-\end{center}
+\end{table}
 
 比較対象は\code{gpt-4.1-mini}，\code{gpt-5.4-mini}，および\code{gpt-5.5 low}である．
 各モデルについて23 chain，3 stage，3回の評価を行い，各モデル207 evaluation instancesを得た．
@@ -170,37 +180,47 @@ Stage 3 & process/timeのみ & alert summary rowsをSQL検索対象から除外 
 
 \subsection{実験結果}
 
-全体では，\code{gpt-5.4-mini}が\code{gpt-4.1-mini}を大きく上回った．
+表\ref{tab:overall}に全体評価を示す．全体では，\code{gpt-5.4-mini}が\code{gpt-4.1-mini}を大きく上回った．
 action recallは0.466から0.798へ，critical evidence recallは0.195から0.703へ，orderは0.201から0.553へ上昇し，overclaimは1190から651へ減少した．
 これは，モデル更新により単なる説明生成だけでなく，証跡接続と順序構成が改善したことを示す．
 
-\begin{center}
-\scriptsize
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{モデル別の全体評価}
+\label{tab:overall}
+\setlength{\tabcolsep}{2pt}
 \begin{tabular}{@{}lrrrrrr@{}}
 \toprule
-Model & Action & Crit. ev. & Order & Prec. & Over & Over/inst \\
+Model & Action & Crit. ev. & Order & Prec. & Over & Over/run \\
 \midrule
 \code{gpt-4.1-mini} & 0.466 & 0.195 & 0.201 & 0.366 & 1190 & 5.75 \\
 \code{gpt-5.4-mini} & 0.798 & 0.703 & 0.553 & 0.584 & 651 & 3.14 \\
+\midrule
 \code{gpt-5.5 low} & 0.918 & 0.906 & 0.868 & 0.640 & 1235 & 5.97 \\
 \bottomrule
 \end{tabular}
-\end{center}
+\par\raggedright\scriptsize 注: \code{gpt-5.5 low}は自由記述寄りの出力から同一rubricで部品を抽出した評価であり，構造化出力2モデルとは出力条件が異なる．
+\end{table}
 
 \code{gpt-5.5 low}はaction recall 0.918，critical evidence recall 0.906，order 0.868と最も高い復元能力を示した．
 一方で，overclaimは1235，1 evaluation instanceあたり5.97と大きく，強い復元能力と余計な主張の増加が同時に生じる傾向が見られた．
 
 \noindent{\bfseries Stage別結果.}
 
-Stage別に見ると，\code{gpt-5.4-mini}はStage 1からStage 3までaction recallが0.791，0.800，0.802とほぼ一定であり，critical evidence recallはStage 3で0.779と最も高い．
+表\ref{tab:stage_result}にStage別結果を示す．\code{gpt-5.4-mini}はStage 1からStage 3までaction recallが0.791，0.800，0.802とほぼ一定であり，critical evidence recallはStage 3で0.779と最も高い．
 これは，alert summary rowsを隠しても，残存telemetryから多くの行動と証跡を復元できることを示す．
 ただし，Stage 3でもCBC EDR/NGAV telemetryは残っており，任意の低レベルログだけで十分と主張するものではない．
 
-\begin{center}
-\scriptsize
+\begin{table*}[t]
+\centering
+\footnotesize
+\caption{Stage別の復元性能}
+\label{tab:stage_result}
+\setlength{\tabcolsep}{5pt}
 \begin{tabular}{@{}llrrrrr@{}}
 \toprule
-Model & Stage & Action & Crit. ev. & Order & Over & Over/inst \\
+Model & Stage & Action & Crit. ev. & Order & Over & Over/run \\
 \midrule
 \code{gpt-4.1-mini} & S1 & 0.639 & 0.292 & 0.341 & 422 & 6.12 \\
 \code{gpt-4.1-mini} & S2 & 0.414 & 0.128 & 0.111 & 506 & 7.33 \\
@@ -208,31 +228,35 @@ Model & Stage & Action & Crit. ev. & Order & Over & Over/inst \\
 \code{gpt-5.4-mini} & S1 & 0.791 & 0.574 & 0.579 & 215 & 3.12 \\
 \code{gpt-5.4-mini} & S2 & 0.800 & 0.754 & 0.540 & 213 & 3.09 \\
 \code{gpt-5.4-mini} & S3 & 0.802 & 0.779 & 0.540 & 223 & 3.23 \\
+\midrule
 \code{gpt-5.5 low} & S1 & 0.937 & 0.908 & 0.897 & 374 & 5.42 \\
 \code{gpt-5.5 low} & S2 & 0.915 & 0.908 & 0.857 & 415 & 6.01 \\
 \code{gpt-5.5 low} & S3 & 0.903 & 0.903 & 0.849 & 446 & 6.46 \\
 \bottomrule
 \end{tabular}
-\end{center}
+\par\raggedright\scriptsize 注: Over/runは各Stageのoverclaim数を69 runで割った値である．
+\end{table*}
 
 \noindent{\bfseries シナリオ別結果.}
 
-Scenario別では，明示的実行チェーンが最も安定した成功領域であった．
-\code{gpt-5.4-mini}ではexplicit chainのcritical evidence recallが0.824，multi-step chainでは0.602であり，複数ツールをまたぐ主系列の順序づけが難しいことが分かる．
-semantic chainはDiscord Run Keyの1 chainのみであり，広いカテゴリ結論ではなくcase studyとして扱う．
+Scenario別では，明示的実行チェーンが最も安定した成功領域であった．表\ref{tab:scenario_result}に，構造化出力で最もバランスの良かった\code{gpt-5.4-mini}のシナリオ別集計を示す．explicitはnetwork serviceとcommand shell系，multi-stepはcollection/tool invocationとscript execution系，semanticはpersistence Run Key系をまとめた分類である．semantic chainはDiscord Run Keyの1 chainのみであり，広いカテゴリ結論ではなくcase studyとして扱う．
 
-\begin{center}
-\scriptsize
-\begin{tabular}{p{0.20\linewidth}p{0.24\linewidth}p{0.40\linewidth}}
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{gpt-5.4-miniのシナリオ別評価}
+\label{tab:scenario_result}
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{}lrrrrr@{}}
 \toprule
-分類 & 代表例 & 難しさ \\
+分類 & n & Action & Crit. ev. & Order & Over/run \\
 \midrule
-explicit & Python server, script execution & コマンドラインと親子関係が明示的で追いやすい \\
-multi-step & packet capture, browser/DNS連鎖 & 複数ログ源をまたぎ，順序と対応付けが難しい \\
-semantic & Discord Run Key & 個別イベントより意味的接続の復元が重要 \\
+explicit & 15 & 0.865 & 0.824 & 0.764 & 2.56 \\
+multi-step & 7 & 0.746 & 0.602 & 0.431 & 4.57 \\
+semantic & 1 & 0.642 & 0.481 & 0.333 & 2.00 \\
 \bottomrule
 \end{tabular}
-\end{center}
+\end{table}
 
 \noindent{\bfseries 過剰出力と採点レビュー.}
 
@@ -277,6 +301,7 @@ SOC支援システムでは，モデルの説明をそのまま判定結果と�
 ログの記録粒度，保持期間，正規化方式が変われば，復元可能性も変化する．
 第二に，gold chainは人手で整理した正常行動の説明であり，現実の運用では正解が常に明確に存在するとは限らない．
 第三に，本研究のデータはATLASv2由来であり，現実の企業環境における業務アプリ更新，開発ツール実行，管理操作などの多様な良性活動を十分に代表しているとは限らない．
+第四に，単一プロンプトへ全ログを投入する条件などの単純ベースライン，採点者間一致率，API費用・実行時間の体系的比較は本文の主評価には含めていない．
 
 また，採点は「内容が入っていれば正解」とする保守的な方針で実施したが，SOC実務では表現の明確さや説明の読みやすさも重要である．
 例えば，正しい証跡を含んでいても，どのclaimを支えているのかが曖昧であれば，調査者の確認コストは下がらない．
@@ -284,19 +309,30 @@ SOC支援システムでは，モデルの説明をそのまま判定結果と�
 
 \section{おわりに}
 
-本稿では，CLOUSEAU型のエージェント型ログ探索手法により，SOC調査起点からWindowsエンドポイントログを探索し，正常行動の証跡付き行動列を復元する課題を，ATLASv2由来の23 behavior chainで評価した．
+本稿では，CLOUSEAU型のエージェント型ログ探索手法\cite{clouseau}により，SOC調査起点からWindowsエンドポイントログを探索し，正常行動の証跡付き行動列を復元する課題を，ATLASv2由来の23 behavior chain\cite{atlasv2}で評価した．
 構造化出力を満たした\code{gpt-5.4-mini}は，\code{gpt-4.1-mini}に比べてaction recall，critical evidence recall，sequence orderを大きく改善し，overclaimも減らした．
 \code{gpt-5.5 low}は最も高い復元能力を示したが，過剰主張も増加した．
 これらの結果は，検知アラートを単に悪性/良性へ分類するだけでなく，正常行動として説明可能な行動列を提示することが偽陽性判断支援に有用である可能性を示す．
 
-\section*{参考文献}
+\begin{thebibliography}{9}
+\bibitem{clouseau}
+Y. H. Lee et al., CLOUSEAU: A Hierarchical Multi-Agent Framework for Automated Attack Investigation, arXiv:2505.01799, 2025.
 
-[1] Y. H. Lee et al., CLOUSEAU: A Hierarchical Multi-Agent Framework for Automated Attack Investigation, arXiv:2505.01799, 2025.\\
-[2] Microsoft, Sysmon - Sysinternals, \url{https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon}.\\
-[3] S. Yao et al., ReAct: Synergizing Reasoning and Acting in Language Models, arXiv:2210.03629, 2022.\\
-[4] M. Du et al., DeepLog: Anomaly Detection and Diagnosis from System Logs through Deep Learning, Proc. ACM CCS, 2017.\\
-[5] A. Alsaheel et al., ATLAS: A Sequence-based Learning Approach for Attack Investigation, Proc. USENIX Security, 2021.\\
-[6] A. Riddle et al., ATLASv2: ATLAS Attack Engagements, Version 2, arXiv:2401.01341, 2023.
+\bibitem{sysmon}
+Microsoft, Sysmon - Sysinternals, \url{https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon}.
+
+\bibitem{react}
+S. Yao et al., ReAct: Synergizing Reasoning and Acting in Language Models, arXiv:2210.03629, 2022.
+
+\bibitem{deeplog}
+M. Du et al., DeepLog: Anomaly Detection and Diagnosis from System Logs through Deep Learning, Proc. ACM CCS, 2017.
+
+\bibitem{atlas}
+A. Alsaheel et al., ATLAS: A Sequence-based Learning Approach for Attack Investigation, Proc. USENIX Security, 2021.
+
+\bibitem{atlasv2}
+A. Riddle et al., ATLASv2: ATLAS Attack Engagements, Version 2, arXiv:2401.01341, 2023.
+\end{thebibliography}
 
 \end{document}
 % END OF MAIN.TEX

@@ -251,3 +251,34 @@ Final review 3 - size and sync:
 
 - Canonical `main.tex` was reduced from about 15,989 characters to about 12,800 characters.
 - Manuscript and public `main.tex` copies are byte-identical.
+
+## Citation And Table Review Response Pass 2026-06-16
+
+Status: passed after action review and 3 final checks
+
+Action review:
+
+- Converted the manual reference list to single-file `thebibliography` with `\bibitem` keys, so `\cite{...}` works without BibTeX.
+- Added 13 inline `\cite` usages covering CLOUSEAU, Sysmon, ReAct, DeepLog, ATLAS, and ATLASv2.
+- Converted result tabular blocks to numbered `table` / `table*` floats with captions and labels.
+- Changed `Over/inst` to clearer `Over/run` wording and kept normalized overclaim values.
+- Added a short note that `gpt-5.5 low` is evaluated from freer-form output under the same component rubric and is separated by a rule in the main tables.
+- Added a scenario-level numeric table for `gpt-5.4-mini` with chain count, action, critical evidence, order, and Over/run.
+- Tightened the order-score definition as adjacent gold-step order slots rather than Kendall's tau or edit distance.
+- Added short limitations for missing single-prompt baseline, inter-annotator agreement, and systematic API cost/runtime comparison.
+
+Final review 1 - reviewer findings:
+
+- Inline citation, table caption/label, scenario table, overclaim normalization, and metric-definition requests are reflected.
+
+Final review 2 - LaTeX safety:
+
+- All `\cite{...}` keys have matching `\bibitem{...}` entries.
+- All `\ref{...}` targets have matching `\label{...}` entries.
+- `main.tex` remains single-file and uses no `\input`, `\bibliography`, or `\maketitle`.
+
+Final review 3 - scope and sync:
+
+- The manuscript still states 23 chains × 3 stages × 3 evaluations.
+- The public and manuscript `main.tex` copies are byte-identical after sync.
+- Local TeX engines were not available, so final PDF page count must be checked on Overleaf.
