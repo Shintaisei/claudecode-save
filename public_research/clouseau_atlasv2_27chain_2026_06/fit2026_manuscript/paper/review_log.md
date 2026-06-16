@@ -45,3 +45,21 @@ Status: pending
 ## Round 3 Local
 
 Status: pending
+
+## Single-File 6-Page Expansion 2026-06-16
+
+Status: passed by static review
+
+Actions:
+
+- Removed `永田　功`, `Isao Nagata`, affiliation mark 3, and the YAMAGATA affiliation from the title block.
+- Expanded the single-file `main.tex` from the short 3-page draft toward a 6-page manuscript by adding detailed discussion of scoring interpretation, operational implications, future improvements, scenario-level analysis, and limitations.
+- Kept the accepted title layout: full-width Japanese title, English title, Japanese author row, English author row, and affiliations above the two-column body.
+- Synchronized the same `main.tex` content to both manuscript and public paper locations.
+
+Review:
+
+- Active `main.tex` contains no `\maketitle`, `\title`, `\author`, `\input`, `\cite`, `\ref`, `\bibliography`, or manual CJK environment.
+- Active `main.tex` contains no `永田`, `Isao`, `YAMAGATA`, or affiliation mark 3.
+- Active `main.tex` has one `\begin{document}` and one `\end{document}`, with matched `center` and `tabular` environments.
+- Local `pdflatex` is not installed, so exact PDF page count must be verified in Overleaf.

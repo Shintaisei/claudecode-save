@@ -345,3 +345,21 @@ Review:
 - Active `main.tex` has one `\twocolumn[...]` title block.
 - Active `main.tex` has no `\maketitle`, `\title`, `\author`, `\input`, `\cite`, `\ref`, `\bibliography`, or external class dependency.
 - Local `pdflatex` is not installed, so compile verification must be done in Overleaf.
+
+## Single-File 6-Page Expansion 2026-06-16
+
+Status: passed by static review
+
+Actions:
+
+- Removed `永田　功`, `Isao Nagata`, affiliation mark 3, and the YAMAGATA affiliation from the title block.
+- Expanded the manuscript from the short 3-page draft toward a 6-page version by adding scoring interpretation, operational implications, future improvements, detailed scenario analysis, and limitations.
+- Kept the accepted title layout and single-file Overleaf paste workflow.
+- Synchronized this `main.tex` with `fit2026_manuscript/paper/main.tex`.
+
+Review:
+
+- Active `main.tex` contains no `\maketitle`, `\title`, `\author`, `\input`, `\cite`, `\ref`, `\bibliography`, or manual CJK environment.
+- Active `main.tex` contains no `永田`, `Isao`, `YAMAGATA`, or affiliation mark 3.
+- Active `main.tex` has one `\begin{document}` and one `\end{document}`, with matched `center` and `tabular` environments.
+- Local `pdflatex` is not installed, so exact PDF page count must be verified in Overleaf.

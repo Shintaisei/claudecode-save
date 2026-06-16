@@ -28,17 +28,15 @@ Reconstructing Benign Behavior Sequences from Windows Endpoint Logs\\
 for False Positive Triage\par}
 \vspace{2mm}
 {\small
-\begin{tabular}{@{}ccccc@{}}
+\begin{tabular}{@{}cccc@{}}
 小松崎　大世\affmark{1} &
 横山　想一郎\affmark{2} &
 山下　倫央\affmark{2} &
-川村　秀憲\affmark{2} &
-永田　功\affmark{3} \\
+川村　秀憲\affmark{2} \\
 Taisei Komatsuzaki &
 Soichiro Yokoyama &
 Tomohisa Yamashita &
-Hidenori Kawamura &
-Isao Nagata
+Hidenori Kawamura
 \end{tabular}
 \par}
 \end{center}
@@ -46,8 +44,7 @@ Isao Nagata
 {\small
 \noindent
 \affmark{1}北海道大学 大学院情報科学院, Graduate School of Information Science and Technology, Hokkaido University\\
-\affmark{2}北海道大学 大学院情報科学研究院, Faculty of Information Science and Technology, Hokkaido University\\
-\affmark{3}YAMAGATA株式会社, YAMAGATA Corporation\par}
+\affmark{2}北海道大学 大学院情報科学研究院, Faculty of Information Science and Technology, Hokkaido University\par}
 \vspace{3mm}
 ]
 
@@ -62,6 +59,11 @@ SOCにおけるアラート対応では，検知結果が悪性活動を示す�
 出力は，調査者が確認可能な行動ステップ列と，それを支えるcritical evidenceである．
 CLOUSEAU型のログ探索エージェントを用い，初期手がかりから探索方針を作り，SQLite化したログに問い合わせ，最終的に主行動列を統合する．
 
+本稿の問題意識は，既存の異常検知研究で扱われる「検知できたか」という評価とは異なる．
+実際のSOCでは，検知後に「なぜこのアラートが発生したのか」，「業務操作として説明できるのか」，「追加調査すべき悪性兆候があるのか」を判断する必要がある．
+この判断には，検知ラベルよりも，端末上で観測された行動の物語と，その物語を支えるログ行が必要である．
+したがって，本研究ではアラート後調査を，正常行動の証跡付き行動列復元問題として定式化する．
+
 本稿の貢献は次の3点である．
 第一に，SOCの偽陽性判断支援を，正常行動の証跡付き行動列復元として定式化する．
 第二に，23個の正常行動chainを3段階の入力条件で評価し，アラート要約の有無と残存telemetryからの復元可能性を比較する．
@@ -75,9 +77,17 @@ EDRは検知理由やプロセス情報をまとめたalert summaryを提供す�
 これらは調査に有用だが，alert summaryは観測された全行動を代表するものではない．
 したがって，最終出力はアラート文面ではなく，ログ上で確認できる行動主張に限定する必要がある．
 
+近年のLLMエージェントを用いたセキュリティ調査では，複数のサブエージェントが仮説生成，ログ検索，根拠整理を分担する構成が提案されている．
+この構成は，単一のプロンプトで長いログを読ませる場合に比べて，探索範囲を段階的に絞れる利点がある．
+一方で，LLMは調査過程で見つけた周辺事象を，主系列の行動と混同することがある．
+例えば，あるプロセスの近傍で発生したDNS問い合わせや別プロセスの実行を，実際には同じchainに属さないにもかかわらず，行動列に含めてしまう場合がある．
+このため，調査支援の有用性を評価するには，正しい行動部品を拾えたかだけでなく，余計な主張をどの程度抑えられたかも見る必要がある．
+
 本研究の課題は，異常検知モデルの精度評価ではない．
 検知後のSOC調査において，調査者が検証可能な証跡付き行動列を復元できるかを問う．
 そのため，自然文の類似度ではなく，主体，操作，対象，コマンドライン，証跡行などの構成要素を採点する．
+また，モデルが正しい説明を含んでいても，証跡が不十分であれば，SOC実務では判断材料として使いにくい．
+本稿では，この点をcritical evidence recallとoverclaimとして別に測定する．
 
 \section{提案手法}
 
@@ -87,9 +97,30 @@ Investigation agentは，確認すべき事実をQAAgentまたはSQL expertへ�
 QAAgentまたはSQL expertは，SQLite化されたエンドポイントログに問い合わせ，timestamp，source stream，PID/PPID，process tree，command line，registry path，source row idなどを返す．
 Final synthesisは観測結果を統合し，主行動列，補助証跡，limitationsを出力する．
 
+本研究では，エージェントの最終出力を単なる自由記述の要約として扱わない．
+最終出力は，行動ステップごとに，主体，操作，対象，時刻，根拠ログを含むことを期待する．
+例えば，Run Key登録のchainでは，単に「永続化が行われた」と述べるだけでは不十分であり，どのプロセスが，どのレジストリパスに，どの値またはコマンドラインを設定したかを示す必要がある．
+一方，Discord関連のchainでは，Run KeyからDiscord更新処理や関連プロセスへ至る意味的な接続が重要になり，単一のコマンド実行だけを拾っても十分ではない．
+
 評価では，gold stepをaction componentとcritical evidenceに分解する．
 モデル出力がgold内容を実質的に含めばhitとし，表現の違いは許容する．
+例えば，プロセス名，コマンドライン，レジストリパス，通信先，ファイルパスが同じ意味を持つ形で含まれていれば，完全な文言一致でなくても正解とする．
 一方，alert nameやalert reasonを行動そのものとして出した場合，gold chainに属さない近傍行動を主系列として含めた場合，証跡で支えられない推定を含めた場合は，candidate claim precisionの分母またはoverclaimとして扱う．
+
+\begin{center}
+\scriptsize
+\begin{tabular}{p{0.22\linewidth}p{0.68\linewidth}}
+\toprule
+観点 & 採点内容 \\
+\midrule
+Action recall & gold stepに含まれる主体，操作，対象が復元された割合 \\
+Critical evidence recall & gold stepを支える重要なログ証跡が提示された割合 \\
+Sequence order & 復元された行動ステップの順序がgold chainと整合する割合 \\
+Candidate precision & 候補として出した主張のうちgold内容に対応する割合 \\
+Overclaim & 根拠不足または主系列外の余計な行動主張数 \\
+\bottomrule
+\end{tabular}
+\end{center}
 
 \section{実験設定}
 
@@ -102,6 +133,7 @@ Stage 1はCBC alert rowsを入力に含めるアラート支援条件である�
 Stage 2はhost，focus process，time windowのみを入力とし，DB内にはalert summary rowsを残す．
 Stage 3はStage 2と同じ初期入力だが，検索対象からCBC alert summary rowsを除外する．
 ただし，CBC EDR/NGAV event telemetry，Security，Sysmon，DNS，browser historyは残す．
+この設計により，モデルがアラート文面を言い換えているだけなのか，残存ログから行動を復元しているのかを切り分けられる．
 
 \begin{center}
 \scriptsize
@@ -120,6 +152,11 @@ Stage 3 & process/timeのみ & alert summary rowsをSQL検索対象から除外 
 各モデルについて23 chain，3 stage，3 set相当を評価し，各モデル207 rowsを得た．
 \code{gpt-4.1-mini}と\code{gpt-5.4-mini}の第三セットは，旧27-chain実験から現在の23-chain対象だけを抽出した実質第三セットである．
 \code{gpt-5.5 low raw}は3セット完了しているが，要求したJSON / \code{code\_steps} 出力契約に従わなかったため，raw-output salvageとして採点した．
+
+採点は，モデル出力をrun単位で確認し，action componentとcritical evidenceに分けて実施した．
+特に，出力形式が異なる\code{gpt-5.5 low raw}については，構造化出力を満たしていないことを明示したうえで，素の出力に含まれる行動部品を採点対象へ変換した．
+採点方針は「内容が実質的に含まれていれば正解」とし，表現ゆれや語順の違いだけでは不正解にしない．
+ただし，主系列外の事象を主行動として出した場合や，証跡のない推定を確定事実として出した場合は，overclaimとして記録した．
 
 \section{結果}
 
@@ -171,6 +208,106 @@ Scenario別では，明示的実行チェーンが最も安定した成功領域
 \code{gpt-5.4-mini}ではexplicit chainのcritical evidence recallが0.824，multi-step chainでは0.602であり，複数ツールをまたぐ主系列の順序づけが難しいことが分かる．
 semantic chainはDiscord Run Keyの1 chainのみであり，広いカテゴリ結論ではなくcase studyとして扱う．
 
+\begin{center}
+\scriptsize
+\begin{tabular}{p{0.20\linewidth}p{0.24\linewidth}p{0.40\linewidth}}
+\toprule
+分類 & 代表例 & 難しさ \\
+\midrule
+explicit & Python server, script execution & コマンドラインと親子関係が明示的で追いやすい \\
+multi-step & packet capture, browser/DNS連鎖 & 複数ログ源をまたぎ，順序と対応付けが難しい \\
+semantic & Discord Run Key & 個別イベントより意味的接続の復元が重要 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+過剰出力の内訳を見ると，主な原因は3つに分けられる．
+第一は，alert summaryの語を行動そのものとして扱う誤りである．
+この場合，検知名や検知理由は調査起点としては有用だが，gold chainの行動ステップではない．
+第二は，時間的に近いが主系列ではないログを，chainに含めてしまう誤りである．
+これは，モデルが広く探索できるほど起こりやすく，\code{gpt-5.5 low raw}で特に多かった．
+第三は，証跡が弱い推定を確定的に述べる誤りである．
+例えば，あるプロセスが存在することと，それが特定の設定変更を行ったことは別の主張であり，後者には対応するレジストリ行やコマンドラインが必要である．
+
+\section{採点結果の解釈}
+
+本実験のスコアは，モデルが「正しそうな説明」を生成したかではなく，gold chainに対応する行動部品をどの程度復元したかを示す．
+そのため，action recallが高い場合でも，critical evidence recallが低ければ，調査者が確認できる根拠が不足していると解釈する．
+逆に，critical evidenceを多く含んでいても，それが主系列の行動に対応していなければ，SOC支援としては使いにくい．
+本研究でcandidate precisionとoverclaimを併せて示した理由は，この「拾えるが絞れない」状態を明示するためである．
+
+\code{gpt-4.1-mini}の結果は，安価なモデルでも一部の明示的な行動は復元できることを示す．
+しかし，Stage 2以降でorderとcritical evidence recallが低下しており，初期入力が弱くなると，探索方針と根拠接続の両方が不安定になる．
+これは，アラート要約がない状態で，process/time clueだけから何を調べるべきかを決める能力が不足しているためと考えられる．
+実運用でこのモデルを使う場合は，初期プロンプトに具体的な探索観点を与えるか，SQL query templateを強く制約する必要がある．
+
+\code{gpt-5.4-mini}は，構造化出力を維持しながら，actionとcritical evidenceを大きく改善した．
+特にStage 3でも大きく崩れなかった点は，alert summary rowsに過度に依存していないことを示す．
+ただし，order scoreはaction recallほど高くない．
+これは，個々の行動部品を拾うことと，それらを正しい順序で主系列として並べることが別の難しさを持つためである．
+今後の改善では，stepごとに「前段の根拠」「次段への接続理由」を明示させることで，順序づけの誤りを減らせる可能性がある．
+
+\code{gpt-5.5 low raw}は，raw outputの中に多くの正しい部品を含んでいた．
+これは，強いモデルがログ探索の文脈理解や周辺証跡の発見に優れることを示す．
+一方で，出力契約を満たさなかったため，そのままシステムに組み込むにはリスクがある．
+また，正しい部品を多く拾うほど，周辺の関連しそうな事象も拾いやすくなり，overclaimが増える．
+したがって，強いモデルを使う場合ほど，最終出力を絞るための検証層が重要になる．
+
+\section{運用上の含意}
+
+SOC支援システムとして本手法を用いる場合，最も重要なのは，モデルの説明をそのまま判定結果として扱わないことである．
+本手法の出力は，調査者が確認すべき行動列候補と証跡候補であり，最終的な良性・悪性判断を自動で置き換えるものではない．
+特に偽陽性判断では，正常行動として説明できる根拠を示すことが重要であるが，同時に悪性の可能性を否定しすぎない慎重さも必要である．
+そのため，最終画面では，主系列の行動，補助証跡，未確認の論点，モデルの推定を明確に分離して提示するべきである．
+
+本実験の結果から，実用的な構成としては，\code{gpt-5.4-mini}相当のモデルを主たる構造化出力モデルとして使い，必要に応じて強いモデルを再調査またはレビューに使う構成が考えられる．
+全runを高価なモデルで処理するとコストが大きくなる一方，安価なモデルだけでは証跡接続が不足する．
+したがって，まず低中コストのモデルで候補行動列を作り，低confidenceのstepや証跡不足のclaimだけを追加レビューする段階的な運用が望ましい．
+
+また，プロンプト設計では，alert summaryの扱いを明示する必要がある．
+alert summaryは調査起点として使えるが，それ自体を行動証跡として扱ってはいけない．
+モデルがこの区別を誤ると，検知名を説明文へ再利用しただけの出力になり，Stage 3で評価したい「残存telemetryからの復元能力」を過大評価してしまう．
+本研究ではgoldをalert summaryだけに依存しない形へ統一したため，この誤りを過剰主張として扱えるようになった．
+
+\section{今後の改善}
+
+第一の改善点は，claim-evidence対応の強制である．
+各行動stepに対して，少なくとも1つのsource row idまたは具体的なログ項目を要求し，対応がないclaimは主系列に入れないようにする．
+これにより，モデルが文脈から推測したがログで支えられていない説明を抑制できる．
+さらに，evidenceの種類をprocess，command line，registry，network，browser，DNSのように分類すれば，どのログ源に基づく説明なのかを調査者が確認しやすくなる．
+
+第二の改善点は，候補行動列の再ランキングである．
+現在の評価では，最終出力に含まれたclaimを採点しているが，実運用ではモデルが見つけた候補の中から主系列を選ぶ処理が必要である．
+PID/PPIDの連続性，同一user，同一host，時刻差，ファイルパスまたはレジストリパスの一致度を特徴量として使えば，主系列らしさを後処理で評価できる可能性がある．
+これにより，強いモデルが広く拾った候補から，調査者に提示すべき少数のstepだけを抽出できる．
+
+第三の改善点は，評価データの拡張である．
+本稿では23 chainを用いたが，実運用に近づけるには，業務アプリケーションの更新，ブラウザ操作，開発ツール実行，管理者操作，バックアップ処理など，より多様な正常行動を含める必要がある．
+また，正常行動だけでなく，正常に見えるが悪性の可能性を含む境界事例も必要である．
+そのようなデータを用いることで，偽陽性判断支援だけでなく，過度な良性判断を避ける能力も評価できる．
+
+第四の改善点は，再現性を高める実験管理である．
+本実験では，run単位の生出力，採点結果，集計表，考察文書を分けて保存し，どのモデル，どのstage，どのchainに由来する結果なのかを追跡できるようにした．
+今後は，プロンプト，DB schema，検索対象ログ，採点rubric，レビュー履歴を同じ単位で版管理し，論文中の各数値がどの中間ファイルから得られたかを明示する必要がある．
+特に，出力契約違反を含むrunを再利用する場合は，通常採点とsalvage採点を分け，後から同じ条件で再集計できる形にしておくことが重要である．
+
+\section{個別シナリオの分析}
+
+明示的実行チェーンでは，プロセス名，親プロセス，コマンドラインが同じログ行または近接するログ行に揃うため，モデルは比較的安定して行動を復元できた．
+PythonのSimpleHTTPServerやスクリプト実行のような例では，実行ファイル，スクリプト名，待受ポート，作業ディレクトリなどが直接的な証跡となる．
+この種のシナリオでは，\code{gpt-4.1-mini}でも一部のactionは拾えるが，critical evidenceを十分に添えられない場合が多かった．
+\code{gpt-5.4-mini}では，SQLで得た行を行動主張に接続する能力が改善し，プロセス実行とコマンドラインを同じstepにまとめる傾向が強まった．
+
+multi-step chainでは，複数のログ源をまたいで時系列を構成する必要がある．
+DNS問い合わせ，ブラウザ履歴，packet capture，プロセス生成が同じ利用行動に関係していても，それぞれのログは独立したstreamとして記録される．
+そのため，単に時刻が近いだけで結合すると過剰主張になり，逆に厳しく見すぎると正しい接続を見落とす．
+この領域では，\code{gpt-5.4-mini}でもorder scoreが相対的に低く，行動列としての順序づけが主要な課題として残った．
+
+semantic chainの代表例であるDiscord Run Keyでは，正解ステップ数が少ない一方で，意味的なつながりの説明が難しい．
+モデルはRun Keyや更新プロセスの断片を拾うことはできるが，それが正常なDiscord関連の自動起動または更新動作としてどのように説明できるかを，証跡に基づいて簡潔にまとめる必要がある．
+このシナリオでは，候補ステップ数が増えるほど適合率の分母も増えるため，正しい部品を含んでいても余計な周辺行動を足すと評価が下がる．
+したがって，semantic chainは「拾う能力」よりも「主系列に絞る能力」を強く試すケースである．
+
 \section{考察}
 
 本研究が評価したのは，ATLASv2上の正常行動chainに対して，SOC調査起点から証跡付き行動列を復元する能力である．
@@ -180,10 +317,39 @@ semantic chainはDiscord Run Keyの1 chainのみであり，広いカテゴリ�
 Stage 3で\code{gpt-5.4-mini}と\code{gpt-5.5 low raw}が大きく崩れなかったことは重要である．
 alert summary rowsを検索対象から除外しても，CBC EDR/NGAV telemetryやOS側ログに残るprocess，command line，registry，network evidenceから復元できるchainが多い．
 これは，最終出力がalert summaryの単純な言い換えではないことを示す．
+ただし，Stage 3は「アラート情報が完全に存在しない」条件ではない．
+初期入力としてhost，process，time windowは与えられており，DB内にもEDR/NGAV event telemetryは残っている．
+そのため，本結果は「任意の生ログだけから完全に復元できる」という主張ではなく，「alert summary rowsを除いても，端末telemetryが十分に残っていれば，多くの正常行動chainは復元可能である」という限定的な主張として解釈すべきである．
 
-一方で，強いモデルほど周辺証跡や類似行動も主系列に含めやすい．
+モデル比較からは，能力向上と運用可能性が同じではないことも分かる．
 \code{gpt-5.5 low raw}は最も正しい部品を拾う一方で，最も多くのoverclaimを出した．
-したがって，今後は単に強いモデルへ置き換えるだけでなく，出力schemaの強制，evidence gating，nearby evidenceの別枠化，SQL履歴に基づくpost-processingが必要である．
+また，本実験では出力契約に従わず，構造化された\code{code\_steps}として扱えなかった．
+SOC支援システムとして組み込む場合，最終出力は人間が読む説明であるだけでなく，後段のUIや監査ログで扱える構造化データである必要がある．
+したがって，素の復元能力が高くても，出力schemaを守れないモデルは，追加の整形処理や検証処理なしには採用しにくい．
+
+一方，\code{gpt-5.4-mini}は復元能力，コスト，構造化出力の安定性のバランスが良い．
+\code{gpt-4.1-mini}は安価であるが，証跡接続が弱く，Stage 2以降でaction recallとorderが大きく低下した．
+この差は，単に自然文生成の上手さではなく，ログ行を事実主張へ対応付ける能力の差として現れている．
+特に，critical evidence recallの差は大きく，調査者が確認可能な根拠を提示できるかという本研究の目的に直結する．
+
+過剰主張を抑えるには，モデル選択だけでは不十分である．
+第一に，出力schemaで「主系列」と「補助証跡」を明確に分ける必要がある．
+第二に，SQL履歴と最終claimを照合し，根拠ログが存在しないclaimを自動的に弱めるpost-processingが必要である．
+第三に，時間的近接だけでchainへ含めるのではなく，PID/PPID，file path，registry path，command line，user，hostを組み合わせたevidence gatingが必要である．
+これらを導入することで，強いモデルの探索力を活かしつつ，SOC実務で危険な断定を減らせる可能性がある．
+
+\section{限界}
+
+本研究にはいくつかの限界がある．
+第一に，対象はATLASv2由来の23 behavior chainであり，すべての企業環境やEDR製品を代表するものではない．
+ログの記録粒度，保持期間，正規化方式が変われば，復元可能性も変化する．
+第二に，gold chainは人手で整理した正常行動の説明であり，現実の運用では正解が常に明確に存在するとは限らない．
+第三に，\code{gpt-5.5 low raw}は出力契約違反を含むため，他モデルと完全に同じ条件で比較したとは言えない．
+本稿ではこの点をraw-output salvageとして明示し，復元能力の参考上限として扱った．
+
+また，採点は「内容が入っていれば正解」とする保守的な方針で実施したが，SOC実務では表現の明確さや説明の読みやすさも重要である．
+例えば，正しい証跡を含んでいても，どのclaimを支えているのかが曖昧であれば，調査者の確認コストは下がらない．
+今後は，部品別スコアに加えて，claim-evidence対応の明瞭性，説明の簡潔さ，UI上での確認しやすさも評価する必要がある．
 
 \section{おわりに}
 
