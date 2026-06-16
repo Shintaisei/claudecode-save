@@ -13,6 +13,7 @@
 \setstretch{1.05}
 \pagestyle{empty}
 \renewcommand{\tablename}{表}
+\renewcommand{\figurename}{図}
 \renewcommand{\refname}{参考文献}
 \setlength{\textfloatsep}{7pt}
 \setlength{\floatsep}{6pt}
@@ -114,6 +115,57 @@ Investigation agentは，確認すべき事実をQAAgentまたはSQL expertへ�
 QAAgentまたはSQL expertは，SQLite化されたエンドポイントログに問い合わせ，timestamp，source stream，PID/PPID，process tree，command line，registry path，source row idなどを返す．
 Final synthesisは観測結果を統合し，主行動列，補助証跡，limitationsを出力する．
 本稿の新規性は，エージェント機構そのものを新しく提案する点ではなく，偽陽性トリアージ支援を証跡付き正常行動列復元として評価する枠組み，アラート要約依存を切り分けるStage設計，およびoverclaimを含む評価指標にある．
+図\ref{fig:pipeline}に，本稿で用いる探索と評価の流れを示す．
+
+\begin{figure*}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}c@{\(\rightarrow\)}c@{\(\rightarrow\)}c@{\(\rightarrow\)}c@{\(\rightarrow\)}c@{\(\rightarrow\)}c@{}}
+\fbox{\begin{minipage}{0.13\textwidth}\centering
+\textbf{入力}\\
+CBC alert\\
+または\\
+host/process/time
+\end{minipage}}&
+\fbox{\begin{minipage}{0.13\textwidth}\centering
+\textbf{Chief}\\
+調査方針\\
+仮説生成
+\end{minipage}}&
+\fbox{\begin{minipage}{0.14\textwidth}\centering
+\textbf{Investigation}\\
+確認事項を\\
+質問へ変換
+\end{minipage}}&
+\fbox{\begin{minipage}{0.14\textwidth}\centering
+\textbf{QA/SQL}\\
+SQLiteログ\\
+検索
+\end{minipage}}&
+\fbox{\begin{minipage}{0.14\textwidth}\centering
+\textbf{Final}\\
+観測結果を\\
+行動列へ統合
+\end{minipage}}&
+\fbox{\begin{minipage}{0.16\textwidth}\centering
+\textbf{出力}\\
+主行動列\\
+critical evidence\\
+limitations
+\end{minipage}}
+\end{tabular}
+
+\vspace{1mm}
+\fbox{\begin{minipage}{0.93\textwidth}
+\centering
+評価では，gold stepと候補claimを対応付け，action recall，critical evidence recall，sequence order，candidate precision，overclaimを算出する．
+Stage 3ではalert summary rowsを検索対象から除外し，残存telemetryからの復元可能性を評価する．
+\end{minipage}}
+\caption{提案する証跡付き正常行動列復元の評価パイプライン}
+\label{fig:pipeline}
+\end{figure*}
 
 本研究では，エージェントの最終出力を単なる自由記述の要約として扱わない．
 最終出力は，行動ステップごとに，主体，操作，対象，時刻，根拠ログを含むことを期待する．

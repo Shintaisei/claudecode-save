@@ -407,3 +407,27 @@ Final review 3 - static LaTeX and page fill:
 
 - `\begin` / `\end` counts match, brace balance is zero, all citation keys and table references resolve statically.
 - Canonical `main.tex` is about 18,997 characters, expanded from about 17,559 to use more of page 6. Local TeX engines were unavailable, so exact Overleaf page count remains to be checked.
+
+## Proposed Method Figure Pass 2026-06-16
+
+Status: passed after 3 static review checks
+
+Action review:
+
+- Added a self-contained `figure*` in the proposed-method section using only LaTeX boxes and tabular layout, avoiding external image files or TikZ dependencies.
+- The figure shows the pipeline from input clues to Chief, Investigation, QA/SQL, Final synthesis, output, and component-rubric evaluation.
+- Added `\renewcommand{\figurename}{図}` and referenced the figure as `図\ref{fig:pipeline}` from the method text.
+
+Final review 1 - reviewer coverage:
+
+- The manuscript now has a concrete proposed-method pipeline figure responding to the figure request.
+
+Final review 2 - static LaTeX:
+
+- `figure*`, `tabular`, and `minipage` begin/end counts match; brace balance is zero.
+- `fig:pipeline` has both a `\label` and a `\ref`.
+
+Final review 3 - packaging:
+
+- The figure is fully contained in `main.tex`; no external figure asset is required.
+- Canonical, public, docs, and desktop `FIT2026_main_latest.tex` copies were synced.

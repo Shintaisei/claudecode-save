@@ -547,3 +547,13 @@ Status: passed after 3 static review checks
 - Removed the semantic n=1 numeric row from the scenario-comparison table and kept it as a qualitative case study.
 - Static review passed: no stale `raw`, `salvage`, `evaluation instance`, `operational suitability`, semantic score row, old scenario values, or 2023 ATLASv2 year remain.
 - Canonical `main.tex` is about 18,997 characters. Local TeX engines were unavailable, so exact Overleaf page count remains to be checked.
+
+## Proposed Method Figure Pass 2026-06-16
+
+Status: passed after 3 static review checks
+
+- Added a self-contained `figure*` in the proposed-method section using only LaTeX boxes and tabular layout.
+- The figure shows input clues, Chief, Investigation, QA/SQL, Final synthesis, output, and component-rubric evaluation.
+- Added `\renewcommand{\figurename}{図}` and `図\ref{fig:pipeline}` reference.
+- Static review passed: figure/table/minipage begin/end counts match, brace balance is zero, and `fig:pipeline` has both label and reference.
+- The figure is fully contained in `main.tex`; no external asset is required.
