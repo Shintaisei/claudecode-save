@@ -112,3 +112,34 @@ Review 3 - content and authors:
 - Removed author and affiliation strings remain absent.
 - Manuscript and public `main.tex` copies are byte-identical.
 - Local TeX engine is not installed, so final visual page check must be done in Overleaf.
+
+## Page Trim and Section Restructure 2026-06-16
+
+Status: passed after 3 reviews
+
+Reason:
+
+- The prior version entered page 7 in Overleaf.
+- The manuscript had too many top-level sections, unlike the senior sample where the experiment chapter is organized with subsections such as 5.1--5.4.
+
+Fix:
+
+- Reduced active `main.tex` from 16,485 characters to 15,390 characters.
+- Reorganized `結果`, `採点結果の解釈`, `運用上の含意`, `今後の改善`, `個別シナリオの分析`, and `考察` under `\section{実験と考察}` as subsections.
+- Compressed duplicated discussion around run variability, cost, review policy, improvement items, and model operational interpretation.
+
+Review 1 - structure:
+
+- Top-level flow is now Introduction, Related Work, Method, Experiment Setup, Experiment and Discussion, Limitations/Future Work, Conclusion.
+- Section 5 now contains numbered subsections including `5.4` equivalent content: overclaim and scoring review.
+
+Review 2 - LaTeX and length:
+
+- No external dependency commands, citations, references, or removed-author strings were introduced.
+- Document has one `\begin{document}` and one `\end{document}`, with matched `center` and `tabular` environments.
+
+Review 3 - sync and title:
+
+- Manuscript and public `main.tex` copies are byte-identical.
+- Four-author title block and footnote-style affiliations remain intact.
+- Exact page count still requires Overleaf visual confirmation because no local TeX engine is installed.
