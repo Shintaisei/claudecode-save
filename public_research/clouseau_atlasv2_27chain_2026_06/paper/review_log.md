@@ -363,3 +363,17 @@ Review:
 - Active `main.tex` contains no `永田`, `Isao`, `YAMAGATA`, or affiliation mark 3.
 - Active `main.tex` has one `\begin{document}` and one `\end{document}`, with matched `center` and `tabular` environments.
 - Local `pdflatex` is not installed, so exact PDF page count must be verified in Overleaf.
+
+## Additional Length Tuning 2026-06-16
+
+Status: passed by static review
+
+Actions:
+
+- Added discussion of run-to-run variability, stage sensitivity, model cost, staged review, confidence estimation, and two-step scoring review.
+- Increased active `main.tex` from 15,230 characters to 16,468 characters after the user reported the prior version reached only the beginning of page 5.
+
+Review:
+
+- Active `main.tex` still contains no removed author or affiliation-3 strings.
+- Active `main.tex` still has no external file, citation, reference, or BibTeX dependency.
