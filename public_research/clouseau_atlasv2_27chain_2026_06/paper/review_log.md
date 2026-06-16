@@ -274,3 +274,28 @@ Review:
 - Active `main.tex` has no `\begin{CJK}` or `\end{CJK}`.
 - Active `main.tex` has balanced braces and matched table/figure/bibliography environments.
 - Tectonic local compile is not representative here because Tectonic uses an unsupported engine for `bxcjkjatype`; Overleaf default `pdflatex` is the intended engine.
+
+## Overleaf Minimal Single-File Fallback 2026-06-16
+
+Status: passed by static review
+
+Reason:
+
+- The Overleaf log still showed `job aborted, no legal \end found`.
+- The log also contained many undefined citation and reference warnings, which are not fatal but made debugging noisy.
+- To make copy-paste into Overleaf robust, the active `main.tex` was reduced to a shorter self-contained file with no cross-reference system.
+
+Actions:
+
+- Removed all `\cite`, `\ref`, and `\label` usages.
+- Removed floating `table` and `figure` environments.
+- Replaced the bibliography environment with a plain `\section*{参考文献}` list.
+- Kept the essential research framing, method, experiment setup, result tables, and discussion.
+- Added `% END OF MAIN.TEX` after `\end{document}` so paste completion is easy to verify.
+
+Review:
+
+- Active `main.tex` has exactly one `\begin{document}` and one `\end{document}`.
+- Active `main.tex` has no `\cite`, `\ref`, `\label`, `\begin{table}`, or `\begin{figure}`.
+- Active `main.tex` has balanced braces and matched `center` / `tabular` environments.
+- Active `main.tex` is 194 lines, making full paste into Overleaf less error-prone.
