@@ -557,3 +557,12 @@ Status: passed after 3 static review checks
 - Added `\renewcommand{\figurename}{図}` and `図\ref{fig:pipeline}` reference.
 - Static review passed: figure/table/minipage begin/end counts match, brace balance is zero, and `fig:pipeline` has both label and reference.
 - The figure is fully contained in `main.tex`; no external asset is required.
+
+## One-Column Stage Table Pass 2026-06-16
+
+Status: passed after static review
+
+- Changed the Stage result table from two-column `table*` to one-column `table`.
+- Shortened headers and model labels and used `\scriptsize` with tighter tabular spacing to fit one column.
+- Preserved all numeric values and the `tab:stage_result` label/reference.
+- Static review passed: brace balance is zero and labels remain consistent.

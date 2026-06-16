@@ -431,3 +431,12 @@ Final review 3 - packaging:
 
 - The figure is fully contained in `main.tex`; no external figure asset is required.
 - Canonical, public, docs, and desktop `FIT2026_main_latest.tex` copies were synced.
+
+## One-Column Stage Table Pass 2026-06-16
+
+Status: passed after static review
+
+- Changed the Stage result table from two-column `table*` to one-column `table`.
+- Shortened headers and model labels (`Act.`, `Ev.`, `Ord.`, `O/run`, `4.1-mini`, `5.4-mini`, `5.5 low`) and used `\scriptsize` with tighter tabular spacing to fit one column.
+- Preserved all numeric values and the `tab:stage_result` label/reference.
+- Static review passed: no remaining `table*` environment for the Stage table, brace balance is zero, and table/reference labels are consistent.
