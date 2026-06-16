@@ -300,3 +300,31 @@ Review:
 - All 9 citation keys used in text have matching `\bibitem` entries.
 - The added wording keeps the task framed as benign behavior reconstruction for false-positive triage, not attack detection.
 - All three `main.tex` copies are byte-identical after sync.
+
+## Reviewer Response And Six-Page Expansion Pass 2026-06-16
+
+Status: passed after 3 review checks
+
+Action review:
+
+- Adjusted FIT geometry to top 30mm, left/right 18mm, bottom 27mm, and removed the negative first-page vertical space that could collide with the lecture-number area.
+- Removed the `gpt-5.5 low` freer-form/raw caveat from the result-table note and kept it as a normal model row, per current writing direction.
+- Replaced `evaluation instance` wording with `run`, and normalized metric wording to `candidate precision`.
+- Added formal aggregation notes: overall scores use micro averages over hit/denominator slots, scenario rows aggregate run/slot counts inside each category, and single-step chains are excluded from the order denominator.
+- Split interpretation-heavy text out of Experiment into an independent `考察` section, reducing duplicated recommendations while expanding the discussion to target a 6-page manuscript.
+- Added explicit statements that the paper measures reconstruction quality, which is a necessary condition for false-positive triage support but not a direct measurement of analyst speed or final triage accuracy.
+- Added 3-run variation ranges for `gpt-4.1-mini` and `gpt-5.4-mini`, strengthened Stage 3 and overclaim as the FP-specific novelty, and fixed ATLASv2 year to 2024.
+
+Final review 1 - LaTeX safety:
+
+- `\begin` / `\end` counts match, brace balance is zero, and underscores appear only in labels or math-safe contexts.
+- All `\cite{...}` keys have matching `\bibitem{...}` entries, with 9 cited bibliography items.
+
+Final review 2 - reviewer coverage:
+
+- The title/evaluation gap, gpt-5.5 table treatment, micro aggregation, order denominator, run variation, novelty framing, duplicated discussion, terminology drift, category consistency, and ATLASv2 year issues are all addressed.
+
+Final review 3 - page-length and sync readiness:
+
+- Canonical `main.tex` increased to about 15,819 characters from the prior 5-page version and no longer uses negative top spacing; this should move the Overleaf output back toward 6 pages.
+- Local TeX engines were not installed in this environment, so final page count still needs Overleaf confirmation after paste/upload.
