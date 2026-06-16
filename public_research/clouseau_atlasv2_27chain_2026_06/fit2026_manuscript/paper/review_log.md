@@ -328,3 +328,29 @@ Final review 3 - page-length and sync readiness:
 
 - Canonical `main.tex` increased to about 15,819 characters from the prior 5-page version and no longer uses negative top spacing; this should move the Overleaf output back toward 6 pages.
 - Local TeX engines were not installed in this environment, so final page count still needs Overleaf confirmation after paste/upload.
+
+## Claim-Focused Prize Review Pass 2026-06-16
+
+Status: passed after 3 review checks
+
+Action review:
+
+- Reframed the title and introduction from "CLOUSEAU application" to an evaluation of evidence-backed benign behavior reconstruction for false-positive triage.
+- Added a single central claim: false-positive triage support should be evaluated as evidence-backed benign behavior sequence reconstruction, including both evidence recall and overclaim.
+- Promoted the two main findings into the contribution, results, and conclusion: (1) `gpt-5.4-mini` remains stable when alert summary rows are excluded, and (2) high raw reconstruction ability does not equal operational suitability because `gpt-5.5 low` has the highest recall and the highest overclaim.
+- Treated `gpt-5.5 low` as a capability upper-bound probe rather than a simple operational model ranking.
+- Changed scenario reporting to chain-level macro averages and updated the `gpt-5.4-mini` scenario table accordingly: explicit 0.869/0.826/0.778, multi-step 0.783/0.600/0.543, semantic 0.642/0.481/0.333.
+- Added the explicit micro/macro aggregation statement explaining why overall values and scenario-weighted values need not match.
+
+Final review 1 - stale wording and numbers:
+
+- No stale `raw`, `evaluation instance`, `free-form comparability note`, old margin, old title, or old scenario values remain in the active manuscript.
+
+Final review 2 - claim coverage:
+
+- The central claim, Finding 1, Finding 2, Stage 3 evidence numbers, `gpt-5.5 low` upper-bound-probe framing, micro/macro definition, and necessary-condition limitation are all present in the manuscript.
+
+Final review 3 - static LaTeX and page risk:
+
+- `\begin` / `\end` counts match, brace balance is zero, and all citation keys have bibliography entries.
+- Canonical `main.tex` is about 16,615 characters. Local TeX engines were unavailable, so exact Overleaf page count remains to be checked, but the manuscript is intentionally expanded from the 5-page version while still avoiding a figure file or extra artifacts.

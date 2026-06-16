@@ -30,12 +30,12 @@
 \begin{center}
 \vspace*{0mm}
 {\large\bfseries
-Windowsエンドポイントログを用いた正常行動の行動列復元による\\
-偽陽性判断支援の検討\par}
+Windowsエンドポイントログを用いた証跡付き正常行動列復元による\\
+偽陽性トリアージ支援の評価\par}
 \vspace{1mm}
 {\large
-Reconstructing Benign Behavior Sequences from Windows Endpoint Logs\\
-for False Positive Triage\par}
+Evaluating Evidence-backed Benign Behavior Sequence Reconstruction\\
+from Windows Endpoint Logs for False Positive Triage\par}
 \vspace{2mm}
 {\small
 \begin{tabular}{@{}cccc@{}}
@@ -71,11 +71,12 @@ CLOUSEAU型のログ探索エージェント\cite{clouseau}を用い，初期手
 実際のSOCでは，検知後に「なぜこのアラートが発生したのか」，「業務操作として説明できるのか」，「追加調査すべき悪性兆候があるのか」を判断する必要がある．
 この判断には，検知ラベルよりも，端末上で観測された行動の物語と，その物語を支えるログ行が必要である．
 したがって，本研究ではアラート後調査を，正常行動の証跡付き行動列復元問題として定式化する．
+本稿の中心的な主張は，偽陽性トリアージ支援を「検知後に正常行動として説明可能な証跡付き行動列を復元できるか」で評価すべきであり，その際には正解部品の再現だけでなく，証跡不足や主系列外の過剰主張も同時に測る必要がある，という点である．
 
 本稿の貢献は次の3点である．
-第一に，SOCの偽陽性判断支援を，正常行動の証跡付き行動列復元として定式化する．
-第二に，23個の正常行動chainを3段階の入力条件で評価し，アラート要約の有無と残存telemetryからの復元可能性を比較する．
-第三に，\code{gpt-4.1-mini}，\code{gpt-5.4-mini}，および\code{gpt-5.5 low}を比較し，精度，証跡提示，過剰主張の観点から実用上の境界を整理する．
+第一に，SOCの偽陽性トリアージ支援を，action，critical evidence，sequence order，candidate precision，overclaimから成る証跡付き正常行動列復元の評価枠組みとして定式化する．
+第二に，23個の正常行動chainを3段階の入力条件で評価し，\code{gpt-5.4-mini}ではalert summary rowsを検索対象から除いたStage 3でもaction recallが0.802，critical evidence recallが0.779となり，Stage 1の0.791，0.574から崩れないことを示す．
+第三に，\code{gpt-5.5 low}はrecallが最も高い一方でoverclaimも最多であり，モデルの素の復元能力とSOC支援としての運用適性が一致しないことを示す．
 
 \section{関連研究}
 
@@ -94,7 +95,7 @@ Carbon Black CloudのようなEDRは，継続的な端末活動データに基�
 攻撃手法の整理では，MITRE ATT\&CK\cite{attack}が実観測に基づく戦術・技術の知識ベースとして広く用いられ，LOLBAS\cite{lolbas}はWindowsの正規バイナリやスクリプトが攻撃に悪用されるLiving-off-the-Landの観点を整理している．
 既存研究には，Sysmon\cite{sysmon}やDeepLog\cite{deeplog}のようにログ収集・異常検知・ログ診断を扱う研究，ReAct\cite{react}のように推論と行動を組み合わせるエージェント設計，ATLAS/ATLASv2\cite{atlas,atlasv2}のように攻撃調査データを整備する研究がある．
 しかし，本研究が扱う「検知後に，正常行動として説明可能な証跡付き行動列を復元する」課題そのものを直接のベースラインとして評価した研究は少ない．
-そのため本稿では，単純な既存手法との精度比較ではなく，CLOUSEAU型探索を用いた場合に，入力条件とモデルの違いが復元可能性と過剰主張へどのように影響するかを評価する．
+そのため本稿では，単純な既存手法との精度比較ではなく，偽陽性文脈における証跡付き行動列復元と過剰主張抑制の評価枠組みを定め，CLOUSEAU型探索を実験基盤として入力条件とモデル差を検証する．
 
 本研究の課題は，異常検知モデルの精度評価ではない．
 検知後のSOC調査において，調査者が検証可能な証跡付き行動列を復元できるかを問う．
@@ -109,7 +110,7 @@ Chief agentは初期手がかりから調査方針を生成する．
 Investigation agentは，確認すべき事実をQAAgentまたはSQL expertへの質問に変換する．
 QAAgentまたはSQL expertは，SQLite化されたエンドポイントログに問い合わせ，timestamp，source stream，PID/PPID，process tree，command line，registry path，source row idなどを返す．
 Final synthesisは観測結果を統合し，主行動列，補助証跡，limitationsを出力する．
-本稿の新規性は，エージェント機構そのものを新しく提案する点ではなく，この探索機構を正常行動の行動列復元に適用し，アラート要約依存を切り分けるStage設計と，overclaimを含む評価指標で偽陽性判断支援として評価する点にある．
+本稿の新規性は，エージェント機構そのものを新しく提案する点ではなく，偽陽性トリアージ支援を証跡付き正常行動列復元として評価する枠組み，アラート要約依存を切り分けるStage設計，およびoverclaimを含む評価指標にある．
 
 本研究では，エージェントの最終出力を単なる自由記述の要約として扱わない．
 最終出力は，行動ステップごとに，主体，操作，対象，時刻，根拠ログを含むことを期待する．
@@ -124,7 +125,7 @@ Final synthesisは観測結果を統合し，主行動列，補助証跡，limit
 形式的には，action recallを正解行動部品のhit数/gold行動部品数，critical evidence recallを正解証跡のhit数/gold証跡数，candidate precisionをgoldに対応する候補claim数/総候補claim数として算出する．sequence orderはKendall's $\tau$や編集距離ではなく，隣接するgold step順序スロットのうち候補出力で順序関係が保持された数/\(\max(n_{\mathrm{gold}}-1,0)\)として算出する．overclaimは根拠不足または主系列外のclaim数であり，モデル間比較ではprecisionと1 runあたりのoverclaimも併記する．
 単一step chainのように順序スロットが存在しない場合は，orderを1とはみなさず，order指標の分母から除外する．
 全体評価はrun内のhit数と分母slot数を合算するmicro平均で算出する．
-シナリオ別評価も，各分類内のrunとslotを合算して算出し，表中のchain数は対象範囲を示す値として用いる．
+シナリオ別評価は，各chain内の3 stage，3 runを集約した値を分類ごとに平均するchain単位のmacro平均で算出するため，全体値とシナリオ別値のchain数加重平均は一般に一致しない．
 
 \section{データセット}
 
@@ -186,9 +187,9 @@ Stage 3 & process/timeのみ & alert summary rowsをSQL検索対象から除外 
 
 \subsection{実験結果}
 
-表\ref{tab:overall}に全体評価を示す．全体では，\code{gpt-5.4-mini}が\code{gpt-4.1-mini}を大きく上回った．
-action recallは0.466から0.798へ，critical evidence recallは0.195から0.703へ，orderは0.201から0.553へ上昇し，overclaimは1190から651へ減少した．
-これは，モデル更新により単なる説明生成だけでなく，証跡接続と順序構成が改善したことを示す．
+表\ref{tab:overall}に全体評価を示す．本稿では，この表を単純なモデルランキングではなく，二つの発見を示す要約として読む．
+第一に，\code{gpt-5.4-mini}は\code{gpt-4.1-mini}に対してaction recallを0.466から0.798へ，critical evidence recallを0.195から0.703へ，orderを0.201から0.553へ改善し，overclaimを1190から651へ減らした．
+第二に，\code{gpt-5.5 low}はrecall系指標で最も高いが，overclaimも最大であり，復元能力の高さがそのままSOC支援としての扱いやすさを意味しない．
 
 \begin{table}[t]
 \centering
@@ -206,16 +207,14 @@ Model & Action & Crit. ev. & Order & Prec. & Over & Over/run \\
 \code{gpt-5.5 low} & 0.918 & 0.906 & 0.868 & 0.640 & 1235 & 5.97 \\
 \bottomrule
 \end{tabular}
-\par\raggedright\scriptsize 注: Over/runは各モデルのoverclaim数を207 runで割った値である．
+\par\raggedright\scriptsize 注: Over/runは各モデルのoverclaim数を207 runで割った値である．\code{gpt-5.5 low}は強いモデルの能力上限をみるプローブとして扱う．
 \end{table}
 
-\code{gpt-5.5 low}はaction recall 0.918，critical evidence recall 0.906，order 0.868と最も高い復元能力を示した．
-一方で，overclaimは1235，1 runあたり5.97と大きく，強い復元能力と余計な主張の増加が同時に生じる傾向が見られた．
-
-\noindent{\bfseries Stage別結果.}
+\noindent{\bfseries 発見1: アラート要約を除いても復元は崩れない.}
 
 表\ref{tab:stage_result}にStage別結果を示す．\code{gpt-5.4-mini}はStage 1からStage 3までaction recallが0.791，0.800，0.802とほぼ一定であり，critical evidence recallはStage 3で0.779と最も高い．
-これは，alert summary rowsを隠しても，残存telemetryから多くの行動と証跡を復元できることを示す．
+これは，本稿で最も重要な結果であり，alert summary rowsを隠しても，残存telemetryから多くの行動と証跡を復元できることを示す．
+すなわち，少なくとも本実験範囲では，システムはアラート文面をオウム返ししているだけではない．
 ただし，Stage 3でもCBC EDR/NGAV telemetryは残っており，任意の低レベルログだけで十分と主張するものではない．
 
 \begin{table*}[t]
@@ -243,9 +242,16 @@ Model & Stage & Action & Crit. ev. & Order & Over & Over/run \\
 \par\raggedright\scriptsize 注: Over/runは各Stageのoverclaim数を69 runで割った値である．
 \end{table*}
 
+\noindent{\bfseries 発見2: 復元能力と運用適性は一致しない.}
+
+\code{gpt-5.5 low}はaction recall 0.918，critical evidence recall 0.906，order 0.868と最も高い復元能力を示した．
+一方で，overclaimは1235，1 runあたり5.97と大きく，強いモデルが多くの正解部品を拾うほど，周辺事象や根拠不足のclaimも増えうることが分かった．
+したがって，本稿では\code{gpt-5.5 low}を単純な運用上の最良モデルとしてではなく，能力上限プローブとして扱う．
+この結果は，候補を広く拾う能力と，SOCでそのまま提示できる説明へ絞る能力を分けて評価する必要性を示している．
+
 \noindent{\bfseries シナリオ別結果.}
 
-Scenario別では，明示的実行チェーンが最も安定した成功領域であった．表\ref{tab:scenario_result}に，復元能力と過剰主張抑制のバランスが良かった\code{gpt-5.4-mini}のシナリオ別集計を示す．explicitはnetwork serviceとcommand shell系，multi-stepはcollection/tool invocationとscript execution系，semanticはpersistence Run Key系をまとめた分類である．semantic chainはDiscord Run Keyの1 chainのみであり，広いカテゴリ結論ではなくcase studyとして扱う．
+Scenario別では，明示的実行チェーンが最も安定した成功領域であった．表\ref{tab:scenario_result}に，復元能力と過剰主張抑制のバランスが良かった\code{gpt-5.4-mini}のchain単位macro集計を示す．explicitはnetwork serviceとcommand shell系，multi-stepはcollection/tool invocationとscript execution系，semanticはpersistence Run Key系をまとめた分類である．semantic chainはDiscord Run Keyの1 chainのみであり，広いカテゴリ結論ではなくcase studyとして扱う．
 
 \begin{table}[t]
 \centering
@@ -257,8 +263,8 @@ Scenario別では，明示的実行チェーンが最も安定した成功領域
 \toprule
 分類 & n & Action & Crit. ev. & Order & Over/run \\
 \midrule
-explicit & 15 & 0.865 & 0.824 & 0.764 & 2.56 \\
-multi-step & 7 & 0.746 & 0.602 & 0.431 & 4.57 \\
+explicit & 15 & 0.869 & 0.826 & 0.778 & 2.56 \\
+multi-step & 7 & 0.783 & 0.600 & 0.543 & 4.57 \\
 semantic & 1 & 0.642 & 0.481 & 0.333 & 2.00 \\
 \bottomrule
 \end{tabular}
@@ -298,7 +304,7 @@ Stage 3はalert summary rowsをSQL検索対象から除外するため，アラ�
 あるプロセスが存在することと，そのプロセスが特定の設定変更を行ったことは別の主張であり，後者には対応するレジストリ行，コマンドライン，またはsource row idが必要である．
 
 3回評価のばらつきも，運用上の注意点を示している．
-\code{gpt-5.4-mini}のaction recallは0.769--0.822の範囲に収まり，正解行動部品を拾う能力は比較的安定していた．
+\code{gpt-5.4-mini}のaction recallは3回評価で0.769--0.822，Stage間でも0.791--0.802の範囲に収まり，正解行動部品を拾う能力は比較的安定していた．
 一方でcritical evidence recallは0.651--0.790，orderは0.484--0.619，overclaimは90--307と幅があり，行動を拾えた場合でも，証跡接続，順序構成，余計な主張の抑制はrunによって揺れる．
 \code{gpt-4.1-mini}ではaction recallが0.432--0.491，critical evidence recallが0.056--0.277であり，Stage 2以降の根拠接続が不安定であった．
 このため，平均スコアだけでなく，低いrunでどの証跡が落ちるかを確認することが，実運用導入時には重要である．
@@ -306,12 +312,12 @@ Stage 3はalert summary rowsをSQL検索対象から除外するため，アラ�
 \subsection{シナリオ別の解釈}
 
 明示的実行チェーンでは，プロセス名，親プロセス，コマンドライン，作業ディレクトリが同じログ行または近接するログ行に揃うため，モデルは比較的安定して行動を復元できた．
-network service behaviorやcommand shell executionは，実行主体と対象がログ上で直接観測しやすく，\code{gpt-5.4-mini}でもaction recall 0.865，critical evidence recall 0.824，order 0.764と高かった．
+network service behaviorやcommand shell executionは，実行主体と対象がログ上で直接観測しやすく，\code{gpt-5.4-mini}でもaction recall 0.869，critical evidence recall 0.826，order 0.778と高かった．
 これは，SOC調査でまず有効なのが，明示的なプロセス実行やコマンドラインを起点にした行動列復元であることを示す．
 
 一方，multi-step chainでは，DNS問い合わせ，ブラウザ履歴，packet capture，プロセス生成，スクリプト実行など複数streamを接続する必要がある．
 この分類では，あるログ行だけを見ても主系列全体は分からず，時刻差，PID/PPID，同一user，同一host，ファイルパス，通信先を組み合わせて説明する必要がある．
-そのため，\code{gpt-5.4-mini}でもorder 0.431に低下し，overclaim/runも4.57と高かった．
+そのため，\code{gpt-5.4-mini}でもorder 0.543に低下し，overclaim/runも4.57と高かった．
 これは，multi-step chainでは「何が起きたか」よりも，「どの事象を同じ主系列として接続してよいか」が難所であることを示す．
 
 semantic chainはDiscord Run Keyの1 chainのみであり，広いカテゴリ結論ではなくcase studyとして扱う必要がある．
@@ -334,10 +340,10 @@ ATLASv2は攻撃エンゲージメント由来のデータであり，本稿で�
 
 \section{おわりに}
 
-本稿では，CLOUSEAU型のエージェント型ログ探索手法\cite{clouseau}により，SOC調査起点からWindowsエンドポイントログを探索し，正常行動の証跡付き行動列を復元する課題を，ATLASv2由来の23 behavior chain\cite{atlasv2}で評価した．
-実験では，\code{gpt-5.4-mini}が\code{gpt-4.1-mini}に比べてaction recall，critical evidence recall，sequence orderを大きく改善し，overclaimも減らした．
-\code{gpt-5.5 low}は最も高い復元能力を示したが，過剰主張も増加した．
-これらの結果は，検知アラートを単に悪性/良性へ分類するだけでなく，正常行動として説明可能な行動列を提示することが偽陽性判断支援の重要な前提になることを示す．
+本稿では，偽陽性トリアージ支援を証跡付き正常行動列復元として評価する枠組みを定め，ATLASv2由来の23 behavior chain\cite{atlasv2}で検証した．
+第一の発見は，\code{gpt-5.4-mini}ではalert summary rowsを検索対象から除いたStage 3でもaction recallが0.802，critical evidence recallが0.779となり，アラート文面の言い換えだけではなく残存telemetryから復元していることを示した点である．
+第二の発見は，\code{gpt-5.5 low}が最も高いrecallを示す一方でoverclaimも最大となり，モデルの素の復元能力とSOC支援としての運用適性が一致しない点である．
+これらの結果は，正常行動として説明可能な行動列を提示することが偽陽性判断支援の重要な前提になることを示す．
 ただし，本稿が示したのはトリアージ判断そのものの改善ではなく，その必要条件となる復元品質である．
 今後は，復元結果を用いた調査者の判断時間や判断一貫性への効果を評価する．
 
