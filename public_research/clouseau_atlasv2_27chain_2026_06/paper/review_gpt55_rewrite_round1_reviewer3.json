@@ -1,0 +1,149 @@
+{
+  "reviewer": "reviewer3",
+  "role": "strict supervising professor",
+  "reviewed_file": "public_research/clouseau_atlasv2_27chain_2026_06/paper/main.tex",
+  "status": "FIX_REQUIRED",
+  "review_date": "2026-06-16",
+  "basis_files_checked": [
+    "public_research/clouseau_atlasv2_27chain_2026_06/results_23chain_20260614/overall.csv",
+    "public_research/clouseau_atlasv2_27chain_2026_06/results_23chain_20260614/by_stage.csv",
+    "public_research/clouseau_atlasv2_27chain_2026_06/results_23chain_20260614/by_scenario_group.csv",
+    "public_research/clouseau_atlasv2_27chain_2026_06/results_23chain_20260614/summary.md",
+    "public_research/clouseau_atlasv2_27chain_2026_06/results_23chain_20260614/RESULT_DEFINITIONS_23CHAIN.md",
+    "public_research/clouseau_atlasv2_27chain_2026_06/results_23chain_20260614/openai_cost_audit_note_20260614.md",
+    "public_research/clouseau_atlasv2_27chain_2026_06/exp_20260614/04_discussion_base/detailed_discussion_with_gpt55_20260616.md",
+    "public_research/clouseau_atlasv2_27chain_2026_06/exp_20260614/04_discussion_base/deep_dive_20260614/cost_effectiveness_by_model.csv"
+  ],
+  "fit_requirements_checked": {
+    "source": "https://www.ipsj.or.jp/event/fit/fit2026/paper_require.html",
+    "confirmed_requirements": [
+      "PDF file size must be within 3 MB.",
+      "General papers should be about 2 to 8 pages, using the page count selected at submission.",
+      "A4 margins should be approximately top 30 mm, bottom 25 mm, left 20 mm, right 20 mm, column gap 7 mm.",
+      "No page numbers should be inserted.",
+      "Fonts must be embedded in the submitted PDF."
+    ]
+  },
+  "overall_assessment": "The manuscript is scientifically much cleaner than a stale 27-chain or single-case draft: the current tables match the 23-chain aggregate files, the gpt-5.5 low raw caveat is mostly present, and the Stage 3 claim is bounded to alert-summary removal rather than removal of all EDR telemetry. However, I would not approve it for FIT submission yet because it still contains author/affiliation placeholders, the scoring protocol is under-described in the paper body, and the submission PDF/page/font checks have not been demonstrated.",
+  "checks": [
+    {
+      "area": "language_clarity",
+      "status": "FIX_REQUIRED",
+      "finding": "The technical narrative is mostly understandable, but the paper uses 'gpt-5.5' in prose while tables use 'gpt-5.5 low raw'. This is a small but important ambiguity because 'low raw' is an evaluation condition, not a cosmetic label.",
+      "evidence": [
+        "main.tex:37 calls it a raw-output salvage evaluation of gpt-5.5.",
+        "main.tex:48 lists raw-output salvage as gpt-5.5.",
+        "main.tex:150,176-178,204-206,228 use gpt-5.5 low raw in tables."
+      ],
+      "required_fix": "Use one consistent label in prose when reporting results, preferably 'gpt-5.5 low raw' at first mention, then state that it is a raw-output salvage condition rather than a contract-equivalent structured run."
+    },
+    {
+      "area": "fit_paper_readiness",
+      "status": "FIX_REQUIRED",
+      "finding": "The manuscript is not submission-ready because author and affiliation placeholders remain.",
+      "evidence": [
+        "main.tex:30 contains '著者名' and '共著者名'.",
+        "main.tex:31 contains '所属名'."
+      ],
+      "required_fix": "Replace all author and affiliation placeholders with the final FIT submission metadata before PDF generation."
+    },
+    {
+      "area": "fit_paper_readiness",
+      "status": "FIX_REQUIRED",
+      "finding": "The source has FIT-like geometry and no page numbers, but final PDF compliance is unverified in this environment because no TeX tool was available.",
+      "evidence": [
+        "main.tex:2 uses A4 two-column article.",
+        "main.tex:4-5 set top 30 mm, bottom 25 mm, left/right 20 mm, and column gap 7 mm.",
+        "main.tex:20 disables page numbers.",
+        "where.exe could not find latexmk, pdflatex, lualatex, or tectonic."
+      ],
+      "required_fix": "Before submission, compile the PDF and verify page count, A4 media size, file size under 3 MB, embedded fonts, and absence of severe overfull/clipped table or figure content."
+    },
+    {
+      "area": "stale_prior_experiment_contamination",
+      "status": "OK",
+      "finding": "No stale single-case or old 81-run/27-chain result table appears to contaminate the main result claims. The old 27-chain source appears only as a caveated filtered third set for gpt-4.1-mini and gpt-5.4-mini.",
+      "evidence": [
+        "main.tex:101 explains that 23 current chains were selected from the old 27-chain experiment.",
+        "main.tex:129 states that the third gpt-4.1-mini/gpt-5.4-mini set is old 27-chain data filtered to the current 23-chain scope.",
+        "main.tex:255 repeats this limitation.",
+        "Search did not find old single-case fractions such as 14/14, 8/14, or 321/860 in main.tex."
+      ],
+      "required_fix": null
+    },
+    {
+      "area": "numeric_consistency",
+      "status": "OK",
+      "finding": "The main overall, by-stage, and by-scenario numeric tables match the current 23-chain aggregate files.",
+      "evidence": [
+        "main.tex:148-150 matches results_23chain_20260614/overall.csv for run_count, recall, precision, order, and overclaim values.",
+        "main.tex:170-178 matches results_23chain_20260614/by_stage.csv.",
+        "main.tex:198-206 matches results_23chain_20260614/by_scenario_group.csv.",
+        "main.tex:226-228 matches detailed_discussion_with_gpt55_20260616.md and cost_effectiveness_by_model.csv for the displayed cost-effectiveness values; the gpt-5.5 cost is correctly caveated in main.tex:233."
+      ],
+      "required_fix": null
+    },
+    {
+      "area": "method_result_claim_alignment",
+      "status": "FIX_REQUIRED",
+      "finding": "The result claims are mostly aligned with the measured tables, but the scoring method is too opaque for a paper. 'Codex internal review' is not enough for a reader to judge reproducibility, reviewer independence, or adjudication.",
+      "evidence": [
+        "main.tex:131 says scoring was performed by Codex internal review with a component rubric.",
+        "The ledger files show reviewer/adjudication fields, and RESULT_DEFINITIONS_23CHAIN.md defines content-inclusion scoring, but main.tex does not summarize this process sufficiently."
+      ],
+      "required_fix": "Add a concise scoring-protocol sentence or footnote covering the number of reviews, whether conflicts were adjudicated, what ledger is the source of truth, and that GPT-5.5 was content-scored despite failing the JSON/code_steps contract."
+    },
+    {
+      "area": "method_result_claim_alignment",
+      "status": "FIX_REQUIRED",
+      "finding": "The manuscript lacks an explicit reproducibility or artifact pointer in the paper body, even though the claims depend on specific aggregate ledgers and cost-audit notes.",
+      "evidence": [
+        "No 'artifact', 'repository', 'ledger', or equivalent reproducibility pointer is present in main.tex.",
+        "The current source of truth is results_23chain_20260614/ledgers/final_comparison_per_run_component_scores.csv and related aggregate CSVs."
+      ],
+      "required_fix": "Add a short artifact/reproducibility statement naming the result package or repository location, especially the final comparison ledger and aggregate CSVs used for Tables 2-5."
+    },
+    {
+      "area": "latex_obvious_risks",
+      "status": "OK_WITH_UNVERIFIED_BUILD",
+      "finding": "Static checks found balanced braces and matched LaTeX environments. No obvious missing begin/end or label/ref syntax error was found. Build, page count, and overfull boxes remain unverified because TeX is not installed locally.",
+      "evidence": [
+        "Static brace count: 230 opening braces and 230 closing braces.",
+        "Static begin/end environment stack check returned no mismatches.",
+        "No local latexmk/pdflatex/lualatex/tectonic executable was found."
+      ],
+      "required_fix": "Run an actual TeX build before submission and inspect the log/PDF for overfull boxes, float placement, and font embedding."
+    }
+  ],
+  "required_fixes": [
+    {
+      "priority": "P0",
+      "location": "main.tex:30-31",
+      "fix": "Replace author and affiliation placeholders."
+    },
+    {
+      "priority": "P1",
+      "location": "main.tex:131",
+      "fix": "Expand the scoring-method description so the reader can understand reviewer count, conflict handling, content-inclusion scoring, and source ledgers."
+    },
+    {
+      "priority": "P1",
+      "location": "main.tex:37,48,129,155,233,255,259",
+      "fix": "Use the exact 'gpt-5.5 low raw' label consistently when discussing the salvage result, and explicitly distinguish it from contract-equivalent structured model runs."
+    },
+    {
+      "priority": "P1",
+      "location": "method/results section near main.tex:131 or after result tables",
+      "fix": "Add an artifact/reproducibility statement pointing to the final comparison ledger and aggregate result files used for the tables."
+    },
+    {
+      "priority": "P1",
+      "location": "PDF build artifact",
+      "fix": "Compile and verify FIT constraints: 2-8 pages as selected, A4, no page numbers, file size under 3 MB, embedded fonts, and no severe overfull/clipped content."
+    }
+  ],
+  "not_required_but_recommended": [
+    "Consider replacing some English metric names inside Japanese prose with a short definition table so that 'candidate claim precision' and 'overclaim slot count' are not only explained in prose.",
+    "If space allows, include numerators and denominators for the main overall table, at least in a footnote or appendix/artifact pointer, because the paper discusses denominator-sensitive metrics."
+  ]
+}

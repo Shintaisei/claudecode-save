@@ -1,0 +1,88 @@
+{
+  "status": "FIX_REQUIRED",
+  "reviewer": "reviewer2",
+  "review_style": "hard_professor_review",
+  "reviewed_file": "public_research/clouseau_atlasv2_27chain_2026_06/paper/main.tex",
+  "review_context": "Independent review after 23-chain + GPT-5.5 rewrite. No LaTeX files were modified.",
+  "verdict_summary": "The rewrite is much closer to a defensible paper: the overall, stage, and scenario tables in main.tex match the current 23-chain final result artifacts, and the GPT-5.5 cost caveat is directionally traceable. However, the manuscript still needs fixes before it should be treated as professor-ready. The abstract/contribution wording over-cleans the mixed replicate design, scenario grouping is not sufficiently traceable from the paper text, the cost table uses mixed cost sources without enough in-paper provenance, and the limitations section is missing key validity threats around non-blinded/LLM-assisted scoring, content-inclusion leniency, and absence of uncertainty analysis.",
+  "source_artifacts_checked": [
+    "public_research/clouseau_atlasv2_27chain_2026_06/results_23chain_20260614/overall.csv",
+    "public_research/clouseau_atlasv2_27chain_2026_06/results_23chain_20260614/by_stage.csv",
+    "public_research/clouseau_atlasv2_27chain_2026_06/results_23chain_20260614/by_scenario_group.csv",
+    "public_research/clouseau_atlasv2_27chain_2026_06/results_23chain_20260614/RESULT_DEFINITIONS_23CHAIN.md",
+    "public_research/clouseau_atlasv2_27chain_2026_06/results_23chain_20260614/openai_cost_audit_note_20260614.md",
+    "public_research/clouseau_atlasv2_27chain_2026_06/exp_20260614/04_discussion_base/deep_dive_20260614/cost_effectiveness_by_model.csv",
+    "docs/current_experiment/results_2026-06-09/component_rubric_final_comparison_20260614/overall.csv",
+    "docs/current_experiment/results_2026-06-09/component_rubric_final_comparison_20260614/by_stage.csv",
+    "docs/current_experiment/results_2026-06-09/component_rubric_model_comparison_20260614/by_framework.csv",
+    "data/current_experiment/scores/formal_23_chain_gpt55_low_3rep_20260613/progress.json"
+  ],
+  "checks": {
+    "experiment_description": {
+      "status": "mostly_correct_with_required_wording_fix",
+      "notes": "Lines 101, 107, 125, 129, and 131 correctly describe the 23-chain scope, three stages, Stage 3 retaining CBC EDR/NGAV telemetry, and GPT-5.5 raw-output salvage. The weakness is that the abstract and contribution sentence say 'three scored sets for each model' / '3セットずつ' without immediately saying that the third gpt-4.1-mini and gpt-5.4-mini set is a legacy 27-chain run filtered to 23 chains, not a fresh formal23 replicate."
+    },
+    "tables_match_current_23chain_results": {
+      "status": "pass",
+      "notes": "Main table values match results_23chain_20260614/overall.csv, by_stage.csv, and by_scenario_group.csv. Overall: gpt-4.1-mini 0.466/0.195/0.201/0.366/1190, gpt-5.4-mini 0.798/0.703/0.553/0.584/651, gpt-5.5 low raw 0.918/0.906/0.868/0.640/1235. Stage and scenario rows also match exactly."
+    },
+    "scenario_interpretations": {
+      "status": "defensible_but_underdefined",
+      "notes": "The interpretation that explicit chains are easier and multi-step chains suffer in ordering is supported by the table. However, main.tex does not define how the three scenario groups were aggregated from the more detailed framework groups. From the artifacts, explicit_execution_chain combines command_shell_execution and network_service_behavior, while multi_step_tool_chain combines collection_or_tool_invocation and script_execution_chain. That mapping should be stated."
+    },
+    "stage_interpretations": {
+      "status": "defensible_with_caveat",
+      "notes": "The Stage 3 interpretation is careful enough in lines 125, 183-184, 243-245, and 255: the paper says alert summary rows are hidden but CBC telemetry remains. The wording 'stronger models can reconstruct behavior even when alert-summary rows are hidden' is defensible. Avoid stronger claims such as 'low-level logs alone are sufficient'; current text mostly avoids that."
+    },
+    "model_interpretations": {
+      "status": "defensible_with_caveat",
+      "notes": "The gpt-5.4-mini vs gpt-4.1-mini claim is supported. The gpt-5.5 discussion correctly treats it as raw-output salvage and not deployment-equivalent. The phrase 'potential upper bound' is acceptable only if paired with the current output-contract and overclaim caveats, which the text does."
+    },
+    "cost_caveats": {
+      "status": "traceable_but_needs_clearer_provenance",
+      "notes": "The gpt-4.1-mini and gpt-5.4-mini cost rows match exp_20260614/04_discussion_base/deep_dive_20260614/cost_effectiveness_by_model.csv. The gpt-5.5 total $93.52 is traceable to results_23chain_20260614/openai_cost_audit_note_20260614.md and data/current_experiment/scores/formal_23_chain_gpt55_low_3rep_20260613/progress.json, and /evidence and /order recompute as 93.52/530 and 93.52/328. The manuscript should explicitly say these sources are mixed: ledger/local estimate for 4.1/5.4 and reconstructed progress-side estimate for GPT-5.5."
+    },
+    "limitations_strength": {
+      "status": "insufficient",
+      "notes": "Lines 253-255 cover single environment, mixed third set, GPT-5.5 salvage, and Stage 3 not removing all EDR telemetry. That is good but not enough. A hard reviewer will ask for threats from content-inclusion scoring, possible reviewer/agent subjectivity, non-blinded adjudication, no confidence intervals/statistical testing across only 23 chains, and model/version/pricing instability."
+    }
+  },
+  "findings": [
+    {
+      "severity": "major",
+      "location": "main.tex:37 and main.tex:48",
+      "issue": "The abstract and contribution framing imply a clean three-set design for every model.",
+      "evidence": "The current result definition explicitly states that gpt-4.1-mini and gpt-5.4-mini use formal23 replicate_01 + formal23 replicate_02 + legacy_27_filtered_20260609, while GPT-5.5 has three formal raw-output salvage sets. The method section discloses this at line 129, but the abstract and contribution claims are what readers and reviewers see first.",
+      "recommendation": "Revise the abstract/contribution wording to say 'three scored sets, with the third structured-model set taken from the legacy 27-chain run filtered to the current 23-chain scope' or otherwise qualify 'three sets' immediately."
+    },
+    {
+      "severity": "major",
+      "location": "main.tex:103 and main.tex:187-211",
+      "issue": "Scenario group definitions are plausible but not reproducible from the manuscript.",
+      "evidence": "The paper reports explicit/multi-step/semantic groups, but the underlying artifacts also contain framework groups. The reported explicit row equals command_shell_execution + network_service_behavior; the multi-step row equals collection_or_tool_invocation + script_execution_chain; semantic equals persistence_registry_run_key. This mapping is not stated in main.tex.",
+      "recommendation": "Add one sentence or a footnote defining the mapping from framework groups to the three scenario groups, and mention that semantic has only one chain and nine scored rows, so it is case-study evidence only."
+    },
+    {
+      "severity": "major",
+      "location": "main.tex:213-233",
+      "issue": "The cost table is arithmetically consistent but under-cited and source-mixed.",
+      "evidence": "The 4.1/5.4 rows come from a cost-effectiveness ledger; the GPT-5.5 row comes from a progress-side reconstructed estimate because local call_total_usd was zero. The prose caveat at line 233 covers GPT-5.5, but the table caption and paragraph do not make the mixed provenance obvious.",
+      "recommendation": "State the exact provenance in the paragraph or caption: 4.1/5.4 use local ledger/local price estimates; GPT-5.5 uses token/progress reconstruction from the cost audit. Avoid presenting these as equally authoritative invoice totals."
+    },
+    {
+      "severity": "major",
+      "location": "main.tex:253-255",
+      "issue": "Limitations are still not strong enough for a professor-level review.",
+      "evidence": "The limitations cover dataset scope, mixed replicate source, GPT-5.5 salvage, and Stage 3 telemetry scope. They do not cover scoring subjectivity, content-inclusion leniency, non-blinded Codex/local review, absence of inter-rater statistics in the paper text, lack of confidence intervals or significance testing, and cost/model-version instability.",
+      "recommendation": "Add these threats explicitly. In particular, say that scores should be read as component-rubric judgments rather than fully objective ground truth measurements, and that only 23 chains limits inferential claims."
+    },
+    {
+      "severity": "minor",
+      "location": "main.tex:159-183 and main.tex:243-245",
+      "issue": "Stage 3 interpretation is defensible but could over-imply low-level-log sufficiency if read quickly.",
+      "evidence": "The paper correctly says CBC EDR/NGAV telemetry remains, but the abstract phrase 'even when alert-summary rows are hidden' and discussion phrase '多くの行動を復元でき' may be read as broad telemetry sufficiency.",
+      "recommendation": "Keep the current caveat and consider tightening the abstract/conclusion to 'when alert-summary rows are hidden but EDR/OS telemetry remains available.'"
+    }
+  ],
+  "professor_review_bottom_line": "Do not reject the rewrite on numerical correctness: the final tables match the current 23-chain artifacts. Require revision for methodological precision and validity-threat candor before submission."
+}
