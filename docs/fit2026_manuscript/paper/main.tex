@@ -1,4 +1,4 @@
-﻿% !TEX program = pdflatex
+% !TEX program = pdflatex
 % Rebuilt main.tex on 2026-06-16 to force stale-copy replacement.
 \documentclass[a4paper,twocolumn,10pt]{article}
 
@@ -31,18 +31,16 @@
 \begin{center}
 \vspace*{0mm}
 {\large\bfseries
-Windowsエンドポイントログを用いた証跡付き正常行動列復元の品質評価\\
-偽陽性トリアージ支援に向けて\par}
+Windowsエンドポイントログを用いた正常行動の行動列復元による偽陽性判断支援の検討\par}
 \vspace{1mm}
 {\large
-Evaluating Evidence-backed Benign Behavior Sequence Reconstruction\\
-from Windows Endpoint Logs for False Positive Triage Support\par}
+Reconstructing Benign Behavior Sequences from Windows Endpoint Logs for False Positive Triage\par}
 \vspace{2mm}
 {\small
 \begin{tabular}{@{}cccc@{}}
 小松崎　大世\affmark{1} &
 横山　想一郎\affmark{2} &
-山下　倫央\affmark{2} &
+山下　倫央\affmark{3} &
 川村　秀憲\affmark{2} \\
 Taisei Komatsuzaki &
 Soichiro Yokoyama &
@@ -55,258 +53,304 @@ Hidenori Kawamura
 ]
 {\let\footnotesize\normalsize
 \footnotetext[1]{北海道大学 大学院情報科学院, Graduate School of Information Science and Technology, Hokkaido University}
-\footnotetext[2]{北海道大学 大学院情報科学研究院, Faculty of Information Science and Technology, Hokkaido University}}
+\footnotetext[2]{北海道大学 大学院情報科学研究院, Faculty of Information Science and Technology, Hokkaido University}
+\footnotetext[3]{北海道大学 情報基盤センター, Information Initiative Center, Hokkaido University}}
 
 \section{はじめに}
 
-SOCにおけるアラート対応では，検知結果が悪性活動を示すのか，通常業務や管理操作に由来する正常行動なのかを短時間で切り分ける必要がある．
-しかし，アラート名や検知理由だけでは，端末上で実際に発生したプロセス実行，コマンドライン，レジストリ操作，ネットワーク接続，およびそれらを支えるログ行の対応関係を十分に説明できない．
-偽陽性判断を支援するには，単に「良性らしい」と分類するだけでなく，観測証跡に基づいて，どの主体が，どの対象に，どの順序で操作したかを示す行動列を復元することが重要である．
+サイバー攻撃は，情報漏えい，業務停止，不正送金など，組織活動に直接的な影響を与えるため，組織では攻撃の疑いがある活動を早期に検知し，利用者端末やサーバ上で実際に何が起きたのかを確認する必要がある．
+本稿では，このような調査対象となる端末やサーバをエンドポイントと呼ぶ．
+エンドポイント検知・対応（Endpoint Detection and Response; EDR）は，エンドポイント上の活動を収集・分析し，攻撃の疑いを警告する仕組みである．
+本稿では，EDR警告を調査起点の一つとし，端末上の活動を記録したログを行動列復元に用いる観測ログとして扱う．
+本稿がWindows端末に着目するのは，WindowsがデスクトップOSとして広く利用され，\(2026\)年\(5\)月時点で世界のデスクトップOS利用の\(62.16\%\)を占めることに加え\cite{statcounter_desktop_os}，プロセス親子関係，コマンドライン，レジストリ操作，ファイル操作，通信先などをログから確認できるためである．
+サイバーセキュリティでは，攻撃の見逃しが大きな被害につながるため，検知は疑わしい活動を広めに拾う設計になりやすく，警告が出た時点では，それが攻撃なのか，管理作業やアプリケーション更新などの通常操作なのかは確定していない．
+正規の管理ツールやアプリケーション機能を悪用する攻撃は，端末上の通常操作と外形が似る場合もある．
+このため，個々の警告を確認し，通常操作として説明できるのか攻撃の兆候として扱うべきなのかを切り分けるインシデント分析へ負担が集中し，判断手順もログ種別，プロセス親子関係，組織内の通常操作に関する経験に依存しやすい．
 
-本研究では，ATLASv2由来のWindowsエンドポイントログ\cite{atlasv2}を用い，正常行動の行動列を証跡付きで復元する課題を扱う．
-入力は，Carbon Black Cloud（CBC）のalert要約，またはhost，process，time window程度の調査起点である．
-出力は，調査者が確認可能な行動ステップ列と，それを支えるcritical evidenceである．
-CLOUSEAU型のログ探索エージェント\cite{clouseau}を用い，初期手がかりから探索方針を作り，SQLite化したログに問い合わせ，最終的に主行動列を統合する．
+本研究の射程は，警告を悪性または良性に自動判定することではない．
+判断を行う主体は調査者であり，本研究は，その判断材料となる証跡付き行動列をログから復元することを目的とする．
+本稿では，警告が出たものの通常操作として説明できる場合を偽陽性と呼び，その判断を行うための行動列と証跡をそろえることを判断支援と位置付ける．
+本研究が正常行動に着目するのは，偽陽性判断では「攻撃らしい証拠が少ない」だけでなく，「通常操作としてどのように説明できるか」をログ上の証跡とともに示す必要があるためである．
+ここで行動列とは，どの主体が，どの対象に，どのような操作を，どの時刻または順序で行ったかを並べたものである．
+主体はプロセスや利用者操作，対象はファイル，レジストリキー，通信先などに対応する．
+証跡とは，各行動を確認するために参照できるログ行である．
+例えば，単に「永続化が疑われる」と述べるのではなく，どのプロセスが，どのレジストリパスに，どの値を設定したかを，対応するログとともに示すことが必要である．
 
-本稿の問題意識は，既存の異常検知研究で扱われる「検知できたか」という評価とは異なる．
-実際のSOCでは，検知後に「なぜこのアラートが発生したのか」，「業務操作として説明できるのか」，「追加調査すべき悪性兆候があるのか」を判断する必要がある．
-この判断には，検知ラベルよりも，端末上で観測された行動の物語と，その物語を支えるログ行が必要である．
-したがって，本研究ではアラート後調査を，正常行動の証跡付き行動列復元問題として定式化する．
-本稿の中心的な主張は，偽陽性トリアージ支援の前段にある復元品質を「検知後に正常行動として説明可能な証跡付き行動列を復元できるか」で評価すべきであり，その際には正解部品の再現だけでなく，証跡不足や主系列外の過剰主張も同時に測る必要がある，という点である．
-なお，本稿はCLOUSEAU型探索が単一プロンプトや他の調査手法より優れることを示す比較実験ではない．
-CLOUSEAU型探索を実験基盤として用い，入力条件とモデル差が復元品質へ与える影響を探索的に評価する．
+本稿では，EDR警告や着目プロセスを調査起点として，Windowsエンドポイントログから，通常操作として説明できるかを検討するための証跡付き行動列を復元する問題を扱う．
+調査起点は，ログ集合と無関係な外部情報ではない．
+調査起点は，EDR警告，ホスト，プロセス，時刻などを通じて，ログ集合の中から調査すべき範囲を指定する手がかりである．
+この手がかりから，調査者が確認可能な行動ステップ列を構成することが，本研究で解く課題である．
 
-本稿の貢献は次の3点である．
-第一に，SOCの偽陽性トリアージ支援を，action，critical evidence，sequence order，candidate precision，overclaimから成る証跡付き正常行動列復元の評価枠組みとして定式化する．
-第二に，23個の正常行動chainを3段階の入力条件で評価し，\code{gpt-5.4-mini}ではalert summary rowsを検索対象から除いたStage 3でもaction recallが0.802，critical evidence recallが0.779となり，Stage 1の0.791，0.574から崩れないことを示す．
-第三に，\code{gpt-5.5 low}はrecallが最も高い一方でoverclaim総数も最多であり，モデルの素の復元能力と提示時の確認負荷が一致しないことを示す．
+本稿の貢献は次の三点である．
+第一に，EDR警告後の初期判断支援を，悪性・良性の自動分類ではなく，証跡付き行動列復元の問題として定式化する．
+第二に，調査起点，ログデータベース，ログ行，行動主体，対象，行動，証跡ログ，行動列の関係を記号により明確化する．
+第三に，ATLASv2由来のWindowsエンドポイントログ\cite{atlasv2}を用い，アラート要約への依存を切り分けながら，復元された行動列の品質を評価する．
 
 \section{関連研究}
 
-エンドポイント調査では，Windows Securityログ，Sysmon，EDR telemetry，DNS，ブラウザ履歴など，粒度や記録目的の異なるログを横断する．
-Sysmonはプロセス生成，親プロセス，コマンドライン，ネットワーク接続，レジストリ操作などを記録できる\cite{sysmon}．
-Carbon Black CloudのようなEDRは，継続的な端末活動データに基づく検知・調査機能を提供し\cite{cbc}，検知理由やプロセス情報をまとめたalert summaryを出力する場合がある．
-これらは調査に有用だが，alert summaryは観測された全行動を代表するものではない．
-したがって，最終出力はアラート文面ではなく，ログ上で確認できる行動主張に限定する必要がある．
+\subsection{インシデント分析の自動化}
 
-近年のLLMエージェントを用いたセキュリティ調査では，CLOUSEAU\cite{clouseau}のように，複数のサブエージェントが仮説生成，ログ検索，根拠整理を分担する構成が提案されている．
-この構成は，単一のプロンプトで長いログを読ませる場合に比べて，探索範囲を段階的に絞れる利点がある．
-一方で，LLMは調査過程で見つけた周辺事象を，主系列の行動と混同することがある．
-例えば，あるプロセスの近傍で発生したDNS問い合わせや別プロセスの実行を，実際には同じchainに属さないにもかかわらず，行動列に含めてしまう場合がある．
-このため，調査支援の有用性を評価するには，正しい行動部品を拾えたかだけでなく，余計な主張をどの程度抑えられたかも見る必要がある．
+ログ異常検知の研究では，ログ系列から通常と異なる振る舞いを検出する手法が提案されている．
+DeepLog\cite{deeplog}は，システムログ系列の異常検知と診断を扱う代表的な研究である．
+このような手法は，大量のログから注意すべき箇所を絞り込むうえで有用である．
+一方，実際のインシデント分析では，検知された警告が真の攻撃かを確認し，関連する端末上の行動を追跡する必要がある．
+NoDoze\cite{nodoze}は，警告に関係する因果依存グラフを作成し，過去の発生頻度に基づいて警告を優先付けすることで，警告疲れの軽減を目指す．
+ATLAS\cite{atlas}は，監査ログから攻撃の手順を表す系列を構成し，攻撃ストーリーを復元する枠組みである．
+AIRTAG\cite{airtag}は，因果グラフを明示的に作る代わりに，ログテキストを用いた教師なし学習により攻撃に関係する実体を推定する．
+これらの研究は，検知後の調査を自動化する方向性を示しているが，主な対象は攻撃に関係する実体や攻撃ストーリーの復元である．
 
-攻撃手法の整理では，MITRE ATT\&CK\cite{attack}が実観測に基づく戦術・技術の知識ベースとして広く用いられ，LOLBAS\cite{lolbas}はWindowsの正規バイナリやスクリプトが攻撃に悪用されるLiving-off-the-Landの観点を整理している．
-既存研究には，Sysmon\cite{sysmon}やDeepLog\cite{deeplog}のようにログ収集・異常検知・ログ診断を扱う研究，ReAct\cite{react}のように推論と行動を組み合わせるエージェント設計，ATLAS/ATLASv2\cite{atlas,atlasv2}のように攻撃調査データを整備する研究がある．
-しかし，本研究が扱う「検知後に，正常行動として説明可能な証跡付き行動列を復元する」課題そのものを直接のベースラインとして評価した研究は少ない．
-そのため本稿では，単純な既存手法との精度比較ではなく，偽陽性文脈における証跡付き行動列復元と過剰主張抑制の評価枠組みを定め，CLOUSEAU型探索を実験基盤として入力条件とモデル差を検証する．
-このため，本稿の結論はエージェント方式一般の優位性ではなく，この評価枠組みで観測された復元品質と提示リスクに限定する．
+\subsection{攻撃知識ベースと評価データセット}
 
-本研究の課題は，異常検知モデルの精度評価ではない．
-検知後のSOC調査において，調査者が検証可能な証跡付き行動列を復元できるかを問う．
-そのため，自然文の類似度ではなく，主体，操作，対象，コマンドライン，証跡行などの構成要素を採点する．
-また，モデルが正しい説明を含んでいても，証跡が不十分であれば，SOC実務では判断材料として使いにくい．
-本稿では，この点をcritical evidence recallとoverclaimとして別に測定する．
+攻撃知識ベースも，エンドポイント調査の重要な支援情報である．
+MITRE ATT\&CK\cite{attack}は，攻撃者の戦術や技術を整理した知識ベースである．
+また，Living Off The Land Binaries, Scripts and Libraries（LOLBAS）\cite{lolbas}は，Windowsの正規バイナリやスクリプトが攻撃に悪用される事例を整理している．
+これらは，ある操作が攻撃技術と似た外形を持つかを考える手がかりになる．
+しかし，攻撃技術に似た操作であっても，実際には正規アプリケーションの更新や管理作業として発生する場合がある．
+また，ATLASv2\cite{atlasv2}はATLASの攻撃シナリオを再現しつつ，SysmonログやCarbon Black Cloudを含む観測点と，人手による背景行動を追加したデータセットである．
+
+\subsection{大規模言語モデルの登場とマルチエージェント調査支援}
+
+大規模言語モデル（Large Language Model; LLM）を用いた調査支援も研究されている．
+LLMは，自然言語で与えられた警告やログ断片から調査仮説を作り，確認すべき項目を検索質問へ変換し，得られた観測結果を説明文へ統合できる可能性がある．
+ReAct\cite{react}は，推論と言語的な行動を組み合わせて外部情報を探索する枠組みである．
+CLOUSEAU\cite{clouseau}は，攻撃調査を階層的な複数エージェントで進めるログ探索基盤である．
+複数エージェントによる構成は，調査方針の生成，ログ検索，証跡整理，最終統合といった役割を分けられる点で，長いログを一度に要約する方法とは異なる．
+本研究では，CLOUSEAU型のログ探索を実験基盤として利用する．
+ただし，本稿の新規性は，エージェント構造そのものではない．
+
+既存研究は，ログ収集，異常検知，攻撃知識の整理，LLMによる調査支援をそれぞれ前進させてきた．
+しかし，警告直後の攻撃か通常操作かが未確定な状態で，通常操作として説明できるかを検討するための証跡付き行動列を復元する問題は，十分に整理されていない．
+
+\section{問題設定}
+
+本節では，本研究で扱う入力，出力，および復元対象を定義する．
+本稿の対象は，攻撃であることが分かった後の攻撃系列復元ではなく，警告直後の未確定な状態で，通常操作として説明できる行動列とその証跡をそろえる問題である．
+本研究の入力は，ログデータベース \(D\) と調査起点 \(p\) の組である．
+ログデータベースは，調査対象となる端末活動の観測結果を検索可能にまとめたものであり，調査起点は，その中から確認すべき範囲と順序を決める手がかりである．
+本研究では警告文面だけを入力として扱うのではなく，警告や着目プロセスをログデータベース探索の入口として扱い，調査者が確認できる行動ステップ列を出力する．
+
+\subsection{ログデータベースとログ行}
+
+本稿では，端末上の活動を記録した複数種類のログを検索可能な形にまとめたものをログデータベースと呼ぶ．
+ログデータベースを
+\[
+D=\{r_1,\ldots,r_n\}
+\]
+とする．
+各ログ行 \(r_i\) は，
+\[
+r_i=(t_i,h_i,u_i,s_i,v_i,o_i,c_i,\ell_i)
+\]
+で表す．
+ここで，\(t_i\) は時刻，\(h_i\) はホスト，\(u_i\) は利用者またはアカウント，\(s_i\) はプロセスや利用者操作などの行動主体，\(v_i\) はプロセス起動，ファイル作成，レジストリ設定，通信などの操作，\(o_i\) は実行ファイル，ファイルパス，レジストリキー，通信先などの対象，\(c_i\) はコマンドラインやレジストリ値などの補足情報，\(\ell_i\) はログ行識別子である．
+
+\subsection{調査起点と調査対象ログ}
+
+調査起点を
+\[
+p=(h_0,x_0,t_0,\Delta_-,\Delta_+,a_0)
+\]
+とする．
+ここで，\(h_0\) は着目するホスト，\(x_0\) は着目するプロセス，ファイル，レジストリ，通信先などの手がかり，\(t_0\) は基準時刻である．
+\(\Delta_-\) と \(\Delta_+\) は，基準時刻の前後で調査対象とする時間幅であり，EDR警告の発生時刻，調査者が確認したい操作の時刻，または実験条件に基づいて事前に与えられる．
+\(a_0\) は任意のEDR警告情報であり，存在しない場合もある．
+時間窓を
+\[
+W(p)=[t_0-\Delta_-,t_0+\Delta_+]
+\]
+と定義する．
+このとき，調査対象ログを
+\[
+D_p=\{r_i\in D \mid h_i=h_0,\ t_i\in W(p)\}
+\]
+とする．
+ここで \(D_p\) は，ホストと時間窓で切り出した候補ログ集合である．
+\(x_0\) や \(a_0\) は，\(D_p\) 内で優先的に確認すべきログ行や接続関係を決める手がかりとして用いる．
+すなわち，調査範囲を一点に限定せず，広めの候補範囲 \(D_p\) を定めてから検索条件で段階的に絞り込む．
+
+\subsection{ログ探索の処理モデル}
+
+システムは，調査対象ログ \(D_p\) を一度にすべて要約せず，調査起点と既存の観測結果に基づいて検索条件を作り，該当ログ行を取得する．
+検索条件を \(q_k\) とし，その検索で得られるログ行集合を
+\[
+R_k=Q(D_p,q_k)\subseteq D_p
+\]
+と表す．
+ここで，\(Q\) は時刻範囲，ホスト，プロセス識別子，親子関係，ファイルパス，レジストリキー，通信先などに基づく検索操作である．
+第 \(k\) 回目の検索条件 \(q_k\) は，調査起点 \(p\) と以前の検索結果 \(R_1,\ldots,R_{k-1}\) に基づいて決められる．
+この反復により得られた観測ログ集合を
+\[
+O_K=\bigcup_{k=1}^{K}R_k
+\]
+とする．
+以降の行動列復元では，警告文面や推測だけで行動を主張するのではなく，この観測ログ集合 \(O_K\) に含まれるログ行を根拠として用いる．
+
+\subsection{出力と復元目標}
+
+本研究の出力は，自然文の結論だけではなく，主体，行動，対象，時刻または順序，証跡ログを持つ行動ステップ列である．
+行動ステップを
+\[
+y_j=(\tau_j,s_j,v_j,o_j,E_j)
+\]
+と定義する．
+ここで，\(\tau_j\) は時刻または行動列内の順序，\(s_j\) は主体，\(v_j\) は行動，\(o_j\) は対象，\(E_j\subseteq O_K\) は当該行動を支える証跡ログ集合である．
+\(E_j\) は空であってはならず，\(s_j\)，\(v_j\)，\(o_j\) は \(E_j\) 内のログ行またはログ行間の接続関係で確認できる必要がある．
+主体，行動，対象は一つのログ行に揃う必要はなく，プロセス親子関係，コマンドライン，レジストリパス，通信先などを同一ホスト，近接時刻，同一プロセス系列で接続したまとまりも一つの行動ステップの証跡とする．
+一方，時刻が近いだけで当該行動に寄与しないログは \(E_j\) に含めず，別の行動ステップまたは主系列外の事象として扱う．
+復元すべき行動列を
+\[
+Y=(y_1,\ldots,y_m)
+\]
+とする．
+\(Y\) は，時刻または因果的な接続に基づいて並べられる．
+
+本問題の目的は，入力 \(D\) と \(p\) から，警告名や検知理由の言い換えではなく，ログ行に基づく推定行動列 \(\hat{Y}\) を出力することである．
+例えば，EDR警告情報 \(a_0\) に「不審なレジストリ操作」と記載されていても，出力では主体，レジストリキー，値，時刻を証跡ログ \(E_j\) とともに示す必要がある．
+処理の流れは，まず
+\[
+O_K=S(D,p)
+\]
+として観測ログ集合を得て，次に
+\[
+\hat{Y}=G(O_K,p)
+\]
+として証跡付き行動列を構成する．
+評価においては，対象シナリオでログ上確認可能な行動列を正解行動列 \(Y^\ast\) と呼ぶ．
+望ましい \(\hat{Y}\) は，\(Y^\ast\) に含まれる主体，行動，対象，順序，証跡を多く含み，かつ \(Y^\ast\) に属さない主張を少なくするものである．
+
+以上の問題設定に基づき，次章では，調査起点からログを探索し，証跡付き行動ステップ列を復元する手法を述べる．
 
 \section{提案手法}
 
-本研究で用いるパイプラインは，CLOUSEAU型のエージェント型ログ探索\cite{clouseau}である．
-Chief agentは初期手がかりから調査方針を生成する．
-Investigation agentは，確認すべき事実をQAAgentまたはSQL expertへの質問に変換する．
-QAAgentまたはSQL expertは，SQLite化されたエンドポイントログに問い合わせ，timestamp，source stream，PID/PPID，process tree，command line，registry path，source row idなどを返す．
-Final synthesisは観測結果を統合し，主行動列，補助証跡，limitationsを出力する．
-本稿の新規性は，エージェント機構そのものを新しく提案する点ではなく，偽陽性トリアージ支援を証跡付き正常行動列復元として評価する枠組み，アラート要約依存を切り分けるStage設計，およびoverclaimを含む評価指標にある．
-図\ref{fig:pipeline}に，本稿で用いる探索と評価の流れを示す．
+\subsection{システム構成}
+
+本研究で用いるシステムは，CLOUSEAU型のエージェント型ログ探索\cite{clouseau}を基盤とし，ログ探索 \(S(D,p)\) と行動列構成 \(G(O_K,p)\) を段階的に実行する．
+ここでエージェントとは，調査計画，検索条件作成，ログ検索，結果統合などの役割を分担するLLMモジュールを指す．
+目的は，警告の良悪性を自動決定することではなく，調査者が確認できる証跡付き行動列 \(\hat{Y}\) を提示することである．
+入力整理部は調査起点から候補範囲 \(D_p\) を定め，調査計画エージェントは確認観点を整理し，検索質問生成エージェントは検索条件 \(q_k\) を作る．
+ログ検索部はSQLite化されたログデータベースからログ行集合 \(R_k\) を返し，統合エージェントは観測ログ集合 \(O_K\) と調査計画を照合して行動ステップ列 \(\hat{Y}\) を構成する．
+この流れにより，警告要約の言い換えではなく，ログ検索で得た証跡に基づく正常行動列を提示する．
 
 \begin{figure*}[t]
 \centering
 \footnotesize
 \setlength{\tabcolsep}{2pt}
-\renewcommand{\arraystretch}{1.2}
+\renewcommand{\arraystretch}{1.12}
 \begin{tabular}{@{}c@{\(\rightarrow\)}c@{\(\rightarrow\)}c@{\(\rightarrow\)}c@{\(\rightarrow\)}c@{\(\rightarrow\)}c@{}}
 \fbox{\begin{minipage}{0.13\textwidth}\centering
-\textbf{入力}\\
-CBC alert\\
-または\\
-host/process/time
+\textbf{調査起点}\\
+\(p\)\\
+\(D_p\)作成
 \end{minipage}}&
 \fbox{\begin{minipage}{0.13\textwidth}\centering
-\textbf{Chief}\\
-調査方針\\
-仮説生成
+\textbf{調査計画}\\
+調査観点\\
+仮説
 \end{minipage}}&
-\fbox{\begin{minipage}{0.14\textwidth}\centering
-\textbf{Investigation}\\
-確認事項を\\
-質問へ変換
+\fbox{\begin{minipage}{0.15\textwidth}\centering
+\textbf{検索条件生成}\\
+検索条件\\
+\(q_k\)
 \end{minipage}}&
-\fbox{\begin{minipage}{0.14\textwidth}\centering
-\textbf{QA/SQL}\\
-SQLiteログ\\
-検索
-\end{minipage}}&
-\fbox{\begin{minipage}{0.14\textwidth}\centering
-\textbf{Final}\\
-観測結果を\\
-行動列へ統合
+\fbox{\begin{minipage}{0.18\textwidth}\centering
+\textbf{ログ検索}\\
+\(D_p\)を検索\\
+\(R_k\)を取得
 \end{minipage}}&
 \fbox{\begin{minipage}{0.16\textwidth}\centering
+\textbf{統合}\\
+\(O_K=\cup R_k\)\\
+\(\hat{Y}\)構成
+\end{minipage}}&
+\fbox{\begin{minipage}{0.15\textwidth}\centering
 \textbf{出力}\\
-主行動列\\
-critical evidence\\
-limitations
+証跡付き\\
+行動列 \(\hat{Y}\)
 \end{minipage}}
 \end{tabular}
-
-\vspace{1mm}
-\fbox{\begin{minipage}{0.93\textwidth}
-\centering
-評価では，gold stepと候補claimを対応付け，action recall，critical evidence recall，sequence order，candidate precision，overclaimを算出する．
-Stage 3ではalert summary rowsを検索対象から除外し，残存telemetryからの復元可能性を評価する．
-\end{minipage}}
-\caption{提案する証跡付き正常行動列復元の評価パイプライン}
+\caption{エージェント間の情報受け渡しとログデータベース検索の流れ}
 \label{fig:pipeline}
 \end{figure*}
 
-本研究では，エージェントの最終出力を単なる自由記述の要約として扱わない．
-最終出力は，行動ステップごとに，主体，操作，対象，時刻，根拠ログを含むことを期待する．
-例えば，Run Key登録のchainでは，単に「永続化が行われた」と述べるだけでは不十分であり，どのプロセスが，どのレジストリパスに，どの値またはコマンドラインを設定したかを示す必要がある．
-一方，Discord関連のchainでは，Run KeyからDiscord更新処理や関連プロセスへ至る意味的な接続が重要になり，単一のコマンド実行だけを拾っても十分ではない．
+\subsection{プロンプトと出力形式}
 
-評価では，gold stepをaction componentとcritical evidenceに分解する．
-モデル出力がgold内容を実質的に含めばhitとし，表現の違いは許容する．
-例えば，プロセス名，コマンドライン，レジストリパス，通信先，ファイルパスが同じ意味を持つ形で含まれていれば，完全な文言一致でなくても正解とする．
-一方，alert nameやalert reasonを行動そのものとして出した場合，gold chainに属さない近傍行動を主系列として含めた場合，証跡で支えられない推定を含めた場合は，candidate precisionの分母またはoverclaimとして扱う．
-
-形式的には，action recallを正解行動部品のhit数/gold行動部品数，critical evidence recallを正解証跡のhit数/gold証跡数，candidate precisionをgoldに対応する候補claim数/総候補claim数として算出する．sequence orderはKendall's $\tau$や編集距離ではなく，隣接するgold step順序スロットのうち候補出力で順序関係が保持された数/\(\max(n_{\mathrm{gold}}-1,0)\)として算出する．これは，SOCで確認する行動列では局所的な前後関係が重要であり，候補出力に欠落や追加stepが含まれる場合でも隣接順序単位で採点しやすいためである．overclaimは根拠不足または主系列外のclaim数であり，モデル間比較ではprecision，1 runあたりのoverclaim，および総候補claim数に対するoverclaim rateを併記する．
-単一step chainのように順序スロットが存在しない場合は，orderを1とはみなさず，order指標の分母から除外する．
-全体評価はrun内のhit数と分母slot数を合算するmicro平均で算出する．
-シナリオ別評価は，各chain内の3 stage，3 runを集約した値を分類ごとに平均するchain単位のmacro平均で算出するため，全体値とシナリオ別値のchain数加重平均は一般に一致しない．
+各LLMモジュールのプロンプトは，役割，入力情報，制約条件，参照可能な観測結果，出力形式を明示する形に統一した．
+調査計画では警告名や検知理由を行動そのものとして扱わず，検索では解釈ではなく元ログ行識別子，時刻，プロセス，コマンドラインなどの根拠項目を返させる．
+統合では，根拠のない推定，警告文面の言い換え，主系列外の混入を避け，行動ステップごとに主体，操作，対象，時刻，根拠ログを含む形式で出力させる．
+例えば，Run Key登録では，単に「永続化」と述べるのではなく，どのプロセスがどのレジストリパスにどの値を設定したかを示す必要がある．
 
 \section{データセット}
+\label{sec:dataset}
 
-対象はATLASv2由来ログ\cite{atlasv2}から構成した23 behavior chainである．
-goldはCBC alert summaryだけを根拠にしない形へ統一した．
-これにより，Stage 3でalert summary rowsを隠した場合でも，残存telemetryから回答可能な範囲を評価できる．
+本研究では，正常行動の復元を評価するため，攻撃シナリオだけでなく人手による背景行動を含むATLASv2\cite{atlasv2}を採用した．
+ATLASv2は，ATLASの攻撃シナリオを再現した環境で収集された公開データセットであり，攻撃に関係するログに加えて，利用者操作やアプリケーション動作に由来する背景行動のログを含む．
+本稿では，このうち正常行動として説明可能なログ範囲から\(23\)行動列を構成した．
+評価対象の選定では，調査起点としてホスト，プロセス，時刻を与えられること，警告要約を除いてもログ上の証跡から正常行動として説明できること，復元難度の異なる行動を含むことを基準とした．
+対象ログには，Carbon Black Cloud（CBC）由来の端末活動ログ，Windows Security，Sysmonログ\cite{sysmon}，DNS，ブラウザ履歴などが含まれ，本研究ではこれらを検索可能なデータベースに変換した．
+正解行動列は，警告要約の記述をそのまま正解にせず，プロセス，コマンドライン，レジストリパス，通信証跡など，ログ上で確認可能な証跡に基づいて作成した．
+また，Stage \(3\)で警告要約行を隠しても残存する端末活動ログから回答可能な範囲に統一した．
+本稿では，一つの行動列を一つの評価単位として扱い，単一または近接ログで確認しやすい明示的実行チェーン（\code{explicit}，\(15\)件），複数ログ系列を接続する複数段階チェーン（\code{multi-step}，\(7\)件），攻撃技術に似る外形を正常アプリケーション挙動として説明する意味判定チェーン（\code{semantic}，\(1\)件）に分類する．
 
-各chainは，端末上で実際に発生した正常行動を，調査者が確認可能な行動ステップ列として整理したものである．
-対象ログには，CBC EDR/NGAV telemetry，Windows Security，Sysmon\cite{sysmon}，DNS，browser historyなどが含まれる．
-本研究では，これらのログをSQLite化し，エージェントがSQLまたはQA形式で検索できるようにした．
-gold chainは，alert summaryの記述をそのまま正解にするのではなく，process，command line，registry path，network evidenceなど，ログ上で確認可能な証跡に基づいて作成した．
-この範囲には，ATT\&CK上の攻撃技術やLOLBAS的な正規ツール悪用と外形が似るが，実際には正常利用として説明できる行動も含まれるため，偽陽性判断支援の評価対象として用いる．
-
-本稿では，1つのbehavior chainを1つのuse caseとして扱う．
-各use caseは，特定のhost，focus process，time windowを起点に，調査者が確認したい正常行動のまとまりを表す．
-例えば，PythonのSimpleHTTPServerを起動して待受や通信が発生するchainでは，\code{python.exe}の実行，コマンドライン，待受ポートまたは通信先が主な証跡となる．
-cmd.exeを介したpacket captureやSublimeからのPython script実行では，親子プロセス，バッチ実行，スクリプト名，DNSやファイル操作など複数ログstreamの接続が必要になる．
-Discord Run Keyのchainでは，Run Key登録という攻撃技術に似た外形を，Discord関連の正常な自動起動または更新動作として説明できるかが焦点となる．
-表\ref{tab:usecase_type}に，本稿で用いる3分類と代表例を示す．
-
-\begin{table}[t]
-\centering
-\footnotesize
-\caption{評価対象use caseの分類}
-\label{tab:usecase_type}
-\setlength{\tabcolsep}{2pt}
-\begin{tabular}{@{}p{0.18\linewidth}rp{0.52\linewidth}@{}}
-\toprule
-分類 & n & 代表例と復元上の焦点 \\
-\midrule
-explicit & 15 & Python SimpleHTTPServer，cmd.exe実行など．単一または近接ログで主体・操作・対象を確認しやすい．\\
-multi-step & 7 & packet capture batch，Sublime起点script実行など．複数streamを順序付きに接続する必要がある．\\
-semantic & 1 & Discord Run Key．攻撃技術に似る操作を正常アプリ挙動として説明できるかを確認する．\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\section{実験}
+\section{実験設計}
 
 \subsection{実験目的}
 
-本実験の目的は，SOC調査起点から正常行動の証跡付き行動列をどの程度復元できるかを評価することである．
-第一に，アラート要約を含む条件と含まない条件を比較し，モデルがアラート文面の言い換えではなく，残存ログから行動を復元できているかを確認する．
-第二に，複数モデルを比較し，行動部品の再現，critical evidence，順序，過剰主張の観点から実用上の差を明らかにする．
-第三に，複数モデルの出力傾向を比較し，SOC支援に用いる際の運用上の境界を検討する．
+本実験の目的は，SOC調査起点から正常行動の証跡付き行動列をどの程度復元できるかを，警告要約の有無，内部モデル，行動列の種類，費用・実行時間の観点から評価することである．
 
 \subsection{実験設定}
 
-入力条件は3段階である．
-Stage 1はCBC alert rowsを入力に含めるアラート支援条件である．
-Stage 2はhost，focus process，time windowのみを入力とし，DB内にはalert summary rowsを残す．
-Stage 3はStage 2と同じ初期入力だが，検索対象からCBC alert summary rowsを除外する．
-ただし，CBC EDR/NGAV event telemetry，Security，Sysmon，DNS，browser historyは残す．
-この設計により，表\ref{tab:stage_setting}のように，モデルがアラート文面を言い換えているだけなのか，残存ログから行動を復元しているのかを切り分けられる．
+本実験では，第\ref{sec:dataset}章で示した\(23\)行動列を用い，表\ref{tab:stage_setting}の三つの入力条件で評価する．
+警告要約には検知名，検知理由，関連プロセスなど検知器側の解釈が含まれるため，そのまま検索対象に含めると，要約の言い換えだけでも復元品質が高く見積もられる可能性がある．
+そこでStage \(3\)ではCBCの警告要約行を検索対象から除外し，CBC由来の端末活動ログ，Windows Security，Sysmonログ，DNS，ブラウザ履歴は残すことで，端末ログから行動を復元できるかを切り分ける．
 
 \begin{table}[t]
 \centering
 \footnotesize
-\caption{入力条件のStage設計}
+\caption{入力条件（Stage）の設計}
 \label{tab:stage_setting}
 \setlength{\tabcolsep}{3pt}
 \begin{tabular}{p{0.16\linewidth}p{0.30\linewidth}p{0.42\linewidth}}
 \toprule
 Stage & 入力 & 意味 \\
 \midrule
-Stage 1 & CBC alert + process/time & アラート支援の復元 \\
-Stage 2 & process/timeのみ & DB内の要約行は利用可能 \\
-Stage 3 & process/timeのみ & alert summary rowsをSQL検索対象から除外 \\
+Stage 1 & CBC警告 + プロセス/時刻 & 警告要約を含む復元 \\
+Stage 2 & プロセス/時刻のみ & データベース内の要約行は検索可能 \\
+Stage 3 & プロセス/時刻のみ & 警告要約行を検索対象から除外 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 比較対象は\code{gpt-4.1-mini}，\code{gpt-5.4-mini}，および\code{gpt-5.5 low}である．
-各モデルについて23 chain，3 stage，3回の評価を行い，各モデル207 runを得た．
-\code{gpt-5.5 low}のlowはreasoning effortをlowに設定した条件を表す．
+各モデルについて\(23\)行動列，三つの入力条件，三回の評価を行い，各モデル\(207\)回の実行結果を得た．
+\code{gpt-5.5 low}のlowは推論強度を低く設定した条件を表す．
+各実行について，入出力トークン数，利用費用，実行時間も記録した．
+費用は記録済みの利用費用と価格設定に基づく推定を含み，実行時間は調査起点を受け取って最終出力を返すまでの時間とする．
 
 \subsection{評価方法}
 
-採点は，モデル出力をrun単位で確認し，action componentとcritical evidenceに分けて実施した．
-採点方針は「内容が実質的に含まれていれば正解」とし，表現ゆれや語順の違いだけでは不正解にしない．
-ただし，主系列外の事象を主行動として出した場合や，証跡のない推定を確定事実として出した場合は，overclaimとして記録した．
-採点は2段階レビューで確認し，不一致が生じた項目はgoldの構成要素と候補claimの根拠を見直して最終判定を確定した．
-ただし，独立した複数アノテータによるCohen's $\kappa$等の一致率は本稿では報告しない．
-そのため，本稿の数値は，提案指標で観測された探索的な復元品質として解釈し，採点枠組み自体の一般的な信頼性検証は今後の課題とする．
+評価では，正解行動ステップを行動部品と重要証跡に分解し，モデル出力の各主張と照合する．
+行動部品は主体，操作，対象，時刻または順序などであり，重要証跡は行動主張を確認するために最低限必要なログ上の根拠である．
+指標は，行動部品再現率，重要証跡再現率，候補精度，順序指標，過剰主張数である．
+順序指標は，隣接する正解行動ステップのうち候補出力で順序関係が保持された数/\(\max(n_{\mathrm{gold}}-1,0)\)として算出する．
+過剰主張は，証跡ログで支えられない主張，正解行動列 \(Y^\ast\) の主系列に属さない近傍事象，または警告名や検知理由の言い換えにとどまる主張として数える．
+採点は二段階レビューで確認し，表現ゆれだけでは不正解にしない．
 
-\subsection{実験結果}
+\section{実験結果}
 
-表\ref{tab:overall}に全体評価を示す．本稿では，この表を単純なモデルランキングではなく，二つの発見を示す要約として読む．
-第一に，\code{gpt-5.4-mini}は\code{gpt-4.1-mini}に対してaction recallを0.466から0.798へ，critical evidence recallを0.195から0.703へ，orderを0.201から0.553へ改善し，overclaimを1190から651へ減らした．
-第二に，\code{gpt-5.5 low}はrecall系指標で最も高いが，overclaim総数も最大であり，復元能力の高さがそのまま確認負荷の小ささを意味しない．
+\subsection{警告要約を除いた条件での復元}
 
-\begin{table}[t]
-\centering
-\footnotesize
-\caption{モデル別の全体評価}
-\label{tab:overall}
-\setlength{\tabcolsep}{2pt}
-\begin{tabular}{@{}lrrrrrr@{}}
-\toprule
-Model & Action & Crit. ev. & Order & Prec. & Over & Over/run \\
-\midrule
-\code{gpt-4.1-mini} & 0.466 & 0.195 & 0.201 & 0.366 & 1190 & 5.75 \\
-\code{gpt-5.4-mini} & 0.798 & 0.703 & 0.553 & 0.584 & 651 & 3.14 \\
-\midrule
-\code{gpt-5.5 low} & 0.918 & 0.906 & 0.868 & 0.640 & 1235 & 5.97 \\
-\bottomrule
-\end{tabular}
-\par\raggedright\scriptsize 注: Over/runは各モデルのoverclaim数を207 runで割った値である．\code{gpt-5.5 low}は強いモデルの能力上限をみるプローブとして扱う．
-\end{table}
-
-\noindent{\bfseries 発見1: アラート要約を除いても復元は崩れない.}
-
-表\ref{tab:stage_result}にStage別結果を示す．\code{gpt-5.4-mini}はStage 1からStage 3までaction recallが0.791，0.800，0.802とほぼ一定であり，critical evidence recallはStage 3で0.779と最も高い．
-これは，本稿で最も重要な結果であり，alert summary rowsを隠しても，残存telemetryから多くの行動と証跡を復元できることを示す．
-すなわち，少なくとも本実験範囲では，システムはアラート文面をオウム返ししているだけではない．
-ただし，これはモデル一般の性質ではない．\code{gpt-4.1-mini}ではaction recallがStage 1の0.639からStage 3の0.345へ低下しており，alert summaryなしで復元が崩れにくいかどうかはモデル依存である．
-また，\code{gpt-5.4-mini}でcritical evidence recallがStage 1よりStage 2/3で高い点は，アラート要約があると文面の説明に寄り，逆にprocess/time起点ではtelemetry検索が促進された可能性と，サンプル構成によるアーティファクトの双方が考えられる．
-ただし，Stage 3でもCBC EDR/NGAV telemetryは残っており，任意の低レベルログだけで十分と主張するものではない．
+表\ref{tab:stage_result}に入力条件別の結果を示す．
+\code{gpt-5.4-mini}はStage \(1\)からStage \(3\)まで行動部品再現率が\(0.791\)，\(0.800\)，\(0.802\)とほぼ一定であり，重要証跡再現率もStage \(3\)で\(0.779\)を示した．
+\code{gpt-5.5 low}でもStage \(3\)の行動部品再現率と重要証跡再現率はいずれも\(0.903\)であり，警告要約を除いても残存ログから復元できる場合があることを示す．
+ただし，Stage \(3\)でもCBC由来の端末活動ログは残るため，任意の低レベルログだけで十分という主張ではない．
 
 \begin{table}[t]
 \centering
 \scriptsize
 \caption{Stage別の復元性能}
 \label{tab:stage_result}
-\setlength{\tabcolsep}{1.5pt}
-\begin{tabular}{@{}llrrrrr@{}}
+\setlength{\tabcolsep}{0pt}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}llrrrrr@{}}
 \toprule
 Model & St. & Act. & Ev. & Ord. & Over & O/run \\
 \midrule
@@ -321,135 +365,89 @@ Model & St. & Act. & Ev. & Ord. & Over & O/run \\
 \code{5.5 low} & S2 & 0.915 & 0.908 & 0.857 & 415 & 6.01 \\
 \code{5.5 low} & S3 & 0.903 & 0.903 & 0.849 & 446 & 6.46 \\
 \bottomrule
-\end{tabular}
-\par\raggedright\scriptsize 注: O/runは各Stageのoverclaim数を69 runで割った値である．
+\end{tabular*}
+\par\raggedright\scriptsize 注: O/runは各Stageの過剰主張数を\(69\)回の実行で割った値である．
 \end{table}
 
-\noindent{\bfseries 発見2: 復元能力と確認負荷は一致しない.}
+\subsection{モデル別の復元品質}
 
-\code{gpt-5.5 low}はaction recall 0.918，critical evidence recall 0.906，order 0.868と最も高い復元能力を示した．
-一方で，overclaimは1235，1 runあたり5.97と大きく，強いモデルが多くの正解部品を拾うほど，調査者が確認すべきclaim総数も増えうることが分かった．
-したがって，本稿では\code{gpt-5.5 low}をそのまま提示用モデルとして推奨するのではなく，能力上限プローブとして扱う．
-この結果は，候補を広く拾う能力と，SOCでそのまま提示できる説明へ絞る能力を分けて評価する必要性を示している．
-ただし，表\ref{tab:overclaim_rate}に示すように，overclaim rateは\code{gpt-5.5 low}が最悪ではない．
-したがって，本稿の発見は「強いモデルほど1 claimあたり必ず不正確になる」という意味ではなく，「強いモデルは多く出力するため，絶対数としての確認負荷が増えうる」という意味である．
+表\ref{tab:overall}にモデル別の復元品質，費用，実行時間を示す．
+\code{gpt-5.4-mini}は\code{gpt-4.1-mini}に対して，行動部品再現率を\(0.466\)から\(0.798\)，重要証跡再現率を\(0.195\)から\(0.703\)へ改善し，過剰主張を\(1190\)から\(651\)へ減らした．
+\code{gpt-5.5 low}は各再現率が最も高いが，過剰主張が\(1235\)，一回あたり平均費用が\(0.4492\)米ドル，実行時間中央値が\(8.29\)分となり，復元能力の高さと確認負荷・運用負荷の小ささは一致しなかった．
 
 \begin{table}[t]
 \centering
-\footnotesize
-\caption{過剰主張の正規化}
-\label{tab:overclaim_rate}
-\setlength{\tabcolsep}{2pt}
-\begin{tabular}{@{}lrrr@{}}
+\scriptsize
+\caption{モデル別の復元品質，費用，実行時間}
+\label{tab:overall}
+\setlength{\tabcolsep}{1pt}
+\begin{tabular}{@{}lrrrrrrrr@{}}
 \toprule
-Model & Claims & Over/run & Over/claim \\
+Model & Act. & Ev. & Ord. & Prec. & O/run & Tok(k) & USD & p50 \\
 \midrule
-\code{gpt-4.1-mini} & 1876 & 5.75 & 0.634 \\
-\code{gpt-5.4-mini} & 1565 & 3.14 & 0.416 \\
-\code{gpt-5.5 low} & 4519 & 5.97 & 0.273 \\
+\code{4.1-mini} & .466 & .195 & .201 & .366 & 5.75 & 35.7 & .0176 & 4.00 \\
+\code{5.4-mini} & .798 & .703 & .553 & .584 & 3.14 & 12.9 & .0210 & 1.37 \\
+\midrule
+\code{5.5 low} & .918 & .906 & .868 & .640 & 5.97 & 37.1 & .4492 & 8.29 \\
 \bottomrule
 \end{tabular}
+\par\raggedright\scriptsize 注: O/runは一実行あたりの過剰主張数，Tok(k)は一実行平均の入出力合計トークン数，USDは一実行平均費用，p50は実行時間中央値（分）である．\code{5.5 low}の費用・時間はログが得られた\(69\)実行の推定値であり，精度評価の\(207\)実行集計とは取得範囲が異なる．
 \end{table}
 
-\noindent{\bfseries シナリオ別結果.}
+過剰主張率は\code{gpt-4.1-mini}が\(0.634\)，\code{gpt-5.4-mini}が\(0.416\)，\code{gpt-5.5 low}が\(0.273\)であり，\code{gpt-5.5 low}が最悪ではない．
+したがって，本稿の結果は「強いモデルほど一つの主張あたり不正確」という意味ではなく，「多くの候補を出すため，絶対数として確認すべき過剰主張が増えうる」という意味である．
+このため，本稿では\code{gpt-5.5 low}を提示用モデルではなく能力上限をみるプローブとして扱う．
 
-Scenario別では，明示的実行チェーンが最も安定した成功領域であった．表\ref{tab:scenario_result}に，復元能力と過剰主張抑制のバランスが良かった\code{gpt-5.4-mini}のchain単位macro集計を示す．explicitはnetwork serviceとcommand shell系，multi-stepはcollection/tool invocationとscript execution系である．semantic chainはDiscord Run Keyの1 chainのみであるため，比較表からは外し，考察でcase studyとして扱う．
+\subsection{行動列種類別の復元品質}
 
-\begin{table}[t]
-\centering
-\footnotesize
-\caption{gpt-5.4-miniのシナリオ別評価（n=2以上）}
-\label{tab:scenario_result}
-\setlength{\tabcolsep}{2pt}
-\begin{tabular}{@{}lrrrrr@{}}
-\toprule
-分類 & n & Action & Crit. ev. & Order & Over/run \\
-\midrule
-explicit & 15 & 0.869 & 0.826 & 0.778 & 2.56 \\
-multi-step & 7 & 0.783 & 0.600 & 0.543 & 4.57 \\
-\bottomrule
-\end{tabular}
-\end{table}
+復元能力と過剰主張抑制のバランスが良かった\code{gpt-5.4-mini}で見ると，明示的実行チェーンは行動部品再現率\(0.869\)，重要証跡再現率\(0.826\)，順序指標\(0.778\)，過剰主張\(2.56\)/runであった．
+一方，複数段階チェーン（\code{multi-step}）では，それぞれ\(0.783\)，\(0.600\)，\(0.543\)，\(4.57\)/runとなり，複数ログを接続する行動列で復元が難しくなった．
+意味判定チェーン（\code{semantic}）はDiscord Run Keyの一行動列のみであるため，考察で事例として扱う．
 
 \section{考察}
 
-\subsection{復元品質と偽陽性判断支援の関係}
+\subsection{警告要約に依存しない復元の意味}
 
-本研究が直接測定したのは，トリアージ判断の所要時間や最終的な良悪性判定の正解率ではなく，その前段に必要となる証跡付き行動列の復元品質である．
-したがって，本稿の結果は「LLMだけで偽陽性判断が完了する」ことを示すものではない．
-むしろ，調査者が偽陽性と判断するために必要な，主体，操作，対象，順序，根拠ログをどの程度そろえられるかを評価している．
-この復元品質はトリアージ支援の必要条件であり，十分条件ではない．
-最終判断には，組織内の業務文脈，端末利用者，許可済み管理操作，過去の類似アラート，およびSOCの運用基準との照合が必要である．
+本稿が測定したのは最終的な良悪性判定ではなく，その前段に必要な証跡付き行動列の復元品質である．
+Stage \(3\)で警告要約を除いても復元品質が大きく崩れなかったことは，警告文面の言い換えではなく，残存する端末ログから観測事実へ戻る経路を作れる可能性を示す．
+これは，実務の初期調査で重要となる「警告文面を読むだけでなく，ログ上で何が起きたかを確認する」作業を支援するうえで意味がある．
+ただし，Stage \(3\)でもEDR由来のイベント情報は残るため，本結果は任意の低レベルログのみで十分という主張ではない．
 
-この観点から見ると，本稿のStage設計は，既存の攻撃調査評価とは異なる意味を持つ．
-Stage 1はalert summaryを含むため，モデルが検知理由を手がかりとして行動列を組み立てられる．
-Stage 2は初期入力からalert summaryを外すが，検索対象DBにはsummary rowsが残る．
-Stage 3はalert summary rowsをSQL検索対象から除外するため，アラート文面の言い換えではなく，残存telemetryから復元できるかを測る条件である．
-この切り分けにより，単なるattack investigationの成否ではなく，偽陽性判断で問題になる「検知文面に引っ張られず，観測事実に戻れるか」を評価できる．
-また，overclaimは，正しい説明が含まれるかだけでなく，調査者を誤誘導しうる余計な主張をどれだけ出すかを測る指標であり，正常行動復元の文脈で特に重要である．
+\subsection{モデル依存性と確認負荷}
 
-\subsection{モデル差と過剰主張}
+復元の可否は，システム構成だけでなく，内部モデルのログ接続能力と証跡対応能力に強く依存した．
+\code{gpt-5.5 low}は能力上限を示す一方で，過剰主張も多く，すべての警告に対する初期提示用モデルとしては重い．
+実運用では，まず軽量なモデルで候補行動列を提示し，証跡が不足する場合や複数段階チェーンで接続が難しい場合にのみ強いモデルを追加で用いる段階的運用が考えられる．
+そのため，正しい候補を広く拾う段階と，証跡との対応を確認して主系列へ絞る段階を分ける設計が望ましい．
 
-モデル比較では，\code{gpt-4.1-mini}から\code{gpt-5.4-mini}への改善が大きかった．
-特にcritical evidence recallの差は，単に行動名を当てるだけでなく，どのログ行やログ項目がその行動を支えるのかを対応付ける能力の差として現れている．
-\code{gpt-5.5 low}は，action recall，critical evidence recall，orderのすべてで最も高く，複数streamをまたぐ行動部品を広く拾える傾向があった．
-一方でoverclaim総数も最大であり，強いモデルほど周辺事象まで広く候補化し，確認すべきclaim数が増える課題も見えた．
-ただし，overclaim rateは\code{gpt-5.5 low}が最悪ではなく，この結果は「1 claimあたり不正確」というより「出力量が増えることで確認負荷が増える」という現象として読むべきである．
-したがって，SOC支援では，最高recallのモデルをそのまま最終回答として採用するのではなく，正しい候補を広く拾う段階と，claim-evidence対応を確認して主系列へ絞る段階を分ける設計が望ましい．
+\subsection{費用と実行時間}
 
-過剰出力の主な原因は3つであった．
-第一は，alert summaryの語を行動そのものとして扱う誤りである．
-検知名や検知理由は調査起点としては有用だが，gold chainの行動ステップではない．
-第二は，時間的に近いが主系列ではないログをchainに含める誤りである．
-例えば，同一host上で近い時刻に発生したDNS問い合わせ，別プロセスの起動，補助的なブラウザ履歴などは，調査上の参考情報にはなり得るが，主行動列として採用するには因果関係や同一プロセス系列の根拠が必要である．
-第三は，証跡が弱い推定を確定的に述べる誤りである．
-あるプロセスが存在することと，そのプロセスが特定の設定変更を行ったことは別の主張であり，後者には対応するレジストリ行，コマンドライン，またはsource row idが必要である．
+表\ref{tab:overall}では，\code{gpt-5.4-mini}が一実行平均\(0.0210\)米ドル，実行時間中央値\(1.37\)分で，\code{gpt-4.1-mini}より高い復元品質を短時間で示した．
+一方，\code{gpt-5.5 low}は一実行平均\(0.4492\)米ドル，実行時間中央値\(8.29\)分であり，復元品質は高いが，多数の警告を順次処理する初期トリアージにはそのまま適用しにくい．
+セキュリティ調査では，調査対象の時間範囲内に結果が返ることは重要だが，SOCでは同時に多数の警告を扱うため，費用と待ち時間は精度と同じく評価すべき制約である．
+今後は，調査範囲の絞り込み，検索結果の再利用，軽量モデルから強いモデルへの段階的切替により，復元品質を保ちながら一件あたりの費用と待ち時間を抑えられるかを検証する．
 
-3回評価のばらつきも，運用上の注意点を示している．
-\code{gpt-5.4-mini}のaction recallは3回評価で0.769--0.822，Stage間でも0.791--0.802の範囲に収まり，正解行動部品を拾う能力は比較的安定していた．
-一方でcritical evidence recallは0.651--0.790，orderは0.484--0.619，overclaimは90--307と幅があり，行動を拾えた場合でも，証跡接続，順序構成，余計な主張の抑制はrunによって揺れる．
-\code{gpt-4.1-mini}ではaction recallが0.432--0.491，critical evidence recallが0.056--0.277であり，Stage 2以降の根拠接続が不安定であった．
-このため，平均スコアだけでなく，低いrunでどの証跡が落ちるかを確認することが，実運用導入時には重要である．
+\subsection{行動列の種類による難しさ}
 
-\subsection{シナリオ別の解釈}
-
-明示的実行チェーンでは，プロセス名，親プロセス，コマンドライン，作業ディレクトリが同じログ行または近接するログ行に揃うため，モデルは比較的安定して行動を復元できた．
-network service behaviorやcommand shell executionは，実行主体と対象がログ上で直接観測しやすく，\code{gpt-5.4-mini}でもaction recall 0.869，critical evidence recall 0.826，order 0.778と高かった．
-これは，SOC調査でまず有効なのが，明示的なプロセス実行やコマンドラインを起点にした行動列復元であることを示す．
-
-一方，multi-step chainでは，DNS問い合わせ，ブラウザ履歴，packet capture，プロセス生成，スクリプト実行など複数streamを接続する必要がある．
-この分類では，あるログ行だけを見ても主系列全体は分からず，時刻差，PID/PPID，同一user，同一host，ファイルパス，通信先を組み合わせて説明する必要がある．
-そのため，\code{gpt-5.4-mini}でもorder 0.543に低下し，overclaim/runも4.57と高かった．
-これは，multi-step chainでは「何が起きたか」よりも，「どの事象を同じ主系列として接続してよいか」が難所であることを示す．
-
-semantic chainはDiscord Run Keyの1 chainのみであり，広いカテゴリ結論ではなくcase studyとして扱う必要がある．
-このため，本稿ではsemanticの小数点付きスコアをシナリオ比較表には載せず，定性的な例として扱う．
-このchainでは，Run Key，Discord関連パス，更新・自動起動に関係するプロセスを，正常なアプリケーション挙動として説明できるかが問われる．
-単にRun Keyを発見するだけならATT\&CK上のPersistenceに見えるが，偽陽性判断では，その値がどのアプリケーションに属し，どのログ証跡に支えられ，周辺の実行系列と矛盾しないかを確認する必要がある．
-この点で，ATT\&CKやLOLBASは調査観点を与えるが，最終的な正常行動復元には端末固有の証跡との対応付けが不可欠である．
+明示的実行チェーンでは主体，操作，対象，証跡の対応をログ上で取りやすい一方，複数段階チェーンでは時刻差，\code{PID/PPID}，同一利用者，同一ホスト，ファイルパス，通信先で複数ログを接続する必要がある．
+難所は，「何が起きたか」を拾うことだけでなく，「どの事象を同じ主系列として接続してよいか」を判断する点にある．
+また，Discord Run Keyのような意味判定チェーンでは，攻撃技術に似る外形を端末固有の証跡と対応付け，正常なアプリケーション挙動として説明できるかが問われる．
 
 \subsection{限界と今後の課題}
 
-本研究にはいくつかの限界がある．
-第一に，対象はATLASv2由来の23 behavior chainであり，すべての企業環境やEDR製品を代表するものではない．
-ATLASv2は攻撃エンゲージメント由来のデータであり，本稿で抽出した正常行動も，現実の企業環境で頻出する業務アプリ更新，開発ツール実行，端末管理操作，ユーザ固有の利用パターンを十分に代表しているとは限らない．
-第二に，gold chainは人手で整理した正常行動の説明であり，現実の運用では正解が常に明確に存在するとは限らない．
-本稿では2段階レビューにより採点を確認したが，採点者間一致率を報告していないため，指標の信頼性検証としては限定的である．
-第三に，単一プロンプトへ全ログを投入する条件などの単純ベースラインは本文の主評価には含めていない．
-したがって，本稿はCLOUSEAU型探索の優位性を主張するものではなく，証跡付き正常行動列復元という評価枠組みの下で，Stage設計とモデル差から見える復元品質を報告するものである．
-第四に，API費用・実行時間の体系的比較，および実際のSOC analystを対象としたユーザ評価は本文の主評価には含めていない．
-
-今後は，claim-evidence対応をより強制した出力形式にし，各行動stepにsource row idまたは具体的なログ項目を要求する．
-また，PID/PPID，同一user，同一host，時刻差，file path，registry path，command lineを特徴量として候補行動列を再ランキングすれば，強いモデルが広く拾った候補から主系列らしい少数のstepを選べる可能性がある．
-さらに，正常行動復元を実際のトリアージ支援へ接続するには，復元された行動列が調査者の判断時間，追加調査件数，判断の一貫性に与える影響を評価する必要がある．
+本稿の評価対象は公開評価データセット由来の\(23\)行動列であり，すべての企業環境，端末検知・対応製品，業務アプリケーション，運用ルールを代表するものではない．
+実環境では，正解行動列が事前に存在しない場合が多く，調査者は不完全な警告，欠損したログ，組織固有の通常操作を前提に判断する必要がある．
+費用と実行時間は，本実験環境と実行時点の価格設定に依存するため，異なる価格設定，並列実行条件，検索対象ログ量では変化しうる．
+今後は，警告起点と調査者による手動起点を分け，復元結果が判断時間，追加確認ログ件数，判断一貫性に与える影響を測定する．
+また，各行動ステップに元ログ行識別子や具体的なログ項目を要求し，プロセス識別子，親プロセス識別子，時刻差，ファイルパスなどによる再ランキングで，提示すべき主系列を絞り込めるかを検証する．
+これらは，復元精度だけでなく，実世界の初期調査で使える提示量，待ち時間，費用に収まるかを確認する次の実験課題である．
 
 \section{おわりに}
 
-本稿では，偽陽性トリアージ支援を証跡付き正常行動列復元として評価する枠組みを定め，ATLASv2由来の23 behavior chain\cite{atlasv2}で検証した．
-第一の発見は，\code{gpt-5.4-mini}ではalert summary rowsを検索対象から除いたStage 3でもaction recallが0.802，critical evidence recallが0.779となり，アラート文面の言い換えだけではなく残存telemetryから復元していることを示した点である．
-第二の発見は，\code{gpt-5.5 low}が最も高いrecallを示す一方でoverclaim総数も最大となり，モデルの素の復元能力と確認負荷の小ささが一致しない点である．
-これらの結果は，正常行動として説明可能な行動列を提示することが偽陽性判断支援の重要な前提になることを示す．
-ただし，本稿が示したのはトリアージ判断そのものの改善ではなく，その必要条件となる復元品質である．
+本稿では，偽陽性判断支援を証跡付き正常行動列復元として評価する枠組みを定め，ATLASv2由来の\(23\)行動列\cite{atlasv2}で検証した．
+\code{gpt-5.4-mini}では，警告要約を除いたStage \(3\)でも行動部品再現率が\(0.802\)，重要証跡再現率が\(0.779\)となり，残存する端末ログから復元できる場合があることを示した．
+一方，\code{gpt-5.5 low}は最も高い再現率を示すが過剰主張総数も最大であり，モデルの復元能力と確認負荷の小ささは一致しなかった．
+また，明示的実行チェーンと複数段階チェーン（\code{multi-step}）では復元品質に差があり，行動列の種類によって難しさが異なることを示した．
 今後は，復元結果を用いた調査者の判断時間や判断一貫性への効果を評価する．
 
 \section*{謝辞}
@@ -457,33 +455,39 @@ ATLASv2は攻撃エンゲージメント由来のデータであり，本稿で�
 本研究は，内閣府「地方大学・地域産業創生交付金」に採択された「次世代半導体をトリガーとした半導体の複合拠点の実現と地域経済の活性化」事業の支援を受けて実施しました．
 本研究の実験にあたり，資料のご提供とともに多大なるご協力をいただきました株式会社網屋（網屋さっぽろ研究所）の皆様に，心より感謝申し上げます．
 
-\begin{thebibliography}{9}
-\bibitem{clouseau}
-Y. H. Lee et al., CLOUSEAU: A Hierarchical Multi-Agent Framework for Automated Attack Investigation, arXiv:2505.01799, 2025.
-
+\begin{thebibliography}{99}
 \bibitem{sysmon}
-Microsoft, Sysmon - Sysinternals, \url{https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon}.
+Microsoft, Sysmon - Sysinternals, \url{https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon}(Accessed on 6/16/2026).
 
-\bibitem{cbc}
-Broadcom, Carbon Black Cloud, \url{https://www.broadcom.com/products/carbon-black/threat-prevention/carbon-black-cloud}.
+\bibitem{statcounter_desktop_os}
+StatCounter Global Stats, Desktop Operating System Market Share Worldwide, \url{https://gs.statcounter.com/os-market-share/desktop/worldwide}(Accessed on 6/27/2026).
 
-\bibitem{attack}
-MITRE, MITRE ATT\&CK, \url{https://attack.mitre.org/}.
-
-\bibitem{lolbas}
-LOLBAS Project, Living Off The Land Binaries, Scripts and Libraries, \url{https://lolbas-project.github.io/}.
-
-\bibitem{react}
-S. Yao et al., ReAct: Synergizing Reasoning and Acting in Language Models, arXiv:2210.03629, 2022.
+\bibitem{atlasv2}
+A. Riddle et al., ATLASv2: ATLAS Attack Engagements, Version 2, arXiv:2401.01341, 2024.
 
 \bibitem{deeplog}
 M. Du et al., DeepLog: Anomaly Detection and Diagnosis from System Logs through Deep Learning, Proc. ACM CCS, 2017.
 
+\bibitem{nodoze}
+W. U. Hassan et al., NoDoze: Combatting Threat Alert Fatigue with Automated Provenance Triage, Proc. NDSS, 2019.
+
 \bibitem{atlas}
 A. Alsaheel et al., ATLAS: A Sequence-based Learning Approach for Attack Investigation, Proc. USENIX Security, 2021.
 
-\bibitem{atlasv2}
-A. Riddle et al., ATLASv2: ATLAS Attack Engagements, Version 2, arXiv:2401.01341, 2024.
+\bibitem{airtag}
+W. U. Hassan et al., AIRTAG: Towards Automated Attack Investigation by Unsupervised Learning with Log Texts, Proc. IEEE Symposium on Security and Privacy, 2023.
+
+\bibitem{attack}
+MITRE, MITRE ATT\&CK, \url{https://attack.mitre.org/}(Accessed on 6/16/2026).
+
+\bibitem{lolbas}
+LOLBAS Project, Living Off The Land Binaries, Scripts and Libraries, \url{https://lolbas-project.github.io/}(Accessed on 6/16/2026).
+
+\bibitem{react}
+S. Yao et al., ReAct: Synergizing Reasoning and Acting in Language Models, arXiv:2210.03629, 2022.
+
+\bibitem{clouseau}
+Y. H. Lee et al., CLOUSEAU: A Hierarchical Multi-Agent Framework for Automated Attack Investigation, arXiv:2505.01799, 2025.
 \end{thebibliography}
 
 \end{document}
