@@ -4,12 +4,26 @@ This folder is a cleaned public package for the CLOUSEAU / ATLASv2 behavior reco
 
 It contains the research purpose, experiment design, current LaTeX manuscript, scoring rubrics, sanitized metadata, aggregate result files, per-run model outputs, and the latest discussion materials. It intentionally excludes raw databases, EVTX files, external datasets, local virtual environments, and API keys.
 
+## Official Scope
+
+The formal FIT2026 evaluation set is **23 behavior chains**. Older 27-chain files are retained only for traceability because the current 23-chain set was finalized by filtering the earlier candidate set.
+
+Use these files as the canonical 23-chain references:
+
+- `experiment_metadata/official_23_usecase_index.md`
+- `experiment_metadata/chain_summary.csv`
+- `experiment_metadata/chain_gold_index.json`
+- `experiment_metadata/official_23_chain_gold_steps.csv`
+- `results_23chain_20260614/README.md`
+
+Legacy 27-chain metadata is kept under `experiment_metadata/legacy_27_chain_summary.csv` and `experiment_metadata/legacy_27_chain_gold_index.json`.
+
 ## Folder layout
 
 - `paper/`: earlier public LaTeX manuscript copy.
 - `fit2026_manuscript/`: current FIT2026 manuscript workspace, including the working LaTeX draft and draft notes.
 - `docs/`: research direction, experiment design, scenario taxonomy, data scope, result summary, cost estimates, and incident notes.
-- `experiment_metadata/`: sanitized case metadata, chain summary, chain index, run settings, and token/cost summary.
+- `experiment_metadata/`: official 23-chain metadata, sanitized legacy metadata, run settings, and token/cost summary.
 - `results/`: final score CSV/JSON files and aggregate tables.
 - `results_23chain_20260614/`: current final 23-chain experiment result tables and definitions. Use this first for paper writing.
 - `raw_runs/`: per-run raw CLOUSEAU output JSON files for all 162 model/stage runs.
@@ -20,15 +34,18 @@ It contains the research purpose, experiment design, current LaTeX manuscript, s
 ## Current experiment
 
 - Dataset context: ATLASv2 benign H1 / benign-1, reconstructed through CLOUSEAU.
-- Earlier public package: 27 behavior chains x 3 input conditions = 81 runs per model.
-- Latest analysis package: 23 behavior chains x 3 stages, component-level scoring, 3-run average for `gpt-4.1-mini` and `gpt-5.4-mini`, and one available `gpt-5.5` low-effort run.
+- Official evaluation package: 23 behavior chains x 3 stages.
+- Legacy traceability package: 27 candidate behavior chains x 3 input conditions.
+- Latest analysis package: official 23 behavior chains x 3 stages, component-level scoring, 3-run average for `gpt-4.1-mini` and `gpt-5.4-mini`, and raw/salvaged `gpt-5.5` low-effort results.
 - Models in the completed structured result set: `gpt-4.1-mini`, `gpt-5.4-mini`.
-- GPT-5.5 status: included as raw/salvaged one-run evidence because the output contract differed from the structured runs.
+- GPT-5.5 status: included as raw/salvaged evidence because the output contract differed from the structured runs.
 
 ## Main result files
 
 - `results_23chain_20260614/README.md`
 - `results_23chain_20260614/RESULT_DEFINITIONS_23CHAIN.md`
+- `experiment_metadata/official_23_usecase_index.md`
+- `experiment_metadata/official_23_chain_gold_steps.csv`
 - `results_23chain_20260614/overall.csv`
 - `results_23chain_20260614/by_stage.csv`
 - `results_23chain_20260614/ledgers/final_comparison_per_run_component_scores.csv`

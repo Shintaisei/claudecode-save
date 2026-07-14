@@ -4,13 +4,15 @@ This folder is the latest handoff package for the 23-chain CLOUSEAU / ATLASv2 co
 
 It includes raw model outputs, scoring ledgers, aggregate result tables, cost audit material, and discussion notes used as the basis for the FIT2026 paper discussion.
 
+The formal evaluation scope is 23 behavior chains. Earlier 27-chain material appears only as a filtered legacy source set for traceability.
+
 ## Scope
 
 | model | raw run scope | scored comparison scope |
 | --- | ---: | ---: |
 | `gpt-4.1-mini` | 23 chains x 3 stages x 3 sets = 207 runs | 207 runs |
 | `gpt-5.4-mini` | 23 chains x 3 stages x 3 sets = 207 runs | 207 runs |
-| `gpt-5.5 low raw` | 23 chains x 3 stages x 1 set = 69 runs | 69 salvaged runs |
+| `gpt-5.5 low raw` | 23 chains x 3 stages x 3 sets = 207 runs | 207 salvaged rows |
 
 For `gpt-4.1-mini` and `gpt-5.4-mini`, the third set is not a newly named `formal23 replicate_03`; it is the current 23-chain subset extracted from the earlier 27-chain experiment and treated as the practical third set. This matches the experiment decision used for the final aggregate tables.
 
@@ -27,6 +29,7 @@ For `gpt-5.5 low raw`, the output contract differed from the structured 4.1/5.4 
 
 ## Key Files
 
+0. `../experiment_metadata/official_23_usecase_index.md`
 1. `03_aggregated_results/summary.md`
 2. `03_aggregated_results/overall.csv`
 3. `03_aggregated_results/by_stage.csv`

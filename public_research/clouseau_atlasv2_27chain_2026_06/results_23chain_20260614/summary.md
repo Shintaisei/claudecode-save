@@ -1,15 +1,17 @@
 # Current Experiment Results: 23-Chain Component-Rubric Results
 
-This folder is the primary result folder for the current 23-chain experiment.
+This folder is the primary result folder for the official 23-chain experiment.
 
 Use this folder when writing the FIT2026 paper or slides. The older top-level `results/` folder is the earlier 27-chain public package result set and is kept for traceability.
+
+The formal evaluation scope is 23 behavior chains. The 27-chain material in this repository is legacy input material only.
 
 ## What This Result Set Means
 
 | item | definition |
 | --- | --- |
 | Experiment unit | One behavior chain under one stage condition |
-| Final chain scope | 23 behavior chains |
+| Formal chain scope | 23 behavior chains |
 | Stages | `stage1`, `stage2`, `stage3` |
 | Main structured models | `gpt-4.1-mini`, `gpt-5.4-mini` |
 | Structured comparison scope | 23 chains x 3 stages x 3 sets = 207 rows per model |
@@ -53,6 +55,10 @@ Matching uses content inclusion. If the candidate output contains the substantiv
 
 | file | purpose |
 | --- | --- |
+| `../experiment_metadata/official_23_usecase_index.md` | Official 23-chain use-case index |
+| `../experiment_metadata/chain_summary.csv` | Canonical 23-chain summary |
+| `../experiment_metadata/chain_gold_index.json` | Canonical 23-chain index |
+| `../experiment_metadata/official_23_chain_gold_steps.csv` | One row per official gold behavior step |
 | `summary.md` | Human-readable final result summary |
 | `overall.csv` | Overall model-level scores |
 | `by_stage.csv` | Stage-level scores |
