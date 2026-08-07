@@ -1,0 +1,52 @@
+{
+  "status": "aborted_before_gate_completion",
+  "decided_at": "2026-07-31T22:12:59.8085473+09:00",
+  "reason": "atomic behavior fragmentation remained under v4 exact-key deduplication",
+  "formal_adoption": false,
+  "models_started": [
+    "gpt-4.1-mini"
+  ],
+  "models_not_started": [
+    "gpt-5.4-mini",
+    "gpt-5.5"
+  ],
+  "instance_id": "chain_10_e07_discord_run_key_registry_chain_stage3",
+  "run_json_count": 0,
+  "activity": {
+    "started_events": 83,
+    "completed_events": 80,
+    "completed_by_role": {
+      "chief": 3,
+      "investigator": 22,
+      "sql_qa": 55
+    },
+    "chief_leads_started": [
+      {
+        "lead": "reg.exe プロセスの起動と親子関係の確認",
+        "behavior_key": "reg.exe|process_start|unknown",
+        "materiality": "new_step"
+      },
+      {
+        "lead": "reg.exe プロセスのコマンドライン引数の確認",
+        "behavior_key": "reg.exe|command_line|unknown",
+        "materiality": "new_step"
+      },
+      {
+        "lead": "reg.exe プロセスによるレジストリ操作の確認",
+        "behavior_key": "reg.exe|registry_access|unknown",
+        "materiality": "new_step"
+      },
+      {
+        "lead": "reg.exe プロセスの子プロセスの有無と詳細調査",
+        "behavior_key": "reg.exe|process_child|unknown",
+        "materiality": "new_step"
+      }
+    ]
+  },
+  "finding": "command_line and process_child were emitted as independent new_step operations for the same unresolved reg.exe behavior, despite the complete-step prompt. Exact behavior-key deduplication did not catch semantically fragmented keys.",
+  "process_cleanup": {
+    "stopped_pids": [26456, 5052, 24888],
+    "orphan_processes_remaining": false
+  },
+  "next_action": "add a deterministic semantic validator that rejects component-only pseudo-operations and requires a concrete object or a bounded discovery key, then rerun in a new create-only root"
+}

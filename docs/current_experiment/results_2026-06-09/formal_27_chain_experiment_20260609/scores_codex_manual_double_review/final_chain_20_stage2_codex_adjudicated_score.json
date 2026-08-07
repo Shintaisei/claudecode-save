@@ -1,0 +1,62 @@
+{
+  "case": "chain_20_e14_dns_packet_capture_batch_chain_stage2",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "method": "codex_manual_double_review_adjudicated_no_api",
+  "review1_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/scores_codex_manual_double_review/review1/gpt-4.1-mini/stage2/chain_20_e14_dns_packet_capture_batch_chain_stage2/codex_score_result.json",
+  "review2_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/scores_codex_manual_double_review/review2/gpt-4.1-mini/stage2/chain_20_e14_dns_packet_capture_batch_chain_stage2/codex_score_result.json",
+  "adjudication_ja": "Both reviews agree on item recall and candidate precision. Candidate recovers explorer.exe -> cmd.exe at a coarse level and separately recovers cmd.exe executing start_dns_logs.bat, but misses the full /c command object for the parent-launch step and all CBC critical evidence. The two in-scope steps are separated in order, so order is credited.",
+  "final_totals": {
+    "action_step_recall_hits": 5,
+    "action_step_recall_total": 8,
+    "action_step_recall": 0.625,
+    "action_step_precision_hits": 5,
+    "action_step_precision_total": 16,
+    "action_step_precision": 0.3125,
+    "candidate_claim_precision_hits": 5,
+    "candidate_claim_precision_total": 16,
+    "candidate_claim_precision": 0.3125,
+    "overclaim_slot_count": 11,
+    "behavior_sequence_order_hits": 1,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 1.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 1,
+    "behavior_step_recall_total": 2,
+    "behavior_step_recall": 0.5
+  },
+  "final_gold_step_scores": [
+    {
+      "step_id": "C20-S01",
+      "summary": "explorer.exe starts cmd.exe with full /c start_dns_logs.bat command",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate recovers explorer.exe starting cmd.exe, but not the full C:\\Windows\\system32\\cmd.exe /c command object or CBC parent_path/process_cmdline evidence."
+    },
+    {
+      "step_id": "C20-S02",
+      "summary": "cmd.exe executes start_dns_logs.bat",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate identifies cmd.exe executing start_dns_logs.bat. Evidence is generic audit_logs command_line rather than the required process_cmdline evidence."
+    }
+  ],
+  "final_order_pairs": [
+    {
+      "before_step_id": "C20-S01",
+      "after_step_id": "C20-S02",
+      "score": 1,
+      "reason": "Candidate separates explorer.exe -> cmd.exe before cmd.exe executing start_dns_logs.bat."
+    }
+  ]
+}

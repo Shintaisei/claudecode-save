@@ -1,0 +1,162 @@
+{
+  "reviewer": "codex_manual_review1",
+  "scoring_mode": "manual_strict_0_1_no_api",
+  "stage": "stage1",
+  "case_id": "chain_15_e10_python_simplehttpserver_network_chain_stage1",
+  "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage1/chain_15_e10_python_simplehttpserver_network_chain_stage1_run.json",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_15_e10_python_simplehttpserver_network_chain/chain_gold.json",
+  "final_totals": {
+    "gold_item_hits": 4,
+    "gold_item_total": 8,
+    "gold_item_score": 0.5,
+    "behavior_step_recall_hits": 1,
+    "behavior_step_recall_total": 2,
+    "behavior_step_recall": 0.5,
+    "critical_evidence_hits": 0,
+    "critical_evidence_total": 2,
+    "critical_evidence_recall": 0.0,
+    "order_hits": 0,
+    "order_total": 1,
+    "order_score": 0.0,
+    "candidate_claim_precision_hits": 3,
+    "candidate_claim_precision_total": 4,
+    "candidate_claim_precision": 0.75,
+    "unsupported_evidence_count": 1,
+    "overclaim_slot_count": 1
+  },
+  "gold_item_scores": [
+    {
+      "item_id": "chain_15_e10_python_simplehttpserver_network_chain:C15-S01:subject",
+      "step_id": "C15-S01",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": "S1 subject_process.name=python.exe",
+      "score": 1,
+      "reason_ja": "候補は単一の network_listen step で python.exe を主体として明示している。SimpleHTTPServer 起動 step としては未復元だが、主体要素そのものは一致する。"
+    },
+    {
+      "item_id": "chain_15_e10_python_simplehttpserver_network_chain:C15-S01:action",
+      "step_id": "C15-S01",
+      "kind": "action",
+      "gold_value": "SimpleHTTPServer module specified and started",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "候補は network_listen / network server のみを出しており、python.exe が SimpleHTTPServer モジュールを指定して起動した行動を復元していない。"
+    },
+    {
+      "item_id": "chain_15_e10_python_simplehttpserver_network_chain:C15-S01:object",
+      "step_id": "C15-S01",
+      "kind": "object",
+      "gold_value": "python  -m SimpleHTTPServer",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "候補の command_line は null で、global_limitations でも command line は観測されなかったとしている。必須 object の `python  -m SimpleHTTPServer` は出ていない。"
+    },
+    {
+      "item_id": "chain_15_e10_python_simplehttpserver_network_chain:C15-S01:critical_evidence",
+      "step_id": "C15-S01",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event process_cmdline",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "SimpleHTTPServer 起動を支える CBC event process_cmdline を提示していない。候補の evidence は alert_process の CBC alert 行だけである。"
+    },
+    {
+      "item_id": "chain_15_e10_python_simplehttpserver_network_chain:C15-S02:subject",
+      "step_id": "C15-S02",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": "S1 subject_process.name=python.exe",
+      "score": 1,
+      "reason_ja": "ネットワーク step の主体として python.exe を正しく明示している。"
+    },
+    {
+      "item_id": "chain_15_e10_python_simplehttpserver_network_chain:C15-S02:action",
+      "step_id": "C15-S02",
+      "kind": "action",
+      "gold_value": "detected as network server behavior",
+      "matched_candidate_excerpt": "S1 operation=network_listen; code_sequence says python.exe acted as a network server",
+      "score": 1,
+      "reason_ja": "候補は python.exe の network_listen / network server 挙動を主張しており、C15-S02 のネットワークサーバー挙動と一致する。"
+    },
+    {
+      "item_id": "chain_15_e10_python_simplehttpserver_network_chain:C15-S02:object",
+      "step_id": "C15-S02",
+      "kind": "object",
+      "gold_value": "10.193.66.115:54869",
+      "matched_candidate_excerpt": "S1 object.value=10.193.66.115:54869",
+      "score": 1,
+      "reason_ja": "ネットワーク object の IP:port は gold の 10.193.66.115:54869 と完全一致する。"
+    },
+    {
+      "item_id": "chain_15_e10_python_simplehttpserver_network_chain:C15-S02:critical_evidence",
+      "step_id": "C15-S02",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event netconn",
+      "matched_candidate_excerpt": "S1 evidence source_stream=cbc-ngav-alerts field=alert_process value=python.exe",
+      "score": 0,
+      "reason_ja": "必須根拠は CBC event netconn だが、候補が evidence として示すのは CBC alert の alert_process のみで、netconn の connection create/established 行を提示していない。"
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_step_id": "C15-S01",
+      "after_step_id": "C15-S02",
+      "score": 0,
+      "reason_ja": "候補は C15-S02 相当のネットワーク step だけを出しており、C15-S01 の `python -m SimpleHTTPServer` 起動 step を復元していないため、正解順序 C15-S01 -> C15-S02 は確認できない。"
+    }
+  ],
+  "candidate_claim_scores": [
+    {
+      "candidate_claim_id": "CL1",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "python.exe network_listen object.value=10.193.66.115:54869 with evidence only from cbc-ngav-alerts alert_process",
+      "normalized_action_claim_ja": "python.exe が 10.193.66.115:54869 に対するネットワークサーバー挙動を示した",
+      "slot_scores": [
+        {
+          "slot_id": "CL1:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "python.exe",
+          "matched_gold_item_id": "chain_15_e10_python_simplehttpserver_network_chain:C15-S02:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "C15-S02 の主体と完全一致する。"
+        },
+        {
+          "slot_id": "CL1:action",
+          "kind": "action",
+          "candidate_slot_excerpt": "network_listen / acted as a network server",
+          "matched_gold_item_id": "chain_15_e10_python_simplehttpserver_network_chain:C15-S02:action",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "ネットワークサーバー挙動として C15-S02 の action と対応する。"
+        },
+        {
+          "slot_id": "CL1:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "10.193.66.115:54869",
+          "matched_gold_item_id": "chain_15_e10_python_simplehttpserver_network_chain:C15-S02:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "IP:port が gold と完全一致する。"
+        },
+        {
+          "slot_id": "CL1:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "cbc-ngav-alerts alert_process=python.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unsupported_or_wrong_evidence",
+          "reason_ja": "alert 行は探索起点・補助情報としては使えるが、gold が要求する CBC event netconn 根拠ではない。10.193.66.115:54869 の netconn 行も提示されていない。"
+        }
+      ]
+    }
+  ],
+  "notes_ja": [
+    "OpenAI/API scorer は使用せず、local の gold JSON と candidate run JSON だけで採点した。",
+    "candidate は `python  -m SimpleHTTPServer` / process_cmdline を復元しておらず、C15-S01 は subject 以外すべて 0 とした。",
+    "candidate は `10.193.66.115:54869` のネットワーク挙動を出しているため C15-S02 の subject/action/object は加点したが、根拠は CBC alert の alert_process に留まるため critical_evidence は 0 とした。",
+    "CBC alert reason だけを code step の根拠としては加点していない。netconn や process_cmdline の実イベント根拠を要求する strict rubric に従った。",
+    "SimpleHTTPServer 起動 step が欠落しているため、正解順序 C15-S01 -> C15-S02 は 0 とした。"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "queue_id": "gpt-5.4-mini/stage1/chain_02_e01_python_simplehttpserver_network_chain_stage1/a4227cfcdde5d1b3",
+  "claims": {
+    "C1": {
+      "gold_step_id": "N8V3-01-S02",
+      "tp_kinds": [
+        "subject",
+        "operation",
+        "object"
+      ]
+    },
+    "C2": {
+      "gold_step_id": "N8V3-01-S03",
+      "tp_kinds": [
+        "object"
+      ]
+    }
+  },
+  "critical_step_ids": [],
+  "duplicate_claim_ids": [],
+  "review_summary_ja": "cmd.exeによるrun_http_server.bat実行は完全取得した。python.exeは対象として出したが、行動を「HTTPサーバを起動」と子プロセス中心に表現したため、cmd.exe→python.exeのprocess-creation actionとsubjectを取得できなかった。explorer.exe→cmd.exeはexecution_contextに留まり独立stepになっていない。",
+  "failure_analysis": {
+    "missing_gold_steps": [
+      "N8V3-01-S01",
+      "N8V3-01-S03"
+    ],
+    "causal_edge_missing": [
+      "explorer.exe -> cmd.exe process creation",
+      "cmd.exe -> python.exe process creation as an atomic subject-operation-object claim"
+    ],
+    "early_stop": false,
+    "nearby_behavior_overconnection": false,
+    "hallucination": [
+      "critical evidence was attributed to msft-security without the canonical CBC row/action identifiers"
+    ],
+    "investigation_behavior": "Four unique Chief leads generated nine Investigator questions and 30 SQL queries with no guard trigger. The process lineage and command lines were found; one malformed truncated lead (`C:\\`) was also issued, but the search otherwise stayed near the target component.",
+    "order_failure": "S02 -> S03 was represented by distinct aligned claims in order; S01 was never emitted as a candidate claim.",
+    "stage_specific_cause": "The missing recall came from output granularity rather than missing telemetry or a call limit. Parent/child edges were stored in execution_context while the code_steps described the child process or application behavior, so the atomic parent process-creation actions were not scoreable."
+  }
+}

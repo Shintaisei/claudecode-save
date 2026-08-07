@@ -1,0 +1,157 @@
+{
+  "case_id": "chain_17_e12_python_simplehttpserver_network_chain_stage2",
+  "reviewer": "codex_manual_review2",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "gold_chain": {
+    "chain_id": "chain_17_e12_python_simplehttpserver_network_chain",
+    "chain_type": "python_simplehttpserver_network_chain",
+    "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_17_e12_python_simplehttpserver_network_chain/chain_gold.json",
+    "run_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage2/chain_17_e12_python_simplehttpserver_network_chain_stage2_run.json",
+    "gold_steps": [
+      {
+        "step_id": "C17-S01",
+        "order": 1,
+        "subject": "python.exe",
+        "action": "launches with SimpleHTTPServer module",
+        "object": "python  -m SimpleHTTPServer",
+        "critical_evidence": "CBC event process_cmdline"
+      },
+      {
+        "step_id": "C17-S02",
+        "order": 2,
+        "subject": "python.exe",
+        "action": "observed as network server behavior",
+        "object": "10.193.66.115:48503",
+        "critical_evidence": "CBC event netconn"
+      }
+    ]
+  },
+  "per_gold_step": [
+    {
+      "gold_step_id": "C17-S01",
+      "gold_order": 1,
+      "matched_candidate_claim_ids": [
+        "S1"
+      ],
+      "scores": {
+        "subject": 1,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "slot_notes": {
+        "subject": "Candidate S1 uses python.exe as the subject process.",
+        "action": "Candidate says python.exe started flashplayerupdateservice.exe, not that python.exe was launched with the SimpleHTTPServer module.",
+        "object": "Candidate object is flashplayerupdateservice.exe; it never identifies the required command line object 'python  -m SimpleHTTPServer'.",
+        "critical_evidence": "Candidate cites only audit_logs/pname-style evidence, not a concrete CBC event process_cmdline field."
+      },
+      "step_score": 1,
+      "step_score_max": 4
+    },
+    {
+      "gold_step_id": "C17-S02",
+      "gold_order": 2,
+      "matched_candidate_claim_ids": [],
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "slot_notes": {
+        "subject": "No final candidate code_step represents the python.exe network-server/netconn behavior.",
+        "action": "The final answer states network evidence was not clearly observed and does not claim the required network server behavior as a step.",
+        "object": "The required object 10.193.66.115:48503 is absent from the final code_steps/code_sequence.",
+        "critical_evidence": "No CBC event netconn field or equivalent concrete netconn evidence is cited for this step."
+      },
+      "step_score": 0,
+      "step_score_max": 4
+    }
+  ],
+  "order_pairs": [
+    {
+      "gold_pair": [
+        "C17-S01",
+        "C17-S02"
+      ],
+      "candidate_pair": null,
+      "score": 0,
+      "note": "Candidate sequence is python.exe -> flashplayerupdateservice.exe followed by RepWmiUtils.exe file access, so it does not recover the SimpleHTTPServer launch followed by netconn behavior."
+    }
+  ],
+  "candidate_claims": [
+    {
+      "claim_id": "S1",
+      "order": 1,
+      "subject": "python.exe",
+      "action": "process_start",
+      "object": "flashplayerupdateservice.exe",
+      "evidence_summary": "audit_logs timestamp 2022-07-17 17:50:00 field=pname value=python.exe pid=5816",
+      "matched_gold_step_id": "C17-S01",
+      "slot_precision": {
+        "subject": 1,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "is_full_gold_match": false,
+      "overclaim_slots": [
+        "action",
+        "object",
+        "critical_evidence"
+      ],
+      "note": "This is not the gold SimpleHTTPServer command-line launch; it introduces a different child process."
+    },
+    {
+      "claim_id": "S2",
+      "order": 2,
+      "subject": "RepWmiUtils.exe",
+      "action": "file_access",
+      "object": "Windows system DLL files",
+      "evidence_summary": "audit_logs timestamp 2022-07-17 17:50:00 field=pname value=RepWmiUtils.exe",
+      "matched_gold_step_id": null,
+      "slot_precision": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "is_full_gold_match": false,
+      "overclaim_slots": [
+        "subject",
+        "action",
+        "object",
+        "critical_evidence"
+      ],
+      "note": "This file-access step is unrelated to the gold Python SimpleHTTPServer network chain."
+    }
+  ],
+  "totals": {
+    "action_step_recall_hits": 0,
+    "action_step_recall_total": 2,
+    "action_step_recall": 0.0,
+    "action_step_precision_hits": 0,
+    "action_step_precision_total": 2,
+    "action_step_precision": 0.0,
+    "candidate_claim_precision_hits": 1,
+    "candidate_claim_precision_total": 8,
+    "candidate_claim_precision": 0.125,
+    "overclaim_slot_count": 7,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 1,
+    "behavior_step_recall_total": 8,
+    "behavior_step_recall": 0.125
+  },
+  "notes": [
+    "Gold requires two behavior steps: python.exe launched as 'python  -m SimpleHTTPServer' with CBC event process_cmdline evidence, then python.exe netconn/network-server behavior to 10.193.66.115:48503 with CBC event netconn evidence.",
+    "Candidate final code_steps instead claim python.exe started flashplayerupdateservice.exe and RepWmiUtils.exe accessed Windows DLL files.",
+    "The candidate does not recover the required SimpleHTTPServer command line, the required 10.193.66.115:48503 network object, or either critical CBC event evidence field.",
+    "Generic audit_logs/pname evidence was not credited as critical evidence under the requested strict rule."
+  ]
+}

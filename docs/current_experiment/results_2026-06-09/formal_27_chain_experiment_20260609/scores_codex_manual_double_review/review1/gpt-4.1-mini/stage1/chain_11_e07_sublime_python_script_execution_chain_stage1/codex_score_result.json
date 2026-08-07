@@ -1,0 +1,176 @@
+{
+  "case": "chain_11_e07_sublime_python_script_execution_chain_stage1",
+  "model": "gpt-4.1-mini",
+  "stage": "stage1",
+  "reviewer": "review1",
+  "method": "Manual strict local-file review against chain_gold.json and candidate run JSON. No API scorer used. Subject/action/object are scored item-wise; behavior_step_recall counts gold steps with subject, action, and object all recovered; evidence requires the candidate to cite the required CBC/event basis with enough specificity.",
+  "final_totals": {
+    "action_step_recall_hits": 4,
+    "action_step_recall_total": 6,
+    "candidate_claim_precision_hits": 1,
+    "candidate_claim_precision_total": 5,
+    "overclaim_slot_count": 4,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 5,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 6,
+    "behavior_step_recall_hits": 2,
+    "behavior_step_recall_total": 6
+  },
+  "gold_item_scores": [
+    {
+      "step_id": "C11-S01",
+      "order": 1,
+      "gold_subject": "plugin_host.exe",
+      "gold_action": "spawn cmd.exe as child process",
+      "gold_object": "C:\\Windows\\system32\\cmd.exe /c \"python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\"\"",
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate never recovers plugin_host.exe as the parent of cmd.exe and does not recover the full cmd.exe /c command or parent_path/process_cmdline evidence."
+    },
+    {
+      "step_id": "C11-S02",
+      "order": 2,
+      "gold_subject": "cmd.exe",
+      "gold_action": "launch Python command via /c",
+      "gold_object": "C:\\Windows\\system32\\cmd.exe /c \"python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\"\"",
+      "scores": {
+        "subject": 1,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate uses cmd.exe in the script-launch context, but omits /c and the exact full cmd.exe command line; evidence is generic audit_logs, not CBC alert/event process_cmdline."
+    },
+    {
+      "step_id": "C11-S03",
+      "order": 3,
+      "gold_subject": "cmd.exe",
+      "gold_action": "spawn python.exe as child process",
+      "gold_object": "C:\\Users\\aalsahee\\Documents\\hello.py",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate explicitly claims python.exe created by cmd.exe and includes the hello.py command line. It does not cite CBC event procstart childproc_name or an equivalent specific event basis."
+    },
+    {
+      "step_id": "C11-S04",
+      "order": 4,
+      "gold_subject": "cmd.exe",
+      "gold_action": "launch python.exe",
+      "gold_object": "C:\\Users\\aalsahee\\Documents\\hello.py",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate recovers the cmd.exe to python.exe hello.py launch, but gives an incorrect/unsupported surrounding parent of explorer.exe and lacks CBC parent_path plus process_cmdline evidence."
+    },
+    {
+      "step_id": "C11-S05",
+      "order": 5,
+      "gold_subject": "python.exe",
+      "gold_action": "execute Python script",
+      "gold_object": "C:\\Users\\aalsahee\\Documents\\hello.py",
+      "scores": {
+        "subject": 0,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "The python -u hello.py script execution is implied by the command line, and the script path is exact. Candidate frames the subject as cmd.exe launching python.exe rather than python.exe executing the script and does not provide CBC event process_cmdline evidence."
+    },
+    {
+      "step_id": "C11-S06",
+      "order": 6,
+      "gold_subject": "python.exe",
+      "gold_action": "install package with pip",
+      "gold_object": "xmltodict",
+      "scores": {
+        "subject": 0,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate includes 'python pip install xmltodict', so the pip-install action and xmltodict object are recovered. It does not make python.exe the acting subject and does not cite CBC event process_cmdline evidence."
+    }
+  ],
+  "order_pairs": [
+    {
+      "pair": "C11-S01->C11-S02",
+      "score": 0,
+      "reason": "plugin_host.exe to cmd.exe and the subsequent /c command step are not recovered."
+    },
+    {
+      "pair": "C11-S02->C11-S03",
+      "score": 0,
+      "reason": "Candidate does not recover the exact cmd.exe /c step before the cmd.exe to python.exe child step."
+    },
+    {
+      "pair": "C11-S03->C11-S04",
+      "score": 0,
+      "reason": "Candidate collapses the overlapping cmd/python transition into one claim and does not preserve the gold adjacent pair as separate ordered steps."
+    },
+    {
+      "pair": "C11-S04->C11-S05",
+      "score": 0,
+      "reason": "Candidate has cmd.exe launching python.exe but not a separate following python.exe executes hello.py step."
+    },
+    {
+      "pair": "C11-S05->C11-S06",
+      "score": 0,
+      "reason": "Candidate orders the pip/xmltodict claim before the hello.py claim, opposite of the gold script-then-pip sequence."
+    }
+  ],
+  "candidate_claim_scores": [
+    {
+      "claim_id": "CL01",
+      "candidate_claim": "RepWmiUtils.exe was created by RepMgr.exe on 2022-07-15.",
+      "precision": 0,
+      "overclaim": 1,
+      "reason": "Out of scope and unrelated to the gold chain."
+    },
+    {
+      "claim_id": "CL02",
+      "candidate_claim": "RepMgr.exe was created by services.exe on 2022-07-15.",
+      "precision": 0,
+      "overclaim": 1,
+      "reason": "Out of scope and unrelated to the gold chain."
+    },
+    {
+      "claim_id": "CL03",
+      "candidate_claim": "cmd.exe/PID 2700 created python.exe with command 'python pip install xmltodict'.",
+      "precision": 0,
+      "overclaim": 1,
+      "reason": "Recovers xmltodict and pip text, but the subject/process relationship and exact evidence basis do not match the gold python.exe pip step."
+    },
+    {
+      "claim_id": "CL04",
+      "candidate_claim": "cmd.exe launched python.exe with python -u C:\\Users\\aalsahee\\Documents\\hello.py.",
+      "precision": 1,
+      "overclaim": 0,
+      "reason": "This core cmd.exe to python.exe script-launch claim is consistent with the gold chain, though it is incomplete."
+    },
+    {
+      "claim_id": "CL05",
+      "candidate_claim": "The cmd.exe running hello.py was launched from explorer.exe/PID 1612.",
+      "precision": 0,
+      "overclaim": 1,
+      "reason": "Gold requires plugin_host.exe -> cmd.exe and cmd.exe -> python.exe; explorer.exe parent is not recovered from the gold chain and contradicts the required parent-child chain."
+    }
+  ],
+  "notes_ja": [
+    "Candidate partially finds the python -u hello.py and xmltodict strings, but misses the Sublime plugin_host.exe parent and the exact cmd.exe /c command.",
+    "All critical evidence slots are 0 because the candidate relies on generic audit_logs entries and does not cite the required CBC event/alert fields such as parent_path, process_cmdline, or childproc_name with enough specificity.",
+    "The first two candidate steps are unrelated Confer/RepMgr activity and are counted as overclaims.",
+    "Order recall is 0 because the candidate mixes unrelated prior-day steps, reverses pip versus hello.py, and collapses distinct gold transitions."
+  ]
+}

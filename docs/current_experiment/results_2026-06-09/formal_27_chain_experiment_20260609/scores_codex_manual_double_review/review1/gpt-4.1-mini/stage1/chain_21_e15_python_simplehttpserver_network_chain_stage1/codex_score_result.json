@@ -1,0 +1,290 @@
+{
+  "reviewer": "codex_manual_review1",
+  "scoring_mode": "manual_strict_0_1_no_api",
+  "stage": "stage1",
+  "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage1/chain_21_e15_python_simplehttpserver_network_chain_stage1_run.json",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_21_e15_python_simplehttpserver_network_chain/chain_gold.json",
+  "judge_summary": "The candidate correctly reconstructs the python.exe SimpleHTTPServer command as a code step, including the exact command line `python  -m SimpleHTTPServer`. It does not provide the required CBC event process_cmdline basis for that command. For the network behavior, the candidate only retains the CBC alert-level statement that python.exe acted as a network server and explicitly says network connection logs were not observed; it misses the required CBC event netconn object `10.193.66.115:49187`. The second candidate code step about system DLL read/execute activity is an extra out-of-chain claim and is counted against precision. Temporal order is not credited because the required netconn step was not recovered as a behavior step.",
+  "gold_required_item_scores": [
+    {
+      "item_id": "chain_21_e15_python_simplehttpserver_network_chain:C21-S01:subject",
+      "step_id": "C21-S01",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": "S1 subject_process.name=python.exe",
+      "score": 1,
+      "reason": "The candidate identifies python.exe as the subject process for the SimpleHTTPServer command step."
+    },
+    {
+      "item_id": "chain_21_e15_python_simplehttpserver_network_chain:C21-S01:action",
+      "step_id": "C21-S01",
+      "kind": "action",
+      "gold_value": "started with the SimpleHTTPServer module",
+      "matched_candidate_excerpt": "S1 operation=execute_module; object.value=SimpleHTTPServer",
+      "score": 1,
+      "reason": "The candidate states that python.exe executed the SimpleHTTPServer module."
+    },
+    {
+      "item_id": "chain_21_e15_python_simplehttpserver_network_chain:C21-S01:object",
+      "step_id": "C21-S01",
+      "kind": "object",
+      "gold_value": "python  -m SimpleHTTPServer",
+      "matched_candidate_excerpt": "S1 command_line=python  -m SimpleHTTPServer",
+      "score": 1,
+      "reason": "The exact command line required by the gold step appears in the candidate output."
+    },
+    {
+      "item_id": "chain_21_e15_python_simplehttpserver_network_chain:C21-S01:critical_evidence",
+      "step_id": "C21-S01",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event process_cmdline",
+      "matched_candidate_excerpt": "S1 evidence source_stream=sysmon field=command_line value=python  -m SimpleHTTPServer",
+      "score": 0,
+      "reason": "The candidate cites a Sysmon command_line-style basis, not the required CBC event process_cmdline evidence basis."
+    },
+    {
+      "item_id": "chain_21_e15_python_simplehttpserver_network_chain:C21-S02:subject",
+      "step_id": "C21-S02",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": "supporting_alert_evidence alert_name=The application python.exe acted as a network server",
+      "score": 1,
+      "reason": "The candidate's alert-level network-server mention preserves python.exe as the subject."
+    },
+    {
+      "item_id": "chain_21_e15_python_simplehttpserver_network_chain:C21-S02:action",
+      "step_id": "C21-S02",
+      "kind": "action",
+      "gold_value": "detected as network server behavior",
+      "matched_candidate_excerpt": "timeline: python.exe acted as a network server alert",
+      "score": 1,
+      "reason": "The candidate states the network-server behavior at alert level. This is only alert-level recovery, but it matches the action wording."
+    },
+    {
+      "item_id": "chain_21_e15_python_simplehttpserver_network_chain:C21-S02:object",
+      "step_id": "C21-S02",
+      "kind": "object",
+      "gold_value": "10.193.66.115:49187",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason": "The candidate does not recover the required remote/local netconn object `10.193.66.115:49187`."
+    },
+    {
+      "item_id": "chain_21_e15_python_simplehttpserver_network_chain:C21-S02:critical_evidence",
+      "step_id": "C21-S02",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event netconn",
+      "matched_candidate_excerpt": "global_limitations: network connection logs were not observed",
+      "score": 0,
+      "reason": "The candidate explicitly lacks the required CBC event netconn evidence and relies only on the CBC alert-level network-server text."
+    }
+  ],
+  "candidate_action_claim_scores": [
+    {
+      "candidate_claim_id": "CL1",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "python.exe executes the SimpleHTTPServer module with command_line `python  -m SimpleHTTPServer`",
+      "normalized_action_claim": "python.exe started SimpleHTTPServer using python  -m SimpleHTTPServer",
+      "slot_scores": [
+        {
+          "slot_id": "CL1:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "python.exe",
+          "matched_gold_item_id": "chain_21_e15_python_simplehttpserver_network_chain:C21-S01:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the gold subject for C21-S01."
+        },
+        {
+          "slot_id": "CL1:action",
+          "kind": "action",
+          "candidate_slot_excerpt": "execute_module / SimpleHTTPServer",
+          "matched_gold_item_id": "chain_21_e15_python_simplehttpserver_network_chain:C21-S01:action",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the gold SimpleHTTPServer startup action."
+        },
+        {
+          "slot_id": "CL1:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "python  -m SimpleHTTPServer",
+          "matched_gold_item_id": "chain_21_e15_python_simplehttpserver_network_chain:C21-S01:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Exact command line is present."
+        },
+        {
+          "slot_id": "CL1:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "sysmon command_line",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_evidence_basis",
+          "reason": "Gold requires CBC event process_cmdline; the candidate cites Sysmon command_line."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL2",
+      "candidate_step_id": "S2",
+      "claim_excerpt": "python.exe read/executed multiple system DLL files",
+      "normalized_action_claim": "python.exe file_read_execute system DLL files",
+      "slot_scores": [
+        {
+          "slot_id": "CL2:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "python.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "extra_out_of_chain_action",
+          "reason": "The claim is a file-read/execute action, not one of the two gold behavior steps; matching the process name alone is not credited."
+        },
+        {
+          "slot_id": "CL2:action",
+          "kind": "action",
+          "candidate_slot_excerpt": "file_read_execute",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "extra_out_of_chain_action",
+          "reason": "Gold requires SimpleHTTPServer startup and network-server netconn behavior, not DLL file access."
+        },
+        {
+          "slot_id": "CL2:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "multiple system DLL files",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "extra_out_of_chain_object",
+          "reason": "System DLL files are not gold objects for this chain."
+        },
+        {
+          "slot_id": "CL2:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "sysmon file_access read/execute system DLL files",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_evidence",
+          "reason": "The evidence supports an extra file-access claim, not the required process_cmdline or netconn evidence."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL3",
+      "candidate_step_id": "supporting_alert_evidence",
+      "claim_excerpt": "CBC NGAV alert says the application python.exe acted as a network server",
+      "normalized_action_claim": "python.exe acted as a network server based only on alert text",
+      "slot_scores": [
+        {
+          "slot_id": "CL3:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "python.exe",
+          "matched_gold_item_id": "chain_21_e15_python_simplehttpserver_network_chain:C21-S02:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the gold subject for C21-S02."
+        },
+        {
+          "slot_id": "CL3:action",
+          "kind": "action",
+          "candidate_slot_excerpt": "acted as a network server",
+          "matched_gold_item_id": "chain_21_e15_python_simplehttpserver_network_chain:C21-S02:action",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the gold action at alert level."
+        },
+        {
+          "slot_id": "CL3:object",
+          "kind": "object",
+          "candidate_slot_excerpt": null,
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "missing_required_object",
+          "reason": "The candidate does not provide `10.193.66.115:49187`."
+        },
+        {
+          "slot_id": "CL3:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "cbc-ngav-alerts alert_name",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "alert_only_evidence",
+          "reason": "Alert text alone is not the required CBC event netconn basis."
+        }
+      ]
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_step_id": "C21-S01",
+      "after_step_id": "C21-S02",
+      "score": 0,
+      "reason": "The candidate's structured code_steps order S1 SimpleHTTPServer before an extra DLL file-access step, not before a recovered CBC netconn step. The later alert-level network-server note is not enough to establish the gold behavior-chain order."
+    }
+  ],
+  "totals": {
+    "behavior_step_recall": 0.5,
+    "behavior_step_recall_hits": 1,
+    "behavior_step_recall_total": 2,
+    "action_step_recall": 0.625,
+    "action_step_recall_hits": 5,
+    "action_step_recall_total": 8,
+    "action_step_precision": 0.4166666666666667,
+    "action_step_precision_hits": 5,
+    "action_step_precision_total": 12,
+    "gold_required_item_count": 8,
+    "candidate_claim_precision": 0.4166666666666667,
+    "candidate_claim_precision_hits": 5,
+    "candidate_claim_precision_total": 12,
+    "overclaim_slot_count": 7,
+    "candidate_action_claim_true_positive_slot_count": 5,
+    "candidate_action_claim_slot_count": 12,
+    "candidate_action_claim_raw_slot_count": 12,
+    "candidate_action_claim_duplicate_true_positive_slot_count": 0,
+    "behavior_sequence_order": 0.0,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "critical_evidence_recall": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "coarse_action_step_coverage": 1.0,
+    "coarse_action_step_coverage_hits": 2,
+    "coarse_action_step_coverage_total": 2,
+    "hallucinated_claim_count": 0,
+    "unsupported_evidence_count": 2,
+    "contradicted_evidence_count": 0,
+    "nearby_action_fp_count": 1,
+    "alert_only_evidence_count": 1,
+    "behavior_element_diagnostics": {
+      "subject": {
+        "recall_hits": 2,
+        "recall_total": 2,
+        "precision_hits": 2,
+        "precision_total": 3
+      },
+      "action": {
+        "recall_hits": 2,
+        "recall_total": 2,
+        "precision_hits": 2,
+        "precision_total": 3
+      },
+      "object": {
+        "recall_hits": 1,
+        "recall_total": 2,
+        "precision_hits": 1,
+        "precision_total": 3
+      },
+      "critical_evidence": {
+        "recall_hits": 0,
+        "recall_total": 2,
+        "precision_hits": 0,
+        "precision_total": 3
+      }
+    }
+  },
+  "notes": [
+    "No OpenAI/API scorer was called; this is a local manual review.",
+    "The candidate's exact `python  -m SimpleHTTPServer` command is credited as object recovery for C21-S01, but its evidence basis is not credited because the gold item requires CBC event process_cmdline.",
+    "The network-server behavior is only present from CBC alert text. Because the candidate lacks the CBC event netconn object `10.193.66.115:49187`, C21-S02 object and critical_evidence are zero.",
+    "The system DLL file-read/execute step is an extra action claim outside the gold chain and lowers candidate precision."
+  ]
+}

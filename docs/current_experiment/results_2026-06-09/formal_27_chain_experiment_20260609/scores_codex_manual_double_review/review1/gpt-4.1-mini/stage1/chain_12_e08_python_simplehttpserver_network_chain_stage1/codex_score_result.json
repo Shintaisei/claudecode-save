@@ -1,0 +1,255 @@
+{
+  "case": "chain_12_e08_python_simplehttpserver_network_chain_stage1",
+  "model": "gpt-4.1-mini",
+  "stage": "stage1",
+  "reviewer": "codex_manual_review1",
+  "method": "manual_strict_0_1_no_api_local_files_only",
+  "final_totals": {
+    "action_step_recall_hits": 6,
+    "action_step_recall_total": 8,
+    "action_step_recall": 0.75,
+    "candidate_claim_precision_hits": 7,
+    "candidate_claim_precision_total": 13,
+    "candidate_claim_precision": 0.5384615384615384,
+    "overclaim_slot_count": 6,
+    "behavior_sequence_order_hits": 1,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 1.0,
+    "critical_evidence_recall_hits": 1,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.5,
+    "behavior_step_recall_hits": 2,
+    "behavior_step_recall_total": 2,
+    "behavior_step_recall": 1.0
+  },
+  "gold_item_scores": [
+    {
+      "item_id": "chain_12_e08_python_simplehttpserver_network_chain:C12-S01:subject",
+      "step_id": "C12-S01",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": "S1 object.name=python.exe; command_line=python -m SimpleHTTPServer",
+      "score": 0,
+      "reason": "Candidate frames cmd.exe as the action subject and python.exe as child/object, not as the subject process for this step."
+    },
+    {
+      "item_id": "chain_12_e08_python_simplehttpserver_network_chain:C12-S01:action",
+      "step_id": "C12-S01",
+      "kind": "action",
+      "gold_value": "started with SimpleHTTPServer module",
+      "matched_candidate_excerpt": "S1 operation=process_start; command_line=python -m SimpleHTTPServer",
+      "score": 1,
+      "reason": "The SimpleHTTPServer module start is explicitly recovered via the command line."
+    },
+    {
+      "item_id": "chain_12_e08_python_simplehttpserver_network_chain:C12-S01:object",
+      "step_id": "C12-S01",
+      "kind": "object",
+      "gold_value": "python  -m SimpleHTTPServer",
+      "matched_candidate_excerpt": "S1 command_line=python -m SimpleHTTPServer",
+      "score": 1,
+      "reason": "The required SimpleHTTPServer command is recovered, with only whitespace normalized."
+    },
+    {
+      "item_id": "chain_12_e08_python_simplehttpserver_network_chain:C12-S01:critical_evidence",
+      "step_id": "C12-S01",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event process_cmdline",
+      "matched_candidate_excerpt": "S1 evidence source_stream=sysmon field=command_line value=python -m SimpleHTTPServer",
+      "score": 0,
+      "reason": "Evidence is cited as sysmon command_line, not CBC event process_cmdline."
+    },
+    {
+      "item_id": "chain_12_e08_python_simplehttpserver_network_chain:C12-S02:subject",
+      "step_id": "C12-S02",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": "S3 subject_process.name=python.exe",
+      "score": 1,
+      "reason": "Candidate explicitly uses python.exe as the network-step subject."
+    },
+    {
+      "item_id": "chain_12_e08_python_simplehttpserver_network_chain:C12-S02:action",
+      "step_id": "C12-S02",
+      "kind": "action",
+      "gold_value": "detected as network server behavior",
+      "matched_candidate_excerpt": "S3 operation=network_listen; code_sequence says network connection waiting/listening",
+      "score": 1,
+      "reason": "The network server/listen behavior is explicitly recovered."
+    },
+    {
+      "item_id": "chain_12_e08_python_simplehttpserver_network_chain:C12-S02:object",
+      "step_id": "C12-S02",
+      "kind": "object",
+      "gold_value": "10.193.66.115:39277",
+      "matched_candidate_excerpt": "S3 object.value=10.193.66.115:39277",
+      "score": 1,
+      "reason": "The exact netconn object is recovered."
+    },
+    {
+      "item_id": "chain_12_e08_python_simplehttpserver_network_chain:C12-S02:critical_evidence",
+      "step_id": "C12-S02",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event netconn",
+      "matched_candidate_excerpt": "S3 evidence source_stream=cbc-edr field=netconn_domain value=10.193.66.115:39277",
+      "score": 1,
+      "reason": "Candidate cites CBC telemetry with a netconn field and the exact network object."
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_step_id": "C12-S01",
+      "after_step_id": "C12-S02",
+      "matched_candidate_before": "S1 command_line=python -m SimpleHTTPServer",
+      "matched_candidate_after": "S3 network_listen object=10.193.66.115:39277",
+      "score": 1,
+      "reason": "The SimpleHTTPServer command appears before the python.exe network connection step. The extra file-read claim is penalized as a candidate overclaim, but does not reverse the gold order."
+    }
+  ],
+  "candidate_claim_scores": [
+    {
+      "candidate_claim_id": "CL1",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "cmd.exe process_start of python.exe with command_line python -m SimpleHTTPServer",
+      "slot_scores": [
+        {
+          "slot_id": "CL1:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "cmd.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_subject",
+          "reason": "Gold step subject is python.exe; candidate makes cmd.exe the subject."
+        },
+        {
+          "slot_id": "CL1:operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "process_start using SimpleHTTPServer",
+          "matched_gold_item_id": "chain_12_e08_python_simplehttpserver_network_chain:C12-S01:action",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "The SimpleHTTPServer start behavior is present."
+        },
+        {
+          "slot_id": "CL1:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "object.name=python.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "partial_missing_command_object",
+          "reason": "The object slot alone is only python.exe, not the required command object."
+        },
+        {
+          "slot_id": "CL1:command_line",
+          "kind": "command_line",
+          "candidate_slot_excerpt": "python -m SimpleHTTPServer",
+          "matched_gold_item_id": "chain_12_e08_python_simplehttpserver_network_chain:C12-S01:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "This recovers the required SimpleHTTPServer command."
+        },
+        {
+          "slot_id": "CL1:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "sysmon field=command_line event_record_id=4621",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_evidence_basis",
+          "reason": "Gold requires CBC event process_cmdline, not sysmon command_line."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL2",
+      "candidate_step_id": "S2",
+      "claim_excerpt": "python.exe file_read of C:\\Users\\aalsahee\\index.html",
+      "slot_scores": [
+        {
+          "slot_id": "CL2:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "python.exe",
+          "matched_gold_item_id": "chain_12_e08_python_simplehttpserver_network_chain:C12-S02:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "The process name is a gold subject, though this candidate action is extra."
+        },
+        {
+          "slot_id": "CL2:operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "file_read",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "extra_nearby_action",
+          "reason": "File read is not part of this two-step gold chain."
+        },
+        {
+          "slot_id": "CL2:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "C:\\Users\\aalsahee\\index.html",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "extra_nearby_object",
+          "reason": "index.html is not a gold object for this chain."
+        },
+        {
+          "slot_id": "CL2:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "sysmon field=access value=read",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "extra_nearby_evidence",
+          "reason": "This supports the extra file-read claim, not a gold step."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL3",
+      "candidate_step_id": "S3",
+      "claim_excerpt": "python.exe network_listen object 10.193.66.115:39277 with cbc-edr netconn evidence",
+      "slot_scores": [
+        {
+          "slot_id": "CL3:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "python.exe",
+          "matched_gold_item_id": "chain_12_e08_python_simplehttpserver_network_chain:C12-S02:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the network-step subject."
+        },
+        {
+          "slot_id": "CL3:operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "network_listen",
+          "matched_gold_item_id": "chain_12_e08_python_simplehttpserver_network_chain:C12-S02:action",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the network server/listen behavior."
+        },
+        {
+          "slot_id": "CL3:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "10.193.66.115:39277",
+          "matched_gold_item_id": "chain_12_e08_python_simplehttpserver_network_chain:C12-S02:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Exact network object match."
+        },
+        {
+          "slot_id": "CL3:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "cbc-edr field=netconn_domain value=10.193.66.115:39277",
+          "matched_gold_item_id": "chain_12_e08_python_simplehttpserver_network_chain:C12-S02:critical_evidence",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "CBC netconn evidence is explicit enough for this slot."
+        }
+      ]
+    }
+  ],
+  "notes_ja": [
+    "No OpenAI/API scorer was used; scoring is based only on the local gold and candidate run files.",
+    "Strict process scoring keeps C12-S01 subject at 0 because the candidate makes cmd.exe the subject, even though it recovers the SimpleHTTPServer command.",
+    "The extra index.html file-read step is treated as a candidate overclaim/extra nearby action, not as gold recall.",
+    "CBC alert text is treated as supporting context only; the S2 evidence point is awarded for the candidate's CBC netconn-style event evidence."
+  ]
+}

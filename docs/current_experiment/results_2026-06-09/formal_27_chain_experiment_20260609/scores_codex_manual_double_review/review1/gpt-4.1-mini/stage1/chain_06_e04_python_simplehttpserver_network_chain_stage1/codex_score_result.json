@@ -1,0 +1,248 @@
+{
+  "reviewer": "codex_review1",
+  "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage1/chain_06_e04_python_simplehttpserver_network_chain_stage1_run.json",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_06_e04_python_simplehttpserver_network_chain/chain_gold.json",
+  "stage": "stage1",
+  "chain_id": "chain_06_e04_python_simplehttpserver_network_chain",
+  "judge_summary_ja": "候補は python.exe が SimpleHTTPServer を使って実行したという1つ目の行動は部分的に復元している。一方で、gold の critical evidence である CBC event process_cmdline は明示できておらず、2つ目の netconn 行動である 10.193.66.115:58199 も復元できていない。さらに候補はネットワーク接続が確認できないという否定的記述を含むため、gold の netconn と矛盾する候補側FPとして扱った。",
+  "gold_required_item_scores": [
+    {
+      "item_id": "chain_06_e04_python_simplehttpserver_network_chain:C06-S01:subject",
+      "step_id": "C06-S01",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": "subject_process.name = python.exe",
+      "score": 1,
+      "reason_ja": "候補の code_step S1 は subject_process.name として python.exe を示しており、gold の主体と一致する。"
+    },
+    {
+      "item_id": "chain_06_e04_python_simplehttpserver_network_chain:C06-S01:operation",
+      "step_id": "C06-S01",
+      "kind": "operation",
+      "gold_value": "SimpleHTTPServer module execution",
+      "matched_candidate_excerpt": "SimpleHTTPServer module used / executed by python.exe",
+      "score": 1,
+      "reason_ja": "候補は python.exe が SimpleHTTPServer モジュールを使って実行したという主張をしており、S01 の実質的な操作を復元している。"
+    },
+    {
+      "item_id": "chain_06_e04_python_simplehttpserver_network_chain:C06-S01:object",
+      "step_id": "C06-S01",
+      "kind": "object",
+      "gold_value": "python  -m SimpleHTTPServer",
+      "matched_candidate_excerpt": "object.data mentions SimpleHTTPServer module / Python script execution",
+      "score": 1,
+      "reason_ja": "完全な command line 文字列ではないが、対象が SimpleHTTPServer モジュール実行であることは復元しているため、行動対象としては同一実体と判定する。"
+    },
+    {
+      "item_id": "chain_06_e04_python_simplehttpserver_network_chain:C06-S01:critical_evidence",
+      "step_id": "C06-S01",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event process_cmdline",
+      "matched_candidate_excerpt": "evidence field=process_name value=python.exe",
+      "score": 0,
+      "reason_ja": "候補の根拠は audit_logs/process_name 程度で、gold が要求する CBC event process_cmdline を明示していない。"
+    },
+    {
+      "item_id": "chain_06_e04_python_simplehttpserver_network_chain:C06-S02:subject",
+      "step_id": "C06-S02",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "S02 は netconn 行動の主体としての python.exe だが、候補は netconn 行動を復元せず、alert 名を supporting evidence として扱うだけなので行動復元としては不十分。"
+    },
+    {
+      "item_id": "chain_06_e04_python_simplehttpserver_network_chain:C06-S02:operation",
+      "step_id": "C06-S02",
+      "kind": "operation",
+      "gold_value": "network server / netconn behavior detected",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "候補はネットワーク接続やリスニングポートを確認できないとしており、gold の netconn 行動を復元していない。"
+    },
+    {
+      "item_id": "chain_06_e04_python_simplehttpserver_network_chain:C06-S02:object",
+      "step_id": "C06-S02",
+      "kind": "object",
+      "gold_value": "10.193.66.115:58199",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "候補には remote IP/port である 10.193.66.115:58199 が出てこない。"
+    },
+    {
+      "item_id": "chain_06_e04_python_simplehttpserver_network_chain:C06-S02:critical_evidence",
+      "step_id": "C06-S02",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event netconn",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "候補は CBC event netconn の具体的な接続根拠を提示していない。alert 名だけでは netconn 行動の critical evidence として採点しない。"
+    }
+  ],
+  "candidate_action_claim_scores": [
+    {
+      "candidate_claim_id": "C06-CAND-01",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "python.exe used/executed the SimpleHTTPServer module; command_line is null; evidence only lists process_name python.exe.",
+      "normalized_action_claim_ja": "python.exe が SimpleHTTPServer モジュールを使って実行した、という行動主張。",
+      "slot_scores": [
+        {
+          "slot_id": "C06-CAND-01-subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "python.exe",
+          "matched_gold_item_id": "chain_06_e04_python_simplehttpserver_network_chain:C06-S01:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "S01 の主体と一致する。"
+        },
+        {
+          "slot_id": "C06-CAND-01-operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "SimpleHTTPServer module used/executed",
+          "matched_gold_item_id": "chain_06_e04_python_simplehttpserver_network_chain:C06-S01:operation",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "SimpleHTTPServer 実行という S01 の操作を復元している。"
+        },
+        {
+          "slot_id": "C06-CAND-01-object",
+          "kind": "object",
+          "candidate_slot_excerpt": "SimpleHTTPServer module / Python script execution",
+          "matched_gold_item_id": "chain_06_e04_python_simplehttpserver_network_chain:C06-S01:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "完全な command line ではないが、対象が SimpleHTTPServer であることは一致している。"
+        },
+        {
+          "slot_id": "C06-CAND-01-critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs field=process_name value=python.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unsupported_evidence",
+          "reason_ja": "process_name だけでは gold の CBC event process_cmdline を満たさない。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "C06-CAND-02",
+      "candidate_step_id": null,
+      "claim_excerpt": "Network connections/listening ports were not recorded or could not be confirmed for python.exe.",
+      "normalized_action_claim_ja": "python.exe のネットワーク接続やリスニングポートは確認できない、という否定的主張。",
+      "slot_scores": [
+        {
+          "slot_id": "C06-CAND-02-operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "network connections/listening ports were not recorded",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "contradicted_evidence",
+          "reason_ja": "gold には python.exe の netconn 行動が存在するため、未確認・不存在扱いは矛盾する。"
+        },
+        {
+          "slot_id": "C06-CAND-02-object",
+          "kind": "object",
+          "candidate_slot_excerpt": "no remote IP or port identified",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "contradicted_evidence",
+          "reason_ja": "gold の接続先 10.193.66.115:58199 を復元せず、むしろ対象が無い形で記述している。"
+        },
+        {
+          "slot_id": "C06-CAND-02-critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "logs insufficient / no direct network evidence found",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unsupported_negative",
+          "reason_ja": "gold は CBC event netconn を critical evidence として持つため、根拠なし・不足という否定を正解スロットにはできない。"
+        }
+      ]
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_step_id": "C06-S01",
+      "after_step_id": "C06-S02",
+      "score": 0,
+      "reason_ja": "S01 は部分的に復元されているが、S02 の netconn 行動が復元されていないため、相対順序も満たさない。"
+    }
+  ],
+  "totals": {
+    "behavior_step_recall": 0.5,
+    "behavior_step_recall_hits": 1,
+    "behavior_step_recall_total": 2,
+    "action_step_recall": 0.375,
+    "action_step_recall_hits": 3,
+    "action_step_recall_total": 8,
+    "action_step_precision": 0.375,
+    "action_step_precision_hits": 3,
+    "action_step_precision_total": 8,
+    "gold_required_item_count": 8,
+    "candidate_claim_precision": 0.42857142857142855,
+    "candidate_claim_precision_hits": 3,
+    "candidate_claim_precision_total": 7,
+    "overclaim_slot_count": 4,
+    "candidate_action_claim_true_positive_slot_count": 3,
+    "candidate_action_claim_slot_count": 7,
+    "candidate_action_claim_raw_slot_count": 7,
+    "candidate_action_claim_duplicate_true_positive_slot_count": 0,
+    "behavior_sequence_order": 0.0,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "critical_evidence_recall": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "coarse_action_step_coverage": 0.5,
+    "coarse_action_step_coverage_hits": 1,
+    "coarse_action_step_coverage_total": 2,
+    "hallucinated_claim_count": 0,
+    "unsupported_evidence_count": 2,
+    "contradicted_evidence_count": 2,
+    "nearby_action_fp_count": 0
+  },
+  "main_missing_items": [
+    "C06-S01 critical_evidence: CBC event process_cmdline",
+    "C06-S02 subject: python.exe as netconn actor",
+    "C06-S02 operation: network server/netconn behavior",
+    "C06-S02 object: 10.193.66.115:58199",
+    "C06-S02 critical_evidence: CBC event netconn"
+  ],
+  "main_false_positive_claims": [
+    "audit_logs/process_name を S01 critical evidence 相当としているが process_cmdline ではない",
+    "python.exe のネットワーク接続やリスニングポートが確認できないという否定的主張"
+  ],
+  "error_flags": {
+    "target_missing": [
+      "chain_06_e04_python_simplehttpserver_network_chain:C06-S01:critical_evidence",
+      "chain_06_e04_python_simplehttpserver_network_chain:C06-S02:subject",
+      "chain_06_e04_python_simplehttpserver_network_chain:C06-S02:operation",
+      "chain_06_e04_python_simplehttpserver_network_chain:C06-S02:object",
+      "chain_06_e04_python_simplehttpserver_network_chain:C06-S02:critical_evidence"
+    ],
+    "chain_mixing": false,
+    "hallucinated_claims": [],
+    "unsupported_evidence": [
+      "audit_logs/process_name is not CBC event process_cmdline",
+      "logs insufficient / no direct network evidence found"
+    ],
+    "contradicted_evidence": [
+      "network connections/listening ports were not recorded",
+      "no remote IP or port identified"
+    ],
+    "nearby_action_false_positives": [],
+    "weak_grounding": true,
+    "false_positive_claims": [
+      "network connections/listening ports were not recorded or could not be confirmed"
+    ],
+    "notes_ja": [
+      "候補の検索範囲が 2022-07-16 10:00:00 - 16:00:00 と広く、gold の 13:05-13:10 に対する絞り込みが弱い。",
+      "alert 名 The application python.exe acted as a network server. は supporting evidence としてのみ扱い、S02 の行動復元には数えない。"
+    ]
+  },
+  "notes_ja": [
+    "command_line が null のため、C06-S01 の critical evidence は 0 とした。",
+    "S02 の 10.193.66.115:58199 は候補に現れない。",
+    "ネットワーク接続が確認できないという記述は、gold の CBC event netconn と矛盾するため candidate-side FP に含めた。"
+  ]
+}

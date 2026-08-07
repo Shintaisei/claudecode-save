@@ -1,0 +1,46 @@
+{
+  "schema_version": "normal_attack_full_ledger_pilot05_instrumentation_v3",
+  "created_at_utc": "2026-07-30T06:00:35.8333115Z",
+  "supersedes_for_future_runs": "instrumentation_contract_v2.json",
+  "preserves_completed_runs": true,
+  "requirements": {
+    "usage_scope": "full_pipeline_callback_v1",
+    "role_call_counts": [
+      "chief",
+      "investigator",
+      "sql_qa"
+    ],
+    "per_role_call_timing": true,
+    "per_role_token_usage": true,
+    "per_role_cost": true,
+    "investigation_activity": true,
+    "lead_expansion_guard_records": true,
+    "sql_execution_guard": {
+      "query_only": true,
+      "timeout_seconds": 1200,
+      "vm_step_limit": 50000000,
+      "result_row_limit": 30,
+      "unsafe_recursive_union_all": "rejected",
+      "process_tree_tools_share_guard": true
+    },
+    "lead_expansion_guard": {
+      "max_investigator_questions_per_lead": 20,
+      "max_wall_seconds_per_lead": 1200
+    },
+    "experiment_call_limits": {
+      "max_investigations": null,
+      "max_questions": null,
+      "max_queries": null,
+      "agent_call_limit_policy": "unbounded_by_experiment"
+    }
+  },
+  "deterministic_audit": [
+    "full_pipeline_call_count equals role_call_count",
+    "all role calls have timing records",
+    "sum of role call counts equals full pipeline call count",
+    "sum of per-role tokens equals full pipeline tokens",
+    "cost call count equals full pipeline call count",
+    "SQL execution guard config equals the declared contract",
+    "Stage 3 alert summary is hidden"
+  ]
+}

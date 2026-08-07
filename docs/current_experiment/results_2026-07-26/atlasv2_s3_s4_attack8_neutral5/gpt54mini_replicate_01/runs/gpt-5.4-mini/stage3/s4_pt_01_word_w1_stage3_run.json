@@ -1,0 +1,212 @@
+{
+  "run_id": "20260726T060806Z_s4_pt_01_word_w1_stage3_gpt-5.4-mini_official",
+  "pipeline": "external/Clouseau/artifact official chief_inspector.investigate_atlas",
+  "llm_provider": "openai",
+  "model": "gpt-5.4-mini",
+  "instance_id": "s4_pt_01_word_w1_stage3",
+  "gold_reference": {
+    "instance_id": "s4_pt_01_word_w1_stage3",
+    "case_id": "s4_pt_01_word_w1_stage3",
+    "input_id": "atlasv2_attack8_neutral5_05_stage3",
+    "stage": "stage3",
+    "scenario": "atlasv2-attack-h1-s4",
+    "database": "Clouseau\\artifact\\scenarios\\atlasv2\\attack\\h1\\s4\\incident.db",
+    "host": "WIN-32-H1",
+    "process_name": "winword.exe",
+    "actor": "winword.exe",
+    "expected_behavior": "S4 process-time W1: Word parent/child and :8080",
+    "expected_behavior_category": "cbc_alert_attack_behavior_reconstruction",
+    "context_label": "attack_behavior_chain_neutral5",
+    "suite_group": "atlasv2_s3_s4_attack8_neutral5",
+    "difficulty": "process_time",
+    "time_window_utc": {
+      "episode_start": "2022-07-20T00:48:56.934097Z",
+      "episode_end": "2022-07-20T00:53:56.934097Z",
+      "analysis_scope": "Primary five-minute evaluation scope. Enumerate the complete window and reconstruct only the neutral-anchor-connected focus-process component; separate unconnected nearby behavior."
+    },
+    "anchor_event": {
+      "source_stream": "scope",
+      "source_table": null,
+      "source_row_id": null,
+      "timestamp_utc": "2022-07-20T00:48:56.9340974Z",
+      "database_time": "2022-07-20 00:48:56",
+      "alert_id": null,
+      "alert_name": null,
+      "process_name": "winword.exe",
+      "process_path": null,
+      "process_cmdline": null,
+      "parent_path": null,
+      "parent_cmdline": null,
+      "severity": null,
+      "reason": null,
+      "event_record_id": null,
+      "action": "neutral_scope_anchor"
+    },
+    "input_alert_rows": [],
+    "model_ready_input": {
+      "input_id": "atlasv2_attack8_neutral5_05",
+      "stage": "stage3",
+      "input": {
+        "host": "WIN-32-H1",
+        "focus_processes": [
+          "winword.exe"
+        ],
+        "neutral_anchor_utc": "2022-07-20T00:48:56.9340974Z",
+        "chain_window_start_utc": "2022-07-20T00:48:56.934097Z",
+        "chain_window_end_utc": "2022-07-20T00:53:56.934097Z",
+        "target_component_rule": "Reconstruct the evidence-connected component that contains the focus process observation at, or nearest to, the neutral anchor. Use only observed parent/child, command, process-identity, and target-object edges. Keep other nearby components separate.",
+        "alert_mapping_scored": false
+      },
+      "db_filter": "hide cbc_alerts / cbc-edr-alerts / cbc-ngav-alerts summary rows; retain cbc_events telemetry"
+    },
+    "gold_chain_file": "by_chain/s4_pt_01_word_w1/chain_gold.json",
+    "chain_id": "s4_pt_01_word_w1",
+    "chain_type": "cbc_alert_attack_behavior_reconstruction",
+    "formal_gold_root": "data\\current_experiment\\gold\\atlasv2_s3_s4_attack8_neutral5_gold_20260726",
+    "stage3_answerable_policy": "All Gold steps use canonical cbc_events telemetry and remain answerable without CBC alert-summary rows.",
+    "quality": "neutral_anchor_normal_parity_20260726",
+    "stage_input_policy": "Stage 3: common neutral host/process/time/window; CBC alert summaries are hidden and their mapping is not scored.",
+    "paired_stage_contract": {
+      "contract_version": "neutral_anchor_local_window_v1",
+      "evaluation_unit": "evidence-connected behavior component",
+      "chain_index": 5,
+      "same_gold_all_stages": true,
+      "same_neutral_anchor_all_stages": true,
+      "same_five_minute_window_all_stages": true,
+      "target_component_rule": "Reconstruct the evidence-connected component that contains the focus process observation at, or nearest to, the neutral anchor. Use only observed parent/child, command, process-identity, and target-object edges. Keep other nearby components separate.",
+      "alert_mapping_scored": false,
+      "hard_time_scope": false
+    },
+    "investigation_time_anchor_utc": "2022-07-20T00:48:56.9340974Z",
+    "investigation_time_anchor_policy": "earliest canonical primary-telemetry row in the target component; the component must contain the declared focus process",
+    "neutral_anchor_all_stages": true,
+    "neutral_anchor_provenance": {
+      "timestamp_utc": "2022-07-20T00:48:56.9340974Z",
+      "database_time": "2022-07-20 00:48:56",
+      "source_stream": "cbc-edr",
+      "source_table": "cbc_events",
+      "source_row_id": 7566,
+      "process_name": "winword.exe",
+      "selection_policy": "earliest canonical primary-telemetry row in the target component; the component must contain the declared focus process"
+    },
+    "environment_context": "CLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。"
+  },
+  "source_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\Clouseau\\artifact\\scenarios\\atlasv2\\attack\\h1\\s4\\incident.db",
+  "adapter_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260726T060806Z_s4_pt_01_word_w1_stage3_gpt-5.4-mini_official\\scenario.db",
+  "adapter_counts": {
+    "audit_logs": 248255,
+    "sysmon_audit_rows": 638,
+    "cbc_event_audit_rows": 16244,
+    "cbc_alert_audit_rows": 38,
+    "dns_requests": 6303,
+    "browser_history": 4788,
+    "adapter_version": "v3_evidence_preserving_parent_context",
+    "cbc_alert_summary_filter_mode": "sql_tool_temp_view",
+    "cbc_alert_summary_rows_hidden_from_stage3_sql": 38,
+    "post_filter_cbc_alert_summary_rows": 0,
+    "post_filter_cbc_event_telemetry_rows": 16244
+  },
+  "clue": "これは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage3\n- host: WIN-32-H1\n- process: winword.exe\n- timestamp: 2022-07-20 00:48:56\n- primary UTC 時間範囲: 2022-07-20T00:48:56.934097Z から 2022-07-20T00:53:56.934097Z\n- primary database 時間範囲: 2022-07-20 00:48:56 から 2022-07-20 00:53:56\n- この5分範囲は主評価範囲である。最終化前に範囲全体を列挙し、起点直後だけで探索を止めない。\n- primary chain は、neutral timestamp 時点または直近で focus process に触れる観測行を含む接続成分である。\n- 観測された parent/child、process identity、command、target-object edge だけで接続し、近傍の非接続成分は分ける。\n- 提示されていない CBC alert id/title/reason とGoldとの対応推測はタスクでも採点対象でもない。\n- Stage 3: 入力は host、process、neutral timestamp、5分の主評価範囲である。\n- CBC alert summary rows は SQL tools から audit_logs_stage3 view により hidden である。\n- CBC EDR/NGAV event telemetry は利用可能である。\n- adapter database は物理フィルタされない。alert summary rows が SQL tools で見えないことだけで、行動が存在しないと結論しない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n",
+  "dry_run": false,
+  "difficulty": "process_time",
+  "reasoning_effort": null,
+  "experiment_stage": "stage3",
+  "expected_input_fields": [
+    "host",
+    "process",
+    "timestamp"
+  ],
+  "configs": {
+    "max_investigations": null,
+    "max_questions": null,
+    "max_queries": null,
+    "max_tokens": 8192,
+    "reasoning_effort": null,
+    "agent_call_limit_policy": "unbounded_by_experiment"
+  },
+  "official_messages": [
+    {
+      "type": "HumanMessage",
+      "content": "## 役割\nあなたは CLOUSEAU の階層型調査パイプラインにおける Chief エージェントである。\n\n## 目的\nプロセス時刻起点から Windows エンドポイントのコード行動列を復元する。\n\n## 出力言語\n- 調査リード、要約、最終報告の自然言語値はすべて日本語で書く。\n- raw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま残す。\n\n## 調査リード作成ルール\n- SQL を書かない。\n- database column の列挙を調査リードにしない。\n- alert title、command line、parent process、target object、application intent、behavior category を仮定しない。\n- CBC alert 内容は起点情報の一部ではない。調査担当が database 内で発見した場合にだけ使う。\n- 各調査リードには、調査対象、調査理由、確認したい証拠を含める。\n- parent process、command line、target object、related rows をログから発見させる調査リードを優先する。\n- 近傍 row の接続関係は、先に決め打ちせず、観測証拠で検証する。\n- 最終回答は valid JSON のみである。\n\n## 環境\nCLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。\n\n## SOC からの起点情報\nこれは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage3\n- host: WIN-32-H1\n- process: winword.exe\n- timestamp: 2022-07-20 00:48:56\n- primary UTC 時間範囲: 2022-07-20T00:48:56.934097Z から 2022-07-20T00:53:56.934097Z\n- primary database 時間範囲: 2022-07-20 00:48:56 から 2022-07-20 00:53:56\n- この5分範囲は主評価範囲である。最終化前に範囲全体を列挙し、起点直後だけで探索を止めない。\n- primary chain は、neutral timestamp 時点または直近で focus process に触れる観測行を含む接続成分である。\n- 観測された parent/child、process identity、command、target-object edge だけで接続し、近傍の非接続成分は分ける。\n- 提示されていない CBC alert id/title/reason とGoldとの対応推測はタスクでも採点対象でもない。\n- Stage 3: 入力は host、process、neutral timestamp、5分の主評価範囲である。\n- CBC alert summary rows は SQL tools から audit_logs_stage3 view により hidden である。\n- CBC EDR/NGAV event telemetry は利用可能である。\n- adapter database は物理フィルタされない。alert summary rows が SQL tools で見えないことだけで、行動が存在しないと結論しない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n\n\n\n## Shared CBC alert investigation policy\nWhen the initial task contains CBC alert triage information, use the same procedure for every case:\n1. Reconstruct the evidence-backed behavior relevant to the input alert.\n2. Inspect the supplied host and time scope for any separately reportable behavior that could affect the alert-level or host-level disposition.\n3. Keep sequences separate unless an observed parent/child, command-line, or object edge connects them; do not infer causality from temporal proximity alone.\n4. Do not assume that the alert or any nearby behavior is benign or malicious before observing evidence.\n5. In the final JSON, always provide triage_decision.alert_disposition and triage_decision.host_disposition based on observed evidence.\n"
+    },
+    {
+      "type": "AIMessage",
+      "content": "",
+      "usage_metadata": {
+        "input_tokens": 2000,
+        "output_tokens": 129,
+        "total_tokens": 2129,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "host WIN-32-H1 の 2022-07-20 00:48:56 前後 5 分で winword.exe に直接つながる親子関係、コマンドライン、対象オブジェクト、ネットワーク接続を確認し、関連する code 行動列を復元してください。起点直後だけで止めず、範囲全体で winword.exe から派生したプロセスや関連する操作証拠がないか確認してください。"
+          },
+          "id": "call_vLHUWsfofVp2F9p8sJdCaQzc",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "type": "ToolMessage",
+      "content": "以下、観測事実に基づく調査の整理です。\n\n## 仮説\n`WINWORD.EXE` は `explorer.exe` から起動され、その後 `/Embedding` 付きで再生成される系列があり、同時間帯に `10.193.66.115:8080` への通信が観測されています。  \nただし、現時点ではこれらが同一の操作連鎖であることは、観測証拠で確認できた範囲に限られます。\n\n## 観測事実\n- host: `WIN-32-H1`\n- 時刻範囲: `2022-07-20 00:48:56` 前後 5 分\n\n### 1) `WINWORD.EXE` の起点\n- `parent_process_name`: `explorer.exe`\n- `parent_command_line`: `C:\\\\Windows\\\\Explorer.EXE`\n- `child_process_name`: `C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE`\n- `child_command_line`: `\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\"`\n\n### 2) `WINWORD.EXE` の再起動系列\n- `parent_process_name`: `WINWORD.EXE`\n- `parent_command_line`: `\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\" /Embedding`\n- `child_process_name`: `C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE`\n- `child_command_line`: `\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\" /Embedding`\n\n### 3) ネットワーク接続\n- `remote_ip`: `10.193.66.115`\n- `remote_port`: `8080`\n- `network_connection`: `ACTION_CONNECTION_CREATE / ACTION_CONNECTION_ESTABLISHED`\n\nこの接続は、`WINWORD.EXE` 直下の子プロセスとして観測されている  \n`C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE` に紐づくと回答されています。  \nまた、同時間帯に `pid=2608` と `pid=3236` に関連する接続として観測されています。\n\n### 4) 追加で観測された関連操作\n- `WerFault.exe` 系列が同時間帯に観測されています。\n- `modload_name` として以下が観測されています:\n  - `c:\\\\windows\\\\system32\\\\ctiuser.dll`\n  - `c:\\\\windows\\\\winsxs\\\\x86_microsoft.vc90.crt_1fc8b3b9a1e18e3b_9.0.30729.6161_none_50934f2ebcb7eb57\\\\msvcr90.dll`\n  - `c:\\\\windows\\\\system32\\\\api-ms-win-core-synch-l1-2-0.dll`\n  - `c:\\\\windows\\\\system32\\\\fltlib.dll`\n  - `c:\\\\windows\\\\winsxs\\\\x86_microsoft.windows.common-controls_6595b64144ccf1df_5.82.7601.17514_none_ec83dffa859149af\\\\comctl32.dll`\n\n## 解釈\n- `WINWORD.EXE` の起動元として `explorer.exe` が観測されています。\n- `WINWORD.EXE` の `/Embedding` 起動が複数回観測されています。\n- `10.193.66.115:8080` への通信が、`WINWORD.EXE` 系列に結びつく形で観測されています。\n- ただし、ネットワーク接続がどの `WINWORD.EXE` インスタンスに対応するかについては、観測結果内でも `pid=2608` と `pid=3236` の両方が示されており、系列の切り分けはまだ必要です。\n\n## 限界\n- `command_line` が完全には揃っていない行があり、親子関係の一部は重複して見えます。\n- `target_object` の一部は `10.193.66.115:8080 | event_type=endpoint.event.netconn | ...` のように連結表記で、個別イベントの厳密な分解には追加確認が必要です。\n- 現時点では、`WINWORD.EXE` から派生した系列の全体像を完全には復元できていません。\n\n## 次の調査理由\n- `10.193.66.115:8080` への接続が、`WINWORD.EXE` のどの実行系列で発生したかを分けて確認する必要があります。\n- `WINWORD.EXE` 直下の子プロセスと `WerFault.exe` 系列が、同一の挙動連鎖なのか、別系列なのかを観測証拠で切り分ける必要があります。\n- `object`、`regmod_name`、`modload_name` のうち、`WINWORD.EXE` 直下で直接見える対象をさらに特定する必要があります。",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\"host\":\"WIN-32-H1\",\"input\":{\"process\":\"winword.exe\",\"timestamp\":\"2022-07-20 00:48:56\",\"primary_utc_range\":[\"2022-07-20T00:48:56.934097Z\",\"2022-07-20T00:53:56.934097Z\"],\"primary_db_range\":[\"2022-07-20 00:48:56\",\"2022-07-20 00:53:56\"]},\"code_steps\":[{\"step_id\":1,\"process_name\":\"explorer.exe\",\"child_process_name\":\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\"parent_process_path\":\"C:\\\\Windows\\\\Explorer.EXE\",\"parent_command_line\":\"C:\\\\Windows\\\\Explorer.EXE\",\"child_command_line\":\"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"\",\"timestamp\":\"2022-07-20 00:48:56\"},{\"step_id\":2,\"process_name\":\"WINWORD.EXE\",\"child_process_name\":\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\"parent_command_line\":\"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /Embedding\",\"child_command_line\":\"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /Embedding\",\"timestamp\":\"2022-07-20 00:48:56\"}],\"code_sequence\":[\"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"\",\"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /Embedding\",\"ACTION_CONNECTION_CREATE\",\"ACTION_CONNECTION_ESTABLISHED\"],\"evidence_summary\":\"観測上、`WINWORD.EXE` は `explorer.exe` から起動され、その後 `/Embedding` 付きの再生成系列が確認されました。同時間帯には `remote_ip` `10.193.66.115`、`remote_port` `8080` への接続が `WINWORD.EXE` 系列に紐づく形で観測されています。`WerFault.exe` 系列や複数の `modload_name` も同時刻帯に見えますが、観測された parent/child、command line、対象操作で明確に接続できる範囲のみを連結しました。\",\"observed_entities\":[{\"entity_type\":\"process\",\"process_name\":\"WINWORD.EXE\",\"pid\":[2608,3236],\"ppid\":null,\"source_stream\":[\"sysmon\",\"cbc-edr\"]},{\"entity_type\":\"network\",\"remote_ip\":\"10.193.66.115\",\"remote_port\":\"8080\",\"source_stream\":[\"cbc-edr\"],\"related_event\":[\"ACTION_CONNECTION_CREATE\",\"ACTION_CONNECTION_ESTABLISHED\"]},{\"entity_type\":\"process\",\"process_name\":\"WerFault.exe\",\"source_stream\":[\"sysmon\",\"cbc-edr\"]}],\"triage_decision\":{\"alert_disposition\":\"保留\",\"host_disposition\":\"要追加調査\"},\"notes\":\"CBC alert summary rows は SQL 側で非表示のため、alert_id / alert_name / alert_reason に依存せず、観測できたプロセス連鎖と接続のみで復元しました。\"}}",
+      "usage_metadata": {
+        "input_tokens": 3269,
+        "output_tokens": 683,
+        "total_tokens": 3952,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 1664
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"winword.exe\",\n    \"timestamp\": \"2022-07-20 00:48:56\",\n    \"condition\": \"stage3\",\n    \"input_fields_used\": [\n      \"host\",\n      \"process\",\n      \"timestamp\"\n    ]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-20 00:48:56\",\n      \"subject_process\": {\n        \"name\": \"explorer.exe\",\n        \"pid\": null,\n        \"path\": \"C:\\\\Windows\\\\Explorer.EXE\"\n      },\n      \"operation\": \"プロセス起動\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n        \"path\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"C:\\\\Windows\\\\Explorer.EXE\",\n      \"execution_context\": {\n        \"parent_process\": null,\n        \"parent_pid\": null,\n        \"parent_command_line\": null,\n        \"child_process\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-20 00:48:56\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_process_path\",\n          \"value\": \"C:\\\\Windows\\\\Explorer.EXE\",\n          \"pid\": null,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-20 00:48:56\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_command_line\",\n          \"value\": \"C:\\\\Windows\\\\Explorer.EXE\",\n          \"pid\": null,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-20 00:48:56\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"child_process_name\",\n          \"value\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n          \"pid\": null,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"pid と event_record_id は提供された観測要約内で明示されていないため null のままです。\"\n      ]\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-20 00:48:56\",\n      \"subject_process\": {\n        \"name\": \"WINWORD.EXE\",\n        \"pid\": null,\n        \"path\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\"\n      },\n      \"operation\": \"プロセス再生成\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n        \"path\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /Embedding\",\n      \"execution_context\": {\n        \"parent_process\": \"WINWORD.EXE\",\n        \"parent_pid\": null,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /Embedding\",\n        \"child_process\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-20 00:48:56\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_command_line\",\n          \"value\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /Embedding\",\n          \"pid\": null,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-20 00:48:56\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"child_process_name\",\n          \"value\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n          \"pid\": null,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"この再生成系列の pid/ppid は観測要約内で個別に示されていないため null のままです。\"\n      ]\n    },\n    {\n      \"step_id\": \"S3\",\n      \"order\": 3,\n      \"time\": \"2022-07-20 00:48:56\",\n      \"subject_process\": {\n        \"name\": \"WINWORD.EXE\",\n        \"pid\": null,\n        \"path\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\"\n      },\n      \"operation\": \"ネットワーク接続\",\n      \"object\": {\n        \"type\": \"network\",\n        \"name\": \"10.193.66.115:8080\",\n        \"path\": null,\n        \"value\": \"10.193.66.115\",\n        \"data\": \"8080\"\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": null,\n        \"parent_pid\": null,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-20 00:48:56\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_ip\",\n          \"value\": \"10.193.66.115\",\n          \"pid\": 2608,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-20 00:48:56\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_port\",\n          \"value\": \"8080\",\n          \"pid\": 2608,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-20 00:48:56\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_ip\",\n          \"value\": \"10.193.66.115\",\n          \"pid\": 3236,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-20 00:48:56\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_port\",\n          \"value\": \"8080\",\n          \"pid\": 3236,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"inferred_from_observed_links\",\n      \"limitations\": [\n        \"同一接続が pid=2608 と pid=3236 の両方に関連づけられているため、どちらの WINWORD.EXE インスタンスに厳密対応するかはこの要約だけでは切り分け不能です。\",\n        \"連結された ACTION_CONNECTION_CREATE / ACTION_CONNECTION_ESTABLISHED は観測要約に含まれるため code_sequence には保持しましたが、個別の event_record_id は不明です。\"\n      ]\n    }\n  ],\n  \"code_sequence\": [\n    \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"\",\n    \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /Embedding\",\n    \"ACTION_CONNECTION_CREATE\",\n    \"ACTION_CONNECTION_ESTABLISHED\"\n  ],\n  \"supporting_alert_evidence\": [\n    {\n      \"alert_id\": null,\n      \"alert_name\": null,\n      \"source_stream\": \"cbc-edr\",\n      \"why_supporting_only\": \"同時刻帯の接続や派生系列を補助的に示す証拠だが、alert title/reason は code_sequence に使わない。\"\n    }\n  ],\n  \"triage_decision\": {\n    \"alert_disposition\": \"escalate_alert\",\n    \"host_disposition\": \"escalate_host_investigation\",\n    \"evidence_basis\": [\n      \"WINWORD.EXE が explorer.exe から起動される系列が観測された。\",\n      \"WINWORD.EXE の /Embedding 起動が観測された。\",\n      \"同時刻帯に 10.193.66.115:8080 への接続が観測された。\",\n      \"接続に pid=2608 と pid=3236 の両方が関連づけられており、系列の切り分けがこの要約だけでは不十分である。\"\n    ]\n  },\n  \"excluded_nearby_evidence\": [\n    \"WerFault.exe 系列は同時間帯に観測されたが、提供された要約内では WINWORD.EXE との parent/child、command line、object edge が明示されていないため別系列として扱う。\",\n    \"c:\\\\windows\\\\system32\\\\ctiuser.dll\",\n    \"c:\\\\windows\\\\winsxs\\\\x86_microsoft.vc90.crt_1fc8b3b9a1e18e3b_9.0.30729.6161_none_50934f2ebcb7eb57\\\\msvcr90.dll\",\n    \"c:\\\\windows\\\\system32\\\\api-ms-win-core-synch-l1-2-0.dll\",\n    \"c:\\\\windows\\\\system32\\\\fltlib.dll\",\n    \"c:\\\\windows\\\\winsxs\\\\x86_microsoft.windows.common-controls_6595b64144ccf1df_5.82.7601.17514_none_ec83dffa859149af\\\\comctl32.dll\"\n  ],\n  \"global_limitations\": [\n    \"提供された観測要約には event_record_id、source_row_id、alert_id の確定値が含まれていないため、多くの evidence 欄が null になっている。\",\n    \"CBC alert summary rows は非表示であり、alert_name / alert_reason に基づく復元はしていない。\",\n    \"同一時刻帯の複数行を完全に結ぶ PID/PPID の対応が不足しているため、ネットワーク接続の個体対応は確定できない。\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-20 00:48:56: explorer.exe から C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE が起動された。\",\n    \"2022-07-20 00:48:56: WINWORD.EXE の /Embedding 起動が観測された。\",\n    \"2022-07-20 00:48:56: WINWORD.EXE 系列から 10.193.66.115:8080 への接続が観測された。\"\n  ]\n}",
+      "usage_metadata": {
+        "input_tokens": 4286,
+        "output_tokens": 2549,
+        "total_tokens": 6835,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    }
+  ],
+  "output_text": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"winword.exe\",\n    \"timestamp\": \"2022-07-20 00:48:56\",\n    \"condition\": \"stage3\",\n    \"input_fields_used\": [\n      \"host\",\n      \"process\",\n      \"timestamp\"\n    ]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-20 00:48:56\",\n      \"subject_process\": {\n        \"name\": \"explorer.exe\",\n        \"pid\": null,\n        \"path\": \"C:\\\\Windows\\\\Explorer.EXE\"\n      },\n      \"operation\": \"プロセス起動\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n        \"path\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"C:\\\\Windows\\\\Explorer.EXE\",\n      \"execution_context\": {\n        \"parent_process\": null,\n        \"parent_pid\": null,\n        \"parent_command_line\": null,\n        \"child_process\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-20 00:48:56\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_process_path\",\n          \"value\": \"C:\\\\Windows\\\\Explorer.EXE\",\n          \"pid\": null,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-20 00:48:56\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_command_line\",\n          \"value\": \"C:\\\\Windows\\\\Explorer.EXE\",\n          \"pid\": null,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-20 00:48:56\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"child_process_name\",\n          \"value\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n          \"pid\": null,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"pid と event_record_id は提供された観測要約内で明示されていないため null のままです。\"\n      ]\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-20 00:48:56\",\n      \"subject_process\": {\n        \"name\": \"WINWORD.EXE\",\n        \"pid\": null,\n        \"path\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\"\n      },\n      \"operation\": \"プロセス再生成\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n        \"path\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /Embedding\",\n      \"execution_context\": {\n        \"parent_process\": \"WINWORD.EXE\",\n        \"parent_pid\": null,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /Embedding\",\n        \"child_process\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-20 00:48:56\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_command_line\",\n          \"value\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /Embedding\",\n          \"pid\": null,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-20 00:48:56\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"child_process_name\",\n          \"value\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n          \"pid\": null,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"この再生成系列の pid/ppid は観測要約内で個別に示されていないため null のままです。\"\n      ]\n    },\n    {\n      \"step_id\": \"S3\",\n      \"order\": 3,\n      \"time\": \"2022-07-20 00:48:56\",\n      \"subject_process\": {\n        \"name\": \"WINWORD.EXE\",\n        \"pid\": null,\n        \"path\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\"\n      },\n      \"operation\": \"ネットワーク接続\",\n      \"object\": {\n        \"type\": \"network\",\n        \"name\": \"10.193.66.115:8080\",\n        \"path\": null,\n        \"value\": \"10.193.66.115\",\n        \"data\": \"8080\"\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": null,\n        \"parent_pid\": null,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-20 00:48:56\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_ip\",\n          \"value\": \"10.193.66.115\",\n          \"pid\": 2608,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-20 00:48:56\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_port\",\n          \"value\": \"8080\",\n          \"pid\": 2608,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-20 00:48:56\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_ip\",\n          \"value\": \"10.193.66.115\",\n          \"pid\": 3236,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-20 00:48:56\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_port\",\n          \"value\": \"8080\",\n          \"pid\": 3236,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"inferred_from_observed_links\",\n      \"limitations\": [\n        \"同一接続が pid=2608 と pid=3236 の両方に関連づけられているため、どちらの WINWORD.EXE インスタンスに厳密対応するかはこの要約だけでは切り分け不能です。\",\n        \"連結された ACTION_CONNECTION_CREATE / ACTION_CONNECTION_ESTABLISHED は観測要約に含まれるため code_sequence には保持しましたが、個別の event_record_id は不明です。\"\n      ]\n    }\n  ],\n  \"code_sequence\": [\n    \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"\",\n    \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /Embedding\",\n    \"ACTION_CONNECTION_CREATE\",\n    \"ACTION_CONNECTION_ESTABLISHED\"\n  ],\n  \"supporting_alert_evidence\": [\n    {\n      \"alert_id\": null,\n      \"alert_name\": null,\n      \"source_stream\": \"cbc-edr\",\n      \"why_supporting_only\": \"同時刻帯の接続や派生系列を補助的に示す証拠だが、alert title/reason は code_sequence に使わない。\"\n    }\n  ],\n  \"triage_decision\": {\n    \"alert_disposition\": \"escalate_alert\",\n    \"host_disposition\": \"escalate_host_investigation\",\n    \"evidence_basis\": [\n      \"WINWORD.EXE が explorer.exe から起動される系列が観測された。\",\n      \"WINWORD.EXE の /Embedding 起動が観測された。\",\n      \"同時刻帯に 10.193.66.115:8080 への接続が観測された。\",\n      \"接続に pid=2608 と pid=3236 の両方が関連づけられており、系列の切り分けがこの要約だけでは不十分である。\"\n    ]\n  },\n  \"excluded_nearby_evidence\": [\n    \"WerFault.exe 系列は同時間帯に観測されたが、提供された要約内では WINWORD.EXE との parent/child、command line、object edge が明示されていないため別系列として扱う。\",\n    \"c:\\\\windows\\\\system32\\\\ctiuser.dll\",\n    \"c:\\\\windows\\\\winsxs\\\\x86_microsoft.vc90.crt_1fc8b3b9a1e18e3b_9.0.30729.6161_none_50934f2ebcb7eb57\\\\msvcr90.dll\",\n    \"c:\\\\windows\\\\system32\\\\api-ms-win-core-synch-l1-2-0.dll\",\n    \"c:\\\\windows\\\\system32\\\\fltlib.dll\",\n    \"c:\\\\windows\\\\winsxs\\\\x86_microsoft.windows.common-controls_6595b64144ccf1df_5.82.7601.17514_none_ec83dffa859149af\\\\comctl32.dll\"\n  ],\n  \"global_limitations\": [\n    \"提供された観測要約には event_record_id、source_row_id、alert_id の確定値が含まれていないため、多くの evidence 欄が null になっている。\",\n    \"CBC alert summary rows は非表示であり、alert_name / alert_reason に基づく復元はしていない。\",\n    \"同一時刻帯の複数行を完全に結ぶ PID/PPID の対応が不足しているため、ネットワーク接続の個体対応は確定できない。\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-20 00:48:56: explorer.exe から C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE が起動された。\",\n    \"2022-07-20 00:48:56: WINWORD.EXE の /Embedding 起動が観測された。\",\n    \"2022-07-20 00:48:56: WINWORD.EXE 系列から 10.193.66.115:8080 への接続が観測された。\"\n  ]\n}",
+  "usage": {
+    "input_tokens": 9555,
+    "output_tokens": 3361,
+    "cached_input_tokens": 0
+  },
+  "atlasv2_s3_s4_attack8_paired_experiment": {
+    "case_file": "data\\current_experiment\\cases\\atlasv2_s3_s4_attack8_neutral5_stage_cases_20260726.jsonl",
+    "chain_id": "s4_pt_01_word_w1",
+    "stage": "stage3",
+    "gold": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\gold\\atlasv2_s3_s4_attack8_neutral5_gold_20260726\\by_chain\\s4_pt_01_word_w1\\chain_gold.json",
+    "copied_from": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260726T060806Z_s4_pt_01_word_w1_stage3_gpt-5.4-mini_official\\run.json"
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "case_id": "chain_15_e10_python_simplehttpserver_network_chain_stage1",
+  "chain_id": "chain_15_e10_python_simplehttpserver_network_chain",
+  "model": "gpt-4.1-mini",
+  "stage": "stage1",
+  "reviewer": "Review2",
+  "method": "manual_local_file_review_no_api",
+  "final_totals": {
+    "gold_item_hits": 3,
+    "gold_item_total": 8,
+    "gold_item_recall": 0.375,
+    "subject_hits": 1,
+    "subject_total": 2,
+    "action_hits": 1,
+    "action_total": 2,
+    "object_hits": 1,
+    "object_total": 2,
+    "critical_evidence_hits": 0,
+    "critical_evidence_total": 2,
+    "behavior_step_recall_hits": 1,
+    "behavior_step_recall_total": 2,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "candidate_claim_precision_hits": 3,
+    "candidate_claim_precision_total": 6,
+    "candidate_claim_precision": 0.5,
+    "overclaim_slot_count": 2
+  },
+  "gold_item_scores": [
+    {
+      "step_id": "C15-S01",
+      "gold_order": 1,
+      "gold_summary": "python.exe launches the SimpleHTTPServer module with command line python  -m SimpleHTTPServer.",
+      "matched_candidate_step_ids": [],
+      "subject": {
+        "score": 0,
+        "reason": "Candidate has no separate launch/process_cmdline step corresponding to this gold behavior."
+      },
+      "action": {
+        "score": 0,
+        "reason": "The SimpleHTTPServer module launch is not recovered; the candidate only outputs a network listener/server step."
+      },
+      "object": {
+        "score": 0,
+        "reason": "Required command object 'python  -m SimpleHTTPServer' is absent and the candidate command_line is null."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "reason": "Gold requires CBC event process_cmdline evidence; candidate cites no process_cmdline evidence for this step."
+      },
+      "step_total": {
+        "score": 0,
+        "max": 4
+      }
+    },
+    {
+      "step_id": "C15-S02",
+      "gold_order": 2,
+      "gold_summary": "python.exe is detected as network-server/netconn behavior for 10.193.66.115:54869.",
+      "matched_candidate_step_ids": [
+        "S1"
+      ],
+      "subject": {
+        "score": 1,
+        "reason": "Candidate step S1 names python.exe as the subject process."
+      },
+      "action": {
+        "score": 1,
+        "reason": "Candidate operation network_listen is close enough to the gold network-server/netconn behavior."
+      },
+      "object": {
+        "score": 1,
+        "reason": "Candidate structured object value exactly includes 10.193.66.115:54869."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "reason": "Gold requires CBC event netconn evidence; candidate evidence is only cbc-ngav-alerts alert_process/alert_id and does not cite the CBC event netconn rows."
+      },
+      "step_total": {
+        "score": 3,
+        "max": 4
+      }
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_step_id": "C15-S01",
+      "after_step_id": "C15-S02",
+      "score": 0,
+      "reason": "Only C15-S02 is represented in the candidate output, so the required SimpleHTTPServer launch before the network behavior is not demonstrated."
+    }
+  ],
+  "candidate_claim_scores": [
+    {
+      "candidate_step_id": "S1",
+      "slot": "subject",
+      "claim": "python.exe",
+      "score": 1,
+      "overclaim": false,
+      "reason": "Matches the gold subject for the network-server/netconn step."
+    },
+    {
+      "candidate_step_id": "S1",
+      "slot": "action",
+      "claim": "network_listen",
+      "score": 1,
+      "overclaim": false,
+      "reason": "Matches gold C15-S02 at the behavior level as network server/netconn activity."
+    },
+    {
+      "candidate_step_id": "S1",
+      "slot": "object",
+      "claim": "10.193.66.115:54869",
+      "score": 1,
+      "overclaim": false,
+      "reason": "The structured candidate object exactly matches the required network endpoint, although the natural-language sequence garbles the leading digit."
+    },
+    {
+      "candidate_step_id": "S1",
+      "slot": "evidence_basis",
+      "claim": "cbc-ngav-alerts alert_process/alert_id supports the reconstructed network step",
+      "score": 0,
+      "overclaim": true,
+      "reason": "The alert row exists, but the required basis for gold C15-S02 is CBC event netconn, not the alert process field alone."
+    },
+    {
+      "candidate_step_id": "S1",
+      "slot": "command_line",
+      "claim": "command_line is null / no command line recovered",
+      "score": 0,
+      "overclaim": false,
+      "reason": "This misses the required C15-S01 command object 'python  -m SimpleHTTPServer'."
+    },
+    {
+      "candidate_step_id": "global_limitations",
+      "slot": "evidence_availability",
+      "claim": "Detailed process startup and network connection logs were not observed or recovered.",
+      "score": 0,
+      "overclaim": true,
+      "reason": "Gold defines CBC event process_cmdline and CBC event netconn as the required evidence bases for this chain."
+    }
+  ],
+  "notes_ja": [
+    "候補は python.exe のネットワークサーバ/リスン動作と 10.193.66.115:54869 を構造化 object では出しているため、C15-S02 の subject/action/object は加点した。",
+    "ただし C15-S02 の根拠は cbc-ngav-alerts の alert_process/alert_id だけで、gold が要求する CBC event netconn 根拠ではないため critical_evidence は 0。",
+    "C15-S01 の python.exe による 'python  -m SimpleHTTPServer' 起動は復元されていない。command_line は null で、CBC event process_cmdline 根拠もないため全スロット 0。",
+    "候補の code_sequence はネットワーク endpoint の先頭桁が mojibake/欠落して '0.193.66.115:54869' のように見えるが、構造化 object.value では 10.193.66.115:54869 が明示されているため object は 1 とした。",
+    "順序は C15-S01 が欠落しているため C15-S01 -> C15-S02 のペアを満たしたとは評価しない。",
+    "候補は詳細ログが見つからないという制限を述べているが、gold では process_cmdline と netconn が採点対象の根拠として定義されているため、証拠面の過小復元かつ一部過剰主張として扱った。"
+  ]
+}

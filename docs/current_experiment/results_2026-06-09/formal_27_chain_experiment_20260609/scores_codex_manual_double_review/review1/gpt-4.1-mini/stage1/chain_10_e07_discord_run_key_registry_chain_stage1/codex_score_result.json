@@ -1,0 +1,412 @@
+{
+  "reviewer": "codex_manual_review1_no_api",
+  "method": "manual_action_claim_scoring_strict_0_1",
+  "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage1/chain_10_e07_discord_run_key_registry_chain_stage1_run.json",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_10_e07_discord_run_key_registry_chain/chain_gold.json",
+  "model": "gpt-4.1-mini",
+  "stage": "stage1",
+  "case": "chain_10_e07_discord_run_key_registry_chain_stage1",
+  "judge_summary_ja": "候補は update.exe による Discord 起動と reg.exe の registry query までは出しているが、gold の中核である discord.exe -> reg.exe の親子関係、HKCU Run\\Discord 値の query、Run key への add/update と値データを復元できていない。alert 名は補助証拠としては扱うが、alert 名だけで command_line や registry value を復元したとは採点しない。",
+  "gold_required_item_scores": [
+    {
+      "item_id": "chain_10_e07_discord_run_key_registry_chain:C10-S01:subject",
+      "step_id": "C10-S01",
+      "kind": "subject",
+      "gold_value": "discord.exe",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "候補は discord.exe の起動自体は述べるが、discord.exe が reg.exe を起動した親プロセスとしては復元していない。"
+    },
+    {
+      "item_id": "chain_10_e07_discord_run_key_registry_chain:C10-S01:operation",
+      "step_id": "C10-S01",
+      "kind": "operation",
+      "gold_value": "discord.exe spawned reg.exe as a child process",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "候補の reg.exe は parent_process=reg.exe / parent_pid=1204 とされており、discord.exe から reg.exe への起動関係を示していない。"
+    },
+    {
+      "item_id": "chain_10_e07_discord_run_key_registry_chain:C10-S01:object",
+      "step_id": "C10-S01",
+      "kind": "object",
+      "gold_value": "C:\\Windows\\System32\\reg.exe (query/add reg.exe child processes)",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "reg.exe 自体は候補に出るが、discord.exe の child process としての query/add reg.exe 群という object 関係は復元されていない。"
+    },
+    {
+      "item_id": "chain_10_e07_discord_run_key_registry_chain:C10-S01:critical_evidence",
+      "step_id": "C10-S01",
+      "kind": "critical_evidence",
+      "gold_value": "CBC alert parent_process_path / parent_command_line / process_name / command_line",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "候補は CBC alert id/access を示すが、discord.exe parent と reg.exe command_line を結ぶ critical evidence を示していない。"
+    },
+    {
+      "item_id": "chain_10_e07_discord_run_key_registry_chain:C10-S02:subject",
+      "step_id": "C10-S02",
+      "kind": "subject",
+      "gold_value": "reg.exe",
+      "matched_candidate_excerpt": "S3 subject_process.name=reg.exe pid=5424",
+      "score": 1,
+      "reason_ja": "registry query を行う主体として reg.exe を明示している。"
+    },
+    {
+      "item_id": "chain_10_e07_discord_run_key_registry_chain:C10-S02:operation",
+      "step_id": "C10-S02",
+      "kind": "operation",
+      "gold_value": "registry query",
+      "matched_candidate_excerpt": "S3 operation=registry_query",
+      "score": 1,
+      "reason_ja": "reg.exe による registry query 操作を明示している。"
+    },
+    {
+      "item_id": "chain_10_e07_discord_run_key_registry_chain:C10-S02:object",
+      "step_id": "C10-S02",
+      "kind": "object",
+      "gold_value": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord",
+      "matched_candidate_excerpt": "S3 object.path=HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+      "score": 0,
+      "reason_ja": "Run key までは出ているが、gold が要求する Discord value (/v Discord) まで特定していないため strict 0。"
+    },
+    {
+      "item_id": "chain_10_e07_discord_run_key_registry_chain:C10-S02:critical_evidence",
+      "step_id": "C10-S02",
+      "kind": "critical_evidence",
+      "gold_value": "CBC alert process command_line",
+      "matched_candidate_excerpt": "supporting_alert_evidence alert_name=Discovery - Query Registry",
+      "score": 0,
+      "reason_ja": "alert 名と object field は示すが、C:\\Windows\\System32\\reg.exe query ... /v Discord の process command_line を根拠として出していない。alert 名だけでは behavior reconstruction としては採点しない。"
+    },
+    {
+      "item_id": "chain_10_e07_discord_run_key_registry_chain:C10-S03:subject",
+      "step_id": "C10-S03",
+      "kind": "subject",
+      "gold_value": "reg.exe",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "Run key add/update を行う reg.exe ステップを候補は復元していない。"
+    },
+    {
+      "item_id": "chain_10_e07_discord_run_key_registry_chain:C10-S03:operation",
+      "step_id": "C10-S03",
+      "kind": "operation",
+      "gold_value": "registry add/update",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "registry_query はあるが、add/update 操作は候補の code_steps / code_sequence にない。"
+    },
+    {
+      "item_id": "chain_10_e07_discord_run_key_registry_chain:C10-S03:object",
+      "step_id": "C10-S03",
+      "kind": "object",
+      "gold_value": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord = \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\"",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "Run\\Discord value と Update.exe --processStart Discord.exe のデータを復元していない。"
+    },
+    {
+      "item_id": "chain_10_e07_discord_run_key_registry_chain:C10-S03:critical_evidence",
+      "step_id": "C10-S03",
+      "kind": "critical_evidence",
+      "gold_value": "CBC alert command_line / CBC event regmod_name",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "Persistence - Regmod Run or Runonce Key Modification の alert は入力にあるが、候補の復元結果では add command_line や regmod_name を根拠として提示していない。"
+    }
+  ],
+  "candidate_action_claim_scores": [
+    {
+      "candidate_claim_id": "R1-C10-CLAIM-01",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "update.exe process_start, command_line=\"C:\\Users\\aalsahee\\AppData\\Local\\SquirrelTemp\\Update.exe\" --install, child_process=discord.exe",
+      "normalized_action_claim_ja": "update.exe が Discord セットアップ用の Update.exe --install として起動し、discord.exe を child として持つ。",
+      "slot_scores": [
+        {
+          "slot_id": "R1-C10-CLAIM-01-subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "update.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold chain の主体ではない近傍の Discord updater 起動。"
+        },
+        {
+          "slot_id": "R1-C10-CLAIM-01-operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "process_start",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold は Discord による reg.exe 起動、reg query、reg add/update であり、この updater 起動は対象外。"
+        },
+        {
+          "slot_id": "R1-C10-CLAIM-01-object",
+          "kind": "object",
+          "candidate_slot_excerpt": "C:\\Users\\aalsahee\\AppData\\Local\\SquirrelTemp\\Update.exe --install",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold object の reg.exe または Run\\Discord registry value ではない。"
+        },
+        {
+          "slot_id": "R1-C10-CLAIM-01-critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs command_line evt1001",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "この証拠は対象外 updater 起動の根拠で、gold の critical evidence ではない。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R1-C10-CLAIM-02",
+      "candidate_step_id": "S2",
+      "claim_excerpt": "discord.exe process_start, parent_process=update.exe, parent_pid=660",
+      "normalized_action_claim_ja": "discord.exe が update.exe から起動された。",
+      "slot_scores": [
+        {
+          "slot_id": "R1-C10-CLAIM-02-subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "discord.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "discord.exe 名は出るが、gold の discord.exe -> reg.exe 関係ではなく update.exe -> discord.exe の別行動である。"
+        },
+        {
+          "slot_id": "R1-C10-CLAIM-02-operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "process_start by update.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold の操作とは方向も対象も異なる。"
+        },
+        {
+          "slot_id": "R1-C10-CLAIM-02-object",
+          "kind": "object",
+          "candidate_slot_excerpt": "discord.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold object は reg.exe child process または Run\\Discord registry object であり、Discord の起動自体ではない。"
+        },
+        {
+          "slot_id": "R1-C10-CLAIM-02-critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs ppid=660 evt1002",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "対象外の update.exe -> discord.exe 起動証拠で、gold の critical evidence ではない。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R1-C10-CLAIM-03",
+      "candidate_step_id": "S3",
+      "claim_excerpt": "reg.exe registry_query, object.path=HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run, parent_process=reg.exe",
+      "normalized_action_claim_ja": "reg.exe が HKCU Run key を registry query した。",
+      "slot_scores": [
+        {
+          "slot_id": "R1-C10-CLAIM-03-subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "reg.exe",
+          "matched_gold_item_id": "chain_10_e07_discord_run_key_registry_chain:C10-S02:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "C10-S02 の主体と一致する。"
+        },
+        {
+          "slot_id": "R1-C10-CLAIM-03-operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "registry_query",
+          "matched_gold_item_id": "chain_10_e07_discord_run_key_registry_chain:C10-S02:operation",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "C10-S02 の registry query と一致する。"
+        },
+        {
+          "slot_id": "R1-C10-CLAIM-03-object",
+          "kind": "object",
+          "candidate_slot_excerpt": "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "under_specific",
+          "reason_ja": "Run key までは合うが、Discord value を特定していない。"
+        },
+        {
+          "slot_id": "R1-C10-CLAIM-03-critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "cbc-edr-alerts access=cbc_alert; audit_logs object=HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unsupported_evidence",
+          "reason_ja": "process command_line の /v Discord を示しておらず、alert 名/アクセス情報だけでは critical evidence として不足。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R1-C10-CLAIM-04",
+      "candidate_step_id": "code_sequence",
+      "claim_excerpt": "reg.exe (PID 1204) process start",
+      "normalized_action_claim_ja": "reg.exe PID 1204 が起動した。",
+      "slot_scores": [
+        {
+          "slot_id": "R1-C10-CLAIM-04-subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "reg.exe PID 1204",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_relation",
+          "reason_ja": "gold は discord.exe から起動された reg.exe 群と reg query/add の行動であり、PID 1204 の独立起動は対応しない。"
+        },
+        {
+          "slot_id": "R1-C10-CLAIM-04-operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "process_start",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_relation",
+          "reason_ja": "discord.exe -> reg.exe child process の関係として示していない。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R1-C10-CLAIM-05",
+      "candidate_step_id": "S5",
+      "claim_excerpt": "firefox.exe child process command line shows access to discordapp.com",
+      "normalized_action_claim_ja": "firefox.exe の子プロセスに discordapp.com アクセスを示すコマンドラインがある。",
+      "slot_scores": [
+        {
+          "slot_id": "R1-C10-CLAIM-05-subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "firefox.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold chain に firefox.exe は含まれない。"
+        },
+        {
+          "slot_id": "R1-C10-CLAIM-05-operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "discordapp.com access command line",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold の Run key registry chain ではない。"
+        },
+        {
+          "slot_id": "R1-C10-CLAIM-05-object",
+          "kind": "object",
+          "candidate_slot_excerpt": "discordapp.com",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold object の Run\\Discord registry value とは別物。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R1-C10-CLAIM-06",
+      "candidate_step_id": "S6",
+      "claim_excerpt": "cmd.exe child process nvidia-smi.exe execution was not confirmed",
+      "normalized_action_claim_ja": "cmd.exe の子プロセスで nvidia-smi.exe 実行は確認できない。",
+      "slot_scores": [
+        {
+          "slot_id": "R1-C10-CLAIM-06-negative",
+          "kind": "limitation_or_negative_claim",
+          "candidate_slot_excerpt": "nvidia-smi.exe execution not confirmed",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated_negative",
+          "reason_ja": "gold chain には nvidia-smi.exe や cmd.exe の行動は含まれず、対象外の負の断定。"
+        }
+      ]
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_step_id": "C10-S01",
+      "after_step_id": "C10-S02",
+      "score": 0,
+      "reason_ja": "C10-S01 の discord.exe -> reg.exe 起動関係が復元されておらず、C10-S02 との連鎖順序を示せない。"
+    },
+    {
+      "before_step_id": "C10-S02",
+      "after_step_id": "C10-S03",
+      "score": 0,
+      "reason_ja": "registry query は一部出ているが、後続の Run key add/update が欠落している。"
+    }
+  ],
+  "totals": {
+    "behavior_step_recall": 0.3333333333333333,
+    "behavior_step_recall_hits": 1,
+    "behavior_step_recall_total": 3,
+    "action_step_recall": 0.16666666666666666,
+    "action_step_recall_hits": 2,
+    "action_step_recall_total": 12,
+    "action_step_precision": 0.16666666666666666,
+    "action_step_precision_hits": 2,
+    "action_step_precision_total": 12,
+    "gold_required_item_count": 12,
+    "candidate_claim_precision": 0.1111111111111111,
+    "candidate_claim_precision_hits": 2,
+    "candidate_claim_precision_total": 18,
+    "overclaim_slot_count": 16,
+    "candidate_action_claim_count": 6,
+    "candidate_action_claim_true_positive_slot_count": 2,
+    "candidate_action_claim_slot_count": 18,
+    "candidate_action_claim_raw_slot_count": 18,
+    "candidate_action_claim_duplicate_true_positive_slot_count": 0,
+    "behavior_sequence_order": 0.0,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 2,
+    "critical_evidence_recall": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 3,
+    "coarse_action_step_coverage": 0.3333333333333333,
+    "coarse_action_step_coverage_hits": 1,
+    "coarse_action_step_coverage_total": 3,
+    "hallucinated_claim_count": 0,
+    "unsupported_evidence_count": 1,
+    "contradicted_evidence_count": 0,
+    "nearby_action_fp_count": 4,
+    "behavior_element_diagnostics": {
+      "subject": {
+        "recall_hits": 1,
+        "recall_total": 3,
+        "precision_hits": 1,
+        "precision_total": 5
+      },
+      "operation": {
+        "recall_hits": 1,
+        "recall_total": 3,
+        "precision_hits": 1,
+        "precision_total": 5
+      },
+      "object": {
+        "recall_hits": 0,
+        "recall_total": 3,
+        "precision_hits": 0,
+        "precision_total": 4
+      },
+      "critical_evidence": {
+        "recall_hits": 0,
+        "recall_total": 3,
+        "precision_hits": 0,
+        "precision_total": 4
+      }
+    }
+  },
+  "notes_ja": [
+    "OpenAI API と score_element_order_with_gpt.py は使用していない。",
+    "実行中の実験プロセスには触っていない。",
+    "stage1 の input alert に Persistence alert は含まれるが、候補出力は final code_steps で add/update を復元していないため、alert 名だけでは C10-S03 を得点しない。",
+    "Run key の object は HKCU Run だけでは不足とし、Discord value まで要求する strict 採点にした。"
+  ]
+}

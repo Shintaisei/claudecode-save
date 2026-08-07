@@ -1,0 +1,38 @@
+{
+  "queue_id": "gpt-5.4-mini/stage2/s3_pt_01_word_document_processing_stage2/7eb3cca23034d920",
+  "claims": {
+    "C1": {
+      "gold_step_id": "A8V5-01-S01",
+      "tp_kinds": [
+        "subject"
+      ]
+    },
+    "C2": {
+      "gold_step_id": "A8V5-01-S02",
+      "tp_kinds": [
+        "subject",
+        "operation",
+        "object"
+      ]
+    }
+  },
+  "critical_step_ids": [],
+  "duplicate_claim_ids": [],
+  "review_summary_ja": "WINWORD.EXEが別のWINWORD.EXEを起動したstepは完全取得した。文書オープンstepは対象WINWORD.EXEとmsf.rtfのパスを証拠中で確認できていたが、候補では汎用的なプロセス起動として構成され、operationとobjectがGoldに対応しなかった。追加の一時ファイル作成候補はGold外でありprecisionを下げた。",
+  "failure_analysis": {
+    "missing_gold_steps": [
+      "A8V5-01-S01"
+    ],
+    "causal_edge_missing": [
+      "WINWORD.EXE -> msf.rtf document-open action as a complete atomic claim"
+    ],
+    "early_stop": false,
+    "nearby_behavior_overconnection": true,
+    "hallucination": [
+      "Sysmon-style event identifier 4162 did not match the canonical CBC row 8705/8727 evidence identifiers"
+    ],
+    "investigation_behavior": "Three unique Chief leads generated 12 Investigator questions and 43 SQL queries. No question, SQL, or wall-time guard fired.",
+    "order_failure": "The partial document-open claim and complete child-process claim were emitted in the correct order, so the adjacent order pair was credited.",
+    "stage_specific_cause": "The document path was present in the observed command line, but candidate construction bound the action to generic process startup and the object to WINWORD.EXE rather than the opened msf.rtf. The extra Office temporary-file lifecycle claim was evidence-backed but outside the fixed Gold chain."
+  }
+}

@@ -1,0 +1,263 @@
+{
+  "case_id": "cbc_non_alert_behavior_chain_gold_2026-06-11",
+  "judge_summary_ja": "候補は2件のアクション主張のみを提示し、いずれも汎用的な「process_execution」で具体性に欠ける。ゴールドの3ステップのうち、C01-S02の主体（cmd.exe）にのみ一致し、他の主体・操作・対象や臨界証拠は未再現。さらにゴールド外のpython.exe実行を混入させており、連鎖順序の再現もできていない。",
+  "chains": [
+    {
+      "chain_id": "chain_01_e01_dns_packet_capture_batch_chain",
+      "gold_required_item_scores": [
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:subject",
+          "step_id": "C01-S01",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "explorer.exeを主体として示した記載がない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:operation",
+          "step_id": "C01-S01",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "「cmd.exeを子プロセスとして起動した」に対応する具体的操作は提示されず、汎用的なprocess_executionのみ。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:object",
+          "step_id": "C01-S01",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "対象コマンドライン「C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"」の再現がない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:critical_evidence",
+          "step_id": "C01-S01",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "必要なcbc_events（non-alert）の具体ログが提示されていない（候補はaudit_logsのみ）。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:subject",
+          "step_id": "C01-S02",
+          "kind": "subject",
+          "matched_candidate_excerpt": "S1.subject_process.name=cmd.exe",
+          "score": "1",
+          "reason_ja": "主体cmd.exeが候補S1で一致。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:operation",
+          "step_id": "C01-S02",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "/cでバッチファイルを実行した、に対応する操作は示されていない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:object",
+          "step_id": "C01-S02",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "対象start_dns_logs.batの提示がない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:critical_evidence",
+          "step_id": "C01-S02",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "必要なcbc_events（non-alert）の具体ログが提示されていない（候補はaudit_logsのみ）。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:subject",
+          "step_id": "C01-S03",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "主体cmd.exe（ログ収集プロセス派生コンテキスト）が再現されていない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:operation",
+          "step_id": "C01-S03",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "「ログ収集系プロセスを派生させた」に相当する操作が提示されていない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:object",
+          "step_id": "C01-S03",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "対象tshark.exeの提示がない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:critical_evidence",
+          "step_id": "C01-S03",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "必要なcbc_events（non-alert）の具体ログ（procstart）が提示されていない。"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "claim_S1_1",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "subject=cmd.exe; operation=process_execution; object=cmd.exe; evidence.source_stream=audit_logs",
+          "normalized_action_claim_ja": "cmd.exeがプロセスcmd.exeを実行した。",
+          "slot_scores": [
+            {
+              "slot_id": "claim_S1_1:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "cmd.exe",
+              "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "ゴールドC01-S02の主体cmd.exeに一致。"
+            },
+            {
+              "slot_id": "claim_S1_1:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "process_execution",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "ゴールドの具体操作（子プロセス起動/バッチ実行/ログ収集派生）と一致しない汎用表現。"
+            },
+            {
+              "slot_id": "claim_S1_1:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "cmd.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "ゴールド対象（cmd.exeの特定コマンドライン／start_dns_logs.bat／tshark.exe）のいずれにも一致しない。"
+            },
+            {
+              "slot_id": "claim_S1_1:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "audit_logs: field=process_name, value=cmd.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "ゴールドの臨界証拠はcbc_events（non-alert）の具体行であり、audit_logsのみでは合致しない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "claim_S2_1",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "subject=python.exe; operation=process_execution; object=python.exe; parent=cmd.exe; evidence.source_stream=audit_logs",
+          "normalized_action_claim_ja": "python.exeがプロセスpython.exeを実行した（親: cmd.exe）。",
+          "slot_scores": [
+            {
+              "slot_id": "claim_S2_1:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "python.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "python.exeは当該ゴールド連鎖の主体に含まれない近傍の無関係動作。"
+            },
+            {
+              "slot_id": "claim_S2_1:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "process_execution",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "ゴールドの具体操作と一致しない汎用表現。"
+            },
+            {
+              "slot_id": "claim_S2_1:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "python.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "対象python.exeはゴールド連鎖外。"
+            },
+            {
+              "slot_id": "claim_S2_1:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "audit_logs: field=process_name, value=python.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "必要なcbc_events（non-alert）の具体行が提示されていない。"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "C01-S01",
+          "after_step_id": "C01-S02",
+          "score": "0",
+          "reason_ja": "C01-S01の再現がなく、順序評価不可。"
+        },
+        {
+          "before_step_id": "C01-S02",
+          "after_step_id": "C01-S03",
+          "score": "0",
+          "reason_ja": "C01-S03の再現がなく、順序評価不可。"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:subject",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:operation",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:object",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:operation",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:object",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:subject",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:operation",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:object"
+    ],
+    "chain_mixing": true,
+    "hallucinated_claims": [],
+    "unsupported_evidence": [
+      "S1.evidence: source_stream=audit_logs; field=process_name; value=cmd.exe",
+      "S2.evidence: source_stream=audit_logs; field=process_name; value=python.exe"
+    ],
+    "contradicted_evidence": [],
+    "nearby_action_false_positives": [
+      "cmd.exeの子としてpython.exeを実行（ゴールド外）"
+    ],
+    "weak_grounding": true,
+    "false_positive_claims": [
+      "S1: operation=process_execution, object=cmd.exe（ゴールド未対応）",
+      "S2: python.exe実行（連鎖外）"
+    ],
+    "notes_ja": [
+      "候補はコマンドラインや親子関係の具体値を欠落させ、再現精度が低い。",
+      "ゴールドが要求するcbc_events（non-alert）の臨界証拠を提示していない。"
+    ]
+  },
+  "candidate_action_claim_count": "2",
+  "candidate_action_claim_slot_count": "8",
+  "candidate_action_claim_true_positive_slot_count": "1",
+  "hallucinated_claim_count": "0",
+  "unsupported_evidence_count": "2",
+  "contradicted_evidence_count": "0",
+  "nearby_action_fp_count": "1",
+  "main_missing_items": [
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:subject",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:operation",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:object",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:operation",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:object",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:subject",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:operation",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:object"
+  ],
+  "main_false_positive_claims": [
+    "S1: cmd.exeがprocess_executionでcmd.exeを対象に実行",
+    "S2: cmd.exeの子プロセスとしてpython.exeを実行"
+  ]
+}

@@ -1,0 +1,479 @@
+{
+  "case": "chain_11_e07_sublime_python_script_execution_chain_stage1",
+  "model": "gpt-4.1-mini",
+  "stage": "stage1",
+  "reviewer": "codex_review2",
+  "method": "manual_strict_no_api_gold_items_and_claim_slots",
+  "final_totals": {
+    "action_step_recall_hits": 10,
+    "action_step_recall_total": 24,
+    "action_step_recall": 0.4166666666666667,
+    "candidate_claim_precision_hits": 6,
+    "candidate_claim_precision_total": 17,
+    "candidate_claim_precision": 0.35294117647058826,
+    "overclaim_slot_count": 11,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 5,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 6,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 2,
+    "behavior_step_recall_total": 6,
+    "behavior_step_recall": 0.3333333333333333
+  },
+  "gold_item_scores": [
+    {
+      "item_id": "C11-S01:subject",
+      "step_id": "C11-S01",
+      "kind": "subject",
+      "gold_value": "plugin_host.exe",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason": "Candidate never recovers plugin_host.exe as the parent/origin of cmd.exe; it instead gives explorer.exe for the hello.py cmd step."
+    },
+    {
+      "item_id": "C11-S01:action",
+      "step_id": "C11-S01",
+      "kind": "action",
+      "gold_value": "plugin_host.exe starts cmd.exe as a child process",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason": "No explicit plugin_host.exe -> cmd.exe parent-child action is reported."
+    },
+    {
+      "item_id": "C11-S01:object",
+      "step_id": "C11-S01",
+      "kind": "object",
+      "gold_value": "C:\\Windows\\system32\\cmd.exe /c \"python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\"\"",
+      "matched_candidate_excerpt": "S4 command_line=python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\"",
+      "score": 0,
+      "reason": "Only the inner python command is shown; the exact cmd.exe /c command object is missing."
+    },
+    {
+      "item_id": "C11-S01:critical_evidence",
+      "step_id": "C11-S01",
+      "kind": "critical_evidence",
+      "gold_value": "CBC alert / CBC event parent_path and process_cmdline",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason": "Candidate gives only generic audit_logs/process_creation and alert-name support, not CBC parent_path plus process_cmdline for plugin_host -> cmd."
+    },
+    {
+      "item_id": "C11-S02:subject",
+      "step_id": "C11-S02",
+      "kind": "subject",
+      "gold_value": "cmd.exe",
+      "matched_candidate_excerpt": "S4 subject_process.name=cmd.exe",
+      "score": 1,
+      "reason": "Candidate explicitly uses cmd.exe as the subject process for the hello.py python launch."
+    },
+    {
+      "item_id": "C11-S02:action",
+      "step_id": "C11-S02",
+      "kind": "action",
+      "gold_value": "cmd.exe executes a Python command via /c",
+      "matched_candidate_excerpt": "S4 command_line=python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\"",
+      "score": 0,
+      "reason": "The exact /c execution by cmd.exe is not recovered."
+    },
+    {
+      "item_id": "C11-S02:object",
+      "step_id": "C11-S02",
+      "kind": "object",
+      "gold_value": "C:\\Windows\\system32\\cmd.exe /c \"python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\"\"",
+      "matched_candidate_excerpt": "S4 command_line=python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\"",
+      "score": 0,
+      "reason": "The full cmd.exe /c command object is absent."
+    },
+    {
+      "item_id": "C11-S02:critical_evidence",
+      "step_id": "C11-S02",
+      "kind": "critical_evidence",
+      "gold_value": "CBC alert / CBC event process_cmdline",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason": "No CBC event process_cmdline evidence is tied to this /c command."
+    },
+    {
+      "item_id": "C11-S03:subject",
+      "step_id": "C11-S03",
+      "kind": "subject",
+      "gold_value": "cmd.exe",
+      "matched_candidate_excerpt": "S4 subject_process.name=cmd.exe",
+      "score": 1,
+      "reason": "Candidate explicitly reports cmd.exe as the process starting python.exe."
+    },
+    {
+      "item_id": "C11-S03:action",
+      "step_id": "C11-S03",
+      "kind": "action",
+      "gold_value": "cmd.exe starts python.exe as a child process",
+      "matched_candidate_excerpt": "S4 operation=process_creation; object.name=python.exe; child_process=python.exe",
+      "score": 1,
+      "reason": "Candidate explicitly reports python.exe created by cmd.exe."
+    },
+    {
+      "item_id": "C11-S03:object",
+      "step_id": "C11-S03",
+      "kind": "object",
+      "gold_value": "C:\\Users\\aalsahee\\Documents\\hello.py",
+      "matched_candidate_excerpt": "S4 command_line=python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\"",
+      "score": 1,
+      "reason": "The hello.py script path is explicitly present in the candidate command line."
+    },
+    {
+      "item_id": "C11-S03:critical_evidence",
+      "step_id": "C11-S03",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event procstart childproc_name",
+      "matched_candidate_excerpt": "S4 evidence source_stream=audit_logs field=process_creation value=python.exe created by cmd.exe",
+      "score": 0,
+      "reason": "Candidate does not provide CBC event procstart childproc_name evidence."
+    },
+    {
+      "item_id": "C11-S04:subject",
+      "step_id": "C11-S04",
+      "kind": "subject",
+      "gold_value": "cmd.exe",
+      "matched_candidate_excerpt": "S4 subject_process.name=cmd.exe",
+      "score": 1,
+      "reason": "Candidate explicitly reports cmd.exe as the launcher of python.exe."
+    },
+    {
+      "item_id": "C11-S04:action",
+      "step_id": "C11-S04",
+      "kind": "action",
+      "gold_value": "cmd.exe starts python.exe",
+      "matched_candidate_excerpt": "S4 operation=process_creation; object.name=python.exe; child_process=python.exe",
+      "score": 1,
+      "reason": "Candidate explicitly reports python.exe process creation from cmd.exe."
+    },
+    {
+      "item_id": "C11-S04:object",
+      "step_id": "C11-S04",
+      "kind": "object",
+      "gold_value": "C:\\Users\\aalsahee\\Documents\\hello.py",
+      "matched_candidate_excerpt": "S4 command_line=python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\"",
+      "score": 1,
+      "reason": "The target script path is explicitly present."
+    },
+    {
+      "item_id": "C11-S04:critical_evidence",
+      "step_id": "C11-S04",
+      "kind": "critical_evidence",
+      "gold_value": "CBC alert / CBC event parent_path and process_cmdline",
+      "matched_candidate_excerpt": "S4 evidence source_stream=audit_logs field=process_creation",
+      "score": 0,
+      "reason": "Candidate does not ground the claim in CBC parent_path plus process_cmdline."
+    },
+    {
+      "item_id": "C11-S05:subject",
+      "step_id": "C11-S05",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason": "Candidate treats python.exe as an object/child process, not as the subject executing the script."
+    },
+    {
+      "item_id": "C11-S05:action",
+      "step_id": "C11-S05",
+      "kind": "action",
+      "gold_value": "python.exe executes the Python script",
+      "matched_candidate_excerpt": "S4 command_line=python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\"",
+      "score": 0,
+      "reason": "The script command is present, but the candidate action is cmd.exe creating python.exe, not python.exe executing the script."
+    },
+    {
+      "item_id": "C11-S05:object",
+      "step_id": "C11-S05",
+      "kind": "object",
+      "gold_value": "C:\\Users\\aalsahee\\Documents\\hello.py",
+      "matched_candidate_excerpt": "S4 command_line=python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\"",
+      "score": 1,
+      "reason": "The hello.py script path is explicitly recovered."
+    },
+    {
+      "item_id": "C11-S05:critical_evidence",
+      "step_id": "C11-S05",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event process_cmdline",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason": "No CBC event process_cmdline evidence is provided for python.exe executing hello.py."
+    },
+    {
+      "item_id": "C11-S06:subject",
+      "step_id": "C11-S06",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": "S3 object.name=python.exe",
+      "score": 0,
+      "reason": "Candidate lists python.exe as the created child/object, not as the subject performing pip install."
+    },
+    {
+      "item_id": "C11-S06:action",
+      "step_id": "C11-S06",
+      "kind": "action",
+      "gold_value": "pip installs a package",
+      "matched_candidate_excerpt": "S3 command_line=python pip install xmltodict",
+      "score": 1,
+      "reason": "Candidate explicitly includes a pip install command."
+    },
+    {
+      "item_id": "C11-S06:object",
+      "step_id": "C11-S06",
+      "kind": "object",
+      "gold_value": "xmltodict",
+      "matched_candidate_excerpt": "S3 command_line=python pip install xmltodict",
+      "score": 1,
+      "reason": "The package name xmltodict is explicitly recovered."
+    },
+    {
+      "item_id": "C11-S06:critical_evidence",
+      "step_id": "C11-S06",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event process_cmdline",
+      "matched_candidate_excerpt": "S3 command_line=python pip install xmltodict; evidence source_stream=audit_logs",
+      "score": 0,
+      "reason": "The command is stated, but the required CBC event process_cmdline basis is not provided."
+    }
+  ],
+  "order_pairs": [
+    {
+      "pair_id": "C11-S01->C11-S02",
+      "before_step_id": "C11-S01",
+      "after_step_id": "C11-S02",
+      "matched_candidate_before_claim_id": null,
+      "matched_candidate_after_claim_id": null,
+      "score": 0,
+      "reason": "The plugin_host.exe -> cmd.exe step is not recovered, so the adjacent order cannot be established."
+    },
+    {
+      "pair_id": "C11-S02->C11-S03",
+      "before_step_id": "C11-S02",
+      "after_step_id": "C11-S03",
+      "matched_candidate_before_claim_id": null,
+      "matched_candidate_after_claim_id": "CL4",
+      "score": 0,
+      "reason": "The exact cmd.exe /c command step is missing before the python child-process claim."
+    },
+    {
+      "pair_id": "C11-S03->C11-S04",
+      "before_step_id": "C11-S03",
+      "after_step_id": "C11-S04",
+      "matched_candidate_before_claim_id": "CL4",
+      "matched_candidate_after_claim_id": "CL4",
+      "score": 0,
+      "reason": "Both gold perspectives collapse into a single candidate claim; no distinct adjacent sequence is recovered."
+    },
+    {
+      "pair_id": "C11-S04->C11-S05",
+      "before_step_id": "C11-S04",
+      "after_step_id": "C11-S05",
+      "matched_candidate_before_claim_id": "CL4",
+      "matched_candidate_after_claim_id": null,
+      "score": 0,
+      "reason": "Candidate does not separately claim python.exe as the subject executing hello.py after being launched."
+    },
+    {
+      "pair_id": "C11-S05->C11-S06",
+      "before_step_id": "C11-S05",
+      "after_step_id": "C11-S06",
+      "matched_candidate_before_claim_id": null,
+      "matched_candidate_after_claim_id": "CL3",
+      "score": 0,
+      "reason": "Candidate orders the pip/xmltodict claim before the hello.py launch claim and does not recover the python.exe script-execution step."
+    }
+  ],
+  "candidate_claim_scores": [
+    {
+      "candidate_claim_id": "CL1",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "RepWmiUtils.exe PID 1780 process_creation with command_line C:\\Program Files\\Confer\\RepWmiUtils.exe; parent_process=RepMgr.exe",
+      "slot_scores": [
+        {
+          "slot_id": "CL1:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "RepWmiUtils.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_process",
+          "reason": "Not part of the Sublime/cmd/python chain."
+        },
+        {
+          "slot_id": "CL1:action",
+          "kind": "action",
+          "candidate_slot_excerpt": "process_creation",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_process",
+          "reason": "Unrelated process creation from the prior day."
+        },
+        {
+          "slot_id": "CL1:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "C:\\Program Files\\Confer\\RepWmiUtils.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_object",
+          "reason": "No gold object matches this Carbon Black utility path."
+        },
+        {
+          "slot_id": "CL1:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs 2022-07-15 13:11:21",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "out_of_scope_evidence",
+          "reason": "Wrong time and wrong chain evidence."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL2",
+      "candidate_step_id": "S2",
+      "claim_excerpt": "RepMgr.exe PID 1976 process_creation with command_line C:\\Program Files\\Confer\\RepMgr.exe; parent_process=services.exe",
+      "slot_scores": [
+        {
+          "slot_id": "CL2:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "RepMgr.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_process",
+          "reason": "Not part of the gold behavior chain."
+        },
+        {
+          "slot_id": "CL2:action",
+          "kind": "action",
+          "candidate_slot_excerpt": "process_creation",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_process",
+          "reason": "Wrong process family and date."
+        },
+        {
+          "slot_id": "CL2:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "C:\\Program Files\\Confer\\RepMgr.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_object",
+          "reason": "No match to cmd.exe /c, hello.py, or xmltodict."
+        },
+        {
+          "slot_id": "CL2:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs 2022-07-15 13:12:23",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "out_of_scope_evidence",
+          "reason": "Wrong time and evidence basis."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL3",
+      "candidate_step_id": "S3",
+      "claim_excerpt": "cmd.exe PID 2700 starts python.exe with command_line python pip install xmltodict",
+      "slot_scores": [
+        {
+          "slot_id": "CL3:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "cmd.exe",
+          "matched_gold_item_id": "C11-S03:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "cmd.exe is a gold subject for the python child-process launch."
+        },
+        {
+          "slot_id": "CL3:action",
+          "kind": "action",
+          "candidate_slot_excerpt": "python.exe created by cmd.exe",
+          "matched_gold_item_id": "C11-S03:action",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "This matches the cmd.exe -> python.exe child-process action."
+        },
+        {
+          "slot_id": "CL3:command_object",
+          "kind": "object",
+          "candidate_slot_excerpt": "python pip install xmltodict",
+          "matched_gold_item_id": "C11-S06:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "The package object xmltodict is explicitly present."
+        },
+        {
+          "slot_id": "CL3:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "source_stream=audit_logs; field=process_creation; value=python.exe created by cmd.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "weak_or_wrong_evidence_basis",
+          "reason": "Not the required CBC event process_cmdline or procstart childproc_name evidence."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL4",
+      "candidate_step_id": "S4",
+      "claim_excerpt": "cmd.exe PID 2060 starts python.exe with command_line python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\"; parent_process=explorer.exe",
+      "slot_scores": [
+        {
+          "slot_id": "CL4:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "cmd.exe",
+          "matched_gold_item_id": "C11-S03:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "cmd.exe is correctly recovered as the launcher of python.exe."
+        },
+        {
+          "slot_id": "CL4:action",
+          "kind": "action",
+          "candidate_slot_excerpt": "python.exe created by cmd.exe",
+          "matched_gold_item_id": "C11-S03:action",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "This matches the cmd.exe -> python.exe process creation."
+        },
+        {
+          "slot_id": "CL4:command_object",
+          "kind": "object",
+          "candidate_slot_excerpt": "C:\\Users\\aalsahee\\Documents\\hello.py",
+          "matched_gold_item_id": "C11-S03:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "The script path is correct."
+        },
+        {
+          "slot_id": "CL4:parent_context",
+          "kind": "parent_context",
+          "candidate_slot_excerpt": "parent_process=explorer.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_parent_context",
+          "reason": "The gold chain origin for cmd.exe is plugin_host.exe, not explorer.exe."
+        },
+        {
+          "slot_id": "CL4:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "source_stream=audit_logs; field=process_creation",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "weak_or_wrong_evidence_basis",
+          "reason": "The claim is not grounded in the required CBC parent_path/process_cmdline or procstart childproc_name evidence."
+        }
+      ]
+    }
+  ],
+  "notes_ja": [
+    "No OpenAI/API scorer was used; scoring is manual from local gold and candidate files.",
+    "Candidate recovers partial cmd.exe -> python.exe behavior and the hello.py/xmltodict strings, but misses plugin_host.exe origin, the exact cmd.exe /c object, python.exe-as-subject script execution, and all required CBC evidence bases.",
+    "Unrelated RepWmiUtils.exe/RepMgr.exe claims are counted as overclaim slots.",
+    "Adjacent order receives zero because the candidate collapses steps, omits early steps, and places the pip/xmltodict claim before the hello.py claim."
+  ]
+}

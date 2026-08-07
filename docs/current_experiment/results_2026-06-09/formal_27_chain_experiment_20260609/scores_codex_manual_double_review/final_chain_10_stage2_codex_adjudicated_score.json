@@ -1,0 +1,79 @@
+{
+  "case": "chain_10_e07_discord_run_key_registry_chain_stage2",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "method": "codex_manual_double_review_adjudicated_no_api",
+  "review1_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/scores_codex_manual_double_review/review1/gpt-4.1-mini/stage2/chain_10_e07_discord_run_key_registry_chain_stage2/codex_score_result.json",
+  "review2_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/scores_codex_manual_double_review/review2/gpt-4.1-mini/stage2/chain_10_e07_discord_run_key_registry_chain_stage2/codex_score_result.json",
+  "adjudication_ja": "Both reviews agree on recall: candidate partially recovers discord.exe -> reg.exe and reg.exe registry_write to HKCU Run\\Discord, but it does not recover the reg.exe query command, the full add value data Update.exe --processStart Discord.exe, or CBC alert/event evidence. Precision is adjudicated conservatively at 5/8 because the Run\\Discord key is only a partial object match for the add/update claim.",
+  "final_totals": {
+    "action_step_recall_hits": 6,
+    "action_step_recall_total": 12,
+    "action_step_recall": 0.5,
+    "action_step_precision_hits": 5,
+    "action_step_precision_total": 8,
+    "action_step_precision": 0.625,
+    "candidate_claim_precision_hits": 5,
+    "candidate_claim_precision_total": 8,
+    "candidate_claim_precision": 0.625,
+    "overclaim_slot_count": 3,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 2,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 3,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 0,
+    "behavior_step_recall_total": 3,
+    "behavior_step_recall": 0.0
+  },
+  "final_gold_step_scores": [
+    {
+      "step_id": "C10-S01",
+      "summary": "discord.exe starts C:\\Windows\\System32\\reg.exe query/add child processes",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate names discord.exe and a reg.exe child relation, but only generic reg.exe is recovered. It does not include C:\\Windows\\System32\\reg.exe, query/add command context, or CBC parent/command-line evidence."
+    },
+    {
+      "step_id": "C10-S02",
+      "summary": "reg.exe queries HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord",
+      "scores": {
+        "subject": 1,
+        "action": 0,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate names reg.exe and the Run\\Discord registry target, but reports registry_write rather than the query operation and does not cite CBC process command_line evidence."
+    },
+    {
+      "step_id": "C10-S03",
+      "summary": "reg.exe adds/updates Run\\Discord value to Discord Update.exe --processStart Discord.exe",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate reports reg.exe registry_write to Run\\Discord, but omits the required value data C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe and the CBC command_line/regmod_name evidence."
+    }
+  ],
+  "final_order_pairs": [
+    {
+      "before_step_id": "C10-S01",
+      "after_step_id": "C10-S02",
+      "score": 0,
+      "reason": "Candidate does not separately recover the query step after the parent reg.exe launch."
+    },
+    {
+      "before_step_id": "C10-S02",
+      "after_step_id": "C10-S03",
+      "score": 0,
+      "reason": "Candidate collapses the registry behavior into a single write claim and does not recover query then add/update order."
+    }
+  ]
+}

@@ -1,0 +1,2883 @@
+{
+  "run_id": "20260730T070707Z_s3_pt_01_word_document_processing_stage1_gpt-5.4-mini_official",
+  "started_at_utc": "2026-07-30T07:07:07.012908+00:00",
+  "pipeline": "external/Clouseau/artifact official chief_inspector.investigate_atlas",
+  "llm_provider": "openai",
+  "model": "gpt-5.4-mini",
+  "instance_id": "s3_pt_01_word_document_processing_stage1",
+  "gold_reference": {
+    "instance_id": "s3_pt_01_word_document_processing_stage1",
+    "case_id": "s3_pt_01_word_document_processing_stage1",
+    "input_id": "atlasv2_attack8_process_chain_v5_formal_01_stage1",
+    "stage": "stage1",
+    "scenario": "atlasv2-attack-h1-s3",
+    "database": "Clouseau\\artifact\\scenarios\\atlasv2\\attack\\h1\\s3\\incident.db",
+    "host": "WIN-32-H1",
+    "process_name": "winword.exe",
+    "actor": "winword.exe",
+    "expected_behavior": "S3-C1: Word document processing",
+    "expected_behavior_category": "cbc_alert_attack_behavior_reconstruction",
+    "context_label": "attack_process_behavior_chain",
+    "suite_group": "atlasv2_s3_s4_attack8_process_chain_v5_formal",
+    "difficulty": "alert_input",
+    "time_window_utc": {
+      "episode_start": "2022-07-19T14:31:00Z",
+      "episode_end": "2022-07-19T14:36:00Z",
+      "analysis_scope": "finalized process behavior-chain window; surrounding DB evidence may be inspected but unrelated activity is not Gold"
+    },
+    "anchor_event": {
+      "source_stream": "cbc-edr-alerts",
+      "timestamp_utc": "2022-07-19T14:36:55.966Z",
+      "database_time": "2022-07-19 14:36:55",
+      "alert_id": "CFnKBKLTv6hUkBGFobRdg-565619",
+      "alert_name": "Persistence - Office Application Startup - normal.dotm",
+      "process_name": "winword.exe",
+      "process_path": null,
+      "process_cmdline": null,
+      "parent_path": null,
+      "parent_cmdline": null,
+      "severity": 2,
+      "reason": null,
+      "event_record_id": "CFnKBKLTv6hUkBGFobRdg-565619",
+      "action": "cbc_alert"
+    },
+    "input_alert_rows": [
+      {
+        "source_row_id": 29,
+        "time": "2022-07-19T14:36:55.966Z",
+        "alert_id": "CFnKBKLTv6hUkBGFobRdg-565619",
+        "alert_name": "Persistence - Office Application Startup - normal.dotm",
+        "alert_reason": null,
+        "process": "c:\\program files\\microsoft office\\office14\\winword.exe",
+        "pid": 5592,
+        "source_stream": "cbc-edr-alerts",
+        "severity": 2
+      }
+    ],
+    "model_ready_input": {
+      "input_id": "atlasv2_attack8_process_chain_v5_formal_01",
+      "stage": "stage1",
+      "input": {
+        "host": "WIN-32-H1",
+        "focus_processes": [
+          "winword.exe"
+        ],
+        "chain_window_start_utc": "2022-07-19T14:31:00Z",
+        "chain_window_end_utc": "2022-07-19T14:36:00Z",
+        "alerts": [
+          {
+            "source_row_id": 29,
+            "time": "2022-07-19T14:36:55.966Z",
+            "alert_id": "CFnKBKLTv6hUkBGFobRdg-565619",
+            "alert_name": "Persistence - Office Application Startup - normal.dotm",
+            "alert_reason": null,
+            "process": "c:\\program files\\microsoft office\\office14\\winword.exe",
+            "pid": 5592,
+            "source_stream": "cbc-edr-alerts",
+            "severity": 2
+          }
+        ]
+      }
+    },
+    "gold_chain_file": "by_chain/s3_pt_01_word_document_processing/chain_gold.json",
+    "chain_id": "s3_pt_01_word_document_processing",
+    "chain_type": "cbc_alert_attack_behavior_reconstruction",
+    "formal_gold_root": "data\\current_experiment\\gold\\atlasv2_s3_s4_attack8_process_chain_v5_formal_gold_20260727",
+    "stage_input_policy": "Stage 1: representative CBC alert plus host, focus process, and five-minute chain scope.",
+    "stage23_answerable_policy": "CBC alert fields are excluded from the model input. Gold is based only on canonical CBC telemetry events.",
+    "quality": "normal23_process_chain_parity_v5_formal_20260727",
+    "stage3_answerable_policy": "Every scored action is supported by primary CBC event telemetry; hidden alert correspondence is not required.",
+    "paired_stage_contract": {
+      "contract_version": "process_behavior_chain_normal23_parity_v5_formal",
+      "evaluation_unit": "process-attributed causal behavior chain",
+      "same_gold_all_stages": true,
+      "same_process_and_five_minute_scope_all_stages": true,
+      "target_component_rule": "Reconstruct the compact causal behavior chain around the supplied focus process and five-minute scope. Express each major behavior as process subject, semantic action, and object. Include central document/script input, explicit process creation or execution, and behavior-defining external communication. Treat PID values, duplicate sensor rows, temporary or cache lifecycle operations, and file materialization that merely duplicates the same download/execution behavior as supporting evidence, not additional actions. Do not connect nearby activity by time or shared process name alone.",
+      "target_rule_exposed_to_model": false,
+      "neutral_anchor_exposed_to_model": false,
+      "alert_mapping_scored": false,
+      "hard_time_scope": false,
+      "critical_evidence_separate_diagnostic": true,
+      "pid_identity_scored": false,
+      "chain_index": 1
+    },
+    "investigation_time_anchor_utc": "2022-07-19T14:31:00Z",
+    "investigation_time_anchor_policy": "five-minute chain scope start; not an exposed event-level pivot",
+    "environment_context": "CLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。"
+  },
+  "source_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\Clouseau\\artifact\\scenarios\\atlasv2\\attack\\h1\\s3\\incident.db",
+  "adapter_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260730T070707Z_s3_pt_01_word_document_processing_stage1_gpt-5.4-mini_official\\scenario.db",
+  "adapter_counts": {
+    "audit_logs": 279959,
+    "sysmon_audit_rows": 661,
+    "cbc_event_audit_rows": 21376,
+    "cbc_alert_audit_rows": 35,
+    "dns_requests": 12502,
+    "browser_history": 10304,
+    "adapter_version": "v3_evidence_preserving_parent_context"
+  },
+  "clue": "これは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage1\n- host: WIN-32-H1\n- process: winword.exe\n- timestamp: 2022-07-19 14:36:55\n- 参考 UTC 時間範囲: 2022-07-19T14:31:00Z から 2022-07-19T14:36:00Z\n- 参考 database 時間範囲: 2022-07-19 14:31:00 から 2022-07-19 14:36:00\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 1: SOC analyst が見ている CBC alert triage 情報を初期入力に含める。\n- 入力 alert fields は探索起点であり、最終的な code step ではない。\n- alert report_name/reason は evidence として扱い、operation や code_sequence に入れない。\n- command line、parent process、child process、registry object、file object、network object、behavior category は入力から仮定しない。\n- それらの値は、存在するなら log から発見する必要がある。\n- input_alert_timestamp_utc: 2022-07-19T14:36:55.966Z\n- input_alert_database_time: 2022-07-19 14:36:55\n- input_alert_source_stream: cbc-edr-alerts\n- input_alert_id: CFnKBKLTv6hUkBGFobRdg-565619\n- input_alert_name: Persistence - Office Application Startup - normal.dotm\n- input_alert_reason: None\n- input_alert_process_name: c:\\program files\\microsoft office\\office14\\winword.exe\n- input_alert_severity: 2\n- alert-to-Gold correspondence, hidden alert identity, and alert-title prediction are not scored.\n- database には CBC alert summary rows、CBC EDR/NGAV event telemetry、Security、Sysmon、DNS、browser history が残っている。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n",
+  "dry_run": false,
+  "difficulty": "alert_input",
+  "reasoning_effort": null,
+  "experiment_stage": "stage1",
+  "expected_input_fields": [
+    "host",
+    "focus_processes",
+    "chain_window_start_utc",
+    "chain_window_end_utc",
+    "alert_time",
+    "alert_id",
+    "alert_name",
+    "alert_reason",
+    "alert_process",
+    "alert_pid",
+    "alert_source_stream",
+    "alert_severity"
+  ],
+  "configs": {
+    "max_investigations": null,
+    "max_questions": null,
+    "max_queries": null,
+    "max_tokens": 24576,
+    "reasoning_effort": null,
+    "agent_call_limit_policy": "unbounded_by_experiment",
+    "frontier_closure_policy": "observed_unresolved_frontier_review_v1",
+    "sql_execution_guard": {
+      "timeout_seconds": 1200,
+      "vm_step_limit": 50000000,
+      "result_row_limit": 30,
+      "recursive_union_all_policy": "rejected",
+      "query_only": true
+    },
+    "process_tree_guard": {
+      "cycle_or_pid_reuse_detection": true,
+      "pid_plus_observed_time_instance_resolution": true,
+      "monotonic_child_time_required": true,
+      "max_depth": 64,
+      "max_nodes": 500,
+      "max_parent_child_edge_seconds": 900
+    },
+    "lead_expansion_guard": {
+      "enabled": true,
+      "max_investigator_questions_per_lead": 20,
+      "max_sql_tool_calls_per_question": 12,
+      "max_sql_tool_calls_per_lead": 80,
+      "max_wall_seconds_per_lead": 1200.0,
+      "on_trigger": "summarize_collected_evidence_and_return_unresolved_frontier_to_chief"
+    }
+  },
+  "official_messages": [
+    {
+      "type": "HumanMessage",
+      "content": "## 役割\nあなたは CLOUSEAU の階層型調査パイプラインにおける Chief エージェントである。\n\n## 目的\nプロセス時刻起点から Windows エンドポイントのコード行動列を復元する。\n\n## 出力言語\n- 調査リード、要約、最終報告の自然言語値はすべて日本語で書く。\n- raw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま残す。\n\n## 調査リード作成ルール\n- SQL を書かない。\n- database column の列挙を調査リードにしない。\n- alert title、command line、parent process、target object、application intent、behavior category を仮定しない。\n- CBC alert 内容は起点情報の一部ではない。調査担当が database 内で発見した場合にだけ使う。\n- 各調査リードには、調査対象、調査理由、確認したい証拠を含める。\n- parent process、command line、target object、related rows をログから発見させる調査リードを優先する。\n- 近傍 row の接続関係は、先に決め打ちせず、観測証拠で検証する。\n- investigate_lead は必要な回数だけ繰り返してよく、同一応答で複数の異なる調査リードを出してよい。\n- 各調査結果から新しく観測された parent/child process、PID/GUID、command line、target object、network endpoint を、未確認の因果 edge ごとに次の調査リードへ分ける。\n- 観測済みで対象行動列に因果的に接続する未調査 edge が残っている間は、最終回答へ進まない。\n- 固定個数を満たすための調査、既に確認済みのリードの反復、時刻が近いだけの row の追跡は行わない。\n- 最終回答は valid JSON のみである。\n\n## 環境\nCLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。\n\n## SOC からの起点情報\nこれは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage1\n- host: WIN-32-H1\n- process: winword.exe\n- timestamp: 2022-07-19 14:36:55\n- 参考 UTC 時間範囲: 2022-07-19T14:31:00Z から 2022-07-19T14:36:00Z\n- 参考 database 時間範囲: 2022-07-19 14:31:00 から 2022-07-19 14:36:00\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 1: SOC analyst が見ている CBC alert triage 情報を初期入力に含める。\n- 入力 alert fields は探索起点であり、最終的な code step ではない。\n- alert report_name/reason は evidence として扱い、operation や code_sequence に入れない。\n- command line、parent process、child process、registry object、file object、network object、behavior category は入力から仮定しない。\n- それらの値は、存在するなら log から発見する必要がある。\n- input_alert_timestamp_utc: 2022-07-19T14:36:55.966Z\n- input_alert_database_time: 2022-07-19 14:36:55\n- input_alert_source_stream: cbc-edr-alerts\n- input_alert_id: CFnKBKLTv6hUkBGFobRdg-565619\n- input_alert_name: Persistence - Office Application Startup - normal.dotm\n- input_alert_reason: None\n- input_alert_process_name: c:\\program files\\microsoft office\\office14\\winword.exe\n- input_alert_severity: 2\n- alert-to-Gold correspondence, hidden alert identity, and alert-title prediction are not scored.\n- database には CBC alert summary rows、CBC EDR/NGAV event telemetry、Security、Sysmon、DNS、browser history が残っている。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n\n\n\n## Shared CBC alert investigation policy\nWhen the initial task contains CBC alert triage information, use the same procedure for every case:\n1. Reconstruct the evidence-backed behavior relevant to the input alert.\n2. Treat the supplied alert title and reason as exploration evidence, not as an operation or code step.\n3. Keep sequences separate unless an observed parent/child, command-line, network-target, or object edge connects them; do not infer causality from temporal proximity alone.\n4. Do not infer an alert ID, title, reason, or alert-to-behavior correspondence that was not supplied.\n5. Do not assume that the alert or any nearby behavior is benign or malicious before observing evidence.\n"
+    },
+    {
+      "type": "AIMessage",
+      "content": "",
+      "usage_metadata": {
+        "input_tokens": 2255,
+        "output_tokens": 170,
+        "total_tokens": 2425,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "host WIN-32-H1 の 2022-07-19 14:31:00〜14:36:00 付近で、winword.exe（input_alert_process_name: c:\\program files\\microsoft office\\office14\\winword.exe）に直接つながる親プロセス、子プロセス、コマンドライン、関連ファイル/レジストリ/ネットワークを確認してください。CBC alert 起点の前後で、観測された因果 edge を使って code 行動列を復元したいので、該当する event_record_id、PID/PPID、process name、timestamp、source_stream を含む証拠を確認してください。"
+          },
+          "id": "call_TlXxL1UGb0mA6sPrMCXMgVtF",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "type": "ToolMessage",
+      "content": "## 仮説\n- 2022-07-19 14:31:00〜14:36:00 の間に、`C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE` は `explorer.exe` から起動され、その直後に少なくとも 1 つの子プロセスを生成し、ファイル・レジストリ・モジュール読込の行動が観測されている。\n- ただし、現時点の観測では `WINWORD.EXE` に直接つながるネットワーク接続は確認できていない。\n\n## 観測事実\n- 起点プロセス:\n  - `2022-07-19 14:33:17`\n  - `event_record_id`: `9807`\n  - `PID`: `5592`\n  - `PPID`: `1604`\n  - `process name`: `c:\\program files\\microsoft office\\office14\\winword.exe`\n  - `source_stream`: `cbc-edr`\n  - `parent_process_name`: `explorer.exe`\n  - `parent_process_path`: `c:\\windows\\explorer.exe`\n  - `parent_command_line`: `C:\\Windows\\Explorer.EXE`\n  - `command_line`: `\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"`\n\n- 同一起動の Sysmon 証拠:\n  - `2022-07-19 14:33:17`\n  - `event_record_id`: `4162`\n  - `PID`: `5592`\n  - `PPID`: `1604`\n  - `process name`: `C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE`\n  - `source_stream`: `sysmon`\n\n- 直接の子プロセス:\n  - `2022-07-19 14:33:20`\n  - `event_record_id`: `4163`\n  - `PID`: `3368`\n  - `PPID`: `5592`\n  - `process name`: `WINWORD.EXE / winword.exe`\n  - `source_stream`: `sysmon`\n  - `command_line`: `\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding`\n\n- ファイル関連:\n  - `event_record_id`: `9854`, `9855`, `9856`\n    - `PID`: `5592`\n    - `source_stream`: `cbc-edr`\n    - `filemod_name`: `c:\\users\\aalsahee\\appdata\\local\\temp\\cvr8e4a.tmp`\n    - `access`: `ACTION_FILE_CREATE | ACTION_FILE_OPEN_READ`, `ACTION_FILE_MOD_OPEN | ACTION_FILE_OPEN_DELETE`, `ACTION_FILE_RENAME`\n  - `event_record_id`: `8745`, `8749`, `8750`, `8751`\n    - `PID`: `3368`\n    - `source_stream`: `cbc-edr`\n    - `filemod_name`: `c:\\users\\aalsahee\\appdata\\local\\temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\appdata...`\n    - `access`: `ACTION_FILE_CREATE`\n\n- レジストリ関連:\n  - `event_record_id`: `9857`\n    - `PID`: `5592`\n    - `source_stream`: `cbc-edr`\n    - `regmod_name`: `HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Microsoft\\Office\\14.0\\Word\\Resiliency\\StartupItems`\n  - `event_record_id`: `9858`\n    - `PID`: `5592`\n    - `source_stream`: `cbc-edr`\n    - `regmod_name`: `HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Microsoft\\Office\\14.0\\Word\\Resiliency\\StartupItems\\zn`\n  - `event_record_id`: `9860`\n    - `PID`: `5592`\n    - `source_stream`: `cbc-edr`\n    - `regmod_name`: `HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Microsoft\\Office\\14.0\\Common\\LanguageResources\\EnabledLanguages\\1033`\n\n- モジュール読込:\n  - `event_record_id`: `9813`, `9815`, `9816`, `9817`, `9818`, `9834`, `9835`, `9836`, `9837`, `9838`, `9850`, `9851`, `9852`, `9853`, `9859`, `9861`, `9862`\n  - `PID`: `5592`\n  - `source_stream`: `cbc-edr`\n  - `access`: `ACTION_LOAD_MODULE`\n  - 例:\n    - `c:\\windows\\system32\\ctiuser.dll`\n    - `c:\\windows\\system32\\msi.dll`\n    - `c:\\program files\\microsoft office\\office14\\wwlib.dll`\n    - `c:\\program files\\common files\\microsoft shared\\office14\\mso.dll`\n    - `c:\\program files\\common files\\microsoft shared\\officesoftwareprotectionplatform\\osppc.dll`\n\n## 解釈\n- 観測された edge は、`explorer.exe -> WINWORD.EXE -> WINWORD.EXE /Embedding` の親子関係を示している。\n- `WINWORD.EXE` 直下でファイル作成、レジストリ書き込み、DLL 読込が同時期に見えているが、これらは個別の観測事実であり、追加の直接 edge がない限り一連の動作として断定しない。\n- ネットワークについては、少なくとも今回の抽出結果では `netconn_domain` / `remote_ip` / `remote_port` による直接証拠は見えていない。\n\n## 限界\n- 子プロセスは現時点で 1 件のみ確認できているが、さらに下位の連鎖は未確認。\n- `WINWORD.EXE` によるファイルアクセスのうち、入力文書や一時ファイルと `WINWORD.EXE` の因果接続は見えるが、ファイル内容までは分からない。\n- 通信先不在は「今回の条件では観測されなかった」という意味であり、通信がなかったことの確定ではない。\n\n## 次の調査理由\n- `WINWORD.EXE` 直下の子プロセス `PID 3368` がさらに別プロセスを生成しているかを確認すると、起点からの行動列をより正確に復元できるため。\n- ネットワーク edge が未確認なので、`PID 5592` と `PID 3368` の双方について通信先を追加確認する必要があるため。\n\n## unresolved_frontier\n- entity: `PID 3368 / winword.exe / WINWORD.EXE`\n  - evidence: `event_record_id 4163`, `PPID 5592`, `command_line \"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding`, `source_stream sysmon`\n  - 未確認 edge: `PID 3368` からのさらに下位の子プロセス生成\n  - 推奨する次の調査対象: `PID 3368` の child process と command_line\n- entity: `PID 5592 / C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE`\n  - evidence: `event_record_id 9807`, `command_line \"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"`, `source_stream cbc-edr`, `parent_process_name explorer.exe`\n  - 未確認 edge: `WINWORD.EXE` からの network endpoint への直接接続\n  - 推奨する次の調査対象: `PID 5592` の netconn 系証拠（remote_ip / remote_port / netconn_domain）\n",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "AIMessage",
+      "content": "",
+      "usage_metadata": {
+        "input_tokens": 4294,
+        "output_tokens": 233,
+        "total_tokens": 4527,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 2176
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "PID 3368 の WINWORD.EXE /Embedding について、さらに子プロセス生成や関連する command_line、実行後のファイル/レジストリ/ネットワーク edge を確認してください。PID 5592 との因果関係を維持しつつ、観測された子孫プロセスがあるかを event_record_id、timestamp、source_stream で確認したいです。"
+          },
+          "id": "call_65EvLLENkGoDyX2ThbPAExQC",
+          "type": "tool_call"
+        },
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "PID 5592 の WINWORD.EXE について、ネットワーク接続の有無と関連する endpoint、また同時期に生じたファイル作成・レジストリ変更・モジュール読込のうち code sequence に入る因果 edge を確認してください。parent/child process と接続できる証拠だけを拾い、未確認の行動は分離してください。"
+          },
+          "id": "call_FqLv0raqdNx7e90WFGsEwwJ9",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "type": "ToolMessage",
+      "content": "以下、観測事実ベースで整理します。\n\n## 仮説\nPID 5592 に紐づく Microsoft Word の起動系列の中で、PID 3368 の `WINWORD.EXE /Embedding` が発生し、その周辺で file/registry 変更は観測されるが、今回の範囲では子プロセスの追加展開や network edge はまだ確認できていない可能性があります。  \nただし、これは仮説であり、現時点では因果接続の一部のみ確認済みです。\n\n## 観測結果要約\n### 1) PID 5592 と PID 3368 の直接接続\n- `pid`: `3368`\n- `ppid`: `5592`\n- `parent_process_name`: `WINWORD.EXE` / `winword.exe`\n- `parent_process_path`: `C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE` / `c:\\program files\\microsoft office\\office14\\winword.exe`\n- `parent_command_line`: `\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"`\n- `process_guid`: `{558F98EB-C0B0-62D6-0201-000000003B00}`\n- `parent_process_guid`: `{558F98EB-C0AD-62D6-0101-000000003B00}`\n\n### 2) PID 3368 の `/Embedding`\n- `time`: `2022-07-19 14:33:20`\n- `source_stream`: `cbc-edr`\n- `command_line`: `\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding`\n- 取得できた範囲では `childproc_name` は `None`\n- この検索範囲では、PID 3368 の子プロセス生成は確認できませんでした\n\n### 3) PID 5592 の直後に観測された子プロセス\n- `timestamp`: `2022-07-19 14:33:20`\n- `event_record_id`: `4163`\n- `source_stream`: `sysmon`\n- `child process` として観測された `pid`: `3368`\n- `command_line`: `\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /Embedding`\n- `childproc_name`: `None`\n\n### 4) PID 5592 に関連する file / registry edge\n観測された edge は以下です。\n\n- `2022-07-19 14:33:18` `cbc-edr`\n  - `filemod_name`: `c:\\users\\aalsahee\\appdata\\local\\temp\\cvr8e4a.tmp`\n- `2022-07-19 14:33:18` `cbc-edr`\n  - `regmod_name`: `HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Microsoft\\Office\\14.0\\Word\\Resiliency\\StartupItems`\n- `2022-07-19 14:33:18` `cbc-edr`\n  - `regmod_name`: `HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Microsoft\\Office\\14.0\\Word\\Resiliency\\StartupItems\\zn`\n- `2022-07-19 14:33:18` `cbc-edr`\n  - `regmod_name`: `HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Microsoft\\Office\\14.0\\Common\\LanguageResources\\EnabledLanguages\\1033`\n- `2022-07-19 14:33:19` `cbc-edr`\n  - `regmod_name`: `HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Microsoft\\Office\\14.0\\Word\\Resiliency\\StartupItems\\!r`\n- `2022-07-19 14:33:19` `cbc-edr`\n  - `regmod_name`: `HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Microsoft\\Office\\14.0\\Word\\Resiliency\\StartupItems\\>r`\n- `2022-07-19 14:33:19` `cbc-edr`\n  - `regmod_name`: `HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\UserData\\S-1-5-18\\Products\\00004109110000000000000000F01FEC\\Usage\\WORDFiles`\n- `2022-07-19 14:33:19` `cbc-edr`\n  - `regmod_name`: `HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\UserData\\S-1-5-18\\Products\\00004109110000000000000000F01FEC\\Usage\\ProductFiles`\n- `2022-07-19 14:33:19` `cbc-edr`\n  - `filemod_name`: `c:\\users\\aalsahee\\appdata\\roaming\\microsoft\\templates\\normal.dotm`\n- `2022-07-19 14:33:19` `cbc-edr`\n  - `filemod_name`: `c:\\users\\aalsahee\\appdata\\local\\microsoft\\windows\\temporary internet files\\content.word\\~wrs{66afc31d-20b0-460b-84b1-36a3d5f1be78}.tmp`\n- `2022-07-19 14:33:20` `cbc-edr`\n  - `filemod_name`: `c:\\users\\aalsahee\\downloads\\s3take2\\msf.rtf`\n- `2022-07-19 14:33:20` `cbc-edr`\n  - `filemod_name`: `c:\\users\\aalsahee\\downloads\\s3take2\\~$msf.rtf`\n- `2022-07-19 14:33:20` `cbc-edr`\n  - `filemod_name`: `c:\\users\\aalsahee\\appdata\\roaming\\microsoft\\office\\recent\\msf.rtf.lnk`\n- `2022-07-19 14:33:20` `cbc-edr`\n  - `filemod_name`: `c:\\users\\aalsahee\\appdata\\roaming\\microsoft\\office\\recent\\index.dat`\n- `2022-07-19 14:33:20` `cbc-edr`\n  - `filemod_name`: `c:\\users\\aalsahee\\appdata\\local\\temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0`\n- `2022-07-19 14:33:20` `cbc-edr`\n  - `filemod_name`: `c:\\users\\aalsahee\\appdata\\local\\temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\c586a0f0.rtf`\n- `2022-07-19 14:33:20` `cbc-edr`\n  - `filemod_name`: `c:\\users\\aalsahee\\appdata\\local\\temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\c586a0f0.rtf:zone.identifier`\n- `2022-07-19 14:33:20` `cbc-edr`\n  - `regmod_name`: `HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Microsoft\\Office\\14.0\\Word\\Place MRU\\Max Display`\n- `2022-07-19 14:33:20` `cbc-edr`\n  - `regmod_name`: `HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Microsoft\\Office\\14.0\\Word\\Place MRU\\Item 1`\n\n### 5) Network edge\n- `netconn_domain`: いずれも `None`\n- `remote_ip`: いずれも `None`\n- `remote_port`: いずれも `None`\n- この検索範囲では network edge は確認できませんでした\n\n## 解釈\n- **事実**として、PID 5592 と PID 3368 は親子関係で直接つながっています。\n- **事実**として、`WINWORD.EXE /Embedding` に対応する `sysmon` 行があり、`event_record_id = 4163` で確認できました。\n- **事実**として、PID 5592 の近傍で複数の filemod / regmod が観測されました。\n- **限界**として、今回の回答では PID 3368 の配下子プロセス、network edge、また file/reg 変更と PID 3368 との直接 edge はまだ完全には結べていません。\n\n## 次の調査理由\n- PID 3368 が本当に終端なのか、あるいは追加の子孫プロセスがあるのかを確認する必要があります。\n- 近傍の file/reg 変更が PID 5592 側のものに見えるため、PID 3368 に直接ひも付く event_record_id と source_stream を追加で確認したいです。\n- network edge が未確認なので、PID 3368 と外向き通信の直接接続があるかを次に切り分ける価値があります。\n\n## unresolved_frontier\n- entity: `PID 3368`\n  - evidence: `ppid=5592`, `parent_command_line=\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"`, `process_guid={558F98EB-C0B0-62D6-0201-000000003B00}`, `source_stream=sysmon/cbc-edr`\n  - 未確認 edge: `PID 3368` からの子プロセス生成の有無、ならびに `PID 3368` に直接紐づく file/reg/network edge\n  - 推奨する次の調査対象: `PID 3368` の後続 event_record_id と timestamp を追い、child/ filemod / regmod / netconn を direct evidence で再確認する\n\n- entity: `PID 5592`\n  - evidence: `event_record_id=4163`, `source_stream=sysmon`, `command_line=\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /Embedding`, 近傍で `filemod_name` と `regmod_name` が複数観測\n  - 未確認 edge: これらの file/reg 変更が `PID 5592` 由来であることを示す直接接続、または `PID 5592 -> PID 3368` 以外の子孫\n  - 推奨する次の調査対象: `PID 5592` の前後 event_record_id を広げ、同一 process tree 内の子孫と対象 edge を再確認する\n\n- entity: `network endpoint`\n  - evidence: 今回の検索では `netconn_domain=None`, `remote_ip=None`, `remote_port=None`\n  - 未確認 edge: `PID 3368` または `PID 5592` からの network connection\n  - 推奨する次の調査対象: `WINWORD.EXE` 系列の netconn を source_stream 別に再検索する",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "ToolMessage",
+      "content": "### 仮説\nPID 5592 の `WINWORD.EXE` は、`2022-07-19 14:33:17` に `msf.rtf` を開いた直後、`ppid=5592` の子プロセス `pid=3368` を起動し、その周辺でファイル作成/更新とモジュール読込が観測されている。ただし、この時点ではネットワーク接続とレジストリ変更の直接証拠は確認できていない。\n\n### 質問\n1. `WINWORD.EXE`（PID 5592）から直接生成された子プロセス `pid=3368` 以外に、同じ親子関係で追加の子プロセスがあるか。  \n2. `pid=3368` について、`filemod_name` と `modload_name` の各対象が同一の実行連鎖に属するかを、さらに子プロセス・親プロセスの直接証拠で確認できるか。  \n3. `pid=3368` またはその子孫で、`remote_ip` / `remote_port` を伴うネットワーク接続の直接証拠があるか。  \n4. `regmod_name` を伴うレジストリ変更の直接証拠が、`pid=3368` 系列に接続できるか。\n\n### 結果要約\n**観測事実**\n- `PID 5592` の `WINWORD.EXE` は `sysmon` で `2022-07-19 14:33:17` に起動し、コマンドラインは  \n  `\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"`\n- 親プロセス証拠は `explorer.exe`。  \n  - `parent_process_name = explorer.exe`\n  - `parent_process_path = c:\\windows\\explorer.exe`\n  - `parent_command_line = C:\\Windows\\Explorer.EXE`\n- `PID 5592` から直接つながる子プロセスとして `PID 3368` が観測された。  \n  - `2022-07-19 14:33:20`\n  - `command_line = \"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /Embedding`\n  - `parent command line = \"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"`\n  - `source_stream = sysmon` および `cbc-edr`\n- `PID 3368` では、`cbc-edr` で `c:\\windows\\system32\\ctiuser.dll` の `modload` と、`c:\\users\\aalsahee\\appdata\\local\\temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\...` 配下の複数 `filemod` が観測された。\n\n**解釈**\n- 観測されている `filemod_name` と `modload_name` は、いずれも `parent_path` / `parent_cmdline` が `WINWORD.EXE` に直結しており、`WINWORD.EXE` 系列に紐づく証拠として扱える。\n- 一方で、`PID 3368` 系列の **ネットワーク接続** と **レジストリ変更** は、現時点の観測では直接つながる row が見つからない。\n- `childproc_name` は今回の取得では `None` だが、`pid/ppid` と `parent_command_line` により親子接続は確認できている。\n\n**限界**\n- ネットワーク行動は `remote_ip` / `remote_port` を伴う直接証拠が未確認。\n- レジストリ変更は `regmod_name` の直接証拠が未確認。\n- `filemod` と `modload` は多数あるが、`pid/ppid` と `parent_*` で接続されたものだけを因果連鎖候補として扱っている。時刻の近さだけでは連鎖確定しない。\n\n## unresolved_frontier\n- **entity:** `pid=3368` の `WINWORD.EXE` 系列  \n  **evidence:** `pid=3368, ppid=5592`, `command_line = \"... /Embedding\"`, `parent command line = \"... /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"\"`  \n  **未確認 edge:** この系列から `remote_ip` / `remote_port` を伴うネットワーク接続への直接 edge  \n  **次の調査対象:** `pid=3368` とその子孫の network event\n- **entity:** `pid=3368` の `WINWORD.EXE` 系列  \n  **evidence:** `modload_name = c:\\windows\\system32\\ctiuser.dll`, `filemod_name = c:\\users\\aalsahee\\appdata\\local\\temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\...`  \n  **未確認 edge:** これらの file/mod load が同一の code sequence に属することを示す追加の child/parent 連結  \n  **次の調査対象:** `pid=3368` の子プロセスと直後のプロセス起点\n- **entity:** `pid=3368` の `WINWORD.EXE` 系列  \n  **evidence:** `source_stream = cbc-edr`, 同時期に複数の `filemod` と `modload` が観測  \n  **未確認 edge:** `regmod_name` を伴うレジストリ変更への接続  \n  **次の調査対象:** 同系列の registry event",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\n  \"host\": \"WIN-32-H1\",\n  \"input_alert\": {\n    \"alert_id\": \"CFnKBKLTv6hUkBGFobRdg-565619\",\n    \"alert_name\": \"Persistence - Office Application Startup - normal.dotm\",\n    \"input_alert_timestamp_utc\": \"2022-07-19T14:36:55.966Z\",\n    \"input_alert_database_time\": \"2022-07-19 14:36:55\",\n    \"input_alert_source_stream\": \"cbc-edr-alerts\",\n    \"input_alert_process_name\": \"c:\\\\program files\\\\microsoft office\\\\office14\\\\winword.exe\",\n    \"input_alert_severity\": 2\n  },\n  \"code_steps\": [\n    {\n      \"step\": 1,\n      \"timestamp\": \"2022-07-19 14:33:17\",\n      \"event_record_id\": \"9807\",\n      \"source_stream\": \"cbc-edr\",\n      \"process_name\": \"c:\\\\program files\\\\microsoft office\\\\office14\\\\winword.exe\",\n      \"pid\": 5592,\n      \"ppid\": 1604,\n      \"parent_process_name\": \"explorer.exe\",\n      \"parent_process_path\": \"c:\\\\windows\\\\explorer.exe\",\n      \"parent_command_line\": \"C:\\\\Windows\\\\Explorer.EXE\",\n      \"command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /n \\\"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\\\"\",\n      \"description\": \"explorer.exe から WINWORD.EXE が起動され、`msf.rtf` を開いていることが観測された。\"\n    },\n    {\n      \"step\": 2,\n      \"timestamp\": \"2022-07-19 14:33:20\",\n      \"event_record_id\": \"4163\",\n      \"source_stream\": \"sysmon\",\n      \"process_name\": \"WINWORD.EXE / winword.exe\",\n      \"pid\": 3368,\n      \"ppid\": 5592,\n      \"parent_process_name\": \"WINWORD.EXE\",\n      \"parent_process_path\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n      \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /n \\\"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\\\"\",\n      \"command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"  /Embedding\",\n      \"description\": \"WINWORD.EXE が /Embedding 付きで子プロセスとして起動されていることが観測された。\"\n    },\n    {\n      \"step\": 3,\n      \"timestamp\": \"2022-07-19 14:33:18\",\n      \"source_stream\": \"cbc-edr\",\n      \"pid\": 5592,\n      \"filemod_name\": \"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\temp\\\\cvr8e4a.tmp\",\n      \"description\": \"WINWORD.EXE に関連する一時ファイルの作成・更新が観測された。\"\n    },\n    {\n      \"step\": 4,\n      \"timestamp\": \"2022-07-19 14:33:19\",\n      \"source_stream\": \"cbc-edr\",\n      \"pid\": 5592,\n      \"regmod_name\": \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Office\\\\14.0\\\\Word\\\\Resiliency\\\\StartupItems\",\n      \"description\": \"WINWORD.EXE により Office の StartupItems 関連レジストリが参照または更新された。\"\n    },\n    {\n      \"step\": 5,\n      \"timestamp\": \"2022-07-19 14:33:19\",\n      \"source_stream\": \"cbc-edr\",\n      \"pid\": 5592,\n      \"filemod_name\": \"c:\\\\users\\\\aalsahee\\\\appdata\\\\roaming\\\\microsoft\\\\templates\\\\normal.dotm\",\n      \"description\": \"normal.dotm が WINWORD.EXE 系列で扱われていることが観測された。\"\n    },\n    {\n      \"step\": 6,\n      \"timestamp\": \"2022-07-19 14:33:20\",\n      \"source_stream\": \"cbc-edr\",\n      \"pid\": 3368,\n      \"filemod_name\": \"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\temp\\\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\\\c586a0f0.rtf\",\n      \"description\": \"WINWORD.EXE /Embedding 系列で一時作成された文書ファイルが観測された。\"\n    },\n    {\n      \"step\": 7,\n      \"timestamp\": \"2022-07-19 14:33:20\",\n      \"source_stream\": \"cbc-edr\",\n      \"pid\": 5592,\n      \"filemod_name\": \"c:\\\\users\\\\aalsahee\\\\appdata\\\\roaming\\\\microsoft\\\\office\\\\recent\\\\msf.rtf.lnk\",\n      \"description\": \"最近使った項目へのリンクファイルが更新された。\"\n    }\n  ],\n  \"code_sequence\": [\n    \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /n \\\"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\\\"\",\n    \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"  /Embedding\",\n    \"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\temp\\\\cvr8e4a.tmp\",\n    \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Office\\\\14.0\\\\Word\\\\Resiliency\\\\StartupItems\",\n    \"c:\\\\users\\\\aalsahee\\\\appdata\\\\roaming\\\\microsoft\\\\templates\\\\normal.dotm\",\n    \"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\temp\\\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\\\c586a0f0.rtf\",\n    \"c:\\\\users\\\\aalsahee\\\\appdata\\\\roaming\\\\microsoft\\\\office\\\\recent\\\\msf.rtf.lnk\"\n  ],\n  \"observations\": {\n    \"confirmed_edges\": [\n      \"explorer.exe -> c:\\\\program files\\\\microsoft office\\\\office14\\\\winword.exe (PID 5592)\",\n      \"c:\\\\program files\\\\microsoft office\\\\office14\\\\winword.exe (PID 5592) -> WINWORD.EXE /Embedding (PID 3368)\"\n    ],\n    \"unconfirmed_frontier\": [\n      {\n        \"entity\": \"PID 3368\",\n        \"reason\": \"子プロセス生成や network edge を直接結ぶ追加証拠は今回の観測で未確認\",\n        \"next_target\": \"PID 3368 の子孫プロセス、netconn、file/reg 直接 edge\"\n      },\n      {\n        \"entity\": \"network endpoint\",\n        \"reason\": \"remote_ip / remote_port / netconn_domain を伴う直接証拠は未確認\",\n        \"next_target\": \"WINWORD.EXE 系列の通信先\"\n      }\n    ],\n    \"notes\": [\n      \"CBC alert の report name/reason は起点情報として扱い、code_sequence には含めていない。\",\n      \"観測された filemod/regmod は WINWORD.EXE 系列に接続する証拠として記録したが、時刻近傍のみで因果を決め打ちしていない。\"\n    ]\n  }\n}",
+      "usage_metadata": {
+        "input_tokens": 8753,
+        "output_tokens": 1721,
+        "total_tokens": 10474,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 4224
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"winword.exe\",\n    \"timestamp\": \"2022-07-19 14:36:55\",\n    \"condition\": \"stage1\",\n    \"input_fields_used\": [\n      \"host\",\n      \"process\",\n      \"timestamp\"\n    ]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-19 14:33:17\",\n      \"subject_process\": {\n        \"name\": \"c:\\\\program files\\\\microsoft office\\\\office14\\\\winword.exe\",\n        \"pid\": 5592,\n        \"path\": null\n      },\n      \"operation\": \"起動\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"explorer.exe\",\n        \"path\": \"c:\\\\windows\\\\explorer.exe\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /n \\\"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\\\"\",\n      \"execution_context\": {\n        \"parent_process\": \"explorer.exe\",\n        \"parent_pid\": 1604,\n        \"parent_command_line\": \"C:\\\\Windows\\\\Explorer.EXE\",\n        \"child_process\": \"WINWORD.EXE\",\n        \"child_pid\": 3368\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:17\",\n          \"alert_id\": null,\n          \"event_record_id\": \"9807\",\n          \"field\": \"command_line\",\n          \"value\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /n \\\"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\\\"\",\n          \"pid\": 5592,\n          \"ppid\": 1604\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:17\",\n          \"alert_id\": null,\n          \"event_record_id\": \"9807\",\n          \"field\": \"parent_process_name\",\n          \"value\": \"explorer.exe\",\n          \"pid\": 5592,\n          \"ppid\": 1604\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:17\",\n          \"alert_id\": null,\n          \"event_record_id\": \"9807\",\n          \"field\": \"parent_process_path\",\n          \"value\": \"c:\\\\windows\\\\explorer.exe\",\n          \"pid\": 5592,\n          \"ppid\": 1604\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"起動元は観測されているが、この行だけでは文書内容や意図は確定しない。\"\n      ]\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-19 14:33:20\",\n      \"subject_process\": {\n        \"name\": \"WINWORD.EXE / winword.exe\",\n        \"pid\": 3368,\n        \"path\": null\n      },\n      \"operation\": \"子プロセス起動\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"WINWORD.EXE\",\n        \"path\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"  /Embedding\",\n      \"execution_context\": {\n        \"parent_process\": \"WINWORD.EXE\",\n        \"parent_pid\": 5592,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /n \\\"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\\\"\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-19 14:33:20\",\n          \"alert_id\": null,\n          \"event_record_id\": \"4163\",\n          \"field\": \"command_line\",\n          \"value\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"  /Embedding\",\n          \"pid\": 3368,\n          \"ppid\": 5592\n        },\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-19 14:33:20\",\n          \"alert_id\": null,\n          \"event_record_id\": \"4163\",\n          \"field\": \"ppid\",\n          \"value\": \"5592\",\n          \"pid\": 3368,\n          \"ppid\": 5592\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:20\",\n          \"alert_id\": null,\n          \"event_record_id\": \"4163\",\n          \"field\": \"process_guid\",\n          \"value\": \"{558F98EB-C0B0-62D6-0201-000000003B00}\",\n          \"pid\": 3368,\n          \"ppid\": 5592\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"この行から直接確認できる子孫プロセスはない。\"\n      ]\n    }\n  ],\n  \"code_sequence\": [\n    \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /n \\\"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\\\"\",\n    \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"  /Embedding\"\n  ],\n  \"supporting_alert_evidence\": [\n    {\n      \"alert_id\": \"CFnKBKLTv6hUkBGFobRdg-565619\",\n      \"alert_name\": \"Persistence - Office Application Startup - normal.dotm\",\n      \"source_stream\": \"cbc-edr-alerts\",\n      \"why_supporting_only\": \"起点情報として有用だが、操作そのものではないため code_sequence には含めていない。\"\n    }\n  ],\n  \"triage_decision\": {\n    \"alert_disposition\": \"close_alert\",\n    \"host_disposition\": \"escalate_host_investigation\",\n    \"evidence_basis\": [\n      \"WINWORD.EXE が explorer.exe から起動され、/n で msf.rtf を開いている事実が観測された。\",\n      \"WINWORD.EXE から /Embedding の子プロセス起動が観測された。\",\n      \"追加の file/registry/module/network は観測されているが、今回の主chainには parent/child で確実に接続できる起動連鎖のみを採用した。\"\n    ]\n  },\n  \"excluded_nearby_evidence\": [\n    {\n      \"source_stream\": \"cbc-edr\",\n      \"timestamp\": \"2022-07-19 14:33:18\",\n      \"event_record_id\": \"9854\",\n      \"pid\": 5592,\n      \"field\": \"filemod_name\",\n      \"value\": \"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\temp\\\\cvr8e4a.tmp\",\n      \"reason\": \"WINWORD.EXE に近接する file 行動だが、主chainへつなぐ追加の因果 edge をこの出力では採用していない。\"\n    },\n    {\n      \"source_stream\": \"cbc-edr\",\n      \"timestamp\": \"2022-07-19 14:33:19\",\n      \"event_record_id\": \"9857\",\n      \"pid\": 5592,\n      \"field\": \"regmod_name\",\n      \"value\": \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Office\\\\14.0\\\\Word\\\\Resiliency\\\\StartupItems\",\n      \"reason\": \"WINWORD.EXE に近接する registry 行動だが、主chainへつなぐ追加の因果 edge をこの出力では採用していない。\"\n    },\n    {\n      \"source_stream\": \"cbc-edr\",\n      \"timestamp\": \"2022-07-19 14:33:19\",\n      \"event_record_id\": \"9860\",\n      \"pid\": 5592,\n      \"field\": \"regmod_name\",\n      \"value\": \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Office\\\\14.0\\\\Common\\\\LanguageResources\\\\EnabledLanguages\\\\1033\",\n      \"reason\": \"WINWORD.EXE に近接する registry 行動だが、主chainへつなぐ追加の因果 edge をこの出力では採用していない。\"\n    },\n    {\n      \"source_stream\": \"cbc-edr\",\n      \"timestamp\": \"2022-07-19 14:33:20\",\n      \"event_record_id\": \"8745\",\n      \"pid\": 3368,\n      \"field\": \"filemod_name\",\n      \"value\": \"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\temp\\\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\\\appdata...\",\n      \"reason\": \"子プロセスに近接する file 行動だが、主chainへつなぐ追加の因果 edge をこの出力では採用していない。\"\n    },\n    {\n      \"source_stream\": \"cbc-edr\",\n      \"timestamp\": \"2022-07-19 14:33:20\",\n      \"event_record_id\": \"9859\",\n      \"pid\": 5592,\n      \"field\": \"modload_name\",\n      \"value\": \"c:\\\\windows\\\\system32\\\\ctiuser.dll\",\n      \"reason\": \"DLL 読み込みは観測されたが、同一意味的操作の連鎖として主chainに入れる根拠をこの出力では採用していない。\"\n    },\n    {\n      \"source_stream\": \"cbc-edr\",\n      \"timestamp\": \"2022-07-19 14:33:20\",\n      \"event_record_id\": \"none\",\n      \"pid\": 5592,\n      \"field\": \"netconn_domain\",\n      \"value\": null,\n      \"reason\": \"調査では network edge の直接証拠を確認できなかった。\"\n    }\n  ],\n  \"global_limitations\": [\n    \"CBC alert の title/reason は起点証拠として扱い、操作や code step には変換していない。\",\n    \"観測された file/registry/module 証拠はあるが、parent/child または対象操作の直接 edge をこの最終統合では採用した 2 行に限定した。\",\n    \"network 接続の直接証拠は確認できなかった。\",\n    \"pid 3368 の子孫プロセスは確認できなかった。\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-19 14:33:17 explorer.exe から c:\\\\program files\\\\microsoft office\\\\office14\\\\winword.exe (PID 5592) が \\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /n \\\"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\\\" で起動された。\",\n    \"2022-07-19 14:33:20 WINWORD.EXE (PID 5592) から \\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"  /Embedding の子プロセス WINWORD.EXE (PID 3368) が起動された。\"\n  ]\n}",
+      "usage_metadata": {
+        "input_tokens": 10950,
+        "output_tokens": 2664,
+        "total_tokens": 13614,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    }
+  ],
+  "output_text": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"winword.exe\",\n    \"timestamp\": \"2022-07-19 14:36:55\",\n    \"condition\": \"stage1\",\n    \"input_fields_used\": [\n      \"host\",\n      \"process\",\n      \"timestamp\"\n    ]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-19 14:33:17\",\n      \"subject_process\": {\n        \"name\": \"c:\\\\program files\\\\microsoft office\\\\office14\\\\winword.exe\",\n        \"pid\": 5592,\n        \"path\": null\n      },\n      \"operation\": \"起動\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"explorer.exe\",\n        \"path\": \"c:\\\\windows\\\\explorer.exe\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /n \\\"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\\\"\",\n      \"execution_context\": {\n        \"parent_process\": \"explorer.exe\",\n        \"parent_pid\": 1604,\n        \"parent_command_line\": \"C:\\\\Windows\\\\Explorer.EXE\",\n        \"child_process\": \"WINWORD.EXE\",\n        \"child_pid\": 3368\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:17\",\n          \"alert_id\": null,\n          \"event_record_id\": \"9807\",\n          \"field\": \"command_line\",\n          \"value\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /n \\\"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\\\"\",\n          \"pid\": 5592,\n          \"ppid\": 1604\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:17\",\n          \"alert_id\": null,\n          \"event_record_id\": \"9807\",\n          \"field\": \"parent_process_name\",\n          \"value\": \"explorer.exe\",\n          \"pid\": 5592,\n          \"ppid\": 1604\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:17\",\n          \"alert_id\": null,\n          \"event_record_id\": \"9807\",\n          \"field\": \"parent_process_path\",\n          \"value\": \"c:\\\\windows\\\\explorer.exe\",\n          \"pid\": 5592,\n          \"ppid\": 1604\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"起動元は観測されているが、この行だけでは文書内容や意図は確定しない。\"\n      ]\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-19 14:33:20\",\n      \"subject_process\": {\n        \"name\": \"WINWORD.EXE / winword.exe\",\n        \"pid\": 3368,\n        \"path\": null\n      },\n      \"operation\": \"子プロセス起動\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"WINWORD.EXE\",\n        \"path\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"  /Embedding\",\n      \"execution_context\": {\n        \"parent_process\": \"WINWORD.EXE\",\n        \"parent_pid\": 5592,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /n \\\"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\\\"\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-19 14:33:20\",\n          \"alert_id\": null,\n          \"event_record_id\": \"4163\",\n          \"field\": \"command_line\",\n          \"value\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"  /Embedding\",\n          \"pid\": 3368,\n          \"ppid\": 5592\n        },\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-19 14:33:20\",\n          \"alert_id\": null,\n          \"event_record_id\": \"4163\",\n          \"field\": \"ppid\",\n          \"value\": \"5592\",\n          \"pid\": 3368,\n          \"ppid\": 5592\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:20\",\n          \"alert_id\": null,\n          \"event_record_id\": \"4163\",\n          \"field\": \"process_guid\",\n          \"value\": \"{558F98EB-C0B0-62D6-0201-000000003B00}\",\n          \"pid\": 3368,\n          \"ppid\": 5592\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"この行から直接確認できる子孫プロセスはない。\"\n      ]\n    }\n  ],\n  \"code_sequence\": [\n    \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /n \\\"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\\\"\",\n    \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"  /Embedding\"\n  ],\n  \"supporting_alert_evidence\": [\n    {\n      \"alert_id\": \"CFnKBKLTv6hUkBGFobRdg-565619\",\n      \"alert_name\": \"Persistence - Office Application Startup - normal.dotm\",\n      \"source_stream\": \"cbc-edr-alerts\",\n      \"why_supporting_only\": \"起点情報として有用だが、操作そのものではないため code_sequence には含めていない。\"\n    }\n  ],\n  \"triage_decision\": {\n    \"alert_disposition\": \"close_alert\",\n    \"host_disposition\": \"escalate_host_investigation\",\n    \"evidence_basis\": [\n      \"WINWORD.EXE が explorer.exe から起動され、/n で msf.rtf を開いている事実が観測された。\",\n      \"WINWORD.EXE から /Embedding の子プロセス起動が観測された。\",\n      \"追加の file/registry/module/network は観測されているが、今回の主chainには parent/child で確実に接続できる起動連鎖のみを採用した。\"\n    ]\n  },\n  \"excluded_nearby_evidence\": [\n    {\n      \"source_stream\": \"cbc-edr\",\n      \"timestamp\": \"2022-07-19 14:33:18\",\n      \"event_record_id\": \"9854\",\n      \"pid\": 5592,\n      \"field\": \"filemod_name\",\n      \"value\": \"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\temp\\\\cvr8e4a.tmp\",\n      \"reason\": \"WINWORD.EXE に近接する file 行動だが、主chainへつなぐ追加の因果 edge をこの出力では採用していない。\"\n    },\n    {\n      \"source_stream\": \"cbc-edr\",\n      \"timestamp\": \"2022-07-19 14:33:19\",\n      \"event_record_id\": \"9857\",\n      \"pid\": 5592,\n      \"field\": \"regmod_name\",\n      \"value\": \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Office\\\\14.0\\\\Word\\\\Resiliency\\\\StartupItems\",\n      \"reason\": \"WINWORD.EXE に近接する registry 行動だが、主chainへつなぐ追加の因果 edge をこの出力では採用していない。\"\n    },\n    {\n      \"source_stream\": \"cbc-edr\",\n      \"timestamp\": \"2022-07-19 14:33:19\",\n      \"event_record_id\": \"9860\",\n      \"pid\": 5592,\n      \"field\": \"regmod_name\",\n      \"value\": \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Office\\\\14.0\\\\Common\\\\LanguageResources\\\\EnabledLanguages\\\\1033\",\n      \"reason\": \"WINWORD.EXE に近接する registry 行動だが、主chainへつなぐ追加の因果 edge をこの出力では採用していない。\"\n    },\n    {\n      \"source_stream\": \"cbc-edr\",\n      \"timestamp\": \"2022-07-19 14:33:20\",\n      \"event_record_id\": \"8745\",\n      \"pid\": 3368,\n      \"field\": \"filemod_name\",\n      \"value\": \"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\temp\\\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\\\appdata...\",\n      \"reason\": \"子プロセスに近接する file 行動だが、主chainへつなぐ追加の因果 edge をこの出力では採用していない。\"\n    },\n    {\n      \"source_stream\": \"cbc-edr\",\n      \"timestamp\": \"2022-07-19 14:33:20\",\n      \"event_record_id\": \"9859\",\n      \"pid\": 5592,\n      \"field\": \"modload_name\",\n      \"value\": \"c:\\\\windows\\\\system32\\\\ctiuser.dll\",\n      \"reason\": \"DLL 読み込みは観測されたが、同一意味的操作の連鎖として主chainに入れる根拠をこの出力では採用していない。\"\n    },\n    {\n      \"source_stream\": \"cbc-edr\",\n      \"timestamp\": \"2022-07-19 14:33:20\",\n      \"event_record_id\": \"none\",\n      \"pid\": 5592,\n      \"field\": \"netconn_domain\",\n      \"value\": null,\n      \"reason\": \"調査では network edge の直接証拠を確認できなかった。\"\n    }\n  ],\n  \"global_limitations\": [\n    \"CBC alert の title/reason は起点証拠として扱い、操作や code step には変換していない。\",\n    \"観測された file/registry/module 証拠はあるが、parent/child または対象操作の直接 edge をこの最終統合では採用した 2 行に限定した。\",\n    \"network 接続の直接証拠は確認できなかった。\",\n    \"pid 3368 の子孫プロセスは確認できなかった。\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-19 14:33:17 explorer.exe から c:\\\\program files\\\\microsoft office\\\\office14\\\\winword.exe (PID 5592) が \\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /n \\\"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\\\" で起動された。\",\n    \"2022-07-19 14:33:20 WINWORD.EXE (PID 5592) から \\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"  /Embedding の子プロセス WINWORD.EXE (PID 3368) が起動された。\"\n  ]\n}",
+  "investigation_activity": {
+    "schema_version": "cross_agent_activity_v1",
+    "summary": {
+      "total_tool_call_count": 37,
+      "tool_call_count_by_role": {
+        "chief": 3,
+        "investigator": 8,
+        "sql_qa": 26
+      },
+      "tool_call_count_by_name": {
+        "investigate_lead": 3,
+        "ask_audit": 8,
+        "run_sql_query": 26
+      },
+      "outcome_count": {
+        "success": 11,
+        "sql_success": 21,
+        "sql_no_results": 4,
+        "sql_result_truncated": 1
+      },
+      "lead_call_count": 3,
+      "unique_lead_count": 3,
+      "repeated_lead_count": 0,
+      "investigator_question_count": 8,
+      "unique_investigator_question_count": 8,
+      "repeated_investigator_question_count": 0,
+      "sql_query_count": 26,
+      "unique_sql_query_count": 26,
+      "repeated_sql_query_count": 0,
+      "total_tool_duration_seconds": 249.561,
+      "max_tool_duration_seconds": 55.562
+    },
+    "events": [
+      {
+        "sequence": 1,
+        "role": "chief",
+        "tool_name": "investigate_lead",
+        "arguments": {
+          "lead": "host WIN-32-H1 の 2022-07-19 14:31:00〜14:36:00 付近で、winword.exe（input_alert_process_name: c:\\program files\\microsoft office\\office14\\winword.exe）に直接つながる親プロセス、子プロセス、コマンドライン、関連ファイル/レジストリ/ネットワークを確認してください。CBC alert 起点の前後で、観測された因果 edge を使って code 行動列を復元したいので、該当する event_record_id、PID/PPID、process name、timestamp、source_stream を含む証拠を確認してください。"
+        },
+        "started_at_utc": "2026-07-30T07:07:24.559312+00:00",
+        "finished_at_utc": "2026-07-30T07:08:05.841017+00:00",
+        "duration_seconds": 41.281,
+        "outcome": "success",
+        "result_length_chars": 4452,
+        "result_preview": "## 仮説\n- 2022-07-19 14:31:00〜14:36:00 の間に、`C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE` は `explorer.exe` から起動され、その直後に少なくとも 1 つの子プロセスを生成し、ファイル・レジストリ・モジュール読込の行動が観測されている。\n- ただし、現時点の観測では `WINWORD.EXE` に直接つながるネットワーク接続は確認できていない。\n\n## 観測事実\n- 起点プロセス:\n  - `2022-07-19 14:33:17`\n  - `event_record_id`: `9807`\n  - `PID`: `5592`\n  - `PPID`: `1604`\n  - `process name`: `c:\\program files\\microsoft office\\office14\\winword.exe`\n  - `source_stream`: `cbc-edr`\n  - `parent_process_name`: `explorer.exe`\n  - `",
+        "error": null
+      },
+      {
+        "sequence": 2,
+        "role": "investigator",
+        "tool_name": "ask_audit",
+        "arguments": {
+          "question": "host WIN-32-H1 の 2022-07-19 14:31:00〜14:36:00 付近で、c:\\program files\\microsoft office\\office14\\winword.exe に直接つながる親プロセス、子プロセス、コマンドライン、関連ファイル/レジストリ/ネットワークの証拠を、event_record_id、PID/PPID、process name、timestamp、source_stream が分かる形で教えてください。特に winword.exe の起動に関係する親プロセス名/パス/コマンドライン、winword.exe から直接生成された子プロセス、winword.exe がアクセスしたファイルやレジストリ、接続したネットワーク先を確認したいです。"
+        },
+        "started_at_utc": "2026-07-30T07:07:26.317352+00:00",
+        "finished_at_utc": "2026-07-30T07:07:48.327859+00:00",
+        "duration_seconds": 22.015,
+        "outcome": "success",
+        "result_length_chars": 7467,
+        "result_preview": "調査対象の `C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE` について、`2022-07-19 14:31:00〜14:36:00` の範囲で確認できた事実を整理します。  \nこの範囲では、`WINWORD.EXE` は **explorer.exe から起動**され、その直後に **子プロセスとして `WINWORD.EXE /Embedding` が派生**し、あわせて **ファイル作成・レジストリ書き込み・モジュール読込** が観測されています。  \n一方で、今回の抽出範囲では **ネットワーク接続の証拠は見つかっていません**。\n\n## 1) 起動元の親プロセス\n`WINWORD.EXE` の起動は `explorer.exe` から観測されています。\n\n- `2022-07-19 14:33:17`\n  - `event_record_id`: `9807`\n  - `PID`: `5592`\n  - `PPID`: `1604`\n  - `process name`: `c:\\program files\\mic",
+        "error": null
+      },
+      {
+        "sequence": 3,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, pid, ppid, pname, process_name, event_record_id, event_id, subject_user_name, source_stream, source_object_type, command_line, parent_process_name, parent_process_path, parent_command_line, access, object, alert_name, alert_reason, alert_category, raw_event_type, filemod_name, regmod_name, modload_name, childproc_name, netconn_domain, remote_ip, remote_port, original_table, source_row_id\nFROM audit_logs\nWHERE time BETWEEN '2022-07-19 14:31:00' AND '2022-07-19 14:36:00'\n  AND (\n    process_name LIKE '%winword.exe%' OR pname LIKE '%winword.exe%' OR object LIKE '%winword.exe%' OR parent_process_name LIKE '%winword.exe%' OR parent_command_line LIKE '%winword.exe%'\n  )\nORDER BY time, event_record_id\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:07:29.126395+00:00",
+        "finished_at_utc": "2026-07-30T07:07:29.142396+00:00",
+        "duration_seconds": 0.016,
+        "outcome": "sql_success",
+        "result_length_chars": 11990,
+        "result_preview": "2022-07-19 14:33:17\t1604\tNone\texplorer.exe\tc:\\windows\\explorer.exe\tNone\tNone\tWIN-32-H1\\aalsahee\tcbc-edr\tImage\tC:\\Windows\\Explorer.EXE\tNone\tNone\tNone\tACTION_LOAD_MODULE\tc:\\program files\\microsoft office\\office14\\winword.exe | event_type=endpoint.event.moduleload | modload_name=c:\\program files\\microsoft office\\office14\\winword.exe\tNone\tNone\tNone\tendpoint.event.moduleload\tNone\tNone\tc:\\program files\\microsoft office\\office14\\winword.exe\tNone\tNone\tNone\tNone\tcbc_events\t9805\n2022-07-19 14:33:17\t1604\tN",
+        "error": null
+      },
+      {
+        "sequence": 4,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, pid, ppid, pname, process_name, event_record_id, event_id, subject_user_name, source_stream, source_object_type, command_line, parent_process_name, parent_process_path, parent_command_line, access, object, alert_name, alert_reason, alert_category, raw_event_type, filemod_name, regmod_name, modload_name, childproc_name, netconn_domain, remote_ip, remote_port, original_table, source_row_id\nFROM audit_logs\nWHERE time BETWEEN '2022-07-19 14:31:00' AND '2022-07-19 14:36:00'\n  AND (\n    process_name LIKE '%winword.exe%' OR pname LIKE '%winword.exe%'\n  )\nORDER BY time, event_record_id\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:07:29.142396+00:00",
+        "finished_at_utc": "2026-07-30T07:07:29.155403+00:00",
+        "duration_seconds": 0.015,
+        "outcome": "sql_success",
+        "result_length_chars": 19482,
+        "result_preview": "2022-07-19 14:33:17\t5592\t1604\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\tNone\tNone\tWIN-32-H1\\aalsahee\tcbc-edr\tImage\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"\texplorer.exe\tc:\\windows\\explorer.exe\tC:\\Windows\\Explorer.EXE\tACTION_LOAD_MODULE\tc:\\windows\\system32\\ctiuser.dll | event_type=endpoint.event.moduleload | parent_path=c:\\windows\\explorer.exe | parent_cmdline=C:\\Windows\\Explorer.EXE | modload_name=c:\\window",
+        "error": null
+      },
+      {
+        "sequence": 5,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, pid, ppid, pname, process_name, event_record_id, event_id, subject_user_name, source_stream, source_object_type, command_line, parent_process_name, parent_process_path, parent_command_line, access, object, childproc_name, filemod_name, regmod_name, netconn_domain, remote_ip, remote_port, original_table, source_row_id\nFROM audit_logs\nWHERE time BETWEEN '2022-07-19 14:31:00' AND '2022-07-19 14:36:00'\n  AND pid = 5592\nORDER BY time, event_record_id\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:07:31.580735+00:00",
+        "finished_at_utc": "2026-07-30T07:07:31.589257+00:00",
+        "duration_seconds": 0.016,
+        "outcome": "sql_success",
+        "result_length_chars": 17314,
+        "result_preview": "2022-07-19 14:33:17\t5592\t1604\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\tNone\tNone\tWIN-32-H1\\aalsahee\tcbc-edr\tImage\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"\texplorer.exe\tc:\\windows\\explorer.exe\tC:\\Windows\\Explorer.EXE\tACTION_LOAD_MODULE\tc:\\windows\\system32\\ctiuser.dll | event_type=endpoint.event.moduleload | parent_path=c:\\windows\\explorer.exe | parent_cmdline=C:\\Windows\\Explorer.EXE | modload_name=c:\\window",
+        "error": null
+      },
+      {
+        "sequence": 6,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, pid, ppid, pname, process_name, event_record_id, event_id, subject_user_name, source_stream, source_object_type, command_line, parent_process_name, parent_process_path, parent_command_line, access, object, childproc_name, filemod_name, regmod_name, netconn_domain, remote_ip, remote_port, original_table, source_row_id\nFROM audit_logs\nWHERE time BETWEEN '2022-07-19 14:31:00' AND '2022-07-19 14:36:00'\n  AND (ppid = 5592 OR parent_process_name LIKE '%winword.exe%' OR parent_command_line LIKE '%WINWORD.EXE%')\nORDER BY time, event_record_id\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:07:31.589257+00:00",
+        "finished_at_utc": "2026-07-30T07:07:31.605262+00:00",
+        "duration_seconds": 0.015,
+        "outcome": "sql_success",
+        "result_length_chars": 24911,
+        "result_preview": "2022-07-19 14:33:20\t3368\t5592\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\tNone\tNone\tWIN-32-H1\\aalsahee\tcbc-edr\tImage\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"\tACTION_LOAD_MODULE\tc:\\windows\\system32\\ctiuser.dll | event_type=endpoint.event.moduleload | parent_path=c:\\program fil",
+        "error": null
+      },
+      {
+        "sequence": 7,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, pid, ppid, pname, process_name, event_record_id, event_id, subject_user_name, source_stream, source_object_type, command_line, parent_process_name, parent_process_path, parent_command_line, access, object, childproc_name, filemod_name, regmod_name, netconn_domain, remote_ip, remote_port, original_table, source_row_id\nFROM audit_logs\nWHERE time BETWEEN '2022-07-19 14:31:00' AND '2022-07-19 14:36:00'\n  AND (ppid = 5592 OR parent_process_name LIKE '%winword.exe%' OR parent_command_line LIKE '%WINWORD.EXE%' OR parent_process_path LIKE '%office14%winword.exe%')\nORDER BY time, event_record_id\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:07:33.178494+00:00",
+        "finished_at_utc": "2026-07-30T07:07:33.197883+00:00",
+        "duration_seconds": 0.031,
+        "outcome": "sql_success",
+        "result_length_chars": 24911,
+        "result_preview": "2022-07-19 14:33:20\t3368\t5592\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\tNone\tNone\tWIN-32-H1\\aalsahee\tcbc-edr\tImage\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"\tACTION_LOAD_MODULE\tc:\\windows\\system32\\ctiuser.dll | event_type=endpoint.event.moduleload | parent_path=c:\\program fil",
+        "error": null
+      },
+      {
+        "sequence": 8,
+        "role": "investigator",
+        "tool_name": "ask_audit",
+        "arguments": {
+          "question": "上の観測値に基づいて、WINWORD.EXE（PID 5592、event_record_id 9807/4162）から直接つながる子プロセスをさらに詳しく確認したいです。2022-07-19 14:33:17〜14:36:00 の間で、WINWORD.EXE 直下の子プロセス名、PID/PPID、command_line、event_record_id、source_stream を、観測された行だけで教えてください。特に WINWORD.EXE から別プロセスが生成されていれば、その親子 edge が分かる証拠を知りたいです。"
+        },
+        "started_at_utc": "2026-07-30T07:07:49.873002+00:00",
+        "finished_at_utc": "2026-07-30T07:07:56.952777+00:00",
+        "duration_seconds": 7.078,
+        "outcome": "success",
+        "result_length_chars": 608,
+        "result_preview": "観測できた範囲では、WINWORD.EXE（PID 5592）から直下に生成された子プロセスは 1 つだけ確認できます。\n\n| time | 子プロセス名 | PID | PPID | command_line | event_record_id | source_stream |\n|---|---|---:|---:|---|---:|---|\n| 2022-07-19 14:33:20 | winword.exe / WINWORD.EXE | 3368 | 5592 | `\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding` | 4163 | sysmon |\n\n補足:\n- 同じ PID 3368 について、cbc-edr / cbc-ngav 側でも同一の親子関係が観測されています。\n- ただし、`event_record_id` が付いている親子 edge の証拠としては、上記の `sysmon` 行（4163）が明示的です。\n- この時間帯（2022-07-19 14:33:17〜14:3",
+        "error": null
+      },
+      {
+        "sequence": 9,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, pname, process_name, pid, ppid, command_line, event_record_id, source_stream, parent_process_name, parent_command_line\nFROM audit_logs\nWHERE time BETWEEN '2022-07-19 14:33:17' AND '2022-07-19 14:36:00'\n  AND (parent_process_name LIKE '%WINWORD.EXE%' OR pname LIKE '%WINWORD.EXE%' OR process_name LIKE '%WINWORD.EXE%')\nORDER BY time, event_record_id\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:07:51.320677+00:00",
+        "finished_at_utc": "2026-07-30T07:07:51.323672+00:00",
+        "duration_seconds": 0.0,
+        "outcome": "sql_success",
+        "result_length_chars": 6938,
+        "result_preview": "2022-07-19 14:33:17\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\t5592\t1604\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"\tNone\tcbc-edr\texplorer.exe\tC:\\Windows\\Explorer.EXE\n2022-07-19 14:33:17\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\t5592\t1604\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"\tNone\tcbc-edr\texplorer.exe\tC:\\Windows\\Explore",
+        "error": null
+      },
+      {
+        "sequence": 10,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, pname, process_name, pid, ppid, command_line, event_record_id, source_stream, parent_process_name, parent_command_line\nFROM audit_logs\nWHERE time BETWEEN '2022-07-19 14:33:17' AND '2022-07-19 14:36:00'\n  AND ppid = 5592\n  AND pid <> 5592\nORDER BY time, event_record_id\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:07:52.554593+00:00",
+        "finished_at_utc": "2026-07-30T07:07:52.557596+00:00",
+        "duration_seconds": 0.0,
+        "outcome": "sql_success",
+        "result_length_chars": 8909,
+        "result_preview": "2022-07-19 14:33:20\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\t3368\t5592\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\tNone\tcbc-edr\twinword.exe\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"\n2022-07-19 14:33:20\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\t3368\t5592\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\tNone\tcbc-edr\twinword.exe\t\"C:\\Program ",
+        "error": null
+      },
+      {
+        "sequence": 11,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, pname, process_name, pid, ppid, command_line, event_record_id, source_stream, parent_process_name, parent_command_line\nFROM audit_logs\nWHERE time BETWEEN '2022-07-19 14:33:17' AND '2022-07-19 14:36:00'\n  AND ppid = 5592\n  AND pid <> 5592\nGROUP BY time, pname, process_name, pid, ppid, command_line, event_record_id, source_stream, parent_process_name, parent_command_line\nORDER BY time, event_record_id;"
+        },
+        "started_at_utc": "2026-07-30T07:07:54.177540+00:00",
+        "finished_at_utc": "2026-07-30T07:07:54.180546+00:00",
+        "duration_seconds": 0.016,
+        "outcome": "sql_success",
+        "result_length_chars": 1969,
+        "result_preview": "2022-07-19 14:33:20\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\t3368\t5592\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\tNone\tcbc-edr\twinword.exe\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"\n2022-07-19 14:33:20\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\t3368\t5592\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\tNone\tcbc-ngav\tmsf.rtf\t\n2022-07-19 14:",
+        "error": null
+      },
+      {
+        "sequence": 12,
+        "role": "chief",
+        "tool_name": "investigate_lead",
+        "arguments": {
+          "lead": "PID 3368 の WINWORD.EXE /Embedding について、さらに子プロセス生成や関連する command_line、実行後のファイル/レジストリ/ネットワーク edge を確認してください。PID 5592 との因果関係を維持しつつ、観測された子孫プロセスがあるかを event_record_id、timestamp、source_stream で確認したいです。"
+        },
+        "started_at_utc": "2026-07-30T07:08:08.019788+00:00",
+        "finished_at_utc": "2026-07-30T07:08:56.342827+00:00",
+        "duration_seconds": 48.328,
+        "outcome": "success",
+        "result_length_chars": 6035,
+        "result_preview": "以下、観測事実ベースで整理します。\n\n## 仮説\nPID 5592 に紐づく Microsoft Word の起動系列の中で、PID 3368 の `WINWORD.EXE /Embedding` が発生し、その周辺で file/registry 変更は観測されるが、今回の範囲では子プロセスの追加展開や network edge はまだ確認できていない可能性があります。  \nただし、これは仮説であり、現時点では因果接続の一部のみ確認済みです。\n\n## 観測結果要約\n### 1) PID 5592 と PID 3368 の直接接続\n- `pid`: `3368`\n- `ppid`: `5592`\n- `parent_process_name`: `WINWORD.EXE` / `winword.exe`\n- `parent_process_path`: `C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE` / `c:\\program files\\microsoft office\\office14\\winword.exe`\n- `",
+        "error": null
+      },
+      {
+        "sequence": 13,
+        "role": "investigator",
+        "tool_name": "ask_audit",
+        "arguments": {
+          "question": "PID 3368 の WINWORD.EXE /Embedding について、観測された子プロセス生成があるかを、event_record_id、timestamp、source_stream とともに確認してください。あわせて、親子関係が PID 5592 と直接つながる証拠（ppid、parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid）も示してください。"
+        },
+        "started_at_utc": "2026-07-30T07:08:09.229180+00:00",
+        "finished_at_utc": "2026-07-30T07:08:15.029071+00:00",
+        "duration_seconds": 5.797,
+        "outcome": "success",
+        "result_length_chars": 1091,
+        "result_preview": "確認できた範囲では、PID 3368 の `WINWORD.EXE /Embedding` について、**子プロセス生成を示す観測は見当たりません**。取得できた記録では、`pid = 3368` の行はすべて `source_stream = cbc-edr` で、`childproc_name` は `None` でした。\n\n### 観測された親子関係の証拠\nPID 3368 は、PID 5592 と直接つながる証拠が確認できます。\n\n- `pid`: 3368\n- `ppid`: 5592\n- `parent_process_name`: `WINWORD.EXE` / `winword.exe`\n- `parent_process_path`: `C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE` / `c:\\program files\\microsoft office\\office14\\winword.exe`\n- `parent_command_line`: `\"C:\\Program Files\\Microsoft",
+        "error": null
+      },
+      {
+        "sequence": 14,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, event_record_id, source_stream, pid, pname, process_name, ppid, parent_process_name, parent_process_path, parent_command_line, process_guid, parent_process_guid, childproc_name, command_line\nFROM audit_logs\nWHERE pid = 3368\n  AND (process_name LIKE '%WINWORD.EXE%' OR pname LIKE '%WINWORD.EXE%' OR command_line LIKE '%/Embedding%')\nORDER BY time, event_record_id\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:08:10.304029+00:00",
+        "finished_at_utc": "2026-07-30T07:08:10.314031+00:00",
+        "duration_seconds": 0.0,
+        "outcome": "sql_success",
+        "result_length_chars": 11009,
+        "result_preview": "2022-07-19 14:33:20\tNone\tcbc-edr\t3368\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\t5592\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"\tNone\tNone\tNone\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\n2022-07-19 14:33:20\tNone\tcbc-edr\t3368\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\t5592\twinword.exe\tc:\\program ",
+        "error": null
+      },
+      {
+        "sequence": 15,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, event_record_id, source_stream, pid, ppid, pname, process_name, childproc_name, command_line\nFROM audit_logs\nWHERE ppid = 3368 OR pid = 3368\nORDER BY time, event_record_id\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:08:11.927861+00:00",
+        "finished_at_utc": "2026-07-30T07:08:11.934864+00:00",
+        "duration_seconds": 0.016,
+        "outcome": "sql_success",
+        "result_length_chars": 5519,
+        "result_preview": "2022-07-19 14:33:20\tNone\tcbc-edr\t3368\t5592\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\tNone\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\n2022-07-19 14:33:20\tNone\tcbc-edr\t3368\t5592\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\tNone\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\n2022-07-19 14:33:20\tNone\tcbc-edr\t3368\t5592\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\tNone\t\"C:\\Program Files",
+        "error": null
+      },
+      {
+        "sequence": 16,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT DISTINCT pid, ppid, pname, process_name, parent_process_name, parent_process_path, parent_command_line, process_guid, parent_process_guid\nFROM audit_logs\nWHERE pid = 3368 OR ppid = 3368 OR pid = 5592 OR ppid = 5592\nORDER BY pid, ppid\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:08:11.934864+00:00",
+        "finished_at_utc": "2026-07-30T07:08:11.942861+00:00",
+        "duration_seconds": 0.0,
+        "outcome": "sql_success",
+        "result_length_chars": 1792,
+        "result_preview": "3368\tNone\tWINWORD.EXE\tC:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\tNone\tNone\tNone\tNone\tNone\n3368\tNone\tWINWORD.EXE\tC:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\tNone\tNone\tNone\t{558F98EB-C0B0-62D6-0201-000000003B00}\tNone\n3368\t5592\tWINWORD.EXE\tC:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\tWINWORD.EXE\tC:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"\t{558F98EB-C0",
+        "error": null
+      },
+      {
+        "sequence": 17,
+        "role": "investigator",
+        "tool_name": "ask_audit",
+        "arguments": {
+          "question": "PID 5592 の実行直後に、どの子プロセスが生成されたかを、timestamp、event_record_id、source_stream、childproc_name、command_line とともに確認してください。観測された child process の PID があれば、それも示してください。"
+        },
+        "started_at_utc": "2026-07-30T07:08:17.259275+00:00",
+        "finished_at_utc": "2026-07-30T07:08:22.955686+00:00",
+        "duration_seconds": 5.687,
+        "outcome": "success",
+        "result_length_chars": 541,
+        "result_preview": "PID 5592 の直後に観測されている子プロセスは、**`C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE`** です。  \n観測値として確認できた範囲では、以下の情報が取れました。\n\n- timestamp: `2022-07-19 14:33:20`\n- event_record_id: `4163`\n- source_stream: `sysmon`\n- childproc_name: `None`\n- command_line: `\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /Embedding`\n- 観測された child process の PID: `3368`\n\n補足:\n- `cbc-edr` / `cbc-ngav` 側でも同じ子プロセスに対応する観測がありましたが、`event_record_id` が入っていたのは `sysmon` の行でした。\n- `childproc_name` は今回の観測では `None` でした。そのため、",
+        "error": null
+      },
+      {
+        "sequence": 18,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, event_record_id, source_stream, childproc_name, command_line, pid, ppid, process_name, parent_process_name, parent_command_line\nFROM audit_logs\nWHERE ppid = 5592 OR parent_process_guid IN (\n  SELECT process_guid FROM audit_logs WHERE pid = 5592 AND process_guid IS NOT NULL\n)\nORDER BY time ASC, event_record_id ASC\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:08:18.540208+00:00",
+        "finished_at_utc": "2026-07-30T07:08:18.597218+00:00",
+        "duration_seconds": 0.047,
+        "outcome": "sql_success",
+        "result_length_chars": 8699,
+        "result_preview": "2022-07-19 14:33:20\tNone\tcbc-edr\tNone\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\t3368\t5592\tc:\\program files\\microsoft office\\office14\\winword.exe\twinword.exe\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"\n2022-07-19 14:33:20\tNone\tcbc-edr\tNone\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\t3368\t5592\tc:\\program files\\microsoft office\\office14\\winword.exe\twinword.exe\t\"C:\\Program Files\\Microsof",
+        "error": null
+      },
+      {
+        "sequence": 19,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, event_record_id, source_stream, childproc_name, command_line, pid\nFROM audit_logs\nWHERE ppid = 5592 OR parent_process_name LIKE '%winword.exe%' AND parent_command_line LIKE '%msf.rtf%'\nORDER BY time ASC, event_record_id ASC\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:08:19.810857+00:00",
+        "finished_at_utc": "2026-07-30T07:08:19.872381+00:00",
+        "duration_seconds": 0.062,
+        "outcome": "sql_success",
+        "result_length_chars": 3359,
+        "result_preview": "2022-07-19 14:33:20\tNone\tcbc-edr\tNone\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\t3368\n2022-07-19 14:33:20\tNone\tcbc-edr\tNone\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\t3368\n2022-07-19 14:33:20\tNone\tcbc-edr\tNone\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\t3368\n2022-07-19 14:33:20\tNone\tcbc-edr\tNone\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\t3368\n2022-07-19 14:33:20\tNone\tcbc-edr\tNone\t\"C:\\Program Fi",
+        "error": null
+      },
+      {
+        "sequence": 20,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, event_record_id, source_stream, childproc_name, command_line, pid\nFROM audit_logs\nWHERE ppid = 5592 AND (childproc_name IS NOT NULL OR command_line IS NOT NULL)\nGROUP BY time, event_record_id, source_stream, childproc_name, command_line, pid\nORDER BY time ASC, event_record_id ASC\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:08:21.110323+00:00",
+        "finished_at_utc": "2026-07-30T07:08:21.112323+00:00",
+        "duration_seconds": 0.0,
+        "outcome": "sql_success",
+        "result_length_chars": 789,
+        "result_preview": "2022-07-19 14:33:20\tNone\tcbc-edr\tNone\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\t3368\n2022-07-19 14:33:20\tNone\tcbc-ngav\tNone\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\t3368\n2022-07-19 14:33:20\t4163\tsysmon\tNone\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /Embedding\t3368\n2022-07-19 14:33:21\tNone\tcbc-edr\tNone\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\t3368\n2022-07-19 14:33:26\tNone\tcbc-edr\tNone\t\"C:\\Program Fil",
+        "error": null
+      },
+      {
+        "sequence": 21,
+        "role": "investigator",
+        "tool_name": "ask_audit",
+        "arguments": {
+          "question": "PID 5592 から実行後に発生したファイル、レジストリ、ネットワークの関連 edge があるかを、timestamp、event_record_id、source_stream、filemod_name、regmod_name、netconn_domain、remote_ip、remote_port、object とともに確認してください。"
+        },
+        "started_at_utc": "2026-07-30T07:08:22.956684+00:00",
+        "finished_at_utc": "2026-07-30T07:08:43.220380+00:00",
+        "duration_seconds": 20.266,
+        "outcome": "success",
+        "result_length_chars": 10517,
+        "result_preview": "PID 5592 について、実行後に発生した関連 edge は確認できました。観測できたものを、指定の項目でそのまま示します。\n\n| timestamp | event_record_id | source_stream | filemod_name | regmod_name | netconn_domain | remote_ip | remote_port | object |\n|---|---:|---|---|---|---|---|---|---|\n| 2022-07-19 14:33:18 | None | cbc-edr | c:\\users\\aalsahee\\appdata\\local\\temp\\cvr8e4a.tmp | None | None | None | None | c:\\users\\aalsahee\\appdata\\local\\temp\\cvr8e4a.tmp \\| event_type=endpoint.event.filemod \\| parent_path=c:\\windows\\explorer.exe \\| parent_cmdline=C:\\W",
+        "error": null
+      },
+      {
+        "sequence": 22,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, event_record_id, source_stream, filemod_name, regmod_name, netconn_domain, remote_ip, remote_port, object\nFROM audit_logs\nWHERE pid = 5592\n  AND (filemod_name IS NOT NULL OR regmod_name IS NOT NULL OR netconn_domain IS NOT NULL OR remote_ip IS NOT NULL OR remote_port IS NOT NULL)\nORDER BY time, event_record_id\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:08:24.408233+00:00",
+        "finished_at_utc": "2026-07-30T07:08:24.414233+00:00",
+        "duration_seconds": 0.016,
+        "outcome": "sql_success",
+        "result_length_chars": 13704,
+        "result_preview": "2022-07-19 14:33:18\tNone\tcbc-edr\tc:\\users\\aalsahee\\appdata\\local\\temp\\cvr8e4a.tmp\tNone\tNone\tNone\tNone\tc:\\users\\aalsahee\\appdata\\local\\temp\\cvr8e4a.tmp | event_type=endpoint.event.filemod | parent_path=c:\\windows\\explorer.exe | parent_cmdline=C:\\Windows\\Explorer.EXE | filemod_name=c:\\users\\aalsahee\\appdata\\local\\temp\\cvr8e4a.tmp\n2022-07-19 14:33:18\tNone\tcbc-edr\tc:\\users\\aalsahee\\appdata\\local\\temp\\cvr8e4a.tmp\tNone\tNone\tNone\tNone\tc:\\users\\aalsahee\\appdata\\local\\temp\\cvr8e4a.tmp | event_type=endpoi",
+        "error": null
+      },
+      {
+        "sequence": 23,
+        "role": "chief",
+        "tool_name": "investigate_lead",
+        "arguments": {
+          "lead": "PID 5592 の WINWORD.EXE について、ネットワーク接続の有無と関連する endpoint、また同時期に生じたファイル作成・レジストリ変更・モジュール読込のうち code sequence に入る因果 edge を確認してください。parent/child process と接続できる証拠だけを拾い、未確認の行動は分離してください。"
+        },
+        "started_at_utc": "2026-07-30T07:08:56.342827+00:00",
+        "finished_at_utc": "2026-07-30T07:09:51.906406+00:00",
+        "duration_seconds": 55.562,
+        "outcome": "success",
+        "result_length_chars": 2815,
+        "result_preview": "### 仮説\nPID 5592 の `WINWORD.EXE` は、`2022-07-19 14:33:17` に `msf.rtf` を開いた直後、`ppid=5592` の子プロセス `pid=3368` を起動し、その周辺でファイル作成/更新とモジュール読込が観測されている。ただし、この時点ではネットワーク接続とレジストリ変更の直接証拠は確認できていない。\n\n### 質問\n1. `WINWORD.EXE`（PID 5592）から直接生成された子プロセス `pid=3368` 以外に、同じ親子関係で追加の子プロセスがあるか。  \n2. `pid=3368` について、`filemod_name` と `modload_name` の各対象が同一の実行連鎖に属するかを、さらに子プロセス・親プロセスの直接証拠で確認できるか。  \n3. `pid=3368` またはその子孫で、`remote_ip` / `remote_port` を伴うネットワーク接続の直接証拠があるか。  \n4. `regmod_name` を伴うレジストリ変更の直接証拠が、`pid=3368` 系列に接続できるか。",
+        "error": null
+      },
+      {
+        "sequence": 24,
+        "role": "investigator",
+        "tool_name": "ask_audit",
+        "arguments": {
+          "question": "PID 5592 の WINWORD.EXE について、観測されたネットワーク接続があるか確認したいです。接続先の endpoint、発生時刻、source_stream、process 名、親プロセス証拠、対象 object の表記を含めて、直接つながる row を抽出してください。"
+        },
+        "started_at_utc": "2026-07-30T07:08:57.584023+00:00",
+        "finished_at_utc": "2026-07-30T07:09:08.233049+00:00",
+        "duration_seconds": 10.656,
+        "outcome": "success",
+        "result_length_chars": 1030,
+        "result_preview": "PID 5592 の WINWORD.EXE について、**観測されたネットワーク接続の直接証跡は、この検索範囲では見つかりませんでした**。\n\n確認できた事実は以下です。\n\n- PID 5592 の WINWORD.EXE は `sysmon` で **process_create** と **process_terminate** が観測されています。\n- ただし、`remote_ip` が入るネットワーク系の行、または接続を示す行は **0 件** でした。\n- そのため、**接続先 endpoint / 発生時刻 / source_stream / process 名 / 親プロセス証拠 / 対象 object** を満たす「直接つながる row」は抽出できませんでした。\n\n参考として、PID 5592 の起動証跡は以下です。\n\n- 発生時刻: `2022-07-19 14:33:17`\n- process 名: `C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE`\n- source_stream: `sysmon`\n",
+        "error": null
+      },
+      {
+        "sequence": 25,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, remote_ip AS endpoint, remote_port, source_stream, process_name, parent_process_name, parent_process_path, parent_command_line, object\nFROM audit_logs\nWHERE pid = 5592\n  AND process_name LIKE '%WINWORD.EXE%'\n  AND access IN ('connect','connected','accept','send','recv')\nORDER BY time;"
+        },
+        "started_at_utc": "2026-07-30T07:08:58.980082+00:00",
+        "finished_at_utc": "2026-07-30T07:08:58.985082+00:00",
+        "duration_seconds": 0.0,
+        "outcome": "sql_no_results",
+        "result_length_chars": 17,
+        "result_preview": "No results found.",
+        "error": null
+      },
+      {
+        "sequence": 26,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, remote_ip AS endpoint, remote_port, source_stream, process_name, parent_process_name, parent_process_path, parent_command_line, object, access\nFROM audit_logs\nWHERE pid = 5592\n  AND process_name LIKE '%WINWORD.EXE%'\nORDER BY time;"
+        },
+        "started_at_utc": "2026-07-30T07:09:00.257118+00:00",
+        "finished_at_utc": "2026-07-30T07:09:00.263115+00:00",
+        "duration_seconds": 0.0,
+        "outcome": "sql_result_truncated",
+        "result_length_chars": 269,
+        "result_preview": "Query returned more than 30 records and was truncated. Please refine the query, consider using `GROUP BY`, `DISTINCT`, a time scope, or eliminating some of the columns you request. If you are selecting the time column, consider using `DISTINCT` without the time column.",
+        "error": null
+      },
+      {
+        "sequence": 27,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT DISTINCT time, remote_ip AS endpoint, remote_port, source_stream, process_name, parent_process_name, parent_process_path, parent_command_line, object, access\nFROM audit_logs\nWHERE pid = 5592\n  AND process_name LIKE '%WINWORD.EXE%'\n  AND remote_ip IS NOT NULL\nORDER BY time\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:09:01.345911+00:00",
+        "finished_at_utc": "2026-07-30T07:09:01.350918+00:00",
+        "duration_seconds": 0.015,
+        "outcome": "sql_no_results",
+        "result_length_chars": 17,
+        "result_preview": "No results found.",
+        "error": null
+      },
+      {
+        "sequence": 28,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT DISTINCT time, pid, pname, process_name, access, object, source_stream, parent_process_name, parent_process_path, parent_command_line\nFROM audit_logs\nWHERE (pid = 5592 OR ppid = 5592)\n  AND (process_name LIKE '%WINWORD.EXE%' OR pname LIKE '%WINWORD.EXE%' OR parent_process_name LIKE '%WINWORD.EXE%')\nORDER BY time\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:09:02.562390+00:00",
+        "finished_at_utc": "2026-07-30T07:09:02.572390+00:00",
+        "duration_seconds": 0.015,
+        "outcome": "sql_success",
+        "result_length_chars": 6434,
+        "result_preview": "2022-07-19 14:33:17\t5592\tWINWORD.EXE\tC:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\thandle_close\tNone\tmsft-security\tNone\tNone\tNone\n2022-07-19 14:33:17\t5592\tWINWORD.EXE\tC:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\texecute\tC:\\Windows\\System32\\ctiuser.dll\tmsft-security\tNone\tNone\tNone\n2022-07-19 14:33:17\t5592\tWINWORD.EXE\tC:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\thandle_request\tC:\\Windows\\System32\\ctiuser.dll\tmsft-security\tNone\tNone\tNone\n2022-07-19 14:33:17\t5592\tWINWORD",
+        "error": null
+      },
+      {
+        "sequence": 29,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT DISTINCT time, remote_ip AS endpoint, remote_port, source_stream, process_name, parent_process_name, parent_process_path, parent_command_line, object, access\nFROM audit_logs\nWHERE (pid = 5592 OR ppid = 5592)\n  AND process_name LIKE '%WINWORD.EXE%'\n  AND (remote_ip IS NOT NULL OR object LIKE '%:%' OR object LIKE '%//%')\nORDER BY time\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:09:03.826688+00:00",
+        "finished_at_utc": "2026-07-30T07:09:03.836199+00:00",
+        "duration_seconds": 0.016,
+        "outcome": "sql_success",
+        "result_length_chars": 6336,
+        "result_preview": "2022-07-19 14:33:17\tNone\tNone\tmsft-security\tC:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\tNone\tNone\tNone\tC:\\Windows\\System32\\ctiuser.dll\texecute\n2022-07-19 14:33:17\tNone\tNone\tmsft-security\tC:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\tNone\tNone\tNone\tC:\\Windows\\System32\\ctiuser.dll\thandle_request\n2022-07-19 14:33:17\tNone\tNone\tmsft-security\tC:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\tNone\tNone\tNone\tC:\\Users\\aalsahee\\Downloads\\s3take2\thandle_request\n2022-07-19 14:33:17\t",
+        "error": null
+      },
+      {
+        "sequence": 30,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT DISTINCT time, pid, pname, process_name, access, object, source_stream, parent_process_name, parent_process_path, parent_command_line\nFROM audit_logs\nWHERE pid = 5592\n  AND process_name LIKE '%WINWORD.EXE%'\n  AND source_stream = 'sysmon'\nORDER BY time;"
+        },
+        "started_at_utc": "2026-07-30T07:09:04.877199+00:00",
+        "finished_at_utc": "2026-07-30T07:09:04.882197+00:00",
+        "duration_seconds": 0.016,
+        "outcome": "sql_success",
+        "result_length_chars": 412,
+        "result_preview": "2022-07-19 14:33:17\t5592\tWINWORD.EXE\tC:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\tprocess_create\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"\tsysmon\t-\t-\t-\n2022-07-19 14:38:13\t5592\tWINWORD.EXE\tC:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\tprocess_terminate\tC:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\tsysmon\tNone\tNone\tNone",
+        "error": null
+      },
+      {
+        "sequence": 31,
+        "role": "investigator",
+        "tool_name": "ask_audit",
+        "arguments": {
+          "question": "PID 5592 の WINWORD.EXE から直接つながる子プロセスがあるか確認したいです。child process 名、発生時刻、command line、親子の PID/PPID、source_stream を含めて、観測された row を示してください。"
+        },
+        "started_at_utc": "2026-07-30T07:09:10.135436+00:00",
+        "finished_at_utc": "2026-07-30T07:09:27.127774+00:00",
+        "duration_seconds": 16.984,
+        "outcome": "success",
+        "result_length_chars": 9147,
+        "result_preview": "PID 5592 の WINWORD.EXE から**直接つながる子プロセスとして観測できたのは PID 3368** です。  \n観測された行は以下です。\n\n| time | pid | ppid | pname | child process 名 | command line | parent command line | source_stream | event_id | event_record_id | original_table | source_row_id |\n|---|---:|---:|---|---|---|---|---|---:|---:|---|---:|\n| 2022-07-19 14:33:20 | 3368 | 5592 | WINWORD.EXE / winword.exe | 観測上は `childproc_name` が None で、親子関係は pid/ppid から確認 | `\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /Embedding` | `\"C:\\Progra",
+        "error": null
+      },
+      {
+        "sequence": 32,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, pid, ppid, pname, process_name, childproc_name, command_line, parent_command_line, source_stream, event_id, event_record_id, original_table, source_row_id FROM audit_logs WHERE ppid = 5592 OR parent_process_name LIKE '%WINWORD.EXE%' OR parent_command_line LIKE '%5592%' ORDER BY time ASC LIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:09:11.275611+00:00",
+        "finished_at_utc": "2026-07-30T07:09:11.330619+00:00",
+        "duration_seconds": 0.047,
+        "outcome": "sql_success",
+        "result_length_chars": 9325,
+        "result_preview": "2022-07-19 14:33:20\t3368\t5592\tWINWORD.EXE\tC:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\tNone\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /Embedding\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"\tsysmon\t1\t4163\tsysmon_logs\t4163\n2022-07-19 14:33:20\t3368\t5592\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\tNone\t\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding\t\"C:\\Program Files\\Micr",
+        "error": null
+      },
+      {
+        "sequence": 33,
+        "role": "investigator",
+        "tool_name": "ask_audit",
+        "arguments": {
+          "question": "PID 3368 の WINWORD.EXE について、同時期に観測されたファイル作成、レジストリ変更、モジュール読込、ネットワーク接続を確認したいです。子プロセスや親子関係と直接つながる証拠だけを優先し、発生時刻、source_stream、対象 object、remote_ip/remote_port、modload_name、filemod_name、regmod_name を含めて示してください。"
+        },
+        "started_at_utc": "2026-07-30T07:09:28.950591+00:00",
+        "finished_at_utc": "2026-07-30T07:09:44.444700+00:00",
+        "duration_seconds": 15.5,
+        "outcome": "success",
+        "result_length_chars": 4313,
+        "result_preview": "PID 3368 の `WINWORD.EXE` について、同時期に観測された証拠ベースの動作を整理しました。  \nこの PID では、**ネットワーク接続**と**レジストリ変更**の直接証拠は確認できませんでした。一方で、**親プロセスにつながる module load** と **ファイル作成/更新に相当する filemod** は観測されています。\n\n### 観測できたもの\n\n| 発生時刻 | source_stream | 対象 object | remote_ip | remote_port | modload_name | filemod_name | regmod_name | 親子関係の証拠 |\n|---|---|---|---|---|---|---|---|---|\n| 2022-07-19 14:33:20 | cbc-edr | `c:\\windows\\system32\\ctiuser.dll | event_type=endpoint.event.moduleload | parent_path=c:\\program files\\microsoft offi",
+        "error": null
+      },
+      {
+        "sequence": 34,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, source_stream, object, remote_ip, remote_port, modload_name, filemod_name, regmod_name, childproc_name, parent_process_name, parent_process_path, parent_command_line, process_name, pname, pid, ppid\nFROM audit_logs\nWHERE pid = 3368\n  AND (\n    access IN ('write','create','connect')\n    OR modload_name IS NOT NULL\n    OR filemod_name IS NOT NULL\n    OR regmod_name IS NOT NULL\n    OR childproc_name IS NOT NULL\n  )\nORDER BY time ASC, event_record_id ASC\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:09:30.284417+00:00",
+        "finished_at_utc": "2026-07-30T07:09:30.290422+00:00",
+        "duration_seconds": 0.016,
+        "outcome": "sql_success",
+        "result_length_chars": 22079,
+        "result_preview": "2022-07-19 14:33:20\tcbc-edr\tc:\\windows\\system32\\ctiuser.dll | event_type=endpoint.event.moduleload | parent_path=c:\\program files\\microsoft office\\office14\\winword.exe | parent_cmdline=\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\" | modload_name=c:\\windows\\system32\\ctiuser.dll\tNone\tNone\tc:\\windows\\system32\\ctiuser.dll\tNone\tNone\tNone\twinword.exe\tc:\\program files\\microsoft office\\office14\\winword.exe\t\"C:\\Program Files\\Microsoft Office\\Off",
+        "error": null
+      },
+      {
+        "sequence": 35,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, source_stream, object, remote_ip, remote_port, modload_name, filemod_name, regmod_name, childproc_name, parent_process_name, parent_process_path, parent_command_line, process_name, pname, pid, ppid\nFROM audit_logs\nWHERE pid = 3368\n  AND (access = 'connect' OR remote_ip IS NOT NULL OR remote_port IS NOT NULL)\nORDER BY time ASC, event_record_id ASC\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:09:32.036619+00:00",
+        "finished_at_utc": "2026-07-30T07:09:32.047145+00:00",
+        "duration_seconds": 0.016,
+        "outcome": "sql_no_results",
+        "result_length_chars": 17,
+        "result_preview": "No results found.",
+        "error": null
+      },
+      {
+        "sequence": 36,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, source_stream, object, remote_ip, remote_port, modload_name, filemod_name, regmod_name, childproc_name, parent_process_name, parent_process_path, parent_command_line, process_name, pname, pid, ppid\nFROM audit_logs\nWHERE pid = 3368\n  AND (access = 'write' OR access = 'create' OR filemod_name IS NOT NULL OR regmod_name IS NOT NULL OR childproc_name IS NOT NULL)\nORDER BY time ASC, event_record_id ASC\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:09:32.047145+00:00",
+        "finished_at_utc": "2026-07-30T07:09:32.056146+00:00",
+        "duration_seconds": 0.016,
+        "outcome": "sql_success",
+        "result_length_chars": 15635,
+        "result_preview": "2022-07-19 14:33:20\tcbc-edr\tc:\\users\\aalsahee\\appdata\\local\\temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\appdata | event_type=endpoint.event.filemod | parent_path=c:\\program files\\microsoft office\\office14\\winword.exe | parent_cmdline=\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\" | filemod_name=c:\\users\\aalsahee\\appdata\\local\\temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\appdata\tNone\tNone\tNone\tc:\\users\\aalsahee\\appdata\\local\\temp",
+        "error": null
+      },
+      {
+        "sequence": 37,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, source_stream, object, remote_ip, remote_port, modload_name, filemod_name, regmod_name, childproc_name, parent_process_name, parent_process_path, parent_command_line, process_name, pname, pid, ppid\nFROM audit_logs\nWHERE pid = 3368\n  AND regmod_name IS NOT NULL\nORDER BY time ASC, event_record_id ASC\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-07-30T07:09:33.134644+00:00",
+        "finished_at_utc": "2026-07-30T07:09:33.140645+00:00",
+        "duration_seconds": 0.0,
+        "outcome": "sql_no_results",
+        "result_length_chars": 17,
+        "result_preview": "No results found.",
+        "error": null
+      }
+    ]
+  },
+  "lead_expansion_guard": {
+    "config": {
+      "enabled": true,
+      "max_investigator_questions_per_lead": 20,
+      "max_sql_tool_calls_per_question": 12,
+      "max_sql_tool_calls_per_lead": 80,
+      "max_wall_seconds_per_lead": 1200.0,
+      "on_trigger": "summarize_collected_evidence_and_return_unresolved_frontier_to_chief"
+    },
+    "records": [
+      {
+        "lead": "host WIN-32-H1 の 2022-07-19 14:31:00〜14:36:00 付近で、winword.exe（input_alert_process_name: c:\\program files\\microsoft office\\office14\\winword.exe）に直接つながる親プロセス、子プロセス、コマンドライン、関連ファイル/レジストリ/ネットワークを確認してください。CBC alert 起点の前後で、観測された因果 edge を使って code 行動列を復元したいので、該当する event_record_id、PID/PPID、process name、timestamp、source_stream を含む証拠を確認してください。",
+        "investigator_question_count": 2,
+        "sql_tool_call_count": 8,
+        "duration_seconds": 41.281,
+        "triggered": false,
+        "stop_reason": null
+      },
+      {
+        "lead": "PID 3368 の WINWORD.EXE /Embedding について、さらに子プロセス生成や関連する command_line、実行後のファイル/レジストリ/ネットワーク edge を確認してください。PID 5592 との因果関係を維持しつつ、観測された子孫プロセスがあるかを event_record_id、timestamp、source_stream で確認したいです。",
+        "investigator_question_count": 3,
+        "sql_tool_call_count": 7,
+        "duration_seconds": 48.328,
+        "triggered": false,
+        "stop_reason": null
+      },
+      {
+        "lead": "PID 5592 の WINWORD.EXE について、ネットワーク接続の有無と関連する endpoint、また同時期に生じたファイル作成・レジストリ変更・モジュール読込のうち code sequence に入る因果 edge を確認してください。parent/child process と接続できる証拠だけを拾い、未確認の行動は分離してください。",
+        "investigator_question_count": 3,
+        "sql_tool_call_count": 11,
+        "duration_seconds": 55.562,
+        "triggered": false,
+        "stop_reason": null
+      }
+    ],
+    "trigger_count": 0
+  },
+  "usage": {
+    "input_tokens": 312370,
+    "output_tokens": 29114,
+    "cached_input_tokens": 171648,
+    "total_tokens": 341484
+  },
+  "usage_scope": "full_pipeline_callback_v1",
+  "usage_breakdown": {
+    "chief": {
+      "input_tokens": 37025,
+      "output_tokens": 4791,
+      "cached_input_tokens": 16768,
+      "total_tokens": 41816
+    },
+    "investigator": {
+      "input_tokens": 43395,
+      "output_tokens": 7085,
+      "cached_input_tokens": 19200,
+      "total_tokens": 50480
+    },
+    "sql_qa": {
+      "input_tokens": 231950,
+      "output_tokens": 17238,
+      "cached_input_tokens": 135680,
+      "total_tokens": 249188
+    },
+    "role_call_counts": {
+      "chief": 5,
+      "investigator": 10,
+      "sql_qa": 30
+    },
+    "role_llm_duration_seconds": {
+      "chief": 24.564,
+      "investigator": 41.143,
+      "sql_qa": 103.419
+    },
+    "role_calls": {
+      "chief": [
+        {
+          "run_id": "e10f307b-a468-4c19-9602-731241923d07",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2255,
+            "output_tokens": 170,
+            "cached_input_tokens": 0,
+            "total_tokens": 2425
+          },
+          "started_at_utc": "2026-07-30T07:07:22.081679+00:00",
+          "finished_at_utc": "2026-07-30T07:07:24.558317+00:00",
+          "duration_seconds": 2.485
+        },
+        {
+          "run_id": "b0c1f1fd-17a6-4a0e-bb54-c0520208cdc4",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 4294,
+            "output_tokens": 233,
+            "cached_input_tokens": 2176,
+            "total_tokens": 4527
+          },
+          "started_at_utc": "2026-07-30T07:08:05.843014+00:00",
+          "finished_at_utc": "2026-07-30T07:08:08.018793+00:00",
+          "duration_seconds": 2.172
+        },
+        {
+          "run_id": "09832a6a-6280-457b-9b57-af619888366a",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 8753,
+            "output_tokens": 1721,
+            "cached_input_tokens": 4224,
+            "total_tokens": 10474
+          },
+          "started_at_utc": "2026-07-30T07:09:51.907407+00:00",
+          "finished_at_utc": "2026-07-30T07:09:59.602598+00:00",
+          "duration_seconds": 7.703
+        },
+        {
+          "run_id": "7aef590f-e5fd-40ac-9c01-04744168eb5e",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 10773,
+            "output_tokens": 3,
+            "cached_input_tokens": 10368,
+            "total_tokens": 10776
+          },
+          "started_at_utc": "2026-07-30T07:09:59.603597+00:00",
+          "finished_at_utc": "2026-07-30T07:10:00.228901+00:00",
+          "duration_seconds": 0.625
+        },
+        {
+          "run_id": "4a18048f-d4bb-4f4b-bd0c-8a0b9ef54184",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 10950,
+            "output_tokens": 2664,
+            "cached_input_tokens": 0,
+            "total_tokens": 13614
+          },
+          "started_at_utc": "2026-07-30T07:10:00.230476+00:00",
+          "finished_at_utc": "2026-07-30T07:10:11.808269+00:00",
+          "duration_seconds": 11.579
+        }
+      ],
+      "investigator": [
+        {
+          "run_id": "6a48954f-9f44-4c3e-9cbe-e0cf88e367d9",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 1974,
+            "output_tokens": 193,
+            "cached_input_tokens": 0,
+            "total_tokens": 2167
+          },
+          "started_at_utc": "2026-07-30T07:07:24.583356+00:00",
+          "finished_at_utc": "2026-07-30T07:07:26.317352+00:00",
+          "duration_seconds": 1.735
+        },
+        {
+          "run_id": "3c574935-f76a-4a5f-aa2c-686d214e963d",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 5173,
+            "output_tokens": 168,
+            "cached_input_tokens": 0,
+            "total_tokens": 5341
+          },
+          "started_at_utc": "2026-07-30T07:07:48.328868+00:00",
+          "finished_at_utc": "2026-07-30T07:07:49.872003+00:00",
+          "duration_seconds": 1.547
+        },
+        {
+          "run_id": "5139d331-8a04-45ff-8b22-9cf7b8e796d8",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 5654,
+            "output_tokens": 1860,
+            "cached_input_tokens": 4736,
+            "total_tokens": 7514
+          },
+          "started_at_utc": "2026-07-30T07:07:56.953775+00:00",
+          "finished_at_utc": "2026-07-30T07:08:05.841017+00:00",
+          "duration_seconds": 8.891
+        },
+        {
+          "run_id": "897a1d45-34ff-42f1-95f9-1b42175b30d8",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 1914,
+            "output_tokens": 106,
+            "cached_input_tokens": 0,
+            "total_tokens": 2020
+          },
+          "started_at_utc": "2026-07-30T07:08:08.028787+00:00",
+          "finished_at_utc": "2026-07-30T07:08:09.228188+00:00",
+          "duration_seconds": 1.203
+        },
+        {
+          "run_id": "b1119357-f0e3-421f-88f9-3782ca6c2113",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2514,
+            "output_tokens": 257,
+            "cached_input_tokens": 1664,
+            "total_tokens": 2771
+          },
+          "started_at_utc": "2026-07-30T07:08:15.031066+00:00",
+          "finished_at_utc": "2026-07-30T07:08:17.258277+00:00",
+          "duration_seconds": 2.235
+        },
+        {
+          "run_id": "0d7ec0fb-a58d-446f-b7ca-09cffe922d66",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 7118,
+            "output_tokens": 2660,
+            "cached_input_tokens": 2688,
+            "total_tokens": 9778
+          },
+          "started_at_utc": "2026-07-30T07:08:43.221380+00:00",
+          "finished_at_utc": "2026-07-30T07:08:56.341827+00:00",
+          "duration_seconds": 13.125
+        },
+        {
+          "run_id": "12a74109-6d34-4daf-82b0-00e5a0af8f98",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 1914,
+            "output_tokens": 90,
+            "cached_input_tokens": 0,
+            "total_tokens": 2004
+          },
+          "started_at_utc": "2026-07-30T07:08:56.353839+00:00",
+          "finished_at_utc": "2026-07-30T07:08:57.583029+00:00",
+          "duration_seconds": 1.219
+        },
+        {
+          "run_id": "32e05e06-0bda-4ffb-b3b6-852b17759a22",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2494,
+            "output_tokens": 152,
+            "cached_input_tokens": 1664,
+            "total_tokens": 2646
+          },
+          "started_at_utc": "2026-07-30T07:09:08.234049+00:00",
+          "finished_at_utc": "2026-07-30T07:09:10.135436+00:00",
+          "duration_seconds": 1.907
+        },
+        {
+          "run_id": "1510e2c8-3f00-44d6-9744-7bb02f8f2eab",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 6195,
+            "output_tokens": 238,
+            "cached_input_tokens": 2176,
+            "total_tokens": 6433
+          },
+          "started_at_utc": "2026-07-30T07:09:27.128780+00:00",
+          "finished_at_utc": "2026-07-30T07:09:28.950591+00:00",
+          "duration_seconds": 1.828
+        },
+        {
+          "run_id": "dcc9dedf-29ec-4048-8263-8b16d7771786",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 8445,
+            "output_tokens": 1361,
+            "cached_input_tokens": 6272,
+            "total_tokens": 9806
+          },
+          "started_at_utc": "2026-07-30T07:09:44.445700+00:00",
+          "finished_at_utc": "2026-07-30T07:09:51.905409+00:00",
+          "duration_seconds": 7.453
+        }
+      ],
+      "sql_qa": [
+        {
+          "run_id": "af93c54c-6578-495a-8088-820304d195a0",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2090,
+            "output_tokens": 419,
+            "cached_input_tokens": 0,
+            "total_tokens": 2509
+          },
+          "started_at_utc": "2026-07-30T07:07:26.337359+00:00",
+          "finished_at_utc": "2026-07-30T07:07:29.125395+00:00",
+          "duration_seconds": 2.781
+        },
+        {
+          "run_id": "bfddf720-e31f-4eb1-8754-715929fcf165",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 13810,
+            "output_tokens": 344,
+            "cached_input_tokens": 2176,
+            "total_tokens": 14154
+          },
+          "started_at_utc": "2026-07-30T07:07:29.157409+00:00",
+          "finished_at_utc": "2026-07-30T07:07:31.579737+00:00",
+          "duration_seconds": 2.422
+        },
+        {
+          "run_id": "7afc7833-7026-486e-bf69-90c2734bf2a5",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 29106,
+            "output_tokens": 191,
+            "cached_input_tokens": 13952,
+            "total_tokens": 29297
+          },
+          "started_at_utc": "2026-07-30T07:07:31.607254+00:00",
+          "finished_at_utc": "2026-07-30T07:07:33.177490+00:00",
+          "duration_seconds": 1.563
+        },
+        {
+          "run_id": "57363bbe-7724-4382-a0aa-c8d463dd16a2",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 37603,
+            "output_tokens": 2997,
+            "cached_input_tokens": 28800,
+            "total_tokens": 40600
+          },
+          "started_at_utc": "2026-07-30T07:07:33.199883+00:00",
+          "finished_at_utc": "2026-07-30T07:07:48.327352+00:00",
+          "duration_seconds": 15.125
+        },
+        {
+          "run_id": "e7d5d3a7-1948-4482-b8b7-c095c527fa3c",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2059,
+            "output_tokens": 132,
+            "cached_input_tokens": 1664,
+            "total_tokens": 2191
+          },
+          "started_at_utc": "2026-07-30T07:07:49.901551+00:00",
+          "finished_at_utc": "2026-07-30T07:07:51.319674+00:00",
+          "duration_seconds": 1.422
+        },
+        {
+          "run_id": "84d9625b-b2e6-41b3-84fb-0446c89b4de6",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 4719,
+            "output_tokens": 114,
+            "cached_input_tokens": 0,
+            "total_tokens": 4833
+          },
+          "started_at_utc": "2026-07-30T07:07:51.325673+00:00",
+          "finished_at_utc": "2026-07-30T07:07:52.553594+00:00",
+          "duration_seconds": 1.219
+        },
+        {
+          "run_id": "022ac2ee-7713-4582-94bc-c746e99d8ea5",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 7935,
+            "output_tokens": 142,
+            "cached_input_tokens": 1664,
+            "total_tokens": 8077
+          },
+          "started_at_utc": "2026-07-30T07:07:52.558601+00:00",
+          "finished_at_utc": "2026-07-30T07:07:54.177540+00:00",
+          "duration_seconds": 1.609
+        },
+        {
+          "run_id": "b3dfdfbc-8d7e-4080-aeb2-674f883e2680",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 8776,
+            "output_tokens": 310,
+            "cached_input_tokens": 7808,
+            "total_tokens": 9086
+          },
+          "started_at_utc": "2026-07-30T07:07:54.181545+00:00",
+          "finished_at_utc": "2026-07-30T07:07:56.951783+00:00",
+          "duration_seconds": 2.765
+        },
+        {
+          "run_id": "27bf9f58-0b31-4be2-b628-1fc1b107367e",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2003,
+            "output_tokens": 118,
+            "cached_input_tokens": 1664,
+            "total_tokens": 2121
+          },
+          "started_at_utc": "2026-07-30T07:08:09.243179+00:00",
+          "finished_at_utc": "2026-07-30T07:08:10.304029+00:00",
+          "duration_seconds": 1.063
+        },
+        {
+          "run_id": "c4af86af-ff5e-493d-9d09-1b8d13d539a1",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 5882,
+            "output_tokens": 177,
+            "cached_input_tokens": 1664,
+            "total_tokens": 6059
+          },
+          "started_at_utc": "2026-07-30T07:08:10.316028+00:00",
+          "finished_at_utc": "2026-07-30T07:08:11.927861+00:00",
+          "duration_seconds": 1.609
+        },
+        {
+          "run_id": "218877e8-856d-49d1-a787-8fefc7e70ba2",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 8820,
+            "output_tokens": 485,
+            "cached_input_tokens": 5760,
+            "total_tokens": 9305
+          },
+          "started_at_utc": "2026-07-30T07:08:11.943861+00:00",
+          "finished_at_utc": "2026-07-30T07:08:15.029071+00:00",
+          "duration_seconds": 3.093
+        },
+        {
+          "run_id": "580173f7-6a71-414d-8834-0e3e7158fd0f",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 1973,
+            "output_tokens": 104,
+            "cached_input_tokens": 1664,
+            "total_tokens": 2077
+          },
+          "started_at_utc": "2026-07-30T07:08:17.272275+00:00",
+          "finished_at_utc": "2026-07-30T07:08:18.540208+00:00",
+          "duration_seconds": 1.281
+        },
+        {
+          "run_id": "1eb822b9-ddb9-4cc5-85ea-04fbd322cf70",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 5149,
+            "output_tokens": 84,
+            "cached_input_tokens": 1664,
+            "total_tokens": 5233
+          },
+          "started_at_utc": "2026-07-30T07:08:18.598218+00:00",
+          "finished_at_utc": "2026-07-30T07:08:19.810857+00:00",
+          "duration_seconds": 1.219
+        },
+        {
+          "run_id": "67d0b3bd-25b7-4052-af0f-95035026cd12",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 6564,
+            "output_tokens": 97,
+            "cached_input_tokens": 4736,
+            "total_tokens": 6661
+          },
+          "started_at_utc": "2026-07-30T07:08:19.874381+00:00",
+          "finished_at_utc": "2026-07-30T07:08:21.109323+00:00",
+          "duration_seconds": 1.234
+        },
+        {
+          "run_id": "0c21f2e0-b42d-4055-b8d9-e9f858123207",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 6980,
+            "output_tokens": 237,
+            "cached_input_tokens": 6272,
+            "total_tokens": 7217
+          },
+          "started_at_utc": "2026-07-30T07:08:21.113325+00:00",
+          "finished_at_utc": "2026-07-30T07:08:22.955686+00:00",
+          "duration_seconds": 1.844
+        },
+        {
+          "run_id": "d2720ca7-1c6c-49d6-892f-c1a080c373a3",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 1980,
+            "output_tokens": 107,
+            "cached_input_tokens": 1664,
+            "total_tokens": 2087
+          },
+          "started_at_utc": "2026-07-30T07:08:22.970684+00:00",
+          "finished_at_utc": "2026-07-30T07:08:24.408233+00:00",
+          "duration_seconds": 1.437
+        },
+        {
+          "run_id": "92723f41-6f62-41e8-8569-f974d7646226",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 7316,
+            "output_tokens": 3976,
+            "cached_input_tokens": 1664,
+            "total_tokens": 11292
+          },
+          "started_at_utc": "2026-07-30T07:08:24.415233+00:00",
+          "finished_at_utc": "2026-07-30T07:08:43.220380+00:00",
+          "duration_seconds": 18.797
+        },
+        {
+          "run_id": "a06b610a-f9b3-4e0b-820a-6f82d939b109",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 1987,
+            "output_tokens": 93,
+            "cached_input_tokens": 1664,
+            "total_tokens": 2080
+          },
+          "started_at_utc": "2026-07-30T07:08:57.599029+00:00",
+          "finished_at_utc": "2026-07-30T07:08:58.980082+00:00",
+          "duration_seconds": 1.39
+        },
+        {
+          "run_id": "d1f2d2b7-75be-4ad1-acdf-53bc07ccf4a9",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2096,
+            "output_tokens": 78,
+            "cached_input_tokens": 1664,
+            "total_tokens": 2174
+          },
+          "started_at_utc": "2026-07-30T07:08:58.986083+00:00",
+          "finished_at_utc": "2026-07-30T07:09:00.257118+00:00",
+          "duration_seconds": 1.282
+        },
+        {
+          "run_id": "506fae12-5d55-49c5-bcae-d0d32652ee57",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2244,
+            "output_tokens": 91,
+            "cached_input_tokens": 1664,
+            "total_tokens": 2335
+          },
+          "started_at_utc": "2026-07-30T07:09:00.264114+00:00",
+          "finished_at_utc": "2026-07-30T07:09:01.344912+00:00",
+          "duration_seconds": 1.078
+        },
+        {
+          "run_id": "000491c6-645e-4859-9db6-3a05ca566f7b",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2351,
+            "output_tokens": 110,
+            "cached_input_tokens": 2176,
+            "total_tokens": 2461
+          },
+          "started_at_utc": "2026-07-30T07:09:01.351917+00:00",
+          "finished_at_utc": "2026-07-30T07:09:02.561391+00:00",
+          "duration_seconds": 1.204
+        },
+        {
+          "run_id": "caf1d014-3fcb-4a51-8c89-e24bfcb8118c",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 4708,
+            "output_tokens": 115,
+            "cached_input_tokens": 2176,
+            "total_tokens": 4823
+          },
+          "started_at_utc": "2026-07-30T07:09:02.574392+00:00",
+          "finished_at_utc": "2026-07-30T07:09:03.826688+00:00",
+          "duration_seconds": 1.25
+        },
+        {
+          "run_id": "4511e511-54dc-458a-9c5a-5d19829622b3",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 6992,
+            "output_tokens": 85,
+            "cached_input_tokens": 4736,
+            "total_tokens": 7077
+          },
+          "started_at_utc": "2026-07-30T07:09:03.837198+00:00",
+          "finished_at_utc": "2026-07-30T07:09:04.876197+00:00",
+          "duration_seconds": 1.031
+        },
+        {
+          "run_id": "43a9240b-eb41-4705-b161-f99955b3941e",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 7233,
+            "output_tokens": 481,
+            "cached_input_tokens": 6784,
+            "total_tokens": 7714
+          },
+          "started_at_utc": "2026-07-30T07:09:04.882197+00:00",
+          "finished_at_utc": "2026-07-30T07:09:08.232044+00:00",
+          "duration_seconds": 3.343
+        },
+        {
+          "run_id": "9027caf4-591f-42dc-aa1e-663d0b8b0316",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 1976,
+            "output_tokens": 95,
+            "cached_input_tokens": 1664,
+            "total_tokens": 2071
+          },
+          "started_at_utc": "2026-07-30T07:09:10.147435+00:00",
+          "finished_at_utc": "2026-07-30T07:09:11.274613+00:00",
+          "duration_seconds": 1.125
+        },
+        {
+          "run_id": "215cfc9b-84b5-4109-81e0-b67d2f1c6fe9",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 5412,
+            "output_tokens": 3540,
+            "cached_input_tokens": 1664,
+            "total_tokens": 8952
+          },
+          "started_at_utc": "2026-07-30T07:09:11.331619+00:00",
+          "finished_at_utc": "2026-07-30T07:09:27.127774+00:00",
+          "duration_seconds": 15.797
+        },
+        {
+          "run_id": "b4f37e58-1201-43b8-92aa-3ec87dd5efdf",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2019,
+            "output_tokens": 150,
+            "cached_input_tokens": 1664,
+            "total_tokens": 2169
+          },
+          "started_at_utc": "2026-07-30T07:09:28.964591+00:00",
+          "finished_at_utc": "2026-07-30T07:09:30.284417+00:00",
+          "duration_seconds": 1.312
+        },
+        {
+          "run_id": "f2162cb5-7c71-42fa-813c-fef711115e74",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 9596,
+            "output_tokens": 260,
+            "cached_input_tokens": 1664,
+            "total_tokens": 9856
+          },
+          "started_at_utc": "2026-07-30T07:09:30.292417+00:00",
+          "finished_at_utc": "2026-07-30T07:09:32.035620+00:00",
+          "duration_seconds": 1.734
+        },
+        {
+          "run_id": "11b59c38-9c2a-45e8-ba9c-14f55d922622",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 16226,
+            "output_tokens": 103,
+            "cached_input_tokens": 9344,
+            "total_tokens": 16329
+          },
+          "started_at_utc": "2026-07-30T07:09:32.059145+00:00",
+          "finished_at_utc": "2026-07-30T07:09:33.133644+00:00",
+          "duration_seconds": 1.078
+        },
+        {
+          "run_id": "1f027236-d69f-444a-b9b4-a6e33439527e",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 16345,
+            "output_tokens": 2003,
+            "cached_input_tokens": 16000,
+            "total_tokens": 18348
+          },
+          "started_at_utc": "2026-07-30T07:09:33.141644+00:00",
+          "finished_at_utc": "2026-07-30T07:09:44.444700+00:00",
+          "duration_seconds": 11.312
+        }
+      ]
+    },
+    "role_total": {
+      "input_tokens": 312370,
+      "output_tokens": 29114,
+      "cached_input_tokens": 171648,
+      "total_tokens": 341484
+    },
+    "call_ledger_total": {
+      "input_tokens": 312370,
+      "output_tokens": 29114,
+      "cached_input_tokens": 171648,
+      "total_tokens": 341484
+    },
+    "unattributed": {
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cached_input_tokens": 0,
+      "total_tokens": 0
+    },
+    "legacy_parent_graph_messages": {
+      "input_tokens": 26252,
+      "output_tokens": 4788,
+      "cached_input_tokens": 6400,
+      "total_tokens": 31040
+    },
+    "callback_aggregate_total": {
+      "input_tokens": 312370,
+      "output_tokens": 29114,
+      "cached_input_tokens": 171648,
+      "total_tokens": 341484
+    },
+    "full_pipeline_by_model": {
+      "gpt-5.4-mini-2026-03-17": {
+        "input_tokens": 312370,
+        "output_tokens": 29114,
+        "cached_input_tokens": 171648,
+        "total_tokens": 341484
+      }
+    },
+    "full_pipeline_calls": [
+      {
+        "run_id": "e10f307b-a468-4c19-9602-731241923d07",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2255,
+          "output_tokens": 170,
+          "cached_input_tokens": 0,
+          "total_tokens": 2425
+        },
+        "started_at_utc": "2026-07-30T07:07:22.081679+00:00",
+        "finished_at_utc": "2026-07-30T07:07:24.558317+00:00",
+        "duration_seconds": 2.485
+      },
+      {
+        "run_id": "6a48954f-9f44-4c3e-9cbe-e0cf88e367d9",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 1974,
+          "output_tokens": 193,
+          "cached_input_tokens": 0,
+          "total_tokens": 2167
+        },
+        "started_at_utc": "2026-07-30T07:07:24.583356+00:00",
+        "finished_at_utc": "2026-07-30T07:07:26.317352+00:00",
+        "duration_seconds": 1.735
+      },
+      {
+        "run_id": "af93c54c-6578-495a-8088-820304d195a0",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2090,
+          "output_tokens": 419,
+          "cached_input_tokens": 0,
+          "total_tokens": 2509
+        },
+        "started_at_utc": "2026-07-30T07:07:26.337359+00:00",
+        "finished_at_utc": "2026-07-30T07:07:29.125395+00:00",
+        "duration_seconds": 2.781
+      },
+      {
+        "run_id": "bfddf720-e31f-4eb1-8754-715929fcf165",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 13810,
+          "output_tokens": 344,
+          "cached_input_tokens": 2176,
+          "total_tokens": 14154
+        },
+        "started_at_utc": "2026-07-30T07:07:29.157409+00:00",
+        "finished_at_utc": "2026-07-30T07:07:31.579737+00:00",
+        "duration_seconds": 2.422
+      },
+      {
+        "run_id": "7afc7833-7026-486e-bf69-90c2734bf2a5",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 29106,
+          "output_tokens": 191,
+          "cached_input_tokens": 13952,
+          "total_tokens": 29297
+        },
+        "started_at_utc": "2026-07-30T07:07:31.607254+00:00",
+        "finished_at_utc": "2026-07-30T07:07:33.177490+00:00",
+        "duration_seconds": 1.563
+      },
+      {
+        "run_id": "57363bbe-7724-4382-a0aa-c8d463dd16a2",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 37603,
+          "output_tokens": 2997,
+          "cached_input_tokens": 28800,
+          "total_tokens": 40600
+        },
+        "started_at_utc": "2026-07-30T07:07:33.199883+00:00",
+        "finished_at_utc": "2026-07-30T07:07:48.327859+00:00",
+        "duration_seconds": 15.125
+      },
+      {
+        "run_id": "3c574935-f76a-4a5f-aa2c-686d214e963d",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 5173,
+          "output_tokens": 168,
+          "cached_input_tokens": 0,
+          "total_tokens": 5341
+        },
+        "started_at_utc": "2026-07-30T07:07:48.328868+00:00",
+        "finished_at_utc": "2026-07-30T07:07:49.872003+00:00",
+        "duration_seconds": 1.547
+      },
+      {
+        "run_id": "e7d5d3a7-1948-4482-b8b7-c095c527fa3c",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2059,
+          "output_tokens": 132,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2191
+        },
+        "started_at_utc": "2026-07-30T07:07:49.901551+00:00",
+        "finished_at_utc": "2026-07-30T07:07:51.319674+00:00",
+        "duration_seconds": 1.422
+      },
+      {
+        "run_id": "84d9625b-b2e6-41b3-84fb-0446c89b4de6",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 4719,
+          "output_tokens": 114,
+          "cached_input_tokens": 0,
+          "total_tokens": 4833
+        },
+        "started_at_utc": "2026-07-30T07:07:51.325673+00:00",
+        "finished_at_utc": "2026-07-30T07:07:52.553594+00:00",
+        "duration_seconds": 1.219
+      },
+      {
+        "run_id": "022ac2ee-7713-4582-94bc-c746e99d8ea5",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 7935,
+          "output_tokens": 142,
+          "cached_input_tokens": 1664,
+          "total_tokens": 8077
+        },
+        "started_at_utc": "2026-07-30T07:07:52.558601+00:00",
+        "finished_at_utc": "2026-07-30T07:07:54.177540+00:00",
+        "duration_seconds": 1.609
+      },
+      {
+        "run_id": "b3dfdfbc-8d7e-4080-aeb2-674f883e2680",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 8776,
+          "output_tokens": 310,
+          "cached_input_tokens": 7808,
+          "total_tokens": 9086
+        },
+        "started_at_utc": "2026-07-30T07:07:54.182547+00:00",
+        "finished_at_utc": "2026-07-30T07:07:56.951783+00:00",
+        "duration_seconds": 2.765
+      },
+      {
+        "run_id": "5139d331-8a04-45ff-8b22-9cf7b8e796d8",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 5654,
+          "output_tokens": 1860,
+          "cached_input_tokens": 4736,
+          "total_tokens": 7514
+        },
+        "started_at_utc": "2026-07-30T07:07:56.953775+00:00",
+        "finished_at_utc": "2026-07-30T07:08:05.841017+00:00",
+        "duration_seconds": 8.891
+      },
+      {
+        "run_id": "b0c1f1fd-17a6-4a0e-bb54-c0520208cdc4",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 4294,
+          "output_tokens": 233,
+          "cached_input_tokens": 2176,
+          "total_tokens": 4527
+        },
+        "started_at_utc": "2026-07-30T07:08:05.843014+00:00",
+        "finished_at_utc": "2026-07-30T07:08:08.018793+00:00",
+        "duration_seconds": 2.172
+      },
+      {
+        "run_id": "897a1d45-34ff-42f1-95f9-1b42175b30d8",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 1914,
+          "output_tokens": 106,
+          "cached_input_tokens": 0,
+          "total_tokens": 2020
+        },
+        "started_at_utc": "2026-07-30T07:08:08.028787+00:00",
+        "finished_at_utc": "2026-07-30T07:08:09.228188+00:00",
+        "duration_seconds": 1.203
+      },
+      {
+        "run_id": "27bf9f58-0b31-4be2-b628-1fc1b107367e",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2003,
+          "output_tokens": 118,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2121
+        },
+        "started_at_utc": "2026-07-30T07:08:09.243179+00:00",
+        "finished_at_utc": "2026-07-30T07:08:10.304029+00:00",
+        "duration_seconds": 1.063
+      },
+      {
+        "run_id": "c4af86af-ff5e-493d-9d09-1b8d13d539a1",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 5882,
+          "output_tokens": 177,
+          "cached_input_tokens": 1664,
+          "total_tokens": 6059
+        },
+        "started_at_utc": "2026-07-30T07:08:10.316028+00:00",
+        "finished_at_utc": "2026-07-30T07:08:11.927861+00:00",
+        "duration_seconds": 1.609
+      },
+      {
+        "run_id": "218877e8-856d-49d1-a787-8fefc7e70ba2",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 8820,
+          "output_tokens": 485,
+          "cached_input_tokens": 5760,
+          "total_tokens": 9305
+        },
+        "started_at_utc": "2026-07-30T07:08:11.943861+00:00",
+        "finished_at_utc": "2026-07-30T07:08:15.029071+00:00",
+        "duration_seconds": 3.093
+      },
+      {
+        "run_id": "b1119357-f0e3-421f-88f9-3782ca6c2113",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2514,
+          "output_tokens": 257,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2771
+        },
+        "started_at_utc": "2026-07-30T07:08:15.031066+00:00",
+        "finished_at_utc": "2026-07-30T07:08:17.259275+00:00",
+        "duration_seconds": 2.235
+      },
+      {
+        "run_id": "580173f7-6a71-414d-8834-0e3e7158fd0f",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 1973,
+          "output_tokens": 104,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2077
+        },
+        "started_at_utc": "2026-07-30T07:08:17.272275+00:00",
+        "finished_at_utc": "2026-07-30T07:08:18.540208+00:00",
+        "duration_seconds": 1.281
+      },
+      {
+        "run_id": "1eb822b9-ddb9-4cc5-85ea-04fbd322cf70",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 5149,
+          "output_tokens": 84,
+          "cached_input_tokens": 1664,
+          "total_tokens": 5233
+        },
+        "started_at_utc": "2026-07-30T07:08:18.598218+00:00",
+        "finished_at_utc": "2026-07-30T07:08:19.810857+00:00",
+        "duration_seconds": 1.219
+      },
+      {
+        "run_id": "67d0b3bd-25b7-4052-af0f-95035026cd12",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 6564,
+          "output_tokens": 97,
+          "cached_input_tokens": 4736,
+          "total_tokens": 6661
+        },
+        "started_at_utc": "2026-07-30T07:08:19.874381+00:00",
+        "finished_at_utc": "2026-07-30T07:08:21.109323+00:00",
+        "duration_seconds": 1.234
+      },
+      {
+        "run_id": "0c21f2e0-b42d-4055-b8d9-e9f858123207",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 6980,
+          "output_tokens": 237,
+          "cached_input_tokens": 6272,
+          "total_tokens": 7217
+        },
+        "started_at_utc": "2026-07-30T07:08:21.113325+00:00",
+        "finished_at_utc": "2026-07-30T07:08:22.955686+00:00",
+        "duration_seconds": 1.844
+      },
+      {
+        "run_id": "d2720ca7-1c6c-49d6-892f-c1a080c373a3",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 1980,
+          "output_tokens": 107,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2087
+        },
+        "started_at_utc": "2026-07-30T07:08:22.970684+00:00",
+        "finished_at_utc": "2026-07-30T07:08:24.408233+00:00",
+        "duration_seconds": 1.437
+      },
+      {
+        "run_id": "92723f41-6f62-41e8-8569-f974d7646226",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 7316,
+          "output_tokens": 3976,
+          "cached_input_tokens": 1664,
+          "total_tokens": 11292
+        },
+        "started_at_utc": "2026-07-30T07:08:24.415233+00:00",
+        "finished_at_utc": "2026-07-30T07:08:43.220380+00:00",
+        "duration_seconds": 18.797
+      },
+      {
+        "run_id": "0d7ec0fb-a58d-446f-b7ca-09cffe922d66",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 7118,
+          "output_tokens": 2660,
+          "cached_input_tokens": 2688,
+          "total_tokens": 9778
+        },
+        "started_at_utc": "2026-07-30T07:08:43.221380+00:00",
+        "finished_at_utc": "2026-07-30T07:08:56.341827+00:00",
+        "duration_seconds": 13.125
+      },
+      {
+        "run_id": "12a74109-6d34-4daf-82b0-00e5a0af8f98",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 1914,
+          "output_tokens": 90,
+          "cached_input_tokens": 0,
+          "total_tokens": 2004
+        },
+        "started_at_utc": "2026-07-30T07:08:56.353839+00:00",
+        "finished_at_utc": "2026-07-30T07:08:57.583029+00:00",
+        "duration_seconds": 1.219
+      },
+      {
+        "run_id": "a06b610a-f9b3-4e0b-820a-6f82d939b109",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 1987,
+          "output_tokens": 93,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2080
+        },
+        "started_at_utc": "2026-07-30T07:08:57.599029+00:00",
+        "finished_at_utc": "2026-07-30T07:08:58.980082+00:00",
+        "duration_seconds": 1.39
+      },
+      {
+        "run_id": "d1f2d2b7-75be-4ad1-acdf-53bc07ccf4a9",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2096,
+          "output_tokens": 78,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2174
+        },
+        "started_at_utc": "2026-07-30T07:08:58.986083+00:00",
+        "finished_at_utc": "2026-07-30T07:09:00.257118+00:00",
+        "duration_seconds": 1.282
+      },
+      {
+        "run_id": "506fae12-5d55-49c5-bcae-d0d32652ee57",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2244,
+          "output_tokens": 91,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2335
+        },
+        "started_at_utc": "2026-07-30T07:09:00.264114+00:00",
+        "finished_at_utc": "2026-07-30T07:09:01.344912+00:00",
+        "duration_seconds": 1.078
+      },
+      {
+        "run_id": "000491c6-645e-4859-9db6-3a05ca566f7b",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2351,
+          "output_tokens": 110,
+          "cached_input_tokens": 2176,
+          "total_tokens": 2461
+        },
+        "started_at_utc": "2026-07-30T07:09:01.351917+00:00",
+        "finished_at_utc": "2026-07-30T07:09:02.561391+00:00",
+        "duration_seconds": 1.204
+      },
+      {
+        "run_id": "caf1d014-3fcb-4a51-8c89-e24bfcb8118c",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 4708,
+          "output_tokens": 115,
+          "cached_input_tokens": 2176,
+          "total_tokens": 4823
+        },
+        "started_at_utc": "2026-07-30T07:09:02.574392+00:00",
+        "finished_at_utc": "2026-07-30T07:09:03.826688+00:00",
+        "duration_seconds": 1.25
+      },
+      {
+        "run_id": "4511e511-54dc-458a-9c5a-5d19829622b3",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 6992,
+          "output_tokens": 85,
+          "cached_input_tokens": 4736,
+          "total_tokens": 7077
+        },
+        "started_at_utc": "2026-07-30T07:09:03.837198+00:00",
+        "finished_at_utc": "2026-07-30T07:09:04.876197+00:00",
+        "duration_seconds": 1.031
+      },
+      {
+        "run_id": "43a9240b-eb41-4705-b161-f99955b3941e",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 7233,
+          "output_tokens": 481,
+          "cached_input_tokens": 6784,
+          "total_tokens": 7714
+        },
+        "started_at_utc": "2026-07-30T07:09:04.882197+00:00",
+        "finished_at_utc": "2026-07-30T07:09:08.232044+00:00",
+        "duration_seconds": 3.343
+      },
+      {
+        "run_id": "32e05e06-0bda-4ffb-b3b6-852b17759a22",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2494,
+          "output_tokens": 152,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2646
+        },
+        "started_at_utc": "2026-07-30T07:09:08.234049+00:00",
+        "finished_at_utc": "2026-07-30T07:09:10.135436+00:00",
+        "duration_seconds": 1.907
+      },
+      {
+        "run_id": "9027caf4-591f-42dc-aa1e-663d0b8b0316",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 1976,
+          "output_tokens": 95,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2071
+        },
+        "started_at_utc": "2026-07-30T07:09:10.147435+00:00",
+        "finished_at_utc": "2026-07-30T07:09:11.274613+00:00",
+        "duration_seconds": 1.125
+      },
+      {
+        "run_id": "215cfc9b-84b5-4109-81e0-b67d2f1c6fe9",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 5412,
+          "output_tokens": 3540,
+          "cached_input_tokens": 1664,
+          "total_tokens": 8952
+        },
+        "started_at_utc": "2026-07-30T07:09:11.331619+00:00",
+        "finished_at_utc": "2026-07-30T07:09:27.127774+00:00",
+        "duration_seconds": 15.797
+      },
+      {
+        "run_id": "1510e2c8-3f00-44d6-9744-7bb02f8f2eab",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 6195,
+          "output_tokens": 238,
+          "cached_input_tokens": 2176,
+          "total_tokens": 6433
+        },
+        "started_at_utc": "2026-07-30T07:09:27.128780+00:00",
+        "finished_at_utc": "2026-07-30T07:09:28.950591+00:00",
+        "duration_seconds": 1.828
+      },
+      {
+        "run_id": "b4f37e58-1201-43b8-92aa-3ec87dd5efdf",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2019,
+          "output_tokens": 150,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2169
+        },
+        "started_at_utc": "2026-07-30T07:09:28.964591+00:00",
+        "finished_at_utc": "2026-07-30T07:09:30.284417+00:00",
+        "duration_seconds": 1.312
+      },
+      {
+        "run_id": "f2162cb5-7c71-42fa-813c-fef711115e74",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 9596,
+          "output_tokens": 260,
+          "cached_input_tokens": 1664,
+          "total_tokens": 9856
+        },
+        "started_at_utc": "2026-07-30T07:09:30.292417+00:00",
+        "finished_at_utc": "2026-07-30T07:09:32.035620+00:00",
+        "duration_seconds": 1.734
+      },
+      {
+        "run_id": "11b59c38-9c2a-45e8-ba9c-14f55d922622",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 16226,
+          "output_tokens": 103,
+          "cached_input_tokens": 9344,
+          "total_tokens": 16329
+        },
+        "started_at_utc": "2026-07-30T07:09:32.059145+00:00",
+        "finished_at_utc": "2026-07-30T07:09:33.133644+00:00",
+        "duration_seconds": 1.078
+      },
+      {
+        "run_id": "1f027236-d69f-444a-b9b4-a6e33439527e",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 16345,
+          "output_tokens": 2003,
+          "cached_input_tokens": 16000,
+          "total_tokens": 18348
+        },
+        "started_at_utc": "2026-07-30T07:09:33.141644+00:00",
+        "finished_at_utc": "2026-07-30T07:09:44.444700+00:00",
+        "duration_seconds": 11.312
+      },
+      {
+        "run_id": "dcc9dedf-29ec-4048-8263-8b16d7771786",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 8445,
+          "output_tokens": 1361,
+          "cached_input_tokens": 6272,
+          "total_tokens": 9806
+        },
+        "started_at_utc": "2026-07-30T07:09:44.445700+00:00",
+        "finished_at_utc": "2026-07-30T07:09:51.905409+00:00",
+        "duration_seconds": 7.453
+      },
+      {
+        "run_id": "09832a6a-6280-457b-9b57-af619888366a",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 8753,
+          "output_tokens": 1721,
+          "cached_input_tokens": 4224,
+          "total_tokens": 10474
+        },
+        "started_at_utc": "2026-07-30T07:09:51.907407+00:00",
+        "finished_at_utc": "2026-07-30T07:09:59.602598+00:00",
+        "duration_seconds": 7.703
+      },
+      {
+        "run_id": "7aef590f-e5fd-40ac-9c01-04744168eb5e",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 10773,
+          "output_tokens": 3,
+          "cached_input_tokens": 10368,
+          "total_tokens": 10776
+        },
+        "started_at_utc": "2026-07-30T07:09:59.603597+00:00",
+        "finished_at_utc": "2026-07-30T07:10:00.228901+00:00",
+        "duration_seconds": 0.625
+      },
+      {
+        "run_id": "4a18048f-d4bb-4f4b-bd0c-8a0b9ef54184",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 10950,
+          "output_tokens": 2664,
+          "cached_input_tokens": 0,
+          "total_tokens": 13614
+        },
+        "started_at_utc": "2026-07-30T07:10:00.230476+00:00",
+        "finished_at_utc": "2026-07-30T07:10:11.808269+00:00",
+        "duration_seconds": 11.579
+      }
+    ],
+    "full_pipeline_llm_duration_seconds": 169.126,
+    "role_by_model": {
+      "chief": {
+        "gpt-5.4-mini-2026-03-17": {
+          "input_tokens": 37025,
+          "output_tokens": 4791,
+          "cached_input_tokens": 16768,
+          "total_tokens": 41816
+        }
+      },
+      "investigator": {
+        "gpt-5.4-mini-2026-03-17": {
+          "input_tokens": 43395,
+          "output_tokens": 7085,
+          "cached_input_tokens": 19200,
+          "total_tokens": 50480
+        }
+      },
+      "sql_qa": {
+        "gpt-5.4-mini-2026-03-17": {
+          "input_tokens": 231950,
+          "output_tokens": 17238,
+          "cached_input_tokens": 135680,
+          "total_tokens": 249188
+        }
+      }
+    }
+  },
+  "usage_audit": {
+    "full_pipeline_equals_role_total": true,
+    "full_pipeline_equals_call_ledger": true,
+    "callback_aggregate_equals_call_ledger": true,
+    "full_pipeline_gte_legacy_parent": true,
+    "fallback": null,
+    "usage_source": "per_call_ledger",
+    "full_pipeline_call_count": 45,
+    "role_call_count": 45,
+    "role_call_count_by_role": {
+      "chief": 5,
+      "investigator": 10,
+      "sql_qa": 30
+    },
+    "role_timed_call_count_by_role": {
+      "chief": 5,
+      "investigator": 10,
+      "sql_qa": 30
+    },
+    "full_pipeline_timed_call_count": 45
+  },
+  "cost_estimate": {
+    "currency": "USD",
+    "pricing_scope": "standard_api_text_tokens",
+    "pricing_source": "per_call_ledger",
+    "price_card_version": "openai_public_model_pages_checked_2026-07-29",
+    "requested_model": "gpt-5.4-mini",
+    "base_rates_per_1m_tokens": {
+      "input": 0.75,
+      "cached_input": 0.075,
+      "output": 4.5
+    },
+    "call_count": 45,
+    "long_context_call_count": 0,
+    "gpt55_long_context_input_threshold": null,
+    "input_cost_usd": 0.1055415,
+    "cached_input_cost_usd": 0.0128736,
+    "output_cost_usd": 0.131013,
+    "total_cost_usd": 0.2494281,
+    "regional_processing_uplift_applied": false,
+    "batch_discount_applied": false,
+    "local_function_tool_fees_usd": 0.0,
+    "calls": [
+      {
+        "index": 1,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2255,
+          "output_tokens": 170,
+          "cached_input_tokens": 0,
+          "total_tokens": 2425
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00245625
+      },
+      {
+        "index": 2,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 1974,
+          "output_tokens": 193,
+          "cached_input_tokens": 0,
+          "total_tokens": 2167
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.002349
+      },
+      {
+        "index": 3,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2090,
+          "output_tokens": 419,
+          "cached_input_tokens": 0,
+          "total_tokens": 2509
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.003453
+      },
+      {
+        "index": 4,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 13810,
+          "output_tokens": 344,
+          "cached_input_tokens": 2176,
+          "total_tokens": 14154
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0104367
+      },
+      {
+        "index": 5,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 29106,
+          "output_tokens": 191,
+          "cached_input_tokens": 13952,
+          "total_tokens": 29297
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0132714
+      },
+      {
+        "index": 6,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 37603,
+          "output_tokens": 2997,
+          "cached_input_tokens": 28800,
+          "total_tokens": 40600
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.02224875
+      },
+      {
+        "index": 7,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 5173,
+          "output_tokens": 168,
+          "cached_input_tokens": 0,
+          "total_tokens": 5341
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00463575
+      },
+      {
+        "index": 8,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2059,
+          "output_tokens": 132,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2191
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00101505
+      },
+      {
+        "index": 9,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 4719,
+          "output_tokens": 114,
+          "cached_input_tokens": 0,
+          "total_tokens": 4833
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00405225
+      },
+      {
+        "index": 10,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 7935,
+          "output_tokens": 142,
+          "cached_input_tokens": 1664,
+          "total_tokens": 8077
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00546705
+      },
+      {
+        "index": 11,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 8776,
+          "output_tokens": 310,
+          "cached_input_tokens": 7808,
+          "total_tokens": 9086
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0027066
+      },
+      {
+        "index": 12,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 5654,
+          "output_tokens": 1860,
+          "cached_input_tokens": 4736,
+          "total_tokens": 7514
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0094137
+      },
+      {
+        "index": 13,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 4294,
+          "output_tokens": 233,
+          "cached_input_tokens": 2176,
+          "total_tokens": 4527
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0028002
+      },
+      {
+        "index": 14,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 1914,
+          "output_tokens": 106,
+          "cached_input_tokens": 0,
+          "total_tokens": 2020
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0019125
+      },
+      {
+        "index": 15,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2003,
+          "output_tokens": 118,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2121
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00091005
+      },
+      {
+        "index": 16,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 5882,
+          "output_tokens": 177,
+          "cached_input_tokens": 1664,
+          "total_tokens": 6059
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0040848
+      },
+      {
+        "index": 17,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 8820,
+          "output_tokens": 485,
+          "cached_input_tokens": 5760,
+          "total_tokens": 9305
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0049095
+      },
+      {
+        "index": 18,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2514,
+          "output_tokens": 257,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2771
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0019188
+      },
+      {
+        "index": 19,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 1973,
+          "output_tokens": 104,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2077
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00082455
+      },
+      {
+        "index": 20,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 5149,
+          "output_tokens": 84,
+          "cached_input_tokens": 1664,
+          "total_tokens": 5233
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00311655
+      },
+      {
+        "index": 21,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 6564,
+          "output_tokens": 97,
+          "cached_input_tokens": 4736,
+          "total_tokens": 6661
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0021627
+      },
+      {
+        "index": 22,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 6980,
+          "output_tokens": 237,
+          "cached_input_tokens": 6272,
+          "total_tokens": 7217
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0020679
+      },
+      {
+        "index": 23,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 1980,
+          "output_tokens": 107,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2087
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0008433
+      },
+      {
+        "index": 24,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 7316,
+          "output_tokens": 3976,
+          "cached_input_tokens": 1664,
+          "total_tokens": 11292
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0222558
+      },
+      {
+        "index": 25,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 7118,
+          "output_tokens": 2660,
+          "cached_input_tokens": 2688,
+          "total_tokens": 9778
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0154941
+      },
+      {
+        "index": 26,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 1914,
+          "output_tokens": 90,
+          "cached_input_tokens": 0,
+          "total_tokens": 2004
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0018405
+      },
+      {
+        "index": 27,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 1987,
+          "output_tokens": 93,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2080
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00078555
+      },
+      {
+        "index": 28,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2096,
+          "output_tokens": 78,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2174
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0007998
+      },
+      {
+        "index": 29,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2244,
+          "output_tokens": 91,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2335
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0009693
+      },
+      {
+        "index": 30,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2351,
+          "output_tokens": 110,
+          "cached_input_tokens": 2176,
+          "total_tokens": 2461
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00078945
+      },
+      {
+        "index": 31,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 4708,
+          "output_tokens": 115,
+          "cached_input_tokens": 2176,
+          "total_tokens": 4823
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0025797
+      },
+      {
+        "index": 32,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 6992,
+          "output_tokens": 85,
+          "cached_input_tokens": 4736,
+          "total_tokens": 7077
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0024297
+      },
+      {
+        "index": 33,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 7233,
+          "output_tokens": 481,
+          "cached_input_tokens": 6784,
+          "total_tokens": 7714
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00301005
+      },
+      {
+        "index": 34,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2494,
+          "output_tokens": 152,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2646
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0014313
+      },
+      {
+        "index": 35,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 1976,
+          "output_tokens": 95,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2071
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0007863
+      },
+      {
+        "index": 36,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 5412,
+          "output_tokens": 3540,
+          "cached_input_tokens": 1664,
+          "total_tokens": 8952
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0188658
+      },
+      {
+        "index": 37,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 6195,
+          "output_tokens": 238,
+          "cached_input_tokens": 2176,
+          "total_tokens": 6433
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00424845
+      },
+      {
+        "index": 38,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2019,
+          "output_tokens": 150,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2169
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00106605
+      },
+      {
+        "index": 39,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 9596,
+          "output_tokens": 260,
+          "cached_input_tokens": 1664,
+          "total_tokens": 9856
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0072438
+      },
+      {
+        "index": 40,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 16226,
+          "output_tokens": 103,
+          "cached_input_tokens": 9344,
+          "total_tokens": 16329
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0063258
+      },
+      {
+        "index": 41,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 16345,
+          "output_tokens": 2003,
+          "cached_input_tokens": 16000,
+          "total_tokens": 18348
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.01047225
+      },
+      {
+        "index": 42,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 8445,
+          "output_tokens": 1361,
+          "cached_input_tokens": 6272,
+          "total_tokens": 9806
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00822465
+      },
+      {
+        "index": 43,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 8753,
+          "output_tokens": 1721,
+          "cached_input_tokens": 4224,
+          "total_tokens": 10474
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.01145805
+      },
+      {
+        "index": 44,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 10773,
+          "output_tokens": 3,
+          "cached_input_tokens": 10368,
+          "total_tokens": 10776
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00109485
+      },
+      {
+        "index": 45,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 10950,
+          "output_tokens": 2664,
+          "cached_input_tokens": 0,
+          "total_tokens": 13614
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0202005
+      }
+    ]
+  },
+  "finished_at_utc": "2026-07-30T07:10:11.952320+00:00",
+  "elapsed_seconds": 184.937,
+  "atlasv2_s3_s4_attack8_paired_experiment": {
+    "suite_group": "atlasv2_s3_s4_attack8_process_chain_v5_formal",
+    "contract_version": "process_behavior_chain_normal23_parity_v5_formal",
+    "case_file": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\cases\\atlasv2_s3_s4_attack8_process_chain_v5_formal_stage_cases_20260727.jsonl",
+    "chain_id": "s3_pt_01_word_document_processing",
+    "stage": "stage1",
+    "gold": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\gold\\atlasv2_s3_s4_attack8_process_chain_v5_formal_gold_20260727\\by_chain\\s3_pt_01_word_document_processing\\chain_gold.json",
+    "copied_from": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260730T070707Z_s3_pt_01_word_document_processing_stage1_gpt-5.4-mini_official\\run.json"
+  }
+}

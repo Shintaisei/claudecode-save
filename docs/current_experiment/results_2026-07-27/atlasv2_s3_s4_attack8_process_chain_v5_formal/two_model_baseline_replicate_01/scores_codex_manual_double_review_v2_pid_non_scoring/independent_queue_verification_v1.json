@@ -1,0 +1,51 @@
+{
+  "schema_version": "independent_queue_verification_v1",
+  "status": "PASS",
+  "verification_scope": "read-only independent verification of the v2 PID-non-scoring overlay-bound queue; no API calls; existing score artifacts were not written or overwritten",
+  "implementation": "Python standard-library recalculation for queue/provenance/hash checks, separately followed by the versioned wrapper verification and a temporary-directory synthetic validator/finalizer smoke test.",
+  "target_artifacts": {
+    "queue": "review_queue_v2_pid_non_scoring_overlay_bound.jsonl",
+    "manifest": "queue_manifest_v2_pid_non_scoring_overlay_bound.json",
+    "template": "review_template_v2_pid_non_scoring_overlay_bound.jsonl",
+    "overlay": "../scores_codex_manual_double_review_v1/formal_review_policy_overlay_v1.json"
+  },
+  "commands_executed": [
+    "python <independent standard-library inline verifier>: recomputed canonical contract SHA-256, queue_id, file SHA-256, row distributions, policy bindings, and denominators",
+    "python src/clouseau_process_time/codex_manual_attack8_scoring_v2_pid_non_scoring.py verify-queue --queue <bound queue> --manifest <bound manifest> --overlay <formal overlay> --expected-count 48",
+    "python <temporary-directory synthetic smoke>: two all-zero independent reviews -> validate-review equivalent -> finalize equivalent -> tampered review/manifest rejection"
+  ],
+  "artifact_sha256": {
+    "bound_queue": "7bdb41f1a530aadb72d1d8882bf62d09688d2c0aa8bd97dbed5b4c6eceb0ff06",
+    "bound_manifest": "c056a18442069ce1a6e3ff93e0165a5871eea68b6e0f41dc7b246f37f73d2806",
+    "bound_template": "a9babfa74c3b09f0d8a01b4128835a436422f1607ad4d8d58f72ece8124ad5db",
+    "authoritative_overlay": "a2cdb045fbe8e95b6db0ee136a3f9d0d97841b93cf362cb414397224f7cfcd91",
+    "source_queue": "a0b6f34a0cdd47fe6768856549458f0f3a304981c4b1963dc14ec27ea052881d",
+    "source_manifest": "55675e31391c1de3460a0c52b3796128a992deab2de9c3698d902f506fa7be1d",
+    "validation_steps": "2086cfebc19358320b0e4079517904ad34f45ee9deae99f59267e250a8775c32"
+  },
+  "checks": {
+    "queue_row_count": {"status": "pass", "actual": 48, "expected": 48},
+    "model_counts": {"status": "pass", "gpt-4.1-mini": 24, "gpt-5.4-mini": 24},
+    "stage_counts": {"status": "pass", "stage1": 16, "stage2": 16, "stage3": 16},
+    "model_stage_counts": {"status": "pass", "each_of_6_model_stage_groups": 8},
+    "run_gold_validation_sha": {"status": "pass", "rows_checked": 48, "failed_rows": []},
+    "overlay_sha_all_rows": {"status": "pass", "rows_checked": 48, "failed_rows": [], "overlay_sha256": "a2cdb045fbe8e95b6db0ee136a3f9d0d97841b93cf362cb414397224f7cfcd91"},
+    "queue_id_contract_binding": {"status": "pass", "rows_checked": 48, "failed_rows": [], "method": "independent canonical JSON SHA-256 over the 14 bound contract fields; queue_id=model/stage/instance_id/contract_sha256[:16]"},
+    "source_queue_frozen_provenance": {"status": "pass", "rows_checked": 48, "failed_rows": []},
+    "template_overlay_binding": {"status": "pass", "template_rows": 48, "failed_rows": []},
+    "required_content_totals": {
+      "status": "pass",
+      "gold_items": 1032,
+      "order_pairs": 210,
+      "candidate_slots": 414,
+      "gold_item_kinds": {"subject": 258, "operation": 258, "object": 258, "critical_evidence": 258},
+      "candidate_slot_kinds": {"subject": 140, "operation": 140, "object": 134}
+    },
+    "model_stage_denominators": {"status": "pass", "each_model_stage": {"case_count": 8, "action": 129, "critical_evidence": 43, "order": 35}},
+    "policy_semantics": {"status": "pass", "pid_identity_scored": false, "hidden_alert_mapping_scored": false, "action_aliases_operation": true, "old_strict_pid_sentence_effective": false},
+    "wrapper_verify_queue": {"status": "pass", "queue_rows": 48},
+    "synthetic_validator_finalizer_smoke": {"status": "pass", "synthetic_reviewers": 2, "validated_rows_each": 48, "finalized_adopted_rows": 48, "finalizer_complete": true, "tampered_review_overlay_hash_rejected": true, "tampered_manifest_overlay_hash_rejected": true, "temporary_outputs_cleaned": true}
+  },
+  "external_api_calls": false,
+  "existing_artifacts_overwritten": false
+}

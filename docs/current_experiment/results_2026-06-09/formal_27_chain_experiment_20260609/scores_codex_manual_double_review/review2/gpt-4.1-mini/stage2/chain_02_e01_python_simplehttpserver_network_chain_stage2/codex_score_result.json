@@ -1,0 +1,149 @@
+{
+  "case": "chain_02_e01_python_simplehttpserver_network_chain_stage2",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "reviewer": "review2",
+  "method": "codex_manual_double_review_no_api",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_02_e01_python_simplehttpserver_network_chain/chain_gold.json",
+  "candidate_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage2/chain_02_e01_python_simplehttpserver_network_chain_stage2_run.json",
+  "scoring_basis": "Manual local-file review only. Item rubric is subject/action/object/critical_evidence, each scored 0 or 1. Strict credit requires the SimpleHTTPServer command for C02-S01 and netconn/network-server evidence for C02-S02.",
+  "gold_required_item_scores": [
+    {
+      "step_id": "C02-S01",
+      "summary": "python.exe starts with command python -m SimpleHTTPServer",
+      "candidate_match": "S1 reports python.exe process_start at 2022-07-15 13:15:00, but command_line is null and evidence is only process_name.",
+      "scores": {
+        "subject": 1,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "reason": "Subject python.exe is present. The candidate does not recover the required SimpleHTTPServer module invocation, the object command 'python  -m SimpleHTTPServer', or CBC/process command-line evidence."
+    },
+    {
+      "step_id": "C02-S02",
+      "summary": "python.exe is detected as network-server/netconn behavior",
+      "candidate_match": null,
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "reason": "No candidate step reports python.exe netconn, listening/server behavior, remote/local network details, or CBC event netconn evidence. The generic python.exe process_start is not credited as this network behavior step."
+    }
+  ],
+  "candidate_claim_scores": [
+    {
+      "candidate_step_id": "S1",
+      "claim": "python.exe process_start",
+      "slot_scores": {
+        "subject": 1,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": 3,
+      "reason": "Only the subject overlaps C02-S01. Generic process_start, object python.exe, and process_name evidence do not establish SimpleHTTPServer."
+    },
+    {
+      "candidate_step_id": "S2",
+      "claim": "python.exe file_access with unspecified file object",
+      "slot_scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": 4,
+      "reason": "python.exe file access is not part of the gold SimpleHTTPServer/netconn chain and the object is unspecified."
+    },
+    {
+      "candidate_step_id": "S3",
+      "claim": "taskeng.exe process_start of FlashPlayerUpdateService.exe",
+      "slot_scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": 4,
+      "reason": "This is an unrelated process action outside the python SimpleHTTPServer network chain."
+    },
+    {
+      "candidate_step_id": "S4",
+      "claim": "FlashPlayerUpdateService.exe file_access C:\\Windows\\System32\\ctiuser.dll",
+      "slot_scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": 4,
+      "reason": "This is unrelated file access and does not match either gold python.exe behavior."
+    },
+    {
+      "candidate_step_id": "S5",
+      "claim": "RepMgr.exe process_start",
+      "slot_scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": 4,
+      "reason": "This endpoint agent process start is unrelated to the gold chain."
+    },
+    {
+      "candidate_step_id": "S6",
+      "claim": "RepWmiUtils.exe process_start",
+      "slot_scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": 4,
+      "reason": "This endpoint agent utility process start is unrelated to the gold chain."
+    },
+    {
+      "candidate_step_id": "S7",
+      "claim": "SearchIndexer.exe process_start",
+      "slot_scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": 4,
+      "reason": "This process start is unrelated to the gold chain."
+    }
+  ],
+  "order_scores": [
+    {
+      "before_step_id": "C02-S01",
+      "after_step_id": "C02-S02",
+      "score": 0,
+      "reason": "The candidate does not recover the SimpleHTTPServer command step or the subsequent python.exe network-server/netconn behavior, so the required behavior order is not demonstrated."
+    }
+  ],
+  "totals": {
+    "gold_item_recall_hits": 1,
+    "gold_item_recall_total": 8,
+    "gold_item_recall": 0.125,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 0,
+    "behavior_step_recall_total": 2,
+    "behavior_step_recall": 0.0,
+    "candidate_claim_precision_hits": 1,
+    "candidate_claim_precision_total": 28,
+    "candidate_claim_precision": 0.03571428571428571,
+    "overclaim_slot_count": 27,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 0.0
+  },
+  "overall_assessment": "The candidate mostly reconstructs unrelated or generic process/file activity. It misses the required SimpleHTTPServer command line and the required python.exe netconn/network-server evidence, with only the bare python.exe subject on the first gold step credited."
+}

@@ -1,0 +1,404 @@
+{
+  "case_id": "gold_reviewed_10_regexe_20220716t150700z",
+  "judge_summary_ja": "候補は Discord.exe が reg.exe の親であること、および reg.exe による Run キー変更を大まかに復元しているが、必須の reg.exe query コマンドを完全に欠落し、reg.exe add の完全な command_line と Run\\Discord の値データも復元していない。また、PID、event_record_id、audit_logs 証拠など GOLD で裏付けられない具体値を含み、さらに「コマンドラインや値詳細はログに記録されていない」という観測事実と矛盾する否定的主張をしている。",
+  "chains": [
+    {
+      "chain_id": "B1",
+      "gold_required_item_scores": [
+        {
+          "item_id": "D1_subject",
+          "step_id": "D1",
+          "kind": "subject",
+          "matched_candidate_excerpt": "\"parent_process\": \"discord.exe\"",
+          "score": 1,
+          "reason_ja": "親プロセスとして discord.exe を示しており、Discord.exe が reg.exe 起動に関与した主体として復元されている。"
+        },
+        {
+          "item_id": "D1_operation",
+          "step_id": "D1",
+          "kind": "operation",
+          "matched_candidate_excerpt": "\"timeline_ja\": [\"2022-07-16 15:07:46にdiscord.exeの子プロセスとしてreg.exeが起動した。\"]",
+          "score": 1,
+          "reason_ja": "discord.exe の子プロセスとして reg.exe が起動したという親子関係を復元している。"
+        },
+        {
+          "item_id": "D1_object",
+          "step_id": "D1",
+          "kind": "object",
+          "matched_candidate_excerpt": "\"object\": {\"type\": \"process\", \"name\": \"reg.exe\"}",
+          "score": 1,
+          "reason_ja": "起動対象として reg.exe を示しており、GOLD の C:\\Windows\\System32\\reg.exe に対応する。"
+        },
+        {
+          "item_id": "D1_critical_evidence",
+          "step_id": "D1",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "\"ppid\": 1404",
+          "score": 1,
+          "reason_ja": "ppid を含む親子関係証拠を提示しており、D1 の許容証拠ファミリに合致する。ただし具体 PID や event_record_id は別途未裏付けとして扱う。"
+        },
+        {
+          "item_id": "D2_subject",
+          "step_id": "D2",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "reg.exe 自体は登場するが、Run key の Discord 値を query した行動として復元されていないため、D2 の主体としては未回収。"
+        },
+        {
+          "item_id": "D2_operation",
+          "step_id": "D2",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "registry query または Run key 照会を復元していない。"
+        },
+        {
+          "item_id": "D2_object",
+          "step_id": "D2",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord を照会対象として復元していない。"
+        },
+        {
+          "item_id": "D2_command_line",
+          "step_id": "D2",
+          "kind": "command_line",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord を欠落している。"
+        },
+        {
+          "item_id": "D2_critical_evidence",
+          "step_id": "D2",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "CFnKBKLTv6hUkBGFobRdg-565631、Discovery - Query Registry、または query command_line などの D2 重要証拠を示していない。"
+        },
+        {
+          "item_id": "D3_subject",
+          "step_id": "D3",
+          "kind": "subject",
+          "matched_candidate_excerpt": "\"subject_process\": {\"name\": \"reg.exe\", \"pid\": 4424}",
+          "score": 1,
+          "reason_ja": "Run キー変更の主体として reg.exe を示している。"
+        },
+        {
+          "item_id": "D3_operation",
+          "step_id": "D3",
+          "kind": "operation",
+          "matched_candidate_excerpt": "\"operation\": \"registry_modify\"",
+          "score": 1,
+          "reason_ja": "Run key modification に相当するレジストリ変更を復元している。"
+        },
+        {
+          "item_id": "D3_object",
+          "step_id": "D3",
+          "kind": "object",
+          "matched_candidate_excerpt": "\"path\": \"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\"",
+          "score": 1,
+          "reason_ja": "値名 Discord と値データは欠落しているが、許容語に含まれる HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run を対象として示している。"
+        },
+        {
+          "item_id": "D3_command_line",
+          "step_id": "D3",
+          "kind": "command_line",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f を復元していない。"
+        },
+        {
+          "item_id": "D3_critical_evidence",
+          "step_id": "D3",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "\"field\": \"regmod_name\"",
+          "score": 1,
+          "reason_ja": "regmod_name という証拠フィールドを示しており、D3 の重要証拠の許容語に合致する。ただし具体的な証拠行の event_record_id 等は未裏付け。"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "C1",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "\"parent_process\": \"discord.exe\" と \"2022-07-16 15:07:46にdiscord.exeの子プロセスとしてreg.exeが起動した。\"",
+          "normalized_action_claim_ja": "discord.exe が reg.exe を子プロセスとして起動した。",
+          "slot_scores": [
+            {
+              "slot_id": "C1_subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "discord.exe",
+              "matched_gold_item_id": "D1_subject",
+              "is_true_positive": 1,
+              "false_positive_type": "none",
+              "reason_ja": "D1 の主体 Discord.exe に一致する。"
+            },
+            {
+              "slot_id": "C1_operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "子プロセスとしてreg.exeが起動した",
+              "matched_gold_item_id": "D1_operation",
+              "is_true_positive": 1,
+              "false_positive_type": "none",
+              "reason_ja": "親子プロセス起動関係を述べており、D1 の操作に一致する。"
+            },
+            {
+              "slot_id": "C1_object",
+              "kind": "object",
+              "candidate_slot_excerpt": "reg.exe",
+              "matched_gold_item_id": "D1_object",
+              "is_true_positive": 1,
+              "false_positive_type": "none",
+              "reason_ja": "起動対象 reg.exe は D1 の対象に一致する。"
+            },
+            {
+              "slot_id": "C1_critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "\"ppid\": 1404",
+              "matched_gold_item_id": "D1_critical_evidence",
+              "is_true_positive": 1,
+              "false_positive_type": "none",
+              "reason_ja": "ppid による親子関係証拠は D1 の重要証拠として許容される。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C2",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "\"subject_process\": {\"name\": \"reg.exe\", \"pid\": 4424}, \"operation\": \"registry_modify\", \"path\": \"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\"",
+          "normalized_action_claim_ja": "reg.exe が HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run を変更した。",
+          "slot_scores": [
+            {
+              "slot_id": "C2_subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "reg.exe",
+              "matched_gold_item_id": "D3_subject",
+              "is_true_positive": 1,
+              "false_positive_type": "none",
+              "reason_ja": "D3 の主体 reg.exe に一致する。"
+            },
+            {
+              "slot_id": "C2_operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "registry_modify",
+              "matched_gold_item_id": "D3_operation",
+              "is_true_positive": 1,
+              "false_positive_type": "none",
+              "reason_ja": "Run key modification に相当し、D3 の追加または更新操作として扱える。"
+            },
+            {
+              "slot_id": "C2_object",
+              "kind": "object",
+              "candidate_slot_excerpt": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+              "matched_gold_item_id": "D3_object",
+              "is_true_positive": 1,
+              "false_positive_type": "none",
+              "reason_ja": "値名とデータは不足するが、GOLD の許容対象である Run キーを示している。"
+            },
+            {
+              "slot_id": "C2_critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "\"field\": \"regmod_name\"",
+              "matched_gold_item_id": "D3_critical_evidence",
+              "is_true_positive": 1,
+              "false_positive_type": "none",
+              "reason_ja": "regmod_name は D3 の重要証拠許容語に含まれる。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C3",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "\"reg.exeの具体的なコマンドラインや変更された値の詳細はログに記録されていない\"",
+          "normalized_action_claim_ja": "reg.exe の具体的なコマンドラインや変更値の詳細はログに記録されていないと主張している。",
+          "slot_scores": [
+            {
+              "slot_id": "C3_operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "ログに記録されていない",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "unsupported_negative",
+              "reason_ja": "GOLD では query と add の具体的 command_line が観測されているため、否定的主張は誤り。"
+            },
+            {
+              "slot_id": "C3_object",
+              "kind": "object",
+              "candidate_slot_excerpt": "reg.exeの具体的なコマンドラインや変更された値の詳細",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "unsupported_negative",
+              "reason_ja": "C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe を含む値データと command_line が GOLD に存在するため矛盾する。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C4",
+          "candidate_step_id": "code_sequence[0]",
+          "claim_excerpt": "\"reg.exeの起動\"",
+          "normalized_action_claim_ja": "reg.exe が起動した。",
+          "slot_scores": [
+            {
+              "slot_id": "C4_operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "起動",
+              "matched_gold_item_id": "D1_operation",
+              "is_true_positive": 0,
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "S1 で既に D1 の起動関係を評価済みであり、同じ内容の重複スロットとして精度分母には残す。"
+            },
+            {
+              "slot_id": "C4_object",
+              "kind": "object",
+              "candidate_slot_excerpt": "reg.exe",
+              "matched_gold_item_id": "D1_object",
+              "is_true_positive": 0,
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "S1 の reg.exe 対象と重複しており、同一 GOLD item には二重に TP を与えない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C5",
+          "candidate_step_id": "code_sequence[1]",
+          "claim_excerpt": "\"reg.exeによるレジストリRunキーの変更\"",
+          "normalized_action_claim_ja": "reg.exe がレジストリ Run キーを変更した。",
+          "slot_scores": [
+            {
+              "slot_id": "C5_subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "reg.exe",
+              "matched_gold_item_id": "D3_subject",
+              "is_true_positive": 0,
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "S2 で D3_subject として既に評価済みの重複。"
+            },
+            {
+              "slot_id": "C5_operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "変更",
+              "matched_gold_item_id": "D3_operation",
+              "is_true_positive": 0,
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "S2 で D3_operation として既に評価済みの重複。"
+            },
+            {
+              "slot_id": "C5_object",
+              "kind": "object",
+              "candidate_slot_excerpt": "レジストリRunキー",
+              "matched_gold_item_id": "D3_object",
+              "is_true_positive": 0,
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "S2 の Run キー対象と重複しており、同一 GOLD item に二重 TP は与えない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C6",
+          "candidate_step_id": "global_limitations",
+          "claim_excerpt": "\"reg.exeのレジストリ変更の具体的な値やデータ内容がログに記録されていない\"",
+          "normalized_action_claim_ja": "reg.exe のレジストリ変更の具体的な値やデータ内容はログに記録されていないと主張している。",
+          "slot_scores": [
+            {
+              "slot_id": "C6_operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "ログに記録されていない",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "unsupported_negative",
+              "reason_ja": "GOLD では Run\\Discord の追加または更新と値データが観測されているため、否定的主張は不正確。"
+            },
+            {
+              "slot_id": "C6_object",
+              "kind": "object",
+              "candidate_slot_excerpt": "具体的な値やデータ内容",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "unsupported_negative",
+              "reason_ja": "GOLD の D3_object には C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe が含まれるため矛盾する。"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "D1",
+          "after_step_id": "D2",
+          "score": 0,
+          "reason_ja": "D1 は復元されたが、D2 の reg.exe query が欠落しているため順序関係を満たせない。"
+        },
+        {
+          "before_step_id": "D2",
+          "after_step_id": "D3",
+          "score": 0,
+          "reason_ja": "D3 の変更は復元されたが、D2 の query が復元されていないため query が add/update より前という順序を評価できない。"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "D2_subject",
+      "D2_operation",
+      "D2_object",
+      "D2_command_line",
+      "D2_critical_evidence",
+      "D3_command_line"
+    ],
+    "chain_mixing": false,
+    "hallucinated_claims": [
+      "S1 の pid 4424 は GOLD で裏付けられていない具体 PID。",
+      "S1 の parent_pid 1404 は GOLD で裏付けられていない具体 PID。",
+      "S1 の event_record_id 123456 は GOLD で裏付けられていない具体 event_record_id。",
+      "S2 の pid 4424 は GOLD で裏付けられていない具体 PID。",
+      "S2 の event_record_id 123457 は GOLD で裏付けられていない具体 event_record_id。",
+      "excluded_nearby_evidence の event_record_id 123400、123460 および pid 720 は GOLD の対象チェーン証拠として裏付けられていない。"
+    ],
+    "unsupported_evidence": [
+      "S1 evidence の source_stream \"audit_logs\"、event_record_id 123456、pid 4424 は GOLD の重要証拠として確認できない。",
+      "S2 evidence の source_stream \"audit_logs\"、event_record_id 123457、value \"Run\" は GOLD の重要証拠行とは一致しない。",
+      "supporting_alert_evidence が空であり、GOLD の cbc-edr-alerts 証拠 FFAGQQZQRmOhg0clEA5V1g-2d17a2b0-5181-48b9-a612-ac16c641d342 と CFnKBKLTv6hUkBGFobRdg-565631 を回収していない。"
+    ],
+    "contradicted_evidence": [
+      "\"reg.exeの具体的なコマンドラインや変更された値の詳細はログに記録されていない\" は、GOLD の query/add command_line と Run\\Discord 値データに矛盾する。",
+      "\"reg.exeのレジストリ変更の具体的な値やデータ内容がログに記録されていない\" は、GOLD の D3_object と D3_command_line に矛盾する。"
+    ],
+    "nearby_action_false_positives": [],
+    "weak_grounding": true,
+    "false_positive_claims": [
+      "reg.exe の具体的なコマンドラインや変更された値の詳細はログに記録されていない。",
+      "reg.exe のレジストリ変更の具体的な値やデータ内容がログに記録されていない。",
+      "code_sequence の \"reg.exeの起動\" は S1 と重複する粗い行動主張。",
+      "code_sequence の \"reg.exeによるレジストリRunキーの変更\" は S2 と重複する粗い行動主張。"
+    ],
+    "notes_ja": [
+      "CBC alert report_name を操作名として誤用してはいないため alert_name_as_behavior は発生していない。",
+      "候補は query ステップをまったく復元していないため、14 個の必須項目のうち D2 系 5 項目が欠落した。",
+      "D3 は大枠の Run キー変更としては合っているが、/v Discord、値データ、完全な add command_line が欠落している。"
+    ]
+  },
+  "candidate_action_claim_count": 6,
+  "candidate_action_claim_slot_count": 17,
+  "candidate_action_claim_true_positive_slot_count": 8,
+  "hallucinated_claim_count": 6,
+  "unsupported_evidence_count": 3,
+  "contradicted_evidence_count": 2,
+  "nearby_action_fp_count": 0,
+  "main_missing_items": [
+    "D2_subject",
+    "D2_operation",
+    "D2_object",
+    "D2_command_line",
+    "D2_critical_evidence",
+    "D3_command_line"
+  ],
+  "main_false_positive_claims": [
+    "reg.exeの具体的なコマンドラインや変更された値の詳細はログに記録されていない",
+    "reg.exeのレジストリ変更の具体的な値やデータ内容がログに記録されていない",
+    "pid 4424",
+    "parent_pid 1404",
+    "event_record_id 123456",
+    "event_record_id 123457"
+  ]
+}

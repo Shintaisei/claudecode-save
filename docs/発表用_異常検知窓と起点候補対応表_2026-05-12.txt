@@ -1,0 +1,158 @@
+発表用 異常検知窓と起点候補対応表
+更新日: 2026-05-12
+
+前提
+- 異常検知そのものは ATLAS の Security 系テンプレート列が対象
+- 主に Security EID 4656 / 4663 / 4658 を含む file access 系 10 event micro-chunk
+- 下の「行動解釈」「起点候補」「探索成立性」は、後段で Wazuh / Sysmon / FileCreate / Registry を突合して付与したもの
+
+---------------------------------------------------------------------------------------------------------------
+Case   異常検知で引っかかった窓                  時間帯 / 主体                         その窓から見える行動
+       (ATLAS / Security 側)                      (元異常検知の時刻)                    (後段解釈)
+---------------------------------------------------------------------------------------------------------------
+UC01   win-32-h1 / aalsahee                       2022-07-19 14:30Z                     対話ユーザの局所的な
+       explorer.exe が 3 event                    top10 core / micro rank 7             ファイル参照・操作らしい
+
+UC02   win-32-h1 / aalsahee                       2022-07-19 14:30Z                     単発の文書閲覧 / 文書オープン
+       winword.exe が 1 event                     top10 core / micro rank 10            らしい
+
+UC03   win-32-h1 / aalsahee                       2022-07-19 14:30Z                     文書関連オブジェクトへの
+       repmgr.exe が 4 event                      top10 core / micro rank 6             手続的アクセス連鎖らしい
+
+UC04   win-32-h1 / aalsahee                       2022-07-19 14:30Z                     browser 系の artifact / file
+       firefox.exe が 2 event                     browser帯 / micro rank 52             access らしい
+
+UC05   win-32-h1 / win-32-h1$                     2022-07-19 14:30Z                     ホスト側サービス文脈の
+       repwmiutils.exe が 10 event                background帯 / micro rank 7           補助処理らしい
+
+UC06   win-32-h1 / win-32-h1$                     2022-07-19 14:20Z                     印刷スプーラ / サービス系の
+       spoolsv.exe が 7 event                     background帯 / micro rank 1           背景動作らしい
+
+UC07   win-32-h1 / win-32-h1$                     2022-07-19 14:20Z                     ホスト側サービスの
+       tpautoconnsvc.exe が 7 event               background帯 / micro rank 2           背景アクセス反復らしい
+---------------------------------------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------------------------------------
+Case   後段で参照した richer log で見えるもの                               起点として使えそうなもの
+                                                                             (実験の入口候補)
+---------------------------------------------------------------------------------------------------------------
+UC01   C_Data97 で類似の「ユーザ操作 / 更新 / 同期」を見るなら              直接の高特異性起点は弱い
+       OneDrive.exe /background, Explorer access,                            process 起点なら explorer.exe は弱い
+       RunOnce / file association 更新が残る                                代替起点は OneDrive.exe /background
+                                                                             や特定レジストリキー
+
+UC02   C_Data97 では Winword そのものは薄いが、                              直接の高特異性起点は弱い
+       文書閲覧系の proxy として                                              process 起点なら winword.exe は中
+       install_choco_software.ps1 や logs.zip のような                       ただし対象文書名がないので
+       特定ファイルは残る                                                    単独では探索弱い
+
+UC03   C_Data97 では文書関連手続の proxy として                              直接の高特異性起点は弱い
+       Dropbox 更新、Collector 出力、                                         process 起点なら repmgr.exe は中
+       file create 連鎖が残る                                                だが対象 object 不明
+
+UC04   C_Data97 では browser そのものより                                     firefox.exe 単独は中
+       install_choco_software.ps1, logs.zip,                                 file / URL が見えれば強いが
+       Discord / OneDrive / Dropbox の周辺 artifact が強い                   今回の異常検知入力だけでは不足
+
+UC05   C_Data97 で近い背景処理をみると                                        repwmiutils.exe 単独は低
+       Wazuh discovery, SecEdit, taskschd.dll,                               実験起点にするなら
+       Defender などのサービス系が残る                                      net.exe accounts や secexport.cfg に寄せる
+
+UC06   C_Data97 で近い背景処理をみると                                        spoolsv.exe 単独は低
+       taskschd.dll by svchost.exe,                                           サービス名だけでは候補空間が広い
+       MsMpEng.exe -> LSASS などが残る                                       起点化は難しい
+
+UC07   C_Data97 で近い背景処理をみると                                        tpautoconnsvc.exe 単独は低
+       taskschd.dll, OneDrive, EdgeUpdate,                                   背景サービス反復なので
+       MoUsoCoreWorker などが残る                                            起点化は難しい
+---------------------------------------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------------------------------------
+Case   起点候補の具体例                                                     探索は成立しそうか
+                                                                             (高 / 中 / 低)
+---------------------------------------------------------------------------------------------------------------
+UC01   OneDrive.exe /background                                              中
+       Explorer process was accessed by OneDrive.exe                         条件付きで成立
+       OneDrive.CameraRoll.Import\shell\open\command                         process 単独では弱いが
+                                                                             command line / registry を足せば追える
+
+UC02   install_choco_software.ps1                                            低 - 中
+       logs.zip                                                              Word そのものではなく
+                                                                             近い「文書 / スクリプト操作」への置換なら可
+
+UC03   DropboxUpdate.exe -> C:\Windows\Temp\GUR*.exe                         中
+       HKLM\...\Run\Dropbox                                                  repmgr.exe 自身では弱い
+       HKCR\dropbox-client\shell\Open\Command                               ただし「手続型の正常処理」へ
+                                                                             読み替えるなら成立
+
+UC04   install_choco_software.ps1                                            中
+       logs.zip                                                              firefox.exe 単独では弱い
+       browser artifact / URL が見えれば強い                                今回データでは URL が薄い
+
+UC05   net.exe accounts                                                      中
+       net user administrator / guest                                       背景処理そのものより
+       SecEdit.exe /export /cfg C:\Windows\Temp\secexport.cfg               discovery / audit 手続へ寄せると成立
+
+UC06   taskschd.dll by svchost.exe                                           低
+       MsMpEng.exe -> LSASS                                                  背景動作としては説明できるが
+                                                                             同一ユースケースの探索起点には弱い
+
+UC07   taskschd.dll by EdgeUpdate.exe                                        低 - 中
+       taskschd.dll by OneDrive.exe                                          サービス単独では弱い
+                                                                             process を絞れば一部成立
+---------------------------------------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------------------------------------
+Case   発表での言い方
+---------------------------------------------------------------------------------------------------------------
+UC01   Security の explorer.exe 窓だけでは起点が弱いが、同型の正常処理を raw log に降ろすと
+       OneDrive の background 起動や特定レジストリキーまで追える
+
+UC02   winword.exe 単独では「文書っぽい」までだが、対象文書名がないため単体探索は弱い
+       高特異性起点にするにはファイル名が必要
+
+UC03   repmgr.exe は手続型の正常処理を示すが、process 単独では弱い
+       代わりに Dropbox 更新のような file create 連鎖は高特異性で追える
+
+UC04   firefox.exe は browser 正常行動の代表例だが、今回入力では URL や artifact が不足
+       browser は「存在は見えるが深掘りは弱い」ケース
+
+UC05   repwmiutils.exe そのものより、wazuh-agent.exe -> net.exe -> SecEdit.exe のほうが
+       正常な監査手続として起点化しやすい
+
+UC06   spoolsv.exe は強い偽陽性だが、背景サービスのため探索起点としては弱い
+
+UC07   tpautoconnsvc.exe も同様に、強く上がるが意味の狭い起点にはしにくい
+---------------------------------------------------------------------------------------------------------------
+
+
+全体結論
+- Security ログだけの異常検知結果からでも「どの時間帯に何系統の行動が異常化したか」は示せる
+- ただし探索起点として強いのは process 名そのものではなく、後段で結び直せる
+  command line / target filename / registry key を持つケース
+- 今回の発表では次の整理が自然
+
+  1. Security 異常検知で引っかかった窓
+  2. その時間帯の正常行動解釈
+  3. raw log に降ろしたときの起点候補
+  4. 探索成立性の評価
+
+- 実験として回しやすい入口
+  - DropboxUpdate.exe -> C:\Windows\Temp\GUR*.exe
+  - install_choco_software.ps1
+  - logs.zip
+  - net.exe accounts
+  - SecEdit.exe /export /cfg C:\Windows\Temp\secexport.cfg
+  - OneDrive.exe /background
+  - HKU\...\Run\Discord
+  - HKLM\...\Run\Dropbox
+
+- 実験として回しにくい入口
+  - explorer.exe 単独
+  - firefox.exe 単独
+  - spoolsv.exe 単独
+  - tpautoconnsvc.exe 単独
+  - svchost.exe 単独

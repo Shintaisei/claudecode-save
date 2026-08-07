@@ -1,0 +1,272 @@
+{
+  "case": "chain_17_e12_python_simplehttpserver_network_chain_stage1",
+  "model": "gpt-4.1-mini",
+  "stage": "stage1",
+  "reviewer": "codex_manual_review1",
+  "method": "manual_strict_0_1_no_api_local_files_only",
+  "final_totals": {
+    "action_step_recall_hits": 6,
+    "action_step_recall_total": 8,
+    "action_step_recall": 0.75,
+    "candidate_claim_precision_hits": 8,
+    "candidate_claim_precision_total": 14,
+    "candidate_claim_precision": 0.5714285714,
+    "overclaim_slot_count": 6,
+    "behavior_sequence_order_hits": 1,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 1.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 2,
+    "behavior_step_recall_total": 2,
+    "behavior_step_recall": 1.0
+  },
+  "gold_item_scores": [
+    {
+      "item_id": "chain_17_e12_python_simplehttpserver_network_chain:C17-S01:subject",
+      "step_id": "C17-S01",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": "S1 subject_process.name=python.exe; path=c:\\python27\\python.exe",
+      "score": 1,
+      "reason": "Candidate explicitly identifies python.exe as the subject process for the SimpleHTTPServer launch."
+    },
+    {
+      "item_id": "chain_17_e12_python_simplehttpserver_network_chain:C17-S01:action",
+      "step_id": "C17-S01",
+      "kind": "action",
+      "gold_value": "started with SimpleHTTPServer module",
+      "matched_candidate_excerpt": "S1 operation=process_start; command_line=python -m SimpleHTTPServer",
+      "score": 1,
+      "reason": "The candidate recovers the SimpleHTTPServer module launch through the command line."
+    },
+    {
+      "item_id": "chain_17_e12_python_simplehttpserver_network_chain:C17-S01:object",
+      "step_id": "C17-S01",
+      "kind": "object",
+      "gold_value": "python  -m SimpleHTTPServer",
+      "matched_candidate_excerpt": "S1 command_line=python -m SimpleHTTPServer",
+      "score": 1,
+      "reason": "The required python -m SimpleHTTPServer command object is present; the gold double space is treated as whitespace normalization."
+    },
+    {
+      "item_id": "chain_17_e12_python_simplehttpserver_network_chain:C17-S01:critical_evidence",
+      "step_id": "C17-S01",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event process_cmdline",
+      "matched_candidate_excerpt": "S1 evidence source_stream=audit_logs field=command_line value=python -m SimpleHTTPServer",
+      "score": 0,
+      "reason": "Gold requires CBC event process_cmdline evidence. Candidate cites a generic audit_logs command_line field and does not identify the basis as CBC event process_cmdline."
+    },
+    {
+      "item_id": "chain_17_e12_python_simplehttpserver_network_chain:C17-S02:subject",
+      "step_id": "C17-S02",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": "S2 subject_process.name=python.exe; supporting_alert_evidence alert_name=The application python.exe acted as a network server.",
+      "score": 1,
+      "reason": "Candidate explicitly ties the network behavior to python.exe."
+    },
+    {
+      "item_id": "chain_17_e12_python_simplehttpserver_network_chain:C17-S02:action",
+      "step_id": "C17-S02",
+      "kind": "action",
+      "gold_value": "detected as network server behavior",
+      "matched_candidate_excerpt": "S2 operation=network_listen; code_sequence=network listen on 10.193.66.115:48503",
+      "score": 1,
+      "reason": "Candidate states network-listen/server behavior for python.exe, matching the action level."
+    },
+    {
+      "item_id": "chain_17_e12_python_simplehttpserver_network_chain:C17-S02:object",
+      "step_id": "C17-S02",
+      "kind": "object",
+      "gold_value": "10.193.66.115:48503",
+      "matched_candidate_excerpt": "S2 object.value=10.193.66.115:48503; code_sequence=network listen on 10.193.66.115:48503",
+      "score": 1,
+      "reason": "The exact required network endpoint 10.193.66.115:48503 is recovered."
+    },
+    {
+      "item_id": "chain_17_e12_python_simplehttpserver_network_chain:C17-S02:critical_evidence",
+      "step_id": "C17-S02",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event netconn",
+      "matched_candidate_excerpt": "S2 evidence source_stream=audit_logs field=netconn_domain value=10.193.66.115:48503; supporting_alert_evidence source_stream=cbc-ngav-alerts",
+      "score": 0,
+      "reason": "Candidate gives the endpoint and a netconn-like field, but the cited basis is audit_logs plus CBC alert context, not an explicit CBC event netconn evidence basis."
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_step_id": "C17-S01",
+      "after_step_id": "C17-S02",
+      "matched_candidate_before": "S1 at 2022-07-17 17:53:27 command_line=python -m SimpleHTTPServer",
+      "matched_candidate_after": "S2 at 2022-07-17 17:53:27-17:53:31 network listen on 10.193.66.115:48503",
+      "score": 1,
+      "reason": "Candidate presents the SimpleHTTPServer command before the network listen/server behavior, matching the gold order."
+    }
+  ],
+  "candidate_claim_scores": [
+    {
+      "candidate_claim_id": "CL1",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "python.exe process_start with command_line python -m SimpleHTTPServer and audit_logs command_line evidence",
+      "slot_scores": [
+        {
+          "slot_id": "CL1:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "python.exe",
+          "matched_gold_item_id": "chain_17_e12_python_simplehttpserver_network_chain:C17-S01:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the required python.exe subject."
+        },
+        {
+          "slot_id": "CL1:operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "process_start using SimpleHTTPServer",
+          "matched_gold_item_id": "chain_17_e12_python_simplehttpserver_network_chain:C17-S01:action",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the SimpleHTTPServer launch behavior."
+        },
+        {
+          "slot_id": "CL1:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "object.type=process; object.name=python.exe; object.path=c:\\python27\\python.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "partial_missing_command_object",
+          "reason": "This object slot names the process executable; the gold object for this step is the full SimpleHTTPServer command."
+        },
+        {
+          "slot_id": "CL1:command_line",
+          "kind": "command_line",
+          "candidate_slot_excerpt": "python -m SimpleHTTPServer",
+          "matched_gold_item_id": "chain_17_e12_python_simplehttpserver_network_chain:C17-S01:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Recovers the required command object with normalized whitespace."
+        },
+        {
+          "slot_id": "CL1:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "source_stream=audit_logs field=command_line value=python -m SimpleHTTPServer",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_evidence_basis",
+          "reason": "Gold requires CBC event process_cmdline, not a generic audit_logs command_line basis."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL2",
+      "candidate_step_id": "S2",
+      "claim_excerpt": "python.exe network_listen on 10.193.66.115:48503 with audit_logs netconn_domain evidence",
+      "slot_scores": [
+        {
+          "slot_id": "CL2:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "python.exe",
+          "matched_gold_item_id": "chain_17_e12_python_simplehttpserver_network_chain:C17-S02:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the required network-step subject."
+        },
+        {
+          "slot_id": "CL2:operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "network_listen",
+          "matched_gold_item_id": "chain_17_e12_python_simplehttpserver_network_chain:C17-S02:action",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the network server/listen behavior at the action level."
+        },
+        {
+          "slot_id": "CL2:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "10.193.66.115:48503",
+          "matched_gold_item_id": "chain_17_e12_python_simplehttpserver_network_chain:C17-S02:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Exact endpoint match."
+        },
+        {
+          "slot_id": "CL2:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "source_stream=audit_logs field=netconn_domain value=10.193.66.115:48503",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_evidence_basis",
+          "reason": "The endpoint field is close, but the evidence basis is not explicitly CBC event netconn as required."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL3",
+      "candidate_step_id": "supporting_alert_evidence",
+      "claim_excerpt": "CBC NGAV alert says python.exe acted as a network server",
+      "slot_scores": [
+        {
+          "slot_id": "CL3:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "python.exe",
+          "matched_gold_item_id": "chain_17_e12_python_simplehttpserver_network_chain:C17-S02:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "The alert subject matches the gold subject."
+        },
+        {
+          "slot_id": "CL3:operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "acted as a network server",
+          "matched_gold_item_id": "chain_17_e12_python_simplehttpserver_network_chain:C17-S02:action",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Alert wording matches the network-server action level."
+        },
+        {
+          "slot_id": "CL3:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "source_stream=cbc-ngav-alerts alert_name=The application python.exe acted as a network server.",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_evidence_basis",
+          "reason": "CBC alert context is supporting evidence, but the gold critical evidence is CBC event netconn."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL4",
+      "candidate_step_id": "excluded_nearby_evidence",
+      "claim_excerpt": "RepWmiUtils.exe PID 5072 at 2022-07-16 15:22:16 is listed as excluded nearby evidence",
+      "slot_scores": [
+        {
+          "slot_id": "CL4:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "RepWmiUtils.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "excluded_nearby_process",
+          "reason": "This process is outside the two-step gold chain; candidate marks it excluded, but it is still an extra claim."
+        },
+        {
+          "slot_id": "CL4:evidence",
+          "kind": "evidence",
+          "candidate_slot_excerpt": "source_stream=audit_logs timestamp=2022-07-16 15:22:16 field=process_name value=RepWmiUtils.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "excluded_nearby_evidence",
+          "reason": "This evidence supports an out-of-scope nearby process, not either gold step."
+        }
+      ]
+    }
+  ],
+  "notes_ja": [
+    "OpenAI/API scorer は使わず、ローカルの gold JSON と candidate run JSON のみで手動採点した。",
+    "C17-S01 は python.exe subject、SimpleHTTPServer 起動 action、python -m SimpleHTTPServer command object を回収している。ただし candidate の evidence は source_stream=audit_logs field=command_line であり、gold が要求する CBC event process_cmdline として明示されていないため critical_evidence は 0。",
+    "C17-S02 は python.exe の network_listen/network server 行動と 10.193.66.115:48503 の endpoint を正確に出している。ただし evidence basis は audit_logs netconn_domain と CBC alert context で、CBC event netconn と明示していないため critical_evidence は 0。",
+    "順序は SimpleHTTPServer command が先、network listen/server behavior が後として提示されており、gold の C17-S01 -> C17-S02 に一致する。",
+    "candidate は RepWmiUtils.exe を excluded_nearby_evidence として分離しているため主要チェーンの混同は小さいが、gold chain 外の追加主張として precision 側では overclaim に数えた。"
+  ]
+}

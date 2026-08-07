@@ -1,0 +1,208 @@
+{
+  "case_id": "chain_22_e16_python_simplehttpserver_network_chain_stage2",
+  "reviewer": "Review2",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "method": "codex_manual_review2_no_api_strict_item_rubric",
+  "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage2/chain_22_e16_python_simplehttpserver_network_chain_stage2_run.json",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_22_e16_python_simplehttpserver_network_chain/chain_gold.json",
+  "gold_chain": {
+    "chain_id": "chain_22_e16_python_simplehttpserver_network_chain",
+    "chain_type": "python_simplehttpserver_network_chain",
+    "gold_steps": [
+      {
+        "step_id": "C22-S01",
+        "order": 1,
+        "subject": "python.exe",
+        "action": "start with SimpleHTTPServer module specified",
+        "object": "python  -m SimpleHTTPServer",
+        "critical_evidence": "CBC event process_cmdline"
+      },
+      {
+        "step_id": "C22-S02",
+        "order": 2,
+        "subject": "python.exe",
+        "action": "detected as network server / netconn behavior",
+        "object": "10.193.66.115:58211",
+        "critical_evidence": "CBC event netconn"
+      }
+    ]
+  },
+  "per_gold_step": [
+    {
+      "step_id": "C22-S01",
+      "gold_order": 1,
+      "matched_candidate_step_ids": [
+        "S1"
+      ],
+      "subject": {
+        "score": 1,
+        "matched_candidate_excerpt": "code_steps[0].subject_process.name=python.exe",
+        "reason": "Candidate identifies python.exe as the acting process for the startup step."
+      },
+      "action": {
+        "score": 1,
+        "matched_candidate_excerpt": "operation=process_start; command_line=python -m SimpleHTTPServer",
+        "reason": "Candidate reconstructs python.exe being started with the SimpleHTTPServer module."
+      },
+      "object": {
+        "score": 1,
+        "matched_candidate_excerpt": "command_line=python -m SimpleHTTPServer",
+        "reason": "The command matches the gold object after whitespace normalization."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "matched_candidate_excerpt": "source_stream=audit_logs; field=process_start; value=python.exe started by cmd.exe",
+        "reason": "The rubric requires concrete CBC event process_cmdline evidence. Generic audit_logs process_start evidence is not sufficient."
+      },
+      "step_slot_score": 3,
+      "step_slot_total": 4,
+      "behavior_step_recovered_without_evidence": true
+    },
+    {
+      "step_id": "C22-S02",
+      "gold_order": 2,
+      "matched_candidate_step_ids": [],
+      "subject": {
+        "score": 0,
+        "matched_candidate_excerpt": null,
+        "reason": "The final candidate JSON does not include a network/netconn behavior claim; the startup step alone is not credited as the network-step subject."
+      },
+      "action": {
+        "score": 0,
+        "matched_candidate_excerpt": null,
+        "reason": "Candidate explicitly reports no observed network connection log in the final result and does not reconstruct the network-server/netconn behavior."
+      },
+      "object": {
+        "score": 0,
+        "matched_candidate_excerpt": null,
+        "reason": "Candidate omits the required endpoint 10.193.66.115:58211 from code_steps and code_sequence."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "matched_candidate_excerpt": null,
+        "reason": "Candidate provides no CBC event netconn field evidence for 10.193.66.115:58211."
+      },
+      "step_slot_score": 0,
+      "step_slot_total": 4,
+      "behavior_step_recovered_without_evidence": false
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_step_id": "C22-S01",
+      "after_step_id": "C22-S02",
+      "matched_candidate_before_claim_id": "R2-C22-STAGE2-CLAIM-01",
+      "matched_candidate_after_claim_id": null,
+      "score": 0,
+      "reason": "Candidate reconstructs the SimpleHTTPServer startup but omits the subsequent network server/netconn step, so the adjacent gold pair is not recovered."
+    }
+  ],
+  "candidate_claims": [
+    {
+      "candidate_claim_id": "R2-C22-STAGE2-CLAIM-01",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "python.exe PID 1356 started by cmd.exe PID 2032 with command_line python -m SimpleHTTPServer",
+      "normalized_action_claim": "python.exe starts with the SimpleHTTPServer module",
+      "slot_scores": [
+        {
+          "slot_id": "R2-C22-STAGE2-CLAIM-01-subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "python.exe PID 1356",
+          "matched_gold_item_id": "chain_22_e16_python_simplehttpserver_network_chain:C22-S01:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the startup-step subject."
+        },
+        {
+          "slot_id": "R2-C22-STAGE2-CLAIM-01-action",
+          "kind": "action",
+          "candidate_slot_excerpt": "process_start with command_line python -m SimpleHTTPServer",
+          "matched_gold_item_id": "chain_22_e16_python_simplehttpserver_network_chain:C22-S01:action",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the SimpleHTTPServer module startup action."
+        },
+        {
+          "slot_id": "R2-C22-STAGE2-CLAIM-01-object",
+          "kind": "object",
+          "candidate_slot_excerpt": "python -m SimpleHTTPServer",
+          "matched_gold_item_id": "chain_22_e16_python_simplehttpserver_network_chain:C22-S01:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the required command object after whitespace normalization."
+        },
+        {
+          "slot_id": "R2-C22-STAGE2-CLAIM-01-critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs timestamp=2022-07-18 17:45:00 field=process_start value=python.exe started by cmd.exe pid=1356 ppid=2032",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unsupported_evidence",
+          "reason": "This does not cite CBC event process_cmdline; audit_logs/general process_start evidence is below the critical-evidence threshold."
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "action_step_recall_hits": 3,
+    "action_step_recall_total": 8,
+    "action_step_recall": 0.375,
+    "action_step_precision_hits": 3,
+    "action_step_precision_total": 4,
+    "action_step_precision": 0.75,
+    "candidate_claim_precision_hits": 3,
+    "candidate_claim_precision_total": 4,
+    "candidate_claim_precision": 0.75,
+    "overclaim_slot_count": 1,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 1,
+    "behavior_step_recall_total": 2,
+    "behavior_step_recall": 0.5,
+    "gold_required_item_count": 8,
+    "candidate_action_claim_count": 1,
+    "candidate_action_claim_slot_count": 4,
+    "candidate_action_claim_true_positive_slot_count": 3,
+    "unsupported_evidence_count": 1,
+    "contradicted_evidence_count": 0,
+    "nearby_action_fp_count": 0,
+    "behavior_element_diagnostics": {
+      "subject": {
+        "recall_hits": 1,
+        "recall_total": 2,
+        "precision_hits": 1,
+        "precision_total": 1
+      },
+      "action": {
+        "recall_hits": 1,
+        "recall_total": 2,
+        "precision_hits": 1,
+        "precision_total": 1
+      },
+      "object": {
+        "recall_hits": 1,
+        "recall_total": 2,
+        "precision_hits": 1,
+        "precision_total": 1
+      },
+      "critical_evidence": {
+        "recall_hits": 0,
+        "recall_total": 2,
+        "precision_hits": 0,
+        "precision_total": 1
+      }
+    }
+  },
+  "notes": [
+    "OpenAI API or GPT scoring scripts were not used.",
+    "Manual review used only the specified local run JSON and gold JSON.",
+    "The candidate recovers only the python SimpleHTTPServer startup. It does not recover the gold network server/netconn object 10.193.66.115:58211.",
+    "Critical evidence is scored strictly: CBC event process_cmdline/netconn fields are required. Generic audit_logs evidence and inferred limitations receive 0.",
+    "The candidate's negative statement that network logs were not observed is treated as a missed gold step rather than an additional behavior claim."
+  ]
+}

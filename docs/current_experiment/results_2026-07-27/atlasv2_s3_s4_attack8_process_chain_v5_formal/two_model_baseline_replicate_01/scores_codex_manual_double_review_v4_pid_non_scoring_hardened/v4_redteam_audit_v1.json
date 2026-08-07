@@ -1,0 +1,71 @@
+{
+  "schema_version": "v4_redteam_audit_v1",
+  "audit_scope": "Independent adversarial audit of codex_manual_attack8_scoring_v4_pid_non_scoring_hardened.py and the v4 score-root bundle interface; CQ-001..CQ-010 were treated as out of scope except where a new bypass crosses them.",
+  "formal_gate": "FAIL",
+  "blocking_findings": [
+    {
+      "id": "RTA-011",
+      "severity": "critical",
+      "title": "Reviewer independence is only a raw, self-asserted string comparison",
+      "locations": [
+        "read_review_snapshot:982-994",
+        "build_finalization:1103-1121",
+        "publish_finalization:1231-1241"
+      ],
+      "evidence": "The sole independence control is reviewer_id equality. reviewer_id is accepted by the inherited row validator as any non-empty string; it has no authenticated task/thread principal, issuer, signature, canonicalization, or allow-list. A temporary-directory reproduction created two otherwise valid reviews with reviewer IDs Alice and the NFKC-equivalent full-width-A form Ａlice. read_review_snapshot and build_finalization accepted them and adopted the row (TEMP_REVIEWER_NFKC_ALIAS_ACCEPTED 1). Case-only aliases (for example Alice/alice) are likewise distinct.",
+      "impact": "One actor can present two (or three) nominally distinct reviewer IDs and satisfy the independent-review and third-review gates. The final manifest then makes the unsupported independence claim durable.",
+      "required_remediation": "Bind each review to a trusted, immutable Codex task/thread principal supplied outside the review JSONL; require distinct canonical principals, reject Unicode/non-canonical aliases, and attest the task provenance in the finalization manifest. A self-declared reviewer_id must not be accepted as proof of independence."
+    },
+    {
+      "id": "RTA-012",
+      "severity": "high",
+      "title": "Verification-to-use time-of-check/time-of-use gap for bundle inputs",
+      "locations": [
+        "load_verified_queue:1014-1030",
+        "finalize:1346-1379"
+      ],
+      "evidence": "verify_bundle_paths hashes and validates queue/manifest/overlay/source artifacts, but load_verified_queue immediately reopens the manifest and queue by pathname without comparing the second reads to the verified bytes or hashes. finalize reopens the manifest again after both reviews have been read. Thus a writer with access to the score root can replace the queue, manifest, overlay, source queue, run, or Gold artifact after verification and before later reads. Publication uses report hashes from the old verification while decision validation/final manifest fields may come from the new pathname contents.",
+      "impact": "The claimed path-plus-byte provenance is not an atomic snapshot. A raced replacement can produce a formally published result that is internally stale or inconsistent, defeating stale-review/hash and alternate-artifact protections.",
+      "required_remediation": "Open each verified artifact once through no-follow handles, retain immutable bytes (or file identities plus bytes), derive all later parsing and finalization fields from those retained snapshots, and recheck complete input/output bindings immediately before publication."
+    },
+    {
+      "id": "RTA-013",
+      "severity": "high",
+      "title": "Staging-directory reparse-point swap escapes the publication root",
+      "locations": [
+        "atomic_publish_directory:248-267",
+        "stage_destination:207-215",
+        "write_text_exclusive:226-232"
+      ],
+      "evidence": "The code creates a named staging directory and subsequently operates on pathnames. It never holds a directory handle or prohibits reparse points. If that stage name is swapped for a Windows junction after creation, stage_destination resolves both the child and stage through the same junction and therefore considers the child beneath stage, even when it is outside the original target parent. Reproduced safely in a temporary directory using a junction: TEMP_JUNCTION_STAGE_ESCAPE True escaped; write_text_exclusive(stage_destination(junction, escaped.json)) wrote the file in the junction target.",
+      "impact": "A concurrent local writer can redirect staged outputs and retained reviewer snapshots outside the approved score root; subsequent cleanup/publish behavior is no longer trustworthy. The transactional/publication claim is therefore not safe against reparse races.",
+      "required_remediation": "Use OS-level no-follow directory/file handles (and Windows reparse-point checks) for the stage and every child open; verify the stage file identity before and after writing, and publish using a create-new primitive that cannot follow or replace reparse points."
+    }
+  ],
+  "nonblocking_observations": [
+    {
+      "id": "RTA-014",
+      "title": "Output root is not bound to the verified bundle root",
+      "evidence": "finalize and validate-review accept an independent --score-root and only require their final target to remain somewhere under the repository. A valid queue/manifest can therefore publish formal outputs to an alternate repository subtree rather than its bound score root. Provenance fields identify the queue, but the bundle-completion boundary is not enforced for outputs.",
+      "recommendation": "Require --score-root.resolve() == queue.parent.resolve() for formal publication, or make the output root an immutable manifest field and verify it."
+    },
+    {
+      "id": "RTA-015",
+      "title": "No direct external/API judge implementation found",
+      "evidence": "AST import inspection found no requests, http, urllib, socket, openai, or aiohttp imports in the v4 wrapper. This is a static observation only; the boolean external_api_calls claims are not runtime attestation."
+    }
+  ],
+  "controls_reviewed_without_new_bypass": {
+    "path_basename_controls": "Absolute, drive/UNC, separator, NFKC separator, dot-segment, reserved-device, trailing-space/dot, and over-240-character artifact names are rejected by validate_safe_basename. The junction finding is a post-validation race rather than a parser traversal bypass.",
+    "mixed_review3": "A review3 input is read as a single snapshot and must have exactly one raw reviewer_id; its rows may be a subset, and unresolved base conflicts fail closed unless that reviewer supplies the relevant rows. This remains dependent on RTA-011 identity authenticity.",
+    "incomplete_or_conflicted_finalization": "build_finalization raises IncompleteFinalization before publish when any conflict remains or adopted count differs from expected_count.",
+    "pid_hidden_alert_and_action_operation": "The queue policy is closed and checked for pid_identity_scored=false, alert_mapping_scored=false, and action=operation; frozen candidate slots are limited to subject/operation/object. No new direct scoring bypass was established in this audit.",
+    "long_paths": "The 240-character basename cap reduces common Windows MAX_PATH failures, but parent-directory length is not capped; this is an availability concern rather than a demonstrated integrity bypass."
+  },
+  "safe_test_environment": "All active reproductions used Python TemporaryDirectory paths only. No production queue, review, overlay, or output artifact was modified by this audit; this JSON file is the sole authorized production write.",
+  "exact_gate_blockers": [
+    "RTA-011: independent reviewer identity is forgeable and non-canonical.",
+    "RTA-012: verified provenance is not retained as an atomic input snapshot.",
+    "RTA-013: staging publication can be redirected by a Windows junction/reparse swap."
+  ]
+}

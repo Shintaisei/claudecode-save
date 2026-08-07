@@ -1,0 +1,485 @@
+{
+  "case_id": "cbc_non_alert_behavior_chain_gold_2026-06-11",
+  "judge_summary_ja": "候補は3つの主要ステップ（Explorer→cmd /c start_dns_logs.bat、cmdがバッチ実行、cmdがtshark.exe派生）の主語・対象・一部証拠を的確に含め、各ステップを網羅（3/3）した。一方で操作（operation）の表現はゴールド指定語句と一致せず全て欠落。加えて run_http_server.bat と python.exe、別のcmd起動など近傍の無関係動作を混在させた。クリティカル証拠はcbc-edr非アラートの親子関係・コマンドラインを提示しており3ステップとも充足。順序は同一code_stepに併記され順序関係が示されないため未達。",
+  "chains": [
+    {
+      "chain_id": "chain_01_e01_dns_packet_capture_batch_chain",
+      "gold_required_item_scores": [
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:subject",
+          "step_id": "C01-S01",
+          "kind": "subject",
+          "matched_candidate_excerpt": "execution_context.parent_process: \"explorer.exe\"",
+          "score": "1",
+          "reason_ja": "親プロセスとして explorer.exe が明示され、Explorer が子の cmd.exe を起動した事実を支持。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:operation",
+          "step_id": "C01-S01",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "「cmd.exeを子プロセスとして起動した」に相当する操作語句を候補は明示していない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:object",
+          "step_id": "C01-S01",
+          "kind": "object",
+          "matched_candidate_excerpt": "command_line: \"C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"\"",
+          "score": "1",
+          "reason_ja": "対象オブジェクトとして一致する完全なコマンドラインを提示している。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:critical_evidence",
+          "step_id": "C01-S01",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "evidence: {\"source_stream\":\"cbc-edr\",\"field\":\"command_line\",\"value\":\"C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"\"}",
+          "score": "1",
+          "reason_ja": "CBC非アラートtelemetryで親子関係と一致コマンドラインを示し、ゴールドの根拠を満たす。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:subject",
+          "step_id": "C01-S02",
+          "kind": "subject",
+          "matched_candidate_excerpt": "subject_process.name: \"cmd.exe\"",
+          "score": "1",
+          "reason_ja": "cmd.exe が実行主体として明示されている。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:operation",
+          "step_id": "C01-S02",
+          "kind": "operation",
+          "matched_candidate_excerpt": "operation: \"batch script 実行\"",
+          "score": "0",
+          "reason_ja": "要求語句「/cでバッチファイルを実行した」と一致せず、部分的一致も不可。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:object",
+          "step_id": "C01-S02",
+          "kind": "object",
+          "matched_candidate_excerpt": "command_line 内の \"start_dns_logs.bat\"",
+          "score": "1",
+          "reason_ja": "コマンドラインから対象バッチ名を正しく復元している。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:critical_evidence",
+          "step_id": "C01-S02",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "evidence: {\"source_stream\":\"cbc-edr\",\"field\":\"command_line\",\"value\":\"C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"\"}",
+          "score": "1",
+          "reason_ja": "非アラートcbcイベントにより /c とバッチの実行を裏付け。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:subject",
+          "step_id": "C01-S03",
+          "kind": "subject",
+          "matched_candidate_excerpt": "subject_process.name: \"cmd.exe\"",
+          "score": "1",
+          "reason_ja": "tshark.exe の親として cmd.exe が明示されている。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:operation",
+          "step_id": "C01-S03",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "「ログ収集系プロセスを派生させた」に対応する操作語句は明示されていない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:object",
+          "step_id": "C01-S03",
+          "kind": "object",
+          "matched_candidate_excerpt": "child_process: \"c:\\program files\\wireshark\\tshark.exe\"",
+          "score": "1",
+          "reason_ja": "対象プロセスとして tshark.exe（フルパス）が提示され、実質的に一致。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:critical_evidence",
+          "step_id": "C01-S03",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "evidence: {\"source_stream\":\"cbc-edr\",\"field\":\"childproc_name\",\"value\":\"c:\\program files\\wireshark\\tshark.exe\"}",
+          "score": "1",
+          "reason_ja": "CBC非アラートの子プロセス生成イベント項目で裏付け。"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "CC1",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "execution_context.parent_process: explorer.exe が親で、cmd.exe が /c で start_dns_logs.bat を実行する行（S1）",
+          "normalized_action_claim_ja": "explorer.exe が /c 引数付きの cmd.exe（start_dns_logs.bat）を子として起動した",
+          "slot_scores": [
+            {
+              "slot_id": "CC1:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "explorer.exe",
+              "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "C01-S01 の主語と一致。"
+            },
+            {
+              "slot_id": "CC1:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+              "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:object",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "C01-S01 の対象コマンドラインと完全一致。"
+            },
+            {
+              "slot_id": "CC1:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "本ゴールドには独立した command_line スロットはないためTPに計上不可（診断上のFP）。"
+            },
+            {
+              "slot_id": "CC1:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "cbc-edr field=command_line value=\"C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"\"",
+              "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:critical_evidence",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "非アラートcbcイベントで親子とcmdlineを裏付け、C01-S01の証拠要件を満たす。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CC2",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "S1: subject_process=cmd.exe, operation=\"batch script 実行\", command_line に start_dns_logs.bat",
+          "normalized_action_claim_ja": "cmd.exe が /c で start_dns_logs.bat を実行した",
+          "slot_scores": [
+            {
+              "slot_id": "CC2:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "cmd.exe",
+              "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "C01-S02 の主語と一致。"
+            },
+            {
+              "slot_id": "CC2:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "batch script 実行",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "要求表現「/cでバッチファイルを実行した」と一致せず。"
+            },
+            {
+              "slot_id": "CC2:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "start_dns_logs.bat",
+              "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:object",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "対象バッチ名が一致。"
+            },
+            {
+              "slot_id": "CC2:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "本ゴールドに独立した command_line スロットは無し（診断上のFP）。"
+            },
+            {
+              "slot_id": "CC2:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "cbc-edr field=command_line value=\"C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"\"",
+              "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:critical_evidence",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "非アラートcbcイベントで /c バッチ実行を裏付け。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CC3",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "S1: child_process に \"c:\\program files\\wireshark\\tshark.exe\"",
+          "normalized_action_claim_ja": "cmd.exe が tshark.exe を子プロセスとして派生させた",
+          "slot_scores": [
+            {
+              "slot_id": "CC3:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "cmd.exe",
+              "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "C01-S03 の主語と一致。"
+            },
+            {
+              "slot_id": "CC3:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "c:\\program files\\wireshark\\tshark.exe",
+              "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:object",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "tshark.exe（フルパス）として実質一致。"
+            },
+            {
+              "slot_id": "CC3:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "cbc-edr field=childproc_name value=\"c:\\program files\\wireshark\\tshark.exe\"",
+              "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:critical_evidence",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "子プロセス生成の非アラートtelemetryで裏付け。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CC4",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "S2: explorer.exe → cmd.exe /c run_http_server.bat",
+          "normalized_action_claim_ja": "explorer.exe が /c で run_http_server.bat を実行する cmd.exe を起動した（近傍・無関係）",
+          "slot_scores": [
+            {
+              "slot_id": "CC4:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "explorer.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "本チェーンの評価対象外ステップ。"
+            },
+            {
+              "slot_id": "CC4:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\run_http_server.bat\" \"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "評価対象外の別バッチ。"
+            },
+            {
+              "slot_id": "CC4:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\run_http_server.bat\" \"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "評価対象外。"
+            },
+            {
+              "slot_id": "CC4:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "cbc-edr field=command_line value=\"C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\run_http_server.bat\" \"\"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "評価対象外のアクティビティ。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CC5",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "S2: cmd.exe が run_http_server.bat を実行、operation=\"batch script 実行\"",
+          "normalized_action_claim_ja": "cmd.exe が /c で run_http_server.bat を実行した（近傍・無関係）",
+          "slot_scores": [
+            {
+              "slot_id": "CC5:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "cmd.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "評価チェーン外の動作。"
+            },
+            {
+              "slot_id": "CC5:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "batch script 実行",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "評価対象外。"
+            },
+            {
+              "slot_id": "CC5:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "run_http_server.bat",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "評価対象外。"
+            },
+            {
+              "slot_id": "CC5:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\run_http_server.bat\" \"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "評価対象外。"
+            },
+            {
+              "slot_id": "CC5:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "cbc-edr field=command_line value=\"C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\run_http_server.bat\" \"\"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "評価対象外のアクティビティ。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CC6",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "S2: child_process に \"c:\\python27\\python.exe\"",
+          "normalized_action_claim_ja": "cmd.exe が python.exe を子プロセスとして起動した（近傍・無関係）",
+          "slot_scores": [
+            {
+              "slot_id": "CC6:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "cmd.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールドチェーン外。"
+            },
+            {
+              "slot_id": "CC6:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "c:\\python27\\python.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールドチェーン外。"
+            },
+            {
+              "slot_id": "CC6:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "cbc-edr field=childproc_name value=\"c:\\python27\\python.exe\"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "評価対象外の証拠。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CC7",
+          "candidate_step_id": "S3",
+          "claim_excerpt": "S3: operation=\"起動\"、親: explorer.exe、対象: cmd.exe（\"C:\\Windows\\System32\\cmd.exe\"）",
+          "normalized_action_claim_ja": "explorer.exe が cmd.exe を起動した（近傍・無関係）",
+          "slot_scores": [
+            {
+              "slot_id": "CC7:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "explorer.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "本評価のチェーン対象外の別起動。"
+            },
+            {
+              "slot_id": "CC7:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "起動",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "本評価対象外の操作。"
+            },
+            {
+              "slot_id": "CC7:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "cmd.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "評価対象外。"
+            },
+            {
+              "slot_id": "CC7:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "\"C:\\Windows\\System32\\cmd.exe\"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "評価対象外。"
+            },
+            {
+              "slot_id": "CC7:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "cbc-edr field=command_line value=\"\\\"C:\\Windows\\System32\\cmd.exe\\\"\"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "評価対象外の証拠。"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "C01-S01",
+          "after_step_id": "C01-S02",
+          "score": "0",
+          "reason_ja": "両アクションはS1内に併記され時系列の前後が示されていないため、正しい順序の回復とは判定できない。"
+        },
+        {
+          "before_step_id": "C01-S02",
+          "after_step_id": "C01-S03",
+          "score": "0",
+          "reason_ja": "両アクションが同一code_stepで併記され相対順が不明。"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:operation",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:operation",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:operation"
+    ],
+    "chain_mixing": true,
+    "hallucinated_claims": [],
+    "unsupported_evidence": [],
+    "contradicted_evidence": [],
+    "nearby_action_false_positives": [
+      "run_http_server.bat 関連の cmd.exe 実行（S2）",
+      "cmd.exe から python.exe の派生（S2）",
+      "Explorer から別インスタンスの cmd.exe 起動（S3）",
+      "S2/S3 の非対象コマンドライン提示"
+    ],
+    "weak_grounding": false,
+    "false_positive_claims": [
+      "operation=「batch script 実行」（ゴールド要求語句と不一致）",
+      "operation=「起動」（評価対象外の別プロセス）",
+      "run_http_server.bat 実行チェーン（評価対象外）",
+      "python.exe 子プロセス派生（評価対象外）"
+    ],
+    "notes_ja": [
+      "候補は証拠にCBC alert行を用いていないため、証拠ポリシーに適合。"
+    ]
+  },
+  "candidate_action_claim_count": 7,
+  "candidate_action_claim_slot_count": 29,
+  "candidate_action_claim_true_positive_slot_count": 9,
+  "hallucinated_claim_count": 0,
+  "unsupported_evidence_count": 0,
+  "contradicted_evidence_count": 0,
+  "nearby_action_fp_count": 4,
+  "main_missing_items": [
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:operation",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:operation",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:operation"
+  ],
+  "main_false_positive_claims": [
+    "run_http_server.bat 関連の一連の動作（S2）",
+    "cmd.exe から python.exe の派生（S2）",
+    "Explorer から別インスタンスの cmd.exe 起動（S3）",
+    "operation フィールドの不一致（「batch script 実行」「起動」）"
+  ]
+}

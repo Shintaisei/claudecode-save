@@ -1,0 +1,156 @@
+{
+  "reviewer": "codex_manual_review1",
+  "scoring_mode": "manual_strict_0_1_no_api",
+  "stage": "stage1",
+  "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage1/chain_23_e17_python_simplehttpserver_network_chain_stage1_run.json",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_23_e17_python_simplehttpserver_network_chain/chain_gold.json",
+  "judge_summary_ja": "候補は code_steps と code_sequence を空にし、supporting_alert_evidence として CBC NGAV alert_name/source_stream/alert_id だけを残している。これは入力アラートの存在と、python.exe が network server として検知されたという alert-only 情報を示すにとどまり、gold が要求する SimpleHTTPServer コマンドライン、netconn の 10.193.66.115:41345、または CBC event process_cmdline/netconn の具体的証拠を復元していない。候補自身も具体的な行動証拠はログから確認できなかったと述べているため、alert-only の文言を subject/action/object/critical_evidence の行動項目としては加点しない。",
+  "gold_required_item_scores": [
+    {
+      "item_id": "chain_23_e17_python_simplehttpserver_network_chain:C23-S01:subject",
+      "step_id": "C23-S01",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "候補の input_scope と supporting_alert_evidence には python.exe が出るが、code_steps/code_sequence は空であり、SimpleHTTPServer 起動ステップの行動主体として復元していない。入力 alert の process 名だけでは行動項目として加点しない。"
+    },
+    {
+      "item_id": "chain_23_e17_python_simplehttpserver_network_chain:C23-S01:action",
+      "step_id": "C23-S01",
+      "kind": "action",
+      "gold_value": "SimpleHTTPServerモジュールを指定して起動した",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "候補は SimpleHTTPServer の起動や python -m SimpleHTTPServer を主張していない。alert_name の network server 文言は入力 alert 由来であり、この起動行動を示すものとしては不十分。"
+    },
+    {
+      "item_id": "chain_23_e17_python_simplehttpserver_network_chain:C23-S01:object",
+      "step_id": "C23-S01",
+      "kind": "object",
+      "gold_value": "python  -m SimpleHTTPServer",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "候補に gold object の完全なコマンドライン、または SimpleHTTPServer を含む対象表現がない。"
+    },
+    {
+      "item_id": "chain_23_e17_python_simplehttpserver_network_chain:C23-S01:critical_evidence",
+      "step_id": "C23-S01",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event process_cmdline",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "候補が示したのは CBC NGAV alert の alert_id/alert_name/source_stream のみで、gold が要求する process_cmdline 証拠を示していない。"
+    },
+    {
+      "item_id": "chain_23_e17_python_simplehttpserver_network_chain:C23-S02:subject",
+      "step_id": "C23-S02",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "候補は python.exe を input_scope と alert evidence に記載するだけで、netconn ステップの行動主体として code_steps/code_sequence に復元していない。"
+    },
+    {
+      "item_id": "chain_23_e17_python_simplehttpserver_network_chain:C23-S02:action",
+      "step_id": "C23-S02",
+      "kind": "action",
+      "gold_value": "ネットワークサーバ挙動として検知された",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "alert_name には network server とあるが、これは入力 alert の supporting evidence であり、候補は具体的な netconn 行動を復元せず、むしろログで確認できなかったと述べている。alert-only では行動項目として加点しない。"
+    },
+    {
+      "item_id": "chain_23_e17_python_simplehttpserver_network_chain:C23-S02:object",
+      "step_id": "C23-S02",
+      "kind": "object",
+      "gold_value": "10.193.66.115:41345",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "候補に remote IP/port 10.193.66.115:41345 は出てこない。"
+    },
+    {
+      "item_id": "chain_23_e17_python_simplehttpserver_network_chain:C23-S02:critical_evidence",
+      "step_id": "C23-S02",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event netconn",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "候補は CBC event netconn 行、ACTION_CONNECTION_ESTABLISHED、または object=10.193.66.115:41345 を示していない。alert evidence だけでは critical evidence を満たさない。"
+    }
+  ],
+  "candidate_action_claim_scores": [],
+  "order_pairs": [
+    {
+      "before_step_id": "C23-S01",
+      "after_step_id": "C23-S02",
+      "score": 0,
+      "reason_ja": "候補には復元された code_steps/code_sequence がないため、SimpleHTTPServer 起動から netconn 検知への順序を評価可能な形で提示していない。"
+    }
+  ],
+  "totals": {
+    "behavior_step_recall": 0.0,
+    "behavior_step_recall_hits": 0,
+    "behavior_step_recall_total": 2,
+    "action_step_recall": 0.0,
+    "action_step_recall_hits": 0,
+    "action_step_recall_total": 8,
+    "action_step_precision": null,
+    "action_step_precision_hits": 0,
+    "action_step_precision_total": 0,
+    "gold_required_item_count": 8,
+    "candidate_claim_precision": null,
+    "candidate_claim_precision_hits": 0,
+    "candidate_claim_precision_total": 0,
+    "overclaim_slot_count": 0,
+    "candidate_action_claim_true_positive_slot_count": 0,
+    "candidate_action_claim_slot_count": 0,
+    "candidate_action_claim_raw_slot_count": 0,
+    "candidate_action_claim_duplicate_true_positive_slot_count": 0,
+    "behavior_sequence_order": 0.0,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "critical_evidence_recall": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "coarse_action_step_coverage": 0.0,
+    "coarse_action_step_coverage_hits": 0,
+    "coarse_action_step_coverage_total": 2,
+    "hallucinated_claim_count": 0,
+    "unsupported_evidence_count": 1,
+    "contradicted_evidence_count": 0,
+    "nearby_action_fp_count": 0,
+    "behavior_element_diagnostics": {
+      "subject": {
+        "recall_hits": 0,
+        "recall_total": 2,
+        "precision_hits": 0,
+        "precision_total": 0
+      },
+      "action": {
+        "recall_hits": 0,
+        "recall_total": 2,
+        "precision_hits": 0,
+        "precision_total": 0
+      },
+      "object": {
+        "recall_hits": 0,
+        "recall_total": 2,
+        "precision_hits": 0,
+        "precision_total": 0
+      },
+      "critical_evidence": {
+        "recall_hits": 0,
+        "recall_total": 2,
+        "precision_hits": 0,
+        "precision_total": 0
+      }
+    }
+  },
+  "notes_ja": [
+    "OpenAI API と自動 scorer は使用していない。ローカルの gold/candidate JSON のみで採点した。",
+    "候補は行動を過剰主張していないため overclaim は 0 とした。ただし、復元された行動 claim がないため precision 分母は 0 で null とした。",
+    "supporting_alert_evidence の alert_name は入力 alert の再掲であり、code step / code_sequence / operation / object / critical evidence としては加点していない。",
+    "候補自身が具体的な process start、network connection、file、registry のログ観測なしと述べている点も、行動項目に加点しない理由である。"
+  ]
+}

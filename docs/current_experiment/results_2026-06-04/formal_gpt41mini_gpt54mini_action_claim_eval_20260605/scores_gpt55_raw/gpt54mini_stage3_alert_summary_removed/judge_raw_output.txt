@@ -1,0 +1,488 @@
+{
+  "case_id": "gold_reviewed_10_regexe_20220716t150700z",
+  "judge_summary_ja": "候補は Discord.exe が親で reg.exe が Run キーへ Discord 値を add した主要部分は復元できているが、gold の reg.exe query ステップを完全に欠落している。また、Run キー add の critical_evidence は gold の CBC/NGAV evidence ではなく、未対応の msft-security、PID、時刻を提示しており精度上は偽陽性とした。さらに HKCU\\Software\\Classes\\Discord\\shell\\open\\command への別の registry add を同一 chain に混入し、code_sequence にも重複しているため nearby unrelated / duplicate の偽陽性がある。",
+  "chains": [
+    {
+      "chain_id": "B1",
+      "gold_required_item_scores": [
+        {
+          "item_id": "D1_subject",
+          "step_id": "D1",
+          "kind": "subject",
+          "matched_candidate_excerpt": "\"parent_process\":\"discord.exe\"",
+          "score": 1,
+          "reason_ja": "Discord.exe/discord.exe が reg.exe の親プロセスとして示されており、gold の D1 subject と一致する。"
+        },
+        {
+          "item_id": "D1_operation",
+          "step_id": "D1",
+          "kind": "operation",
+          "matched_candidate_excerpt": "\"execution_context\":{\"parent_process\":\"discord.exe\",\"parent_pid\":3768,\"parent_command_line\":\"\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-install 1.0.9005\"",
+          "score": 1,
+          "reason_ja": "parent_process / parent_command_line により Discord.exe が reg.exe の親であることを復元しているため、child process 起動関係として一致する。"
+        },
+        {
+          "item_id": "D1_object",
+          "step_id": "D1",
+          "kind": "object",
+          "matched_candidate_excerpt": "\"subject_process\":{\"name\":\"reg.exe\",\"pid\":2360,\"path\":\"c:\\\\windows\\\\system32\\\\reg.exe\"}",
+          "score": 1,
+          "reason_ja": "起動対象として reg.exe / c:\\windows\\system32\\reg.exe が示されており一致する。"
+        },
+        {
+          "item_id": "D1_critical_evidence",
+          "step_id": "D1",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "\"field\":\"parent_command_line\",\"value\":\"\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-install 1.0.9005\"",
+          "score": 1,
+          "reason_ja": "parent_command_line と Discord.exe のパスが含まれており、親子関係の critical evidence として許容範囲に入る。"
+        },
+        {
+          "item_id": "D2_subject",
+          "step_id": "D2",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "reg.exe query ステップ自体が復元されていない。"
+        },
+        {
+          "item_id": "D2_operation",
+          "step_id": "D2",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "Run key の Discord 値を query / 照会した行動が候補にない。"
+        },
+        {
+          "item_id": "D2_object",
+          "step_id": "D2",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord の照会対象が復元されていない。"
+        },
+        {
+          "item_id": "D2_command_line",
+          "step_id": "D2",
+          "kind": "command_line",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord が候補にない。"
+        },
+        {
+          "item_id": "D2_critical_evidence",
+          "step_id": "D2",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "CFnKBKLTv6hUkBGFobRdg-565631、Discovery - Query Registry、該当 query command_line、2022-07-16T15:07:46 などの query critical evidence がない。"
+        },
+        {
+          "item_id": "D3_subject",
+          "step_id": "D3",
+          "kind": "subject",
+          "matched_candidate_excerpt": "\"subject_process\":{\"name\":\"reg.exe\",\"pid\":2360,\"path\":\"c:\\\\windows\\\\system32\\\\reg.exe\"}",
+          "score": 1,
+          "reason_ja": "Run key add の主体として reg.exe / c:\\windows\\system32\\reg.exe が示されており一致する。"
+        },
+        {
+          "item_id": "D3_operation",
+          "step_id": "D3",
+          "kind": "operation",
+          "matched_candidate_excerpt": "\"operation\":\"registry_key への追加操作\"",
+          "score": 1,
+          "reason_ja": "registry_key への追加操作は Run key の Discord 値を add/update した操作と一致する。"
+        },
+        {
+          "item_id": "D3_object",
+          "step_id": "D3",
+          "kind": "object",
+          "matched_candidate_excerpt": "\"path\":\"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\",\"value\":\"Discord\",\"data\":\"\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\\\"\"",
+          "score": 1,
+          "reason_ja": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run の Discord 値と Update.exe --processStart Discord.exe のデータが復元されている。"
+        },
+        {
+          "item_id": "D3_command_line",
+          "step_id": "D3",
+          "kind": "command_line",
+          "matched_candidate_excerpt": "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f",
+          "score": 1,
+          "reason_ja": "gold の reg.exe add command_line と一致する。"
+        },
+        {
+          "item_id": "D3_critical_evidence",
+          "step_id": "D3",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "FFAGQQZQRmOhg0clEA5V1g-2d17a2b0-5181-48b9-a612-ac16c641d342、ACTION_WRITE_VALUE、regmod_name、cbc-edr-alerts/cbc-ngav、HKU\\...\\Run\\Discord、2022-07-16T15:05:29/15:07:46 などの required critical evidence が候補にない。"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "C1",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "\"execution_context\":{\"parent_process\":\"discord.exe\",\"parent_pid\":3768,\"parent_command_line\":\"\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-install 1.0.9005\"}",
+          "normalized_action_claim_ja": "Discord.exe が reg.exe の親プロセスとして記録されている。",
+          "slot_scores": [
+            {
+              "slot_id": "C1_subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "discord.exe",
+              "matched_gold_item_id": "D1_subject",
+              "is_true_positive": 1,
+              "false_positive_type": "none",
+              "reason_ja": "Discord.exe と同一視でき、D1 subject に一致する。"
+            },
+            {
+              "slot_id": "C1_operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "parent_process",
+              "matched_gold_item_id": "D1_operation",
+              "is_true_positive": 1,
+              "false_positive_type": "none",
+              "reason_ja": "親プロセス関係として reg.exe 起動を示しており、D1 operation に一致する。"
+            },
+            {
+              "slot_id": "C1_object",
+              "kind": "object",
+              "candidate_slot_excerpt": "reg.exe / c:\\windows\\system32\\reg.exe",
+              "matched_gold_item_id": "D1_object",
+              "is_true_positive": 1,
+              "false_positive_type": "none",
+              "reason_ja": "対象プロセス reg.exe が D1 object と一致する。"
+            },
+            {
+              "slot_id": "C1_critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "parent_command_line=\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-install 1.0.9005",
+              "matched_gold_item_id": "D1_critical_evidence",
+              "is_true_positive": 1,
+              "false_positive_type": "none",
+              "reason_ja": "parent_command_line と Discord.exe パスがあり、D1 critical evidence として許容される。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C2",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "reg.exe が HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run の Discord 値へ \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" を add した。",
+          "normalized_action_claim_ja": "reg.exe が Run key の Discord 値を追加した。",
+          "slot_scores": [
+            {
+              "slot_id": "C2_subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "reg.exe / c:\\windows\\system32\\reg.exe",
+              "matched_gold_item_id": "D3_subject",
+              "is_true_positive": 1,
+              "false_positive_type": "none",
+              "reason_ja": "D3 subject と一致する。"
+            },
+            {
+              "slot_id": "C2_operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "registry_key への追加操作",
+              "matched_gold_item_id": "D3_operation",
+              "is_true_positive": 1,
+              "false_positive_type": "none",
+              "reason_ja": "追加操作は D3 の add/update と一致する。"
+            },
+            {
+              "slot_id": "C2_object",
+              "kind": "object",
+              "candidate_slot_excerpt": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run / value=Discord / data=\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\"",
+              "matched_gold_item_id": "D3_object",
+              "is_true_positive": 1,
+              "false_positive_type": "none",
+              "reason_ja": "Run\\Discord と値データが D3 object と一致する。"
+            },
+            {
+              "slot_id": "C2_command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f",
+              "matched_gold_item_id": "D3_command_line",
+              "is_true_positive": 1,
+              "false_positive_type": "none",
+              "reason_ja": "D3 command_line と完全に一致する。"
+            },
+            {
+              "slot_id": "C2_critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "source_stream=msft-security, timestamp=2022-07-16 15:03:40, pid=2360, ppid=3768",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "D3 critical evidence として要求される CBC/NGAV alert_id、ACTION_WRITE_VALUE、regmod_name、2022-07-16T15:05:29/15:07:46 等ではない。具体的な msft-security、PID、時刻は gold で支持されず精度上は偽陽性。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C3",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "\"execution_context\":{\"parent_process\":\"discord.exe\",\"parent_pid\":3768,\"parent_command_line\":\"\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-install 1.0.9005\"}",
+          "normalized_action_claim_ja": "Discord.exe が別の reg.exe の親プロセスとして記録されている。",
+          "slot_scores": [
+            {
+              "slot_id": "C3_subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "discord.exe",
+              "matched_gold_item_id": "D1_subject",
+              "is_true_positive": 0,
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "D1 subject は C1 で既に一致済みであり、S2 の別 reg.exe 文脈として重複している。"
+            },
+            {
+              "slot_id": "C3_operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "parent_process",
+              "matched_gold_item_id": "D1_operation",
+              "is_true_positive": 0,
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "親プロセス関係の主張は C1 と重複し、追加の gold item には対応しない。"
+            },
+            {
+              "slot_id": "C3_object",
+              "kind": "object",
+              "candidate_slot_excerpt": "reg.exe / c:\\windows\\system32\\reg.exe",
+              "matched_gold_item_id": "D1_object",
+              "is_true_positive": 0,
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "reg.exe object は既に C1 で採点済みであり、S2 は別の registry add 文脈のため重複扱い。"
+            },
+            {
+              "slot_id": "C3_critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "parent_command_line=\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-install 1.0.9005",
+              "matched_gold_item_id": "D1_critical_evidence",
+              "is_true_positive": 0,
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "D1 critical evidence は C1 で既に一致しており、この S2 側の同種 evidence は重複である。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C4",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "reg.exe が HKCU\\Software\\Classes\\Discord\\shell\\open\\command の既定値を add した。",
+          "normalized_action_claim_ja": "reg.exe が Discord URL handler の shell open command registry key を追加した。",
+          "slot_scores": [
+            {
+              "slot_id": "C4_subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "reg.exe / c:\\windows\\system32\\reg.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "主体名は reg.exe だが、行動全体は gold の Run key query/add chain ではなく別 registry key への追加である。"
+            },
+            {
+              "slot_id": "C4_operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "registry_key への追加操作",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "HKCU\\Software\\Classes\\Discord\\shell\\open\\command に対する add は gold の required behavior ではない。"
+            },
+            {
+              "slot_id": "C4_object",
+              "kind": "object",
+              "candidate_slot_excerpt": "HKCU\\Software\\Classes\\Discord\\shell\\open\\command / value=(Default)",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "対象 registry path が gold の HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord と異なる。"
+            },
+            {
+              "slot_id": "C4_command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Classes\\Discord\\shell\\open\\command /ve /d \"\\\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\\\" --url -- \\\"%1\\\"\" /f",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "gold の command_line には存在しない別 registry add コマンドである。"
+            },
+            {
+              "slot_id": "C4_critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "source_stream=msft-security, timestamp=2022-07-16 15:04:10, pid=3164, ppid=3768",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "gold にない別行動の evidence であり、具体的な PID、時刻、source_stream は gold で支持されない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C5",
+          "candidate_step_id": "code_sequence[0]",
+          "claim_excerpt": "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f",
+          "normalized_action_claim_ja": "code_sequence で Run key Discord 値の reg.exe add コマンドを再掲している。",
+          "slot_scores": [
+            {
+              "slot_id": "C5_subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "C:\\Windows\\System32\\reg.exe",
+              "matched_gold_item_id": "D3_subject",
+              "is_true_positive": 0,
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "C2 で同じ D3 subject を既に採点済みのため重複。"
+            },
+            {
+              "slot_id": "C5_operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "add",
+              "matched_gold_item_id": "D3_operation",
+              "is_true_positive": 0,
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "C2 の Run key add と同一行動の再掲であり重複。"
+            },
+            {
+              "slot_id": "C5_object",
+              "kind": "object",
+              "candidate_slot_excerpt": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\"",
+              "matched_gold_item_id": "D3_object",
+              "is_true_positive": 0,
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "D3 object は C2 で既に true positive として採点済みで、これは code_sequence での重複。"
+            },
+            {
+              "slot_id": "C5_command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f",
+              "matched_gold_item_id": "D3_command_line",
+              "is_true_positive": 0,
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "D3 command_line と同一だが、C2 で既に採点済みのため precision numerator には加えない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C6",
+          "candidate_step_id": "code_sequence[1]",
+          "claim_excerpt": "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Classes\\Discord\\shell\\open\\command /ve /d \"\\\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\\\" --url -- \\\"%1\\\"\" /f",
+          "normalized_action_claim_ja": "code_sequence で Discord shell open command registry key の reg.exe add コマンドを記載している。",
+          "slot_scores": [
+            {
+              "slot_id": "C6_subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "C:\\Windows\\System32\\reg.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "別 registry add 行動の主体であり、gold chain の追加 item ではない。"
+            },
+            {
+              "slot_id": "C6_operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "add",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "HKCU\\Software\\Classes\\Discord\\shell\\open\\command への add は gold の Run key 操作ではない。"
+            },
+            {
+              "slot_id": "C6_object",
+              "kind": "object",
+              "candidate_slot_excerpt": "HKCU\\Software\\Classes\\Discord\\shell\\open\\command /ve",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "対象が gold の Run\\Discord ではなく、nearby unrelated の registry path である。"
+            },
+            {
+              "slot_id": "C6_command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Classes\\Discord\\shell\\open\\command /ve /d \"\\\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\\\" --url -- \\\"%1\\\"\" /f",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "gold の process_code_sequence に存在しない別 command_line である。"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "D1",
+          "after_step_id": "D2",
+          "score": 0,
+          "reason_ja": "D1 の親子文脈は復元されたが、D2 の reg.exe query が欠落しているため順序関係を満たせない。"
+        },
+        {
+          "before_step_id": "D2",
+          "after_step_id": "D3",
+          "score": 0,
+          "reason_ja": "D3 add は復元されたが、D2 query が復元されていないため query が add/update より前という順序を評価できない。"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "D2_subject",
+      "D2_operation",
+      "D2_object",
+      "D2_command_line",
+      "D2_critical_evidence",
+      "D3_critical_evidence"
+    ],
+    "chain_mixing": true,
+    "hallucinated_claims": [
+      "S1 evidence source_stream=msft-security は gold の critical evidence にない。",
+      "S1 timestamp=2022-07-16 15:03:40 は gold の D3 evidence 時刻 2022-07-16T15:05:29 / 2022-07-16T15:07:46 と一致しない。",
+      "S1 pid=2360 は gold で支持されない具体 PID。",
+      "S1 ppid=3768 は gold で支持されない具体 PPID。",
+      "S2 timestamp=2022-07-16 15:04:10 は gold chain の required item で支持されない。",
+      "S2 pid=3164 は gold で支持されない具体 PID。",
+      "S2 ppid=3768 は gold で支持されない具体 PPID。",
+      "S2 の HKCU\\Software\\Classes\\Discord\\shell\\open\\command add command_line は gold の chain に存在しない。"
+    ],
+    "unsupported_evidence": [
+      "S1 の msft-security evidence rows は D3 critical_evidence の CBC/NGAV alert_id、ACTION_WRITE_VALUE、regmod_name のいずれにも一致しない。",
+      "S2 の msft-security evidence rows は gold の required behavior に対応しない。",
+      "supporting_alert_evidence が空であり、D2/D3 の CBC alert critical evidence を提示していない。"
+    ],
+    "contradicted_evidence": [
+      "S1 time=2022-07-16 15:03:40 は gold の D3 evidence time range 2022-07-16T15:05:29Z から 2022-07-16T15:07:46Z と矛盾する。",
+      "候補は registry 追加操作のみ復元したとしているが、gold には reg.exe query が存在する。"
+    ],
+    "nearby_action_false_positives": [
+      "S2: C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Classes\\Discord\\shell\\open\\command /ve /d \"\\\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\\\" --url -- \\\"%1\\\"\" /f",
+      "code_sequence[1]: C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Classes\\Discord\\shell\\open\\command /ve /d \"\\\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\\\" --url -- \\\"%1\\\"\" /f"
+    ],
+    "weak_grounding": true,
+    "false_positive_claims": [
+      "S1 critical evidence として msft-security / 2022-07-16 15:03:40 / pid=2360 / ppid=3768 を提示した。",
+      "S2 の HKCU\\Software\\Classes\\Discord\\shell\\open\\command への registry add を gold chain に混入した。",
+      "code_sequence[0] で S1 の Run key add を重複再掲した。",
+      "code_sequence[1] で unrelated な Discord shell open command add を再掲した。"
+    ],
+    "notes_ja": [
+      "CBC alert report_name を behavior として誤用した箇所はない。",
+      "D3 の command_line は正確だが、critical_evidence は gold の required evidence family と一致しない。",
+      "D2 query の完全欠落が主要な recall 低下要因である。"
+    ]
+  },
+  "candidate_action_claim_count": 6,
+  "candidate_action_claim_slot_count": 26,
+  "candidate_action_claim_true_positive_slot_count": 8,
+  "hallucinated_claim_count": 8,
+  "unsupported_evidence_count": 3,
+  "contradicted_evidence_count": 2,
+  "nearby_action_fp_count": 2,
+  "main_missing_items": [
+    "D2_subject",
+    "D2_operation",
+    "D2_object",
+    "D2_command_line",
+    "D2_critical_evidence",
+    "D3_critical_evidence"
+  ],
+  "main_false_positive_claims": [
+    "S2 の HKCU\\Software\\Classes\\Discord\\shell\\open\\command への registry add",
+    "S1/S2 の msft-security、PID、PPID、非 gold 時刻を critical evidence として提示",
+    "code_sequence による D3 command_line の重複再掲",
+    "code_sequence による unrelated registry add の再掲"
+  ]
+}

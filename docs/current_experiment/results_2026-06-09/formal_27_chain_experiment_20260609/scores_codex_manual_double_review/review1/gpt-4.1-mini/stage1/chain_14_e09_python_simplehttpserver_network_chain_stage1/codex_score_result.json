@@ -1,0 +1,161 @@
+{
+  "case": "chain_14_e09_python_simplehttpserver_network_chain_stage1",
+  "model": "gpt-4.1-mini",
+  "stage": "stage1",
+  "reviewer": "codex_manual_review1",
+  "method": "manual_strict_0_1_no_api_local_files_only",
+  "final_totals": {
+    "action_step_recall_hits": 4,
+    "action_step_recall_total": 8,
+    "action_step_recall": 0.5,
+    "candidate_claim_precision_hits": 3,
+    "candidate_claim_precision_total": 4,
+    "candidate_claim_precision": 0.75,
+    "overclaim_slot_count": 1,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 1,
+    "behavior_step_recall_total": 2,
+    "behavior_step_recall": 0.5
+  },
+  "gold_item_scores": [
+    {
+      "item_id": "chain_14_e09_python_simplehttpserver_network_chain:C14-S01:subject",
+      "step_id": "C14-S01",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": "S1 subject_process.name=python.exe",
+      "score": 1,
+      "reason": "Candidate explicitly names python.exe as the subject process."
+    },
+    {
+      "item_id": "chain_14_e09_python_simplehttpserver_network_chain:C14-S01:action",
+      "step_id": "C14-S01",
+      "kind": "action",
+      "gold_value": "started with SimpleHTTPServer module",
+      "matched_candidate_excerpt": "No SimpleHTTPServer module start is reported; command_line is null.",
+      "score": 0,
+      "reason": "Gold requires the SimpleHTTPServer module launch. Candidate only reports network_server_start and explicitly lacks the command line."
+    },
+    {
+      "item_id": "chain_14_e09_python_simplehttpserver_network_chain:C14-S01:object",
+      "step_id": "C14-S01",
+      "kind": "object",
+      "gold_value": "python  -m SimpleHTTPServer",
+      "matched_candidate_excerpt": "S1 command_line=null",
+      "score": 0,
+      "reason": "The required python -m SimpleHTTPServer command/process object is not recovered."
+    },
+    {
+      "item_id": "chain_14_e09_python_simplehttpserver_network_chain:C14-S01:critical_evidence",
+      "step_id": "C14-S01",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event process_cmdline",
+      "matched_candidate_excerpt": "S1 evidence source_stream=cbc-ngav-alerts field=alert_name",
+      "score": 0,
+      "reason": "Candidate cites only the CBC alert name, not CBC event process_cmdline evidence for the SimpleHTTPServer command."
+    },
+    {
+      "item_id": "chain_14_e09_python_simplehttpserver_network_chain:C14-S02:subject",
+      "step_id": "C14-S02",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": "S1 subject_process.name=python.exe",
+      "score": 1,
+      "reason": "Candidate uses python.exe as the network-behavior subject."
+    },
+    {
+      "item_id": "chain_14_e09_python_simplehttpserver_network_chain:C14-S02:action",
+      "step_id": "C14-S02",
+      "kind": "action",
+      "gold_value": "detected as network server behavior",
+      "matched_candidate_excerpt": "S1 operation=network_server_start; alert value=The application python.exe acted as a network server.",
+      "score": 1,
+      "reason": "The network server behavior is explicitly stated."
+    },
+    {
+      "item_id": "chain_14_e09_python_simplehttpserver_network_chain:C14-S02:object",
+      "step_id": "C14-S02",
+      "kind": "object",
+      "gold_value": "limited incoming/communication detail",
+      "matched_candidate_excerpt": "S1 object.type=network with name/path/value/data=null",
+      "score": 1,
+      "reason": "Gold has no concrete endpoint object beyond limited communication detail; candidate keeps the object at network type without inventing endpoint details."
+    },
+    {
+      "item_id": "chain_14_e09_python_simplehttpserver_network_chain:C14-S02:critical_evidence",
+      "step_id": "C14-S02",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event netconn",
+      "matched_candidate_excerpt": "S1 evidence source_stream=cbc-ngav-alerts field=alert_name",
+      "score": 0,
+      "reason": "Gold requires CBC event netconn evidence. Candidate relies on CBC alert text and explicitly says detailed network connection logs were not found."
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_step_id": "C14-S01",
+      "after_step_id": "C14-S02",
+      "matched_candidate_before": null,
+      "matched_candidate_after": "S1 network_server_start for python.exe",
+      "score": 0,
+      "reason": "Candidate recovers only the network-server behavior and does not recover the prior SimpleHTTPServer command/process_cmdline step, so the gold order cannot be credited."
+    }
+  ],
+  "candidate_claim_scores": [
+    {
+      "candidate_claim_id": "CL1",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "python.exe network_server_start with network object, command_line=null, evidence from cbc-ngav-alerts alert_name",
+      "slot_scores": [
+        {
+          "slot_id": "CL1:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "python.exe",
+          "matched_gold_item_id": "chain_14_e09_python_simplehttpserver_network_chain:C14-S02:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "python.exe is the gold subject for both steps."
+        },
+        {
+          "slot_id": "CL1:operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "network_server_start",
+          "matched_gold_item_id": "chain_14_e09_python_simplehttpserver_network_chain:C14-S02:action",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "This matches the gold network-server behavior."
+        },
+        {
+          "slot_id": "CL1:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "object.type=network; name/path/value/data=null",
+          "matched_gold_item_id": "chain_14_e09_python_simplehttpserver_network_chain:C14-S02:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "The candidate preserves the network object category without inventing endpoint details."
+        },
+        {
+          "slot_id": "CL1:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "cbc-ngav-alerts field=alert_name value=The application python.exe acted as a network server.",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_evidence_basis",
+          "reason": "The alert text is supporting context, but it is not the required CBC event process_cmdline or CBC event netconn evidence."
+        }
+      ]
+    }
+  ],
+  "notes_ja": [
+    "OpenAI/API scorerは使わず、ローカルのgold JSONとcandidate run JSONだけで手動採点した。",
+    "C14-S01はsubjectのpython.exeだけ一致。SimpleHTTPServer起動、python -m SimpleHTTPServer、CBC event process_cmdline根拠が候補にないため、action/object/critical_evidenceは0点。",
+    "C14-S02はpython.exeのnetwork server behavior自体は回収しているためsubject/actionを加点し、具体的な通信先を作っていない点はgoldのobject詳細限定と矛盾しないためobjectも加点した。",
+    "ただしC14-S02の根拠はcbc-ngav-alertsのalert_nameだけで、要求されるCBC event netconn根拠ではないためcritical_evidenceは0点。",
+    "候補は大きな余計な行動を混入していないが、alert_nameを行動ステップの主要根拠として使っており、証拠basisの過剰主張として1スロット減点した。"
+  ]
+}

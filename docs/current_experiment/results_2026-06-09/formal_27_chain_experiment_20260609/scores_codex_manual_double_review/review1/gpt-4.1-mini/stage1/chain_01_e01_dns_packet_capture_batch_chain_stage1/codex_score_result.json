@@ -1,0 +1,466 @@
+{
+  "reviewer": "codex_review1",
+  "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage1/chain_01_e01_dns_packet_capture_batch_chain_stage1_run.json",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_01_e01_dns_packet_capture_batch_chain/chain_gold.json",
+  "stage": "stage1",
+  "judge_summary_ja": "候補は DNS packet capture batch chain の中心である cmd.exe /c start_dns_logs.bat と tshark.exe の派生を概ね復元している。ただし C01-S01 の完全な raw command/path と critical evidence、C01-S03 の CBC event childproc/object 証拠が不足している。また同一エピソードだが gold では out-of-scope の run_http_server.bat / python.exe 系 step を混入している。",
+  "gold_required_item_scores": [
+    {
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:subject",
+      "step_id": "C01-S01",
+      "kind": "subject",
+      "gold_value": "explorer.exe",
+      "matched_candidate_excerpt": "S1.execution_context.parent_process=explorer.exe",
+      "score": 1,
+      "reason_ja": "S1 の execution_context で explorer.exe が cmd.exe の parent_process として示されており、親 subject は復元されている。"
+    },
+    {
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:operation",
+      "step_id": "C01-S01",
+      "kind": "operation",
+      "gold_value": "cmd.exeを子プロセスとして起動した",
+      "matched_candidate_excerpt": "S1 subject_process=cmd.exe; execution_context.parent_process=explorer.exe; operation=execute",
+      "score": 1,
+      "reason_ja": "明示フィールドは cmd.exe 側の execute だが、parent_process=explorer.exe と subject_process=cmd.exe の組で explorer.exe から cmd.exe が起動した関係は復元されている。"
+    },
+    {
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:object",
+      "step_id": "C01-S01",
+      "kind": "object",
+      "gold_value": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+      "matched_candidate_excerpt": "S1.command_line=cmd.exe /c C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat",
+      "score": 0,
+      "reason_ja": "候補は start_dns_logs.bat の実行を示すが、gold が要求する C:\\Windows\\system32\\cmd.exe と二重引用符を含む完全な raw command line ではないため strict に 0。"
+    },
+    {
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:critical_evidence",
+      "step_id": "C01-S01",
+      "kind": "critical_evidence",
+      "gold_value": "CBC alert / CBC event の parent_path と process_cmdline",
+      "matched_candidate_excerpt": "S1 evidence includes cbc-edr-alerts field=command_line value=cmd.exe /c C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat",
+      "score": 0,
+      "reason_ja": "CBC alert の command_line は出ているが、gold の critical evidence である CBC event の parent_path と process_cmdline の組は明示されていない。"
+    },
+    {
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:subject",
+      "step_id": "C01-S02",
+      "kind": "subject",
+      "gold_value": "cmd.exe",
+      "matched_candidate_excerpt": "S1.subject_process.name=cmd.exe",
+      "score": 1,
+      "reason_ja": "cmd.exe が subject_process として明示されている。"
+    },
+    {
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:operation",
+      "step_id": "C01-S02",
+      "kind": "operation",
+      "gold_value": "/cでバッチファイルを実行した",
+      "matched_candidate_excerpt": "S1.command_line=cmd.exe /c C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat",
+      "score": 1,
+      "reason_ja": "cmd.exe /c による batch file 実行が command_line と operation=execute で復元されている。"
+    },
+    {
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:object",
+      "step_id": "C01-S02",
+      "kind": "object",
+      "gold_value": "start_dns_logs.bat",
+      "matched_candidate_excerpt": "S1.object.name=start_dns_logs.bat; S1.object.path=C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat",
+      "score": 1,
+      "reason_ja": "対象 batch file 名と path が示されている。"
+    },
+    {
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:critical_evidence",
+      "step_id": "C01-S02",
+      "kind": "critical_evidence",
+      "gold_value": "process_cmdline",
+      "matched_candidate_excerpt": "S1.command_line=cmd.exe /c C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat; evidence field=command_line",
+      "score": 1,
+      "reason_ja": "process command line に相当する command_line が候補本体と evidence の両方にある。"
+    },
+    {
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:subject",
+      "step_id": "C01-S03",
+      "kind": "subject",
+      "gold_value": "cmd.exe",
+      "matched_candidate_excerpt": "S2.execution_context.parent_process=cmd.exe; parent_command_line=cmd.exe /c C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat",
+      "score": 1,
+      "reason_ja": "tshark.exe 側 step の parent_process として cmd.exe が明示され、cmd.exe からの派生関係が復元されている。"
+    },
+    {
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:operation",
+      "step_id": "C01-S03",
+      "kind": "operation",
+      "gold_value": "ログ収集系プロセスを派生させた",
+      "matched_candidate_excerpt": "S2 subject_process=tshark.exe; command_line=C:\\Program Files\\Wireshark\\tshark.exe -i 1 -f \"udp port 53\" -w C:\\Users\\aalsahee\\Desktop\\logs\\dns\\dns.pcap",
+      "score": 1,
+      "reason_ja": "tshark.exe の DNS capture command line と cmd.exe parent があり、ログ収集系プロセスの派生は復元されている。"
+    },
+    {
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:object",
+      "step_id": "C01-S03",
+      "kind": "object",
+      "gold_value": "tshark.exe",
+      "matched_candidate_excerpt": "S2.subject_process.name=tshark.exe; S2.subject_process.path=C:\\Program Files\\Wireshark\\tshark.exe",
+      "score": 1,
+      "reason_ja": "対象プロセス tshark.exe が明示されている。"
+    },
+    {
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:critical_evidence",
+      "step_id": "C01-S03",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event childproc/object",
+      "matched_candidate_excerpt": "S2 evidence source_stream=msft-security field=file_access value=C:\\Windows\\System32\\ctiuser.dll",
+      "score": 0,
+      "reason_ja": "候補の evidence は msft-security の file_access であり、gold が要求する CBC event childproc/object ではない。"
+    }
+  ],
+  "candidate_action_claim_scores": [
+    {
+      "candidate_claim_id": "cand-S1-parent",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "S1: subject_process=cmd.exe, operation=execute, command_line=cmd.exe /c C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat, execution_context.parent_process=explorer.exe",
+      "normalized_action_claim_ja": "explorer.exe が cmd.exe を親子関係で起動したという候補 claim。",
+      "slot_scores": [
+        {
+          "slot_id": "cand-S1-parent:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "execution_context.parent_process=explorer.exe",
+          "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "gold の親 subject と一致する。"
+        },
+        {
+          "slot_id": "cand-S1-parent:operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "subject_process=cmd.exe with parent_process=explorer.exe and operation=execute",
+          "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:operation",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "explorer.exe から cmd.exe への起動関係として扱える。"
+        },
+        {
+          "slot_id": "cand-S1-parent:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "cmd.exe /c C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unsupported_inference",
+          "reason_ja": "gold の C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \" と完全一致せず、raw path/quoting が不足している。"
+        },
+        {
+          "slot_id": "cand-S1-parent:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "cbc-edr-alerts alert_id=CFnKBKLTv6hUkBGFobRdg-565642 field=command_line value=cmd.exe /c C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unsupported_evidence",
+          "reason_ja": "CBC alert の command_line だけで、CBC event parent_path/process_cmdline の組がない。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "cand-S1-batch",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "S1: cmd.exe executes C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat with command_line=cmd.exe /c C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat",
+      "normalized_action_claim_ja": "cmd.exe が /c で start_dns_logs.bat を実行した。",
+      "slot_scores": [
+        {
+          "slot_id": "cand-S1-batch:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "subject_process.name=cmd.exe",
+          "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "gold の C01-S02 subject と一致する。"
+        },
+        {
+          "slot_id": "cand-S1-batch:operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "operation=execute; command_line=cmd.exe /c C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat",
+          "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:operation",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "/c による batch file 実行と一致する。"
+        },
+        {
+          "slot_id": "cand-S1-batch:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "object.name=start_dns_logs.bat; object.path=C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat",
+          "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "対象 batch file と一致する。"
+        },
+        {
+          "slot_id": "cand-S1-batch:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "command_line=cmd.exe /c C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat; evidence field=command_line",
+          "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:critical_evidence",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "process_cmdline 相当の値が示されている。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "cand-S2-spawn",
+      "candidate_step_id": "S2",
+      "claim_excerpt": "S2: subject_process=tshark.exe, parent_process=cmd.exe, command_line=C:\\Program Files\\Wireshark\\tshark.exe -i 1 -f \"udp port 53\" -w C:\\Users\\aalsahee\\Desktop\\logs\\dns\\dns.pcap",
+      "normalized_action_claim_ja": "cmd.exe が DNS capture 用の tshark.exe を派生させた。",
+      "slot_scores": [
+        {
+          "slot_id": "cand-S2-spawn:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "execution_context.parent_process=cmd.exe",
+          "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "gold の派生元 subject と一致する。"
+        },
+        {
+          "slot_id": "cand-S2-spawn:operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "parent_process=cmd.exe; subject_process=tshark.exe; command_line includes -f \"udp port 53\" -w C:\\Users\\aalsahee\\Desktop\\logs\\dns\\dns.pcap",
+          "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:operation",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "DNS ログ収集系プロセスを派生させたことに対応する。"
+        },
+        {
+          "slot_id": "cand-S2-spawn:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "subject_process.name=tshark.exe; subject_process.path=C:\\Program Files\\Wireshark\\tshark.exe",
+          "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "gold の object=tshark.exe と一致する。"
+        },
+        {
+          "slot_id": "cand-S2-spawn:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "msft-security field=file_access value=C:\\Windows\\System32\\ctiuser.dll pid=3352 ppid=3344",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unsupported_evidence",
+          "reason_ja": "CBC event childproc/object ではなく、tshark の file_access 証拠である。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "cand-S2-fileaccess",
+      "candidate_step_id": "S2",
+      "claim_excerpt": "S2: tshark.exe file_access C:\\Windows\\System32\\ctiuser.dll",
+      "normalized_action_claim_ja": "tshark.exe が ctiuser.dll に file_access した。",
+      "slot_scores": [
+        {
+          "slot_id": "cand-S2-fileaccess:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "subject_process.name=tshark.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold の action claim subject ではない。"
+        },
+        {
+          "slot_id": "cand-S2-fileaccess:operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "operation=file_access",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold は cmd.exe が tshark.exe を派生させたことを要求しており、dll file_access は required action ではない。"
+        },
+        {
+          "slot_id": "cand-S2-fileaccess:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "object.path=C:\\Windows\\System32\\ctiuser.dll",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold required object ではない。"
+        },
+        {
+          "slot_id": "cand-S2-fileaccess:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "msft-security timestamp=2022-07-15 13:13:01 field=file_access value=C:\\Windows\\System32\\ctiuser.dll pid=3352 ppid=3344",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "この file_access claim の証拠であり、gold の critical evidence ではない。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "cand-S3-fileaccess",
+      "candidate_step_id": "S3",
+      "claim_excerpt": "S3: dumpcap.exe file_access C:\\Program Files\\Wireshark\\plugins\\plugin.dll",
+      "normalized_action_claim_ja": "dumpcap.exe が Wireshark plugin.dll に file_access した。",
+      "slot_scores": [
+        {
+          "slot_id": "cand-S3-fileaccess:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "subject_process.name=dumpcap.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold の 3 required steps には dumpcap.exe claim は含まれていない。"
+        },
+        {
+          "slot_id": "cand-S3-fileaccess:operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "operation=file_access",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold の required action ではない。"
+        },
+        {
+          "slot_id": "cand-S3-fileaccess:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "object.path=C:\\Program Files\\Wireshark\\plugins\\plugin.dll",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold required object ではない。"
+        },
+        {
+          "slot_id": "cand-S3-fileaccess:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "msft-security timestamp=2022-07-15 13:13:01 field=file_access value=C:\\Program Files\\Wireshark\\plugins\\plugin.dll pid=1956 ppid=3352",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold required evidence ではない。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "cand-S4-http-bat",
+      "candidate_step_id": "S4",
+      "claim_excerpt": "S4: cmd.exe executes C:\\Users\\aalsahee\\Desktop\\run_http_server.bat with command_line=cmd.exe /c C:\\Users\\aalsahee\\Desktop\\run_http_server.bat",
+      "normalized_action_claim_ja": "cmd.exe が run_http_server.bat を実行した。",
+      "slot_scores": [
+        {
+          "slot_id": "cand-S4-http-bat:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "subject_process.name=cmd.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "同じ cmd.exe 名でも object と lineage が HTTP server chain であり、DNS chain の required item には対応しない。"
+        },
+        {
+          "slot_id": "cand-S4-http-bat:operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "operation=execute; command_line=cmd.exe /c C:\\Users\\aalsahee\\Desktop\\run_http_server.bat",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold の start_dns_logs.bat / tshark chain ではなく、out-of-scope の HTTP server batch 実行である。"
+        },
+        {
+          "slot_id": "cand-S4-http-bat:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "object.path=C:\\Users\\aalsahee\\Desktop\\run_http_server.bat",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold required object ではない。"
+        },
+        {
+          "slot_id": "cand-S4-http-bat:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "cbc-edr-alerts alert_id=CFnKBKLTv6hUkBGFobRdg-565642 value=cmd.exe /c C:\\Users\\aalsahee\\Desktop\\run_http_server.bat; msft-security file_access run_http_server.bat",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "HTTP server chain 用の evidence であり、この gold chain の critical evidence ではない。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "cand-S5-python",
+      "candidate_step_id": "S5",
+      "claim_excerpt": "S5: python.exe execute python.exe, parent_process=cmd.exe, parent_command_line=cmd.exe /c C:\\Users\\aalsahee\\Desktop\\run_http_server.bat",
+      "normalized_action_claim_ja": "run_http_server.bat lineage の cmd.exe が python.exe を起動した。",
+      "slot_scores": [
+        {
+          "slot_id": "cand-S5-python:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "subject_process.name=python.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold の DNS chain には python.exe step は含まれない。"
+        },
+        {
+          "slot_id": "cand-S5-python:operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "operation=execute",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "out-of-scope の SimpleHTTPServer 系 action である。"
+        },
+        {
+          "slot_id": "cand-S5-python:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "object.name=python.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold required object ではない。"
+        },
+        {
+          "slot_id": "cand-S5-python:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "msft-security timestamp=2022-07-15 13:13:39 field=process_start value=python.exe pid=720 ppid=336",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "out-of-scope の python process_start 証拠である。"
+        }
+      ]
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_step_id": "C01-S01",
+      "after_step_id": "C01-S02",
+      "score": 1,
+      "reason_ja": "S1 内で explorer.exe parent -> cmd.exe subject と cmd.exe /c start_dns_logs.bat の関係が同一 claim cluster にあり、親子関係として C01-S01 が C01-S02 に先行することは保たれている。"
+    },
+    {
+      "before_step_id": "C01-S02",
+      "after_step_id": "C01-S03",
+      "score": 1,
+      "reason_ja": "候補では start_dns_logs.bat 実行を含む S1 が tshark.exe 関連の S2 より前に出力されており、相対順序は正しい。"
+    }
+  ],
+  "totals": {
+    "action_step_recall_hits": 9,
+    "action_step_recall_total": 12,
+    "action_step_recall": 0.75,
+    "action_step_precision_hits": 9,
+    "action_step_precision_total": 12,
+    "action_step_precision": 0.75,
+    "candidate_claim_precision_hits": 9,
+    "candidate_claim_precision_total": 28,
+    "candidate_claim_precision": 0.3214285714,
+    "overclaim_slot_count": 19,
+    "behavior_sequence_order_hits": 2,
+    "behavior_sequence_order_total": 2,
+    "behavior_sequence_order": 1.0,
+    "critical_evidence_recall_hits": 1,
+    "critical_evidence_recall_total": 3,
+    "critical_evidence_recall": 0.3333333333
+  },
+  "notes_ja": [
+    "OpenAI API と score_element_order_with_gpt.py は使用していない。",
+    "実行中の formal experiment process は停止・変更していない。",
+    "gold required items は score_element_order_with_gpt.py の derived items と同じく subject/operation/object/critical_evidence の 3 step x 4 = 12 とした。",
+    "候補 S4/S5 は gold の out_of_scope_same_episode に対応する HTTP server / python 系混入として candidate-side false positive にした。",
+    "C01-S01 object は semantically close だが、raw command line の C:\\Windows\\system32\\cmd.exe と引用符が欠落しているため strict に 0 とした。"
+  ]
+}

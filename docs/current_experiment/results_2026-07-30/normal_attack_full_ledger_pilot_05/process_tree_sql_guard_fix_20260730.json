@@ -1,0 +1,67 @@
+{
+  "schema_version": "normal_attack_full_ledger_pilot05_process_tree_sql_guard_fix_v1",
+  "created_at_utc": "2026-07-30T06:00:35.8333115Z",
+  "incident": {
+    "pair_id": "normal_chain10_gpt41",
+    "stage": 3,
+    "original_attempt_root": "docs/current_experiment/results_2026-07-30/normal_attack_full_ledger_pilot_05/executions/normal_chain10_gpt41/stage3",
+    "started_at_utc": "2026-07-30T05:20:42.524341+00:00",
+    "stopped_at_utc": "2026-07-30T05:53:47.313490+00:00",
+    "elapsed_seconds_approx": 1985,
+    "result": "technical_failure_missing_run_json",
+    "observed_runtime_state": {
+      "outbound_api_activity": "none during the sampled local stall",
+      "local_python_cpu": "continuous high CPU",
+      "five_second_io_sample": {
+        "read_bytes_approx": 85000000,
+        "write_bytes_approx": 251000000
+      }
+    }
+  },
+  "root_cause": {
+    "status": "confirmed_in_code",
+    "description": "The generic run_sql_query tool had read-only, wall-clock, and SQLite VM-step guards, but the DARPA and ATLAS ancestor/descendant process-tree tools opened raw SQLite connections without installing that guard. A single process-tree query could therefore run beyond the per-lead wall limit because that limit is checked only between tool calls."
+  },
+  "fix": {
+    "qa_agent_path": "external/Clouseau/artifact/qa_agent.py",
+    "qa_agent_sha256": "ae569bce9388e3c212d8f4a4ec752871063bce89c944c864de25e0537073bac8",
+    "shared_guard": {
+      "query_only": true,
+      "wall_timeout_seconds": 1200,
+      "sqlite_vm_step_limit": 50000000,
+      "applies_to": [
+        "run_sql_query",
+        "darpa_get_ancestors",
+        "darpa_get_descendants",
+        "atlas_get_ancestors",
+        "atlas_get_descendants"
+      ]
+    },
+    "test_path": "external/Clouseau/artifact/test_qa_agent_sql_guard.py",
+    "test_sha256": "fe8b1bbd2b71d2e7ff6a556c968af1455f6a076affc20e02fb1baeb554e2c45d",
+    "test_result": {
+      "command": "python -m unittest test_qa_agent_sql_guard.py",
+      "tests_run": 9,
+      "status": "PASS",
+      "coverage": [
+        "ordinary SQL result",
+        "30-row result limit",
+        "unsafe recursive UNION ALL rejection",
+        "generic SQL VM-step interruption",
+        "generic SQL wall-time interruption",
+        "query-only enforcement",
+        "ordinary ATLAS descendant traversal",
+        "ATLAS process-tree VM-step interruption",
+        "ATLAS process-tree wall-time interruption"
+      ]
+    }
+  },
+  "retry_policy": {
+    "completed_stage1_and_stage2": "preserve_and_do_not_rerun",
+    "failed_stage3_attempt": "preserve",
+    "retry_scope": "only the incomplete Stage 3 thought, then remaining unstarted runs",
+    "retry_root": "docs/current_experiment/results_2026-07-30/normal_attack_full_ledger_pilot_05/executions/normal_chain10_gpt41/stage3_retry_process_tree_sql_guard_v2",
+    "pilot_driver_path": "scripts/run_normal_attack_full_ledger_pilot05_20260730.py",
+    "pilot_driver_sha256": "d521d1c85bc5bbd35df6c8e470c2608cebb475d5f58cb6cfc2b8460d6c7f4a19"
+  }
+}

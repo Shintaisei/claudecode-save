@@ -1,0 +1,47 @@
+セキュリティ生ログ起点候補一覧
+更新日: 2026-05-12
+
+1. 対象
+- raw source: C:\Users\komat\OneDrive\Desktop\ATLAS以外のデータセット\analysis_data\atlasv2_benign_runs\jsonl\msft-security-h1-benign-2to4.jsonl
+- scanned rows: 11529702
+- candidate processes: explorer.exe, winword.exe, repmgr.exe, firefox.exe, repwmiutils.exe, spoolsv.exe, tpautoconnsvc.exe
+
+2. Security 生ログで起点になりうる軸
+- 高: 具体的なファイル/ディレクトリパス (ObjectName / TargetFilename / TargetObject)
+- 高: 生成された実行ファイル名 (NewProcessName, 4688)
+- 高: 通信先 IP / Port (DestAddress / DestPort, 5156 系)
+- 中: ProcessName / Image / Application
+- 中: ProcessName + SubjectUserName + SubjectLogonId
+- 中: PrivilegeList + ProcessName
+- 中: AccessMask / AccessList + ObjectName
+- 低: ObjectType 単独
+- 低: TargetUserName / LogonType
+- 実用外: ServiceName は今回の走査では観測できず
+
+3. raw 全体で多かった EventID
+- EventID 4663: 3871872
+- EventID 4658: 3537858
+- EventID 4656: 3513520
+- EventID 5156: 134140
+- EventID 4660: 123369
+- EventID 5447: 120672
+- EventID 5158: 112676
+- EventID 4690: 42871
+- EventID 4689: 18369
+- EventID 4688: 18362
+- EventID 5154: 11796
+- EventID 4957: 6881
+
+4. ユースケース候補プロセスの raw 抽出状況
+- explorer.exe: count=60259, first=2022-07-16T21:16:56.5150863Z, last=2022-07-19T13:01:33.8247908Z, top_event_ids=4658:22120 | 4656:21486 | 4663:16608 | 4660:39, sample_objects=C:\Users\aalsahee:2570 | C:\Users\aalsahee\AppData\Roaming\Microsoft\Windows\Themes\slideshow.ini:2295 | C:\:2166
+- winword.exe: count=10761, first=2022-07-17T14:08:03.7352372Z, last=2022-07-19T12:58:42.9674109Z, top_event_ids=4656:3599 | 4658:3560 | 4663:3548 | 4660:38, sample_objects=C:\Program Files\Microsoft Office\Office14:1087 | C:\Program Files\Common Files\microsoft shared:524 | C:\Users\aalsahee\AppData\Roaming\Microsoft\Proof:504
+- repmgr.exe: count=375736, first=2022-07-16T21:17:32.3931384Z, last=2022-07-19T13:01:12.2187528Z, top_event_ids=4663:138260 | 4658:86885 | 4656:69481 | 5156:29847, sample_objects=C:\Program Files\Confer\RepWmiUtils.exe:52083 | C:\ProgramData\CarbonBlack\Events:8174 | C:\ProgramData\CarbonBlack\Content\manifest.new:2283
+- firefox.exe: count=564863, first=2022-07-17T13:04:56.9273540Z, last=2022-07-19T12:59:29.0441705Z, top_event_ids=4663:199401 | 4658:155352 | 4656:154581 | 4660:21869, sample_objects=C:\Users\aalsahee\AppData\Local\Mozilla\Firefox\Profiles\a6gl280b.default\cache2\doomed:40870 | C:\Users\aalsahee\AppData\Local\Mozilla\Firefox\Profiles\a6gl280b.default\cache2\entries:10216 | C:\Users\aalsahee\AppData\Roaming\Mozilla\Firefox\Profiles\a6gl280b.default\sessionstore-backups\recovery.js.tmp:4635
+- repwmiutils.exe: count=1267353, first=2022-07-16T21:17:32.3931384Z, last=2022-07-19T13:01:12.2655529Z, top_event_ids=4658:416664 | 4656:416664 | 4663:399303 | 4689:17361, sample_objects=C:\Windows\System32\rsaenh.dll:208332 | C:\Windows\System32\imm32.dll:104166 | C:\Windows\System32\rpcss.dll:69444
+- spoolsv.exe: count=1477480, first=2022-07-16T21:17:07.5457172Z, last=2022-07-19T13:01:28.1619808Z, top_event_ids=4658:487912 | 4656:487912 | 4663:467296 | 4660:34360, sample_objects=C:\Windows\System32\spool\drivers\w32x86\3:123696 | C:\Windows\System32\spool\drivers\w32x86:123696 | C:\Windows\System32\spool\drivers\w32x86\PSCRIPT5.DLL:75592
+- tpautoconnsvc.exe: count=797152, first=2022-07-16T21:17:07.5207158Z, last=2022-07-19T13:01:28.1619808Z, top_event_ids=4663:412320 | 4658:164928 | 4656:164928 | 4660:54976, sample_objects=C:\Windows\System32\spool\drivers\w32x86\PS5UI.DLL:54976 | C:\Windows\System32\spool\drivers\w32x86\PSCRIPT5.DLL:54976 | C:\Windows\System32\spool\drivers\w32x86\PSCRIPT.HLP:54976
+
+5. 注意
+- 今回の Excel は raw Security から候補 process を抽出したもの。
+- 既存の anomaly micro-chunk ID と raw の 1 行 1 行を完全に再リンクした表ではない。
+- ただし、候補 process 自体は raw Security 上で実在確認できており、起点候補の議論には使える。

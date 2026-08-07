@@ -1,0 +1,638 @@
+{
+  "score_run_id": "20260609T131935Z_chain_18_e13_dns_packet_capture_batch_chain_stage3_gpt-5_action_claim_metrics_score",
+  "model": "gpt-5",
+  "reasoning_effort": "medium",
+  "gold_file": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\gold\\cbc_alert_behavior_chain_gold\\by_chain\\chain_18_e13_dns_packet_capture_batch_chain\\chain_gold.json",
+  "gold_required_items": [
+    {
+      "chain_id": "chain_18_e13_dns_packet_capture_batch_chain",
+      "step_id": "C18-S01",
+      "item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S01:subject",
+      "kind": "subject",
+      "gold_value": "explorer.exe",
+      "acceptable_terms": [
+        "explorer.exe"
+      ]
+    },
+    {
+      "chain_id": "chain_18_e13_dns_packet_capture_batch_chain",
+      "step_id": "C18-S01",
+      "item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S01:operation",
+      "kind": "operation",
+      "gold_value": "cmd.exeを子プロセスとして起動した",
+      "acceptable_terms": [
+        "cmd.exeを子プロセスとして起動した"
+      ]
+    },
+    {
+      "chain_id": "chain_18_e13_dns_packet_capture_batch_chain",
+      "step_id": "C18-S01",
+      "item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S01:object",
+      "kind": "object",
+      "gold_value": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+      "acceptable_terms": [
+        "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \""
+      ]
+    },
+    {
+      "chain_id": "chain_18_e13_dns_packet_capture_batch_chain",
+      "step_id": "C18-S01",
+      "item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S01:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "CBC alert / CBC event の parent_path と process_cmdline",
+      "acceptable_terms": [
+        "CBC alert / CBC event の parent_path と process_cmdline"
+      ]
+    },
+    {
+      "chain_id": "chain_18_e13_dns_packet_capture_batch_chain",
+      "step_id": "C18-S02",
+      "item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S02:subject",
+      "kind": "subject",
+      "gold_value": "cmd.exe",
+      "acceptable_terms": [
+        "cmd.exe"
+      ]
+    },
+    {
+      "chain_id": "chain_18_e13_dns_packet_capture_batch_chain",
+      "step_id": "C18-S02",
+      "item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S02:operation",
+      "kind": "operation",
+      "gold_value": "/cでバッチファイルを実行した",
+      "acceptable_terms": [
+        "/cでバッチファイルを実行した"
+      ]
+    },
+    {
+      "chain_id": "chain_18_e13_dns_packet_capture_batch_chain",
+      "step_id": "C18-S02",
+      "item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S02:object",
+      "kind": "object",
+      "gold_value": "start_dns_logs.bat",
+      "acceptable_terms": [
+        "start_dns_logs.bat"
+      ]
+    },
+    {
+      "chain_id": "chain_18_e13_dns_packet_capture_batch_chain",
+      "step_id": "C18-S02",
+      "item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S02:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "process_cmdline",
+      "acceptable_terms": [
+        "process_cmdline"
+      ]
+    }
+  ],
+  "candidate_run_json": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\docs\\current_experiment\\results_2026-06-09\\formal_27_chain_experiment_20260609\\pilot_random4_20260609T124657Z\\runs\\gpt-5.4-mini\\stage3\\chain_18_e13_dns_packet_capture_batch_chain_stage3_run.json",
+  "score": {
+    "case_id": "chain_18_e13_dns_packet_capture_batch_chain",
+    "judge_summary_ja": "候補は explorer.exe が cmd.exe を /c で start_dns_logs.bat を実行するコマンドラインで起動した事実と、cmd.exe が /c でバッチを実行した事実を、cbc-edr の parent_path と process_cmdline に基づいて適切に復元した。両ステップの必須項目8/8を充足。時系列の前後関係も矛盾なし。一方で、tshark/dumpcap や一時 pcapng のファイル操作など近傍の追加動作を多数含めており、評価対象ゴールドにはないため診断上の偽陽性として計上した。",
+    "chains": [
+      {
+        "chain_id": "chain_18_e13_dns_packet_capture_batch_chain",
+        "gold_required_item_scores": [
+          {
+            "item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S01:subject",
+            "step_id": "C18-S01",
+            "kind": "subject",
+            "matched_candidate_excerpt": "S1.execution_context.parent_process: explorer.exe",
+            "score": "1",
+            "reason_ja": "親プロセスとして explorer.exe が示され、cmd.exe の起動元であることが明確。"
+          },
+          {
+            "item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S01:operation",
+            "step_id": "C18-S01",
+            "kind": "operation",
+            "matched_candidate_excerpt": "S1 で親子関係 (explorer.exe → cmd.exe) を提示",
+            "score": "1",
+            "reason_ja": "親子関係の提示により「cmd.exeを子プロセスとして起動した」と同義の操作が復元されている。"
+          },
+          {
+            "item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S01:object",
+            "step_id": "C18-S01",
+            "kind": "object",
+            "matched_candidate_excerpt": "S1.command_line: C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+            "score": "1",
+            "reason_ja": "起動対象の子プロセスの完全なコマンドラインが一致。"
+          },
+          {
+            "item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S01:critical_evidence",
+            "step_id": "C18-S01",
+            "kind": "critical_evidence",
+            "matched_candidate_excerpt": "S1.evidence: source_stream=cbc-edr, field=parent_process_path と field=command_line",
+            "score": "1",
+            "reason_ja": "CBC event テレメトリにおける parent_path と process_cmdline に相当する根拠を提示。"
+          },
+          {
+            "item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S02:subject",
+            "step_id": "C18-S02",
+            "kind": "subject",
+            "matched_candidate_excerpt": "S1.subject_process.name: cmd.exe",
+            "score": "1",
+            "reason_ja": "対象ステップの主体として cmd.exe を明示。"
+          },
+          {
+            "item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S02:operation",
+            "step_id": "C18-S02",
+            "kind": "operation",
+            "matched_candidate_excerpt": "S1.operation: バッチファイルを介してコマンドを実行",
+            "score": "1",
+            "reason_ja": "「/cでバッチファイルを実行した」と同義の表現で復元。"
+          },
+          {
+            "item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S02:object",
+            "step_id": "C18-S02",
+            "kind": "object",
+            "matched_candidate_excerpt": "S1.command_line 内の \"start_dns_logs.bat\"",
+            "score": "1",
+            "reason_ja": "バッチ名 start_dns_logs.bat をコマンドラインから特定。"
+          },
+          {
+            "item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S02:critical_evidence",
+            "step_id": "C18-S02",
+            "kind": "critical_evidence",
+            "matched_candidate_excerpt": "S1.evidence: source_stream=cbc-edr, field=command_line",
+            "score": "1",
+            "reason_ja": "process_cmdline による裏付けが提示されている。"
+          }
+        ],
+        "candidate_action_claim_scores": [
+          {
+            "candidate_claim_id": "C1",
+            "candidate_step_id": "S1",
+            "claim_excerpt": "execution_context.parent_process: explorer.exe により、cmd.exe の起動元を示し、コマンドラインは C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+            "normalized_action_claim_ja": "explorer.exe が cmd.exe を子プロセスとして起動した（/c で start_dns_logs.bat を渡す）。",
+            "slot_scores": [
+              {
+                "slot_id": "C1:subject",
+                "kind": "subject",
+                "candidate_slot_excerpt": "explorer.exe",
+                "matched_gold_item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S01:subject",
+                "is_true_positive": "1",
+                "false_positive_type": "none",
+                "reason_ja": "ゴールドの主体 explorer.exe と一致。"
+              },
+              {
+                "slot_id": "C1:operation",
+                "kind": "operation",
+                "candidate_slot_excerpt": "cmd.exeを子プロセスとして起動した",
+                "matched_gold_item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S01:operation",
+                "is_true_positive": "1",
+                "false_positive_type": "none",
+                "reason_ja": "親子関係の提示により同義の操作が成立。"
+              },
+              {
+                "slot_id": "C1:object",
+                "kind": "object",
+                "candidate_slot_excerpt": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+                "matched_gold_item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S01:object",
+                "is_true_positive": "1",
+                "false_positive_type": "none",
+                "reason_ja": "起動対象オブジェクト（子プロセスのコマンドライン）が完全一致。"
+              },
+              {
+                "slot_id": "C1:command_line",
+                "kind": "command_line",
+                "candidate_slot_excerpt": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "none",
+                "reason_ja": "このスロットはゴールド必須項目には存在しないため診断上の偽陽性。"
+              },
+              {
+                "slot_id": "C1:critical_evidence",
+                "kind": "critical_evidence",
+                "candidate_slot_excerpt": "cbc-edr: parent_process_path=c:\\windows\\explorer.exe と command_line",
+                "matched_gold_item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S01:critical_evidence",
+                "is_true_positive": "1",
+                "false_positive_type": "none",
+                "reason_ja": "CBC event の parent_path と process_cmdline に相当。"
+              }
+            ]
+          },
+          {
+            "candidate_claim_id": "C2",
+            "candidate_step_id": "S1",
+            "claim_excerpt": "cmd.exe が /c でバッチを実行（S1.operation: バッチファイルを介してコマンドを実行、command_line に start_dns_logs.bat を含む）",
+            "normalized_action_claim_ja": "cmd.exe が /c で start_dns_logs.bat を実行した。",
+            "slot_scores": [
+              {
+                "slot_id": "C2:subject",
+                "kind": "subject",
+                "candidate_slot_excerpt": "cmd.exe",
+                "matched_gold_item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S02:subject",
+                "is_true_positive": "1",
+                "false_positive_type": "none",
+                "reason_ja": "ゴールドの主体 cmd.exe と一致。"
+              },
+              {
+                "slot_id": "C2:operation",
+                "kind": "operation",
+                "candidate_slot_excerpt": "バッチファイルを介してコマンドを実行",
+                "matched_gold_item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S02:operation",
+                "is_true_positive": "1",
+                "false_positive_type": "none",
+                "reason_ja": "「/cでバッチファイルを実行した」と同義の操作復元。"
+              },
+              {
+                "slot_id": "C2:object",
+                "kind": "object",
+                "candidate_slot_excerpt": "start_dns_logs.bat",
+                "matched_gold_item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S02:object",
+                "is_true_positive": "1",
+                "false_positive_type": "none",
+                "reason_ja": "コマンドライン内から対象バッチ名を特定し一致。"
+              },
+              {
+                "slot_id": "C2:command_line",
+                "kind": "command_line",
+                "candidate_slot_excerpt": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "none",
+                "reason_ja": "このスロットはゴールド必須項目外。"
+              },
+              {
+                "slot_id": "C2:critical_evidence",
+                "kind": "critical_evidence",
+                "candidate_slot_excerpt": "cbc-edr: field=command_line",
+                "matched_gold_item_id": "chain_18_e13_dns_packet_capture_batch_chain:C18-S02:critical_evidence",
+                "is_true_positive": "1",
+                "false_positive_type": "none",
+                "reason_ja": "process_cmdline による裏付け。"
+              }
+            ]
+          },
+          {
+            "candidate_claim_id": "C3",
+            "candidate_step_id": "S1",
+            "claim_excerpt": "execution_context.child_process: tshark.exe（cmd.exe の子として示唆）",
+            "normalized_action_claim_ja": "cmd.exe が tshark.exe を子プロセスとして起動した。",
+            "slot_scores": [
+              {
+                "slot_id": "C3:subject",
+                "kind": "subject",
+                "candidate_slot_excerpt": "cmd.exe",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "評価対象ゴールドには含まれない近傍動作。"
+              },
+              {
+                "slot_id": "C3:operation",
+                "kind": "operation",
+                "candidate_slot_excerpt": "子プロセスとして起動",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "評価対象外。"
+              },
+              {
+                "slot_id": "C3:object",
+                "kind": "object",
+                "candidate_slot_excerpt": "tshark.exe",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "評価対象外。"
+              },
+              {
+                "slot_id": "C3:critical_evidence",
+                "kind": "critical_evidence",
+                "candidate_slot_excerpt": "S1.execution_context.child_process: tshark.exe",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "評価対象外。"
+              }
+            ]
+          },
+          {
+            "candidate_claim_id": "C4",
+            "candidate_step_id": "S2",
+            "claim_excerpt": "tshark.exe が UDP/53 のキャプチャを開始（command_line: \"C:\\Program Files\\Wireshark\\tshark\"  -i 2 -t ad -f \"udp port 53\"）",
+            "normalized_action_claim_ja": "tshark.exe が UDP/53 を対象にパケットキャプチャを開始した。",
+            "slot_scores": [
+              {
+                "slot_id": "C4:subject",
+                "kind": "subject",
+                "candidate_slot_excerpt": "tshark.exe",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "ゴールド対象外の動作。"
+              },
+              {
+                "slot_id": "C4:operation",
+                "kind": "operation",
+                "candidate_slot_excerpt": "UDP/53 を対象にキャプチャを開始",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "ゴールド対象外。"
+              },
+              {
+                "slot_id": "C4:object",
+                "kind": "object",
+                "candidate_slot_excerpt": "udp port 53",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "ゴールド対象外。"
+              },
+              {
+                "slot_id": "C4:command_line",
+                "kind": "command_line",
+                "candidate_slot_excerpt": "\"C:\\Program Files\\Wireshark\\tshark\"  -i 2 -t ad -f \"udp port 53\"",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "ゴールド対象外。"
+              },
+              {
+                "slot_id": "C4:critical_evidence",
+                "kind": "critical_evidence",
+                "candidate_slot_excerpt": "cbc-edr: field=command_line",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "ゴールド対象外。"
+              }
+            ]
+          },
+          {
+            "candidate_claim_id": "C5",
+            "candidate_step_id": "S3",
+            "claim_excerpt": "dumpcap.exe が NPF インターフェースで UDP/53 を捕捉（command_line: \"C:\\Program Files\\Wireshark\\dumpcap.exe\" -n -i \\\\Device\\\\NPF_{...} -f \"udp port 53\" -Z 2980）",
+            "normalized_action_claim_ja": "dumpcap.exe が指定インターフェースで UDP/53 をキャプチャした。",
+            "slot_scores": [
+              {
+                "slot_id": "C5:subject",
+                "kind": "subject",
+                "candidate_slot_excerpt": "dumpcap.exe",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "ゴールド対象外の動作。"
+              },
+              {
+                "slot_id": "C5:operation",
+                "kind": "operation",
+                "candidate_slot_excerpt": "キャプチャ対象インターフェースを用いて UDP/53 を捕捉",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "ゴールド対象外。"
+              },
+              {
+                "slot_id": "C5:object",
+                "kind": "object",
+                "candidate_slot_excerpt": "\\\\Device\\\\NPF_{DE145F66-537B-427D-820A-707CC694DA57} / udp port 53",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "ゴールド対象外。"
+              },
+              {
+                "slot_id": "C5:command_line",
+                "kind": "command_line",
+                "candidate_slot_excerpt": "\"C:\\Program Files\\Wireshark\\dumpcap.exe\" -n -i \\\\Device\\\\NPF_{DE145F66-537B-427D-820A-707CC694DA57} -f \"udp port 53\" -Z 2980",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "ゴールド対象外。"
+              },
+              {
+                "slot_id": "C5:critical_evidence",
+                "kind": "critical_evidence",
+                "candidate_slot_excerpt": "cbc-edr: field=command_line",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "ゴールド対象外。"
+              }
+            ]
+          },
+          {
+            "candidate_claim_id": "C6",
+            "candidate_step_id": "S4",
+            "claim_excerpt": "tshark.exe が一時 pcapng をオープン（削除指定）: c:\\users\\aalsahee\\appdata\\local\\temp\\...a03712.pcapng",
+            "normalized_action_claim_ja": "tshark.exe が一時 pcapng ファイルを削除指定でオープンした。",
+            "slot_scores": [
+              {
+                "slot_id": "C6:subject",
+                "kind": "subject",
+                "candidate_slot_excerpt": "tshark.exe",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "ゴールド対象外。"
+              },
+              {
+                "slot_id": "C6:operation",
+                "kind": "operation",
+                "candidate_slot_excerpt": "ACTION_FILE_MOD_OPEN | ACTION_FILE_OPEN_DELETE",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "ゴールド対象外。"
+              },
+              {
+                "slot_id": "C6:object",
+                "kind": "object",
+                "candidate_slot_excerpt": "c:\\users\\aalsahee\\appdata\\local\\temp\\wireshark_de145f66-537b-427d-820a-707cc694da57_20220716161718_a03712.pcapng",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "ゴールド対象外。"
+              },
+              {
+                "slot_id": "C6:critical_evidence",
+                "kind": "critical_evidence",
+                "candidate_slot_excerpt": "cbc-edr: raw_event_type=ACTION_FILE_MOD_OPEN | ACTION_FILE_OPEN_DELETE",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "ゴールド対象外。"
+              }
+            ]
+          },
+          {
+            "candidate_claim_id": "C7",
+            "candidate_step_id": "S5",
+            "claim_excerpt": "tshark.exe が一時 pcapng を削除: c:\\users\\aalsahee\\appdata\\local\\temp\\...a03712.pcapng",
+            "normalized_action_claim_ja": "tshark.exe が一時 pcapng ファイルを削除した。",
+            "slot_scores": [
+              {
+                "slot_id": "C7:subject",
+                "kind": "subject",
+                "candidate_slot_excerpt": "tshark.exe",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "ゴールド対象外。"
+              },
+              {
+                "slot_id": "C7:operation",
+                "kind": "operation",
+                "candidate_slot_excerpt": "ACTION_FILE_DELETE",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "ゴールド対象外。"
+              },
+              {
+                "slot_id": "C7:object",
+                "kind": "object",
+                "candidate_slot_excerpt": "c:\\users\\aalsahee\\appdata\\local\\temp\\wireshark_de145f66-537b-427d-820a-707cc694da57_20220716161718_a03712.pcapng",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "ゴールド対象外。"
+              },
+              {
+                "slot_id": "C7:critical_evidence",
+                "kind": "critical_evidence",
+                "candidate_slot_excerpt": "cbc-edr: raw_event_type=ACTION_FILE_DELETE",
+                "matched_gold_item_id": "null",
+                "is_true_positive": "0",
+                "false_positive_type": "nearby_unrelated",
+                "reason_ja": "ゴールド対象外。"
+              }
+            ]
+          }
+        ],
+        "order_pairs": [
+          {
+            "before_step_id": "C18-S01",
+            "after_step_id": "C18-S02",
+            "score": "1",
+            "reason_ja": "候補は explorer.exe→cmd.exe の起動関係と、その後の /c によるバッチ実行を同一時点で提示しており、論理順序（起動→実行）に矛盾がない。"
+          }
+        ]
+      }
+    ],
+    "error_flags": {
+      "target_missing": [],
+      "chain_mixing": false,
+      "hallucinated_claims": [],
+      "unsupported_evidence": [],
+      "contradicted_evidence": [],
+      "nearby_action_false_positives": [
+        "C3: cmd.exe → tshark.exe の起動",
+        "C4: tshark.exe による UDP/53 キャプチャ開始",
+        "C5: dumpcap.exe によるキャプチャ",
+        "C6: tshark.exe による一時 pcapng のオープン(削除指定)",
+        "C7: tshark.exe による一時 pcapng の削除"
+      ],
+      "weak_grounding": false,
+      "false_positive_claims": [
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7"
+      ],
+      "notes_ja": [
+        "候補は評価対象の2ステップに加え、DNSキャプチャ関連の近傍動作を多数含めた。これらは評価外として偽陽性に計上。",
+        "主要2ステップについては CBC EDR の parent_path と process_cmdline により十分に裏付けられている。"
+      ]
+    },
+    "candidate_action_claim_count": 7,
+    "candidate_action_claim_slot_count": 32,
+    "candidate_action_claim_true_positive_slot_count": 8,
+    "hallucinated_claim_count": 0,
+    "unsupported_evidence_count": 0,
+    "contradicted_evidence_count": 0,
+    "nearby_action_fp_count": 5,
+    "main_missing_items": [],
+    "main_false_positive_claims": [
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7"
+    ],
+    "candidate_action_claim_raw_slot_count": 32,
+    "candidate_action_claim_duplicate_true_positive_slot_count": 0,
+    "totals": {
+      "behavior_step_recall": 1.0,
+      "behavior_step_recall_hits": 2,
+      "behavior_step_recall_total": 2,
+      "action_step_recall": 1.0,
+      "action_step_recall_hits": 8,
+      "action_step_recall_total": 8,
+      "action_step_precision": 1.0,
+      "action_step_precision_hits": 8,
+      "action_step_precision_total": 8,
+      "gold_required_item_count": 8,
+      "candidate_claim_precision": 0.25,
+      "candidate_claim_precision_hits": 8,
+      "candidate_claim_precision_total": 32,
+      "overclaim_slot_count": 24,
+      "candidate_action_claim_true_positive_slot_count": 8,
+      "candidate_action_claim_slot_count": 32,
+      "candidate_action_claim_raw_slot_count": 32,
+      "candidate_action_claim_duplicate_true_positive_slot_count": 0,
+      "behavior_sequence_order": 1.0,
+      "behavior_sequence_order_hits": 1,
+      "behavior_sequence_order_total": 1,
+      "critical_evidence_recall": 1.0,
+      "critical_evidence_recall_hits": 2,
+      "critical_evidence_recall_total": 2,
+      "coarse_action_step_coverage": 1.0,
+      "coarse_action_step_coverage_hits": 2,
+      "coarse_action_step_coverage_total": 2,
+      "hallucinated_claim_count": 0,
+      "unsupported_evidence_count": 0,
+      "contradicted_evidence_count": 0,
+      "nearby_action_fp_count": 5,
+      "behavior_element_diagnostics": {
+        "command_line": {
+          "recall_hits": 0,
+          "recall_total": 0,
+          "precision_hits": 0,
+          "precision_total": 4
+        },
+        "critical_evidence": {
+          "recall_hits": 2,
+          "recall_total": 2,
+          "precision_hits": 2,
+          "precision_total": 7
+        },
+        "object": {
+          "recall_hits": 2,
+          "recall_total": 2,
+          "precision_hits": 2,
+          "precision_total": 7
+        },
+        "operation": {
+          "recall_hits": 2,
+          "recall_total": 2,
+          "precision_hits": 2,
+          "precision_total": 7
+        },
+        "subject": {
+          "recall_hits": 2,
+          "recall_total": 2,
+          "precision_hits": 2,
+          "precision_total": 7
+        }
+      }
+    }
+  },
+  "response_id": "resp_04884186ec9809cb006a2812e73f6c819ab2ee543b250b6aa0",
+  "usage": {
+    "input_tokens": 8256,
+    "input_tokens_details": {
+      "cached_tokens": 1408
+    },
+    "output_tokens": 12616,
+    "output_tokens_details": {
+      "reasoning_tokens": 7104
+    },
+    "total_tokens": 20872
+  }
+}

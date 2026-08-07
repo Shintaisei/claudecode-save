@@ -1,0 +1,173 @@
+{
+  "schema_version": "v3_code_quality_review_v1",
+  "reviewed_at_utc": "2026-07-28T01:50:55.0400344Z",
+  "review_mode": "independent_read_only_code_and_artifact_review_except_for_this_create_only_report",
+  "external_api_calls": false,
+  "overall_status": "FAIL",
+  "blocker_present": true,
+  "formal_use_gate": "BLOCKED",
+  "scope": {
+    "wrapper": "src/clouseau_process_time/codex_manual_attack8_scoring_v3_pid_non_scoring_hardened.py",
+    "wrapper_sha256": "063f78b854e4a9e512d5da2497e8fc72146495e62f67c7543914e35d789f9bfb",
+    "base_scorer": "src/clouseau_process_time/codex_manual_attack8_scoring.py",
+    "base_scorer_sha256": "3ebcc4e1d13337e79e4a6e48ff5f7a9429b61e4d9e9773e127fc6d71e7e36409",
+    "score_root": "docs/current_experiment/results_2026-07-27/atlasv2_s3_s4_attack8_process_chain_v5_formal/two_model_baseline_replicate_01/scores_codex_manual_double_review_v3_pid_non_scoring_hardened",
+    "previous_review": "../scores_codex_manual_double_review_v2_pid_non_scoring/overlay_code_quality_review_v1.json"
+  },
+  "live_bundle": {
+    "status": "PASS",
+    "verify_command": "python src/clouseau_process_time/codex_manual_attack8_scoring_v3_pid_non_scoring_hardened.py verify-queue --queue <v3 queue> --manifest <v3 manifest> --overlay <authoritative overlay> --expected-count 48",
+    "observed": "exit=0; queue_sha256=191246a1743b294974fe27334a8fe1a9262ba1a671ae0934fafa47bfb53a9835; manifest_sha256=3384d682a67cbf550ea5f0bf633cdb2c79064df7caa3b640f730cb85e4cd4ceb",
+    "windows_max_path": "PASS: the live score-root is longer than legacy MAX_PATH for ordinary PowerShell enumeration, but the wrapper completed live verification; base.filesystem_path (base lines 88-92) prefixes \\\\?\\ on Windows for reads, hashing, creation, and rename inputs."
+  },
+  "reproduced_tests": [
+    {
+      "id": "T-001",
+      "status": "PASS",
+      "evidence": "Independent temporary clone: review_template_sha256 changed to 64 zeroes; verify_bundle_paths raised ValueError: Manifest review-template SHA-256 mismatch."
+    },
+    {
+      "id": "T-002",
+      "status": "PASS",
+      "evidence": "Independent temporary clone: row 1 run bytes were copied to a different repository path and queue/contract/template/manifest hashes recomputed; verifier rejected it because the run_json is outside the frozen run root."
+    },
+    {
+      "id": "T-003",
+      "status": "PASS",
+      "evidence": "Independent temporary authoritative-overlay candidate with status=draft was rejected: overlay status is not authoritative_for_versioned_re_review_only."
+    },
+    {
+      "id": "T-004",
+      "status": "PASS",
+      "evidence": "Two 48-row deterministic synthetic reviews with one mismatched decision caused finalize to exit 3, emit INCOMPLETE, and create no formal-output directory."
+    },
+    {
+      "id": "T-005",
+      "status": "PASS",
+      "evidence": "Independent collision test pre-created a target containing sentinel; publish_finalization raised FileExistsError and the target contents remained exactly [sentinel]."
+    },
+    {
+      "id": "T-006",
+      "status": "PASS",
+      "evidence": "Complete independent synthetic publication produced a finalization_manifest with both review input hashes, wrapper/base hashes, and four output hashes."
+    },
+    {
+      "id": "T-007",
+      "status": "PASS",
+      "evidence": "Built-in self-test was independently executed in a temporary score root: exit=0, a PASS report was created, and the existing two replay artifacts have identical report SHA-256 1c30cdb97d09f39fa07e995d129981150e763029771c870a5e297de9f3f0e5ab."
+    },
+    {
+      "id": "T-008",
+      "status": "FAIL",
+      "evidence": "After validated review maps and finalization data were built, review1 was mutated to an invalid score with stale decision_sha256. publish_finalization still succeeded and finalization_manifest recorded the hash of that invalid mutated file; validated_review_map then rejected the same recorded input."
+    },
+    {
+      "id": "T-009",
+      "status": "FAIL",
+      "evidence": "bind-overlay with --queue-name ../escaped_queue.jsonl, --template-name ../escaped_template.jsonl, and --manifest-name ../escaped_manifest.json returned exit 2, but created all three files outside the staging directory and score root before verification rejected the bundle."
+    },
+    {
+      "id": "T-010",
+      "status": "FAIL",
+      "evidence": "A valid two-conflict finalization with one review3 file containing reviewer IDs third-a and third-b was accepted. The finalization manifest records only one arbitrary reviewer_id (observed third-b) for that multi-reviewer input."
+    }
+  ],
+  "previous_findings_recheck": [
+    {
+      "id": "CQ-001",
+      "severity": "HIGH",
+      "status": "PASS",
+      "evidence": "v3 lines 58-107 close the manifest field and path/hash sets; lines 438-507 bind score root, queue/template paths and hashes; lines 570-575 require exact generated template content and row count. T-001 reproduced rejection."
+    },
+    {
+      "id": "CQ-002",
+      "severity": "HIGH",
+      "status": "PASS",
+      "evidence": "v3 lines 47-54 add run_json and gold_json to the versioned contract; lines 317-321 constrain both roots; lines 551-566 freeze source paths and rehash evidence. T-002 reproduced rejection after all immediate clone hashes were recomputed."
+    },
+    {
+      "id": "CQ-003",
+      "severity": "HIGH",
+      "status": "PASS",
+      "evidence": "v3 lines 196-293 require authoritative status, exact source queue/root/hash/count, required resolution semantics, and evidence hashes; lines 472-478 require the source-root overlay path. T-003 reproduced a status rejection."
+    },
+    {
+      "id": "CQ-004",
+      "severity": "HIGH",
+      "status": "PASS",
+      "evidence": "v3 lines 1011-1015 raise IncompleteFinalization before publication and lines 1573-1575 convert it to exit code 3. T-004 reproduced exit=3 and no output."
+    },
+    {
+      "id": "CQ-005",
+      "severity": "HIGH",
+      "status": "PASS_ON_WINDOWS",
+      "evidence": "v3 lines 146-181 use exclusive file creation, private staging, and os.rename with extended Windows paths; T-005 showed a pre-existing target was preserved. This result is Windows-specific: on POSIX os.rename can replace an existing destination in a check/rename race, so cross-platform create-only semantics are not established."
+    },
+    {
+      "id": "CQ-006",
+      "severity": "MEDIUM",
+      "status": "PASS_WITH_NEW_RACE_FOLLOWUP",
+      "evidence": "v3 lines 1050-1109 create finalization_manifest containing code, queue, template, reviewer-input, and output hashes; T-006 confirmed ordinary-path provenance. CQ-008 below shows the recorded review hashes can nevertheless be taken after validation from changed input files."
+    },
+    {
+      "id": "CQ-007",
+      "severity": "MEDIUM",
+      "status": "PASS",
+      "evidence": "v3 lines 1170-1503 implement deterministic local negatives, replay command, stable hashes, and create-only report/manifest. Both committed synthetic reports are identical and their manifests bind the queue manifest, wrapper hash, report path, and report SHA-256. T-007 independently reran the test in a temporary root."
+    }
+  ],
+  "new_findings": [
+    {
+      "id": "CQ-008",
+      "severity": "HIGH",
+      "status": "FAIL",
+      "blocker": true,
+      "title": "Finalization manifest can hash reviewer files after their validated content has changed",
+      "locations": [
+        "src/clouseau_process_time/codex_manual_attack8_scoring_v3_pid_non_scoring_hardened.py:1114-1135",
+        "src/clouseau_process_time/codex_manual_attack8_scoring_v3_pid_non_scoring_hardened.py:1046-1078"
+      ],
+      "impact": "The adopted decisions are derived from earlier validated maps, while the published provenance is derived by reopening paths later. A concurrent replacement can make a finalization manifest attest to invalid or different reviewer files that did not produce the result.",
+      "reproduction": "T-008.",
+      "required_fix": "Read, parse, validate, hash, and retain immutable reviewer bytes once before building decisions; have publication consume only those retained bytes/metadata (or create validated copies in staging) and never reopen mutable reviewer input paths."
+    },
+    {
+      "id": "CQ-009",
+      "severity": "HIGH",
+      "status": "FAIL",
+      "blocker": true,
+      "title": "bind-overlay artifact-name traversal escapes staging and leaves partial files",
+      "locations": [
+        "src/clouseau_process_time/codex_manual_attack8_scoring_v3_pid_non_scoring_hardened.py:715-720",
+        "src/clouseau_process_time/codex_manual_attack8_scoring_v3_pid_non_scoring_hardened.py:1523-1534"
+      ],
+      "impact": "User-supplied names containing ../ are joined directly to the stage directory. A failed bind writes untracked artifacts outside both stage and target, defeating transactional publication and leaving collision-prone debris.",
+      "reproduction": "T-009 created escaped_queue.jsonl, escaped_template.jsonl, and escaped_manifest.json while no score-root bundle was published.",
+      "required_fix": "Before staging, require every artifact name to be a non-empty basename with no path separator, dot segment, drive, or absolute component; additionally require every writer destination to resolve beneath stage."
+    },
+    {
+      "id": "CQ-010",
+      "severity": "MEDIUM",
+      "status": "FAIL",
+      "blocker": false,
+      "title": "A mixed-reviewer review3 input is accepted but recorded as one arbitrary reviewer",
+      "locations": [
+        "src/clouseau_process_time/codex_manual_attack8_scoring_v3_pid_non_scoring_hardened.py:968-987",
+        "src/clouseau_process_time/codex_manual_attack8_scoring_v3_pid_non_scoring_hardened.py:1063-1077"
+      ],
+      "impact": "The finalization manifest's scalar reviewer_id is inaccurate for a multi-reviewer review3 file, impairing reviewer independence and provenance auditability.",
+      "reproduction": "T-010 accepted third-a and third-b in one review3 file and recorded only third-b.",
+      "required_fix": "Require exactly one reviewer_id per review3 input file, or publish a sorted complete reviewer_ids list and bind reviewer identity per adjudicated row."
+    }
+  ],
+  "conclusion": {
+    "pass_fail": "FAIL",
+    "current_bundle_integrity": "PASS",
+    "formal_review_or_finalization_authorized": false,
+    "minimum_unblock_conditions": [
+      "Fix and independently regression-test CQ-008 and CQ-009 in a fresh create-only v4 bundle.",
+      "Resolve CQ-010 before relying on a review3 provenance claim.",
+      "Preserve the v3 Windows extended-path coverage and repeat the live verifier plus all negative tests after the fixes."
+    ]
+  }
+}

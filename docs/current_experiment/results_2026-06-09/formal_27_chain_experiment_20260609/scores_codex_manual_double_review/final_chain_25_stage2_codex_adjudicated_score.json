@@ -1,0 +1,79 @@
+{
+  "case": "chain_25_e18_dns_packet_capture_batch_chain_stage2",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "method": "codex_manual_double_review_adjudicated_no_api",
+  "review1_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/scores_codex_manual_double_review/review1/gpt-4.1-mini/stage2/chain_25_e18_dns_packet_capture_batch_chain_stage2/codex_score_result.json",
+  "review2_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/scores_codex_manual_double_review/review2/gpt-4.1-mini/stage2/chain_25_e18_dns_packet_capture_batch_chain_stage2/codex_score_result.json",
+  "adjudication_ja": "Both reviews agree on the main totals. Candidate recovers cmd.exe executing start_dns_logs.bat and a tshark.exe process related to cmd.exe, but it does not recover the full explorer.exe -> cmd.exe /c command object or any CBC critical evidence. Order is 0 because the parent launch and batch execution are collapsed and the tshark relation is mixed with run_http_server/python/dumpcap overclaims.",
+  "final_totals": {
+    "action_step_recall_hits": 7,
+    "action_step_recall_total": 12,
+    "action_step_recall": 0.5833333333333334,
+    "action_step_precision_hits": 6,
+    "action_step_precision_total": 20,
+    "action_step_precision": 0.3,
+    "candidate_claim_precision_hits": 6,
+    "candidate_claim_precision_total": 20,
+    "candidate_claim_precision": 0.3,
+    "overclaim_slot_count": 14,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 2,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 3,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 2,
+    "behavior_step_recall_total": 3,
+    "behavior_step_recall": 0.6666666666666666
+  },
+  "final_gold_step_scores": [
+    {
+      "step_id": "C25-S01",
+      "summary": "explorer.exe starts cmd.exe with full /c start_dns_logs.bat command",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate has cmd.exe with explorer.exe context, but not the full /c command object or CBC parent/process_cmdline evidence."
+    },
+    {
+      "step_id": "C25-S02",
+      "summary": "cmd.exe executes start_dns_logs.bat",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate identifies cmd.exe executing start_dns_logs.bat, but lacks process_cmdline evidence."
+    },
+    {
+      "step_id": "C25-S03",
+      "summary": "cmd.exe spawns tshark.exe",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate includes tshark.exe related to cmd.exe, but evidence is generic audit_logs rather than CBC childproc/object evidence."
+    }
+  ],
+  "final_order_pairs": [
+    {
+      "before_step_id": "C25-S01",
+      "after_step_id": "C25-S02",
+      "score": 0,
+      "reason": "Parent launch and batch execution are not cleanly separated with the full command object."
+    },
+    {
+      "before_step_id": "C25-S02",
+      "after_step_id": "C25-S03",
+      "score": 0,
+      "reason": "The candidate sequence is mixed with out-of-scope run_http_server/python/dumpcap behavior and does not preserve the strict gold adjacent pair."
+    }
+  ]
+}

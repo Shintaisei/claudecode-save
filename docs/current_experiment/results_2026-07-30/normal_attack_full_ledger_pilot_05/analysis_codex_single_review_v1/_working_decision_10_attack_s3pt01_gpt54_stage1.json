@@ -1,0 +1,38 @@
+{
+  "queue_id": "gpt-5.4-mini/stage1/s3_pt_01_word_document_processing_stage1/da810c70c4be4229",
+  "claims": {
+    "C1": {
+      "gold_step_id": "A8V5-01-S01",
+      "tp_kinds": [
+        "subject"
+      ]
+    },
+    "C2": {
+      "gold_step_id": "A8V5-01-S02",
+      "tp_kinds": [
+        "subject",
+        "operation",
+        "object"
+      ]
+    }
+  },
+  "critical_step_ids": [],
+  "duplicate_claim_ids": [],
+  "review_summary_ja": "WINWORD.EXE→WINWORD.EXEの子プロセス起動は完全取得した。文書を開くstepは対象WINWORD.EXEを取得したが、operationを「起動」、objectを親explorer.exeとして出したため、msf.rtfを開いた行動のoperation/objectが欠落した。",
+  "failure_analysis": {
+    "missing_gold_steps": [
+      "A8V5-01-S01"
+    ],
+    "causal_edge_missing": [
+      "WINWORD.EXE -> msf.rtf document-open action as a complete atomic claim"
+    ],
+    "early_stop": false,
+    "nearby_behavior_overconnection": false,
+    "hallucination": [
+      "evidence identifiers 9807/4163 and source attribution did not match the canonical CBC row 8705/8727 signatures"
+    ],
+    "investigation_behavior": "Three unique Chief leads generated eight Investigator questions and 26 SQL queries. No guard fired, and exploration stayed on the target WINWORD process family.",
+    "order_failure": "The partial document-open claim and complete child-process claim were emitted in the correct order, so the adjacent order pair was credited.",
+    "stage_specific_cause": "The necessary command line and document path were observed, but output field binding chose explorer.exe as the object and labeled the operation as process startup. This is candidate construction/granularity error, not missing evidence or premature stopping."
+  }
+}

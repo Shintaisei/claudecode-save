@@ -1,0 +1,270 @@
+{
+  "schema_version": "overlay_code_quality_review_v1",
+  "reviewed_at_utc": "2026-07-28T01:13:35.1386589Z",
+  "review_mode": "read_only_code_and_artifact_review_except_for_this_new_create_only_report",
+  "external_api_calls": false,
+  "overall_status": "FAIL",
+  "blocker_present": true,
+  "formal_use_gate": "BLOCKED",
+  "summary": {
+    "finding_count": 7,
+    "severity_counts": {
+      "HIGH": 5,
+      "MEDIUM": 2
+    },
+    "blocker_count": 5,
+    "current_bundle_integrity": "PASS",
+    "reason_for_fail": "The current files are internally consistent, but the verifier does not enforce all manifest/template and evidence-path bindings, overlay authority/scope is under-validated, incomplete finalization exits successfully, and create-only multi-artifact publication is neither exclusive nor transactional."
+  },
+  "scope": {
+    "wrapper": "src/clouseau_process_time/codex_manual_attack8_scoring_v2_pid_non_scoring.py",
+    "wrapper_sha256": "6e5a9725e4dadf0d2aa2dc08f4b45acf4028d4b0aaa435bc894eb7aab658b259",
+    "base_scorer": "src/clouseau_process_time/codex_manual_attack8_scoring.py",
+    "base_scorer_sha256": "3ebcc4e1d13337e79e4a6e48ff5f7a9429b61e4d9e9773e127fc6d71e7e36409",
+    "score_root": "docs/current_experiment/results_2026-07-27/atlasv2_s3_s4_attack8_process_chain_v5_formal/two_model_baseline_replicate_01/scores_codex_manual_double_review_v2_pid_non_scoring",
+    "authoritative_overlay": "docs/current_experiment/results_2026-07-27/atlasv2_s3_s4_attack8_process_chain_v5_formal/two_model_baseline_replicate_01/scores_codex_manual_double_review_v1/formal_review_policy_overlay_v1.json",
+    "reviewed_artifacts": [
+      "queue_manifest_v2_pid_non_scoring_overlay_bound.json",
+      "review_queue_v2_pid_non_scoring_overlay_bound.jsonl",
+      "review_template_v2_pid_non_scoring_overlay_bound.jsonl",
+      "queue_overlay_binding_self_validation_v1.json",
+      "queue_overlay_binding_self_validation_v2.json",
+      "synthetic_validator_finalizer_smoke_v1.json"
+    ]
+  },
+  "current_bundle_checks": [
+    {
+      "id": "live_verify_queue",
+      "status": "PASS",
+      "evidence": "The wrapper verify-queue command completed successfully for 48 rows without writing a report.",
+      "queue_sha256": "7bdb41f1a530aadb72d1d8882bf62d09688d2c0aa8bd97dbed5b4c6eceb0ff06",
+      "manifest_sha256": "c056a18442069ce1a6e3ff93e0165a5871eea68b6e0f41dc7b246f37f73d2806",
+      "overlay_sha256": "a2cdb045fbe8e95b6db0ee136a3f9d0d97841b93cf362cb414397224f7cfcd91"
+    },
+    {
+      "id": "template_current_content",
+      "status": "PASS",
+      "evidence": "All 48 template rows exactly equal review_template(queue_row), queue IDs remain in queue order, and the current template SHA-256 equals the manifest value.",
+      "template_sha256": "a9babfa74c3b09f0d8a01b4128835a436422f1607ad4d8d58f72ece8124ad5db"
+    },
+    {
+      "id": "self_validation_current_hashes",
+      "status": "PASS",
+      "evidence": "Both self-validation files currently carry the live queue and manifest hashes; v2 additionally records 48 run hashes and 48 Gold hashes verified."
+    },
+    {
+      "id": "base_scorer_compatibility",
+      "status": "PASS",
+      "evidence": "verify_bundle_paths revalidates the source queue with the base scorer, preserves every base contract field except the intentionally versioned schema token, preserves row identity/order, and confirms the expected 48-row model/stage denominators."
+    },
+    {
+      "id": "pid_non_scoring_effective_policy",
+      "status": "PASS",
+      "evidence": "The queue contracts bind the overlay path/hash and effective-policy hash; the effective policy makes PID identity and hidden alert mapping non-scoring and fixes canonical slots to subject/operation/object with action as an alias of operation."
+    }
+  ],
+  "findings": [
+    {
+      "id": "CQ-001",
+      "severity": "HIGH",
+      "blocker": true,
+      "title": "verify-queue ignores the manifest's review-template path and hash",
+      "locations": [
+        {
+          "file": "src/clouseau_process_time/codex_manual_attack8_scoring_v2_pid_non_scoring.py",
+          "lines": "263-287",
+          "detail": "bind-overlay writes review_template and review_template_sha256 into the manifest."
+        },
+        {
+          "file": "src/clouseau_process_time/codex_manual_attack8_scoring_v2_pid_non_scoring.py",
+          "lines": "339-430",
+          "detail": "verify_bundle_paths validates queue, overlay, source queue, source manifest, evidence hashes, and denominators but never opens or hashes manifest.review_template."
+        }
+      ],
+      "impact": "A deleted, replaced, wrong-path, or hash-mismatched review template is accepted as a valid formal bundle. The same verifier also accepts false score_root, models, stage_counts, source_artifacts_modified, external_api_calls, and non_overwrite_policy manifest claims.",
+      "reproduction": {
+        "method": "Copy the current bound manifest to a temporary file; set review_template to a nonexistent path, review_template_sha256 to 64 zeroes, score_root/models/stage_counts to wrong values, source_artifacts_modified=true, external_api_calls=true, and non_overwrite_policy=false. Call verify_bundle_paths with the unchanged bound queue and overlay.",
+        "observed": "verify_status=pass; all eight tampered fields were accepted."
+      },
+      "required_fix": "Treat the manifest as a closed contract: require and verify the exact template path, template SHA-256, row count/order, exact generated template content, score_root, models, stage_counts, and declared safety flags before validation or finalization."
+    },
+    {
+      "id": "CQ-002",
+      "severity": "HIGH",
+      "blocker": true,
+      "title": "Run and Gold paths are not frozen or contract-hashed",
+      "locations": [
+        {
+          "file": "src/clouseau_process_time/codex_manual_attack8_scoring.py",
+          "lines": "69-81",
+          "detail": "Base CONTRACT_KEYS include run_sha256 and gold_sha256 but omit run_json and gold_json paths."
+        },
+        {
+          "file": "src/clouseau_process_time/codex_manual_attack8_scoring_v2_pid_non_scoring.py",
+          "lines": "35-42",
+          "detail": "The overlay contract and FROZEN_KEYS inherit the omission."
+        },
+        {
+          "file": "src/clouseau_process_time/codex_manual_attack8_scoring_v2_pid_non_scoring.py",
+          "lines": "403-425",
+          "detail": "Source/bound comparison freezes only FROZEN_KEYS; later hashing accepts whichever run_json and gold_json paths are present in the bound row."
+        }
+      ],
+      "impact": "The same contract_sha256 can identify different evidence locations. Queue/manifest hashes can be regenerated around a relocated path while source-contract provenance remains unchanged, so the claimed path-plus-hash provenance is not actually enforced.",
+      "reproduction": {
+        "method": "Copy the first run JSON bytes to a different temporary path, replace only row 1 run_json in a temporary bound queue, leave row 1 contract_sha256 unchanged, update only manifest.queue and manifest.queue_sha256, then call verify_bundle_paths.",
+        "observed": "verify_status=pass, run_path_changed=true, run_bytes_hash_same=true, contract_sha256_unchanged=true."
+      },
+      "required_fix": "Include normalized repository-relative run_json and gold_json paths in the versioned contract, freeze them against the source queue, and reject paths outside the expected result/Gold roots."
+    },
+    {
+      "id": "CQ-003",
+      "severity": "HIGH",
+      "blocker": true,
+      "title": "Overlay validation does not establish authoritative status or source-queue scope",
+      "locations": [
+        {
+          "file": "src/clouseau_process_time/codex_manual_attack8_scoring_v2_pid_non_scoring.py",
+          "lines": "53-72",
+          "detail": "validate_overlay checks only schema_version, pid_identity_scored=false, the superseded sentence, and action=operation."
+        },
+        {
+          "file": "src/clouseau_process_time/codex_manual_attack8_scoring_v2_pid_non_scoring.py",
+          "lines": "217-235",
+          "detail": "bind_overlay validates the source queue and overlay separately but never cross-checks overlay.scope against that source queue."
+        }
+      ],
+      "impact": "A draft, non-authoritative, wrong-score-root, wrong-source-queue, wrong-row-count overlay with the four accepted tokens can be bound into a new queue as if authoritative. Overlay evidence hashes and retroactive-adoption prohibition are also not checked.",
+      "reproduction": {
+        "method": "Copy the overlay inside the repository, set status=draft, scope.source_queue to an unrelated path, scope.source_queue_sha256 to zeroes, and scope.queue_row_count to 1 while retaining the accepted schema/PID/superseded-text/alias fields. Run bind-overlay with that file and a fresh score root.",
+        "expected_from_code": "validate_overlay accepts it and bind-overlay creates a queue whose hash is bound to the wrong-scope overlay."
+      },
+      "required_fix": "Validate authoritative status, scope score root/source queue/source queue SHA-256/row count, required resolution semantics, and evidence file hashes; cross-check scope directly with the source manifest and queue supplied to bind-overlay."
+    },
+    {
+      "id": "CQ-004",
+      "severity": "HIGH",
+      "blocker": true,
+      "title": "Incomplete finalization exits with success",
+      "locations": [
+        {
+          "file": "src/clouseau_process_time/codex_manual_attack8_scoring_v2_pid_non_scoring.py",
+          "lines": "790-826",
+          "detail": "finalize writes an incomplete aggregate and returns normally when conflicts remain."
+        },
+        {
+          "file": "src/clouseau_process_time/codex_manual_attack8_scoring_v2_pid_non_scoring.py",
+          "lines": "899-910",
+          "detail": "Only exceptions become exit code 2; a normal conflict return becomes process exit code 0."
+        }
+      ],
+      "impact": "Shells, schedulers, and CI can treat a 47/48 adopted result as completed formal scoring and continue with an incomplete aggregate unless every caller separately inspects complete=false.",
+      "reproduction": {
+        "method": "Create two valid 48-row overlay-bound synthetic reviews that differ on one Gold decision, omit review3, and invoke the CLI finalize command.",
+        "observed": {
+          "process_exit_code": 0,
+          "stdout": "Adopted 47/48; 1 conflicts require overlay-bound review3",
+          "aggregate_complete": false,
+          "excluded_conflict_count": 1,
+          "adopted_run_count": 47
+        }
+      },
+      "compatibility_note": "This matches the base scorer's historical behavior, but compatibility does not make it safe for a formal completion gate.",
+      "required_fix": "Return a distinct nonzero incomplete/conflict exit code, or split prepare-conflict-queue from final publication and publish the formal aggregate only when complete=true."
+    },
+    {
+      "id": "CQ-005",
+      "severity": "HIGH",
+      "blocker": true,
+      "title": "Create-only publication is race-prone and non-transactional",
+      "locations": [
+        {
+          "file": "src/clouseau_process_time/codex_manual_attack8_scoring.py",
+          "lines": "129-149",
+          "detail": "ensure_new performs an existence check followed by ordinary write_text; the create is not exclusive and has a check/use race."
+        },
+        {
+          "file": "src/clouseau_process_time/codex_manual_attack8_scoring_v2_pid_non_scoring.py",
+          "lines": "263-307",
+          "detail": "bind-overlay publishes queue, template, and manifest sequentially before final verification."
+        },
+        {
+          "file": "src/clouseau_process_time/codex_manual_attack8_scoring_v2_pid_non_scoring.py",
+          "lines": "635-686",
+          "detail": "validate-review writes validated output before its report."
+        },
+        {
+          "file": "src/clouseau_process_time/codex_manual_attack8_scoring_v2_pid_non_scoring.py",
+          "lines": "790-820",
+          "detail": "finalize writes seven artifacts sequentially."
+        }
+      ],
+      "impact": "Concurrent writers can both pass exists() and a later write can truncate/replace the first artifact. A collision or verification error after an earlier write leaves a partial, create-only directory that blocks a clean retry and can be mistaken for a valid output set.",
+      "reproduction": {
+        "method": "Pre-create only formal_outputs_v2_pid_non_scoring/adopted_reviews.jsonl in a fresh temporary score root, then run finalize with two valid matching reviews.",
+        "observed": {
+          "process_exit_code": 2,
+          "comparisons_created_before_failure": true,
+          "preexisting_adopted_reviews_preserved": true,
+          "aggregate_created": false
+        }
+      },
+      "required_fix": "Use exclusive creation (open mode x or O_CREAT|O_EXCL), preflight every destination, write a complete bundle in a new staging directory, verify it there, then atomically rename/publish the directory or a final completion manifest."
+    },
+    {
+      "id": "CQ-006",
+      "severity": "MEDIUM",
+      "blocker": false,
+      "title": "Final outputs lack a finalization manifest binding reviewer input files and code",
+      "locations": [
+        {
+          "file": "src/clouseau_process_time/codex_manual_attack8_scoring_v2_pid_non_scoring.py",
+          "lines": "690-719",
+          "detail": "review files are read and semantically revalidated, but their paths and file hashes are not retained."
+        },
+        {
+          "file": "src/clouseau_process_time/codex_manual_attack8_scoring_v2_pid_non_scoring.py",
+          "lines": "728-820",
+          "detail": "Rows record reviewer IDs and decision hashes, and the aggregate records the overlay hash, but no output manifest binds queue, manifest, template, reviewer files, wrapper/base code hashes, and all output hashes."
+        }
+      ],
+      "impact": "The adopted ledger can reproduce scoring decisions but cannot prove which immutable validated review artifacts and executable versions produced the publication.",
+      "reproduction": "Inspect formal output construction: no write creates a finalization manifest and no output field contains review1/review2/review3 file SHA-256.",
+      "required_fix": "Publish a create-only finalization manifest containing wrapper/base hashes, queue/manifest/template/overlay hashes, each validated reviewer path/hash/reviewer ID, all output hashes, completion state, and adjudication counts."
+    },
+    {
+      "id": "CQ-007",
+      "severity": "MEDIUM",
+      "blocker": false,
+      "title": "Synthetic smoke and self-validation artifacts are not reproducible or independently bound",
+      "locations": [
+        {
+          "file": "docs/current_experiment/results_2026-07-27/atlasv2_s3_s4_attack8_process_chain_v5_formal/two_model_baseline_replicate_01/scores_codex_manual_double_review_v2_pid_non_scoring/synthetic_validator_finalizer_smoke_v1.json",
+          "lines": "1-17",
+          "detail": "The smoke file contains summary booleans only; it has no test command, synthetic input/output paths or hashes, code hashes, timestamps, exit codes, or per-negative-test diagnostics."
+        },
+        {
+          "file": "src/clouseau_process_time/codex_manual_attack8_scoring_v2_pid_non_scoring.py",
+          "lines": "339-490",
+          "detail": "verify_bundle_paths generates self-validation content but neither the bound manifest nor another trusted root records a self-validation hash."
+        }
+      ],
+      "impact": "The all-zero happy path and two claimed tamper rejections cannot be replayed from the artifact. The smoke does not cover template deletion/hash tampering, evidence-path relocation, incomplete-finalizer exit status, partial publication, or exclusive-create races.",
+      "reproduction": "Search the repository for synthetic_schema_hash_validator_finalizer_smoke_v1 or tampered_review_overlay_hash_rejected: no generator, command transcript, or test harness exists outside the summary JSON.",
+      "required_fix": "Add a deterministic local test harness and record code/input/output hashes plus command exit codes. Include negative tests for every binding and failure-mode gate; bind the resulting report hash in a completion manifest."
+    }
+  ],
+  "review_conclusion": {
+    "pass_fail": "FAIL",
+    "blocker_present": true,
+    "current_artifacts_corrupt": false,
+    "formal_review_or_finalization_authorized": false,
+    "minimum_unblock_conditions": [
+      "CQ-001 through CQ-005 are fixed and regression-tested.",
+      "A fresh create-only bundle version is generated with the fixed code; existing v2 artifacts are not overwritten.",
+      "The fresh verifier validates template path/hash/content, overlay authority/scope, exact evidence paths and hashes, and all manifest claims.",
+      "Conflict finalization has a machine-detectable non-success state and publication is atomic.",
+      "A reproducible synthetic negative-test report passes and is hash-bound to the fresh completion manifest."
+    ]
+  }
+}

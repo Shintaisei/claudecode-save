@@ -1,0 +1,654 @@
+{
+  "case_id": "s4_pt_03_mshta_c1",
+  "judge_summary_ja": "候補は parent/child 関係の記述から2件（svchost.exe→mshta.exe、mshta.exe→powershell.exe(2976)）のみを再現できたが、ネットワーク接続（8080/8443/9999）や後続プロセス連鎖（powershell(3820)→cmd→payload→payload）を欠落。さらに mshta の一時ファイル書き込みや powershell の曖昧なファイルアクセスなど、金標準チェーンに含まれない動作を混在させており、順序評価も全滅。",
+  "chains": [
+    {
+      "chain_id": "s4_pt_03_mshta_c1",
+      "gold_required_item_scores": [
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S01:subject",
+          "step_id": "s4_08_mshta_script_interpreter-S01",
+          "kind": "subject",
+          "matched_candidate_excerpt": "S1.execution_context.parent_process=svchost.exe, parent_pid=644",
+          "score": "1",
+          "reason_ja": "S1の親プロセス情報から「svchost.exe (PID 644)」を特定できる。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S01:operation",
+          "step_id": "s4_08_mshta_script_interpreter-S01",
+          "kind": "operation",
+          "matched_candidate_excerpt": "S1 で親子関係により svchost.exe が mshta.exe を開始した事実が示唆（parent→child）",
+          "score": "1",
+          "reason_ja": "親子関係は開始（process creation）を意味し、実質的に「started」に一致。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S01:object",
+          "step_id": "s4_08_mshta_script_interpreter-S01",
+          "kind": "object",
+          "matched_candidate_excerpt": "S1.subject_process.name=mshta.exe, pid=4724",
+          "score": "1",
+          "reason_ja": "子プロセスとして mshta.exe (PID 4724) が明示されている。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S01:critical_evidence",
+          "step_id": "s4_08_mshta_script_interpreter-S01",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "S1.evidence[0].source_stream=cbc-edr",
+          "score": "1",
+          "reason_ja": "CBC EDR のイベント出自が明記され、金標準の根拠種別に適合。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S02:subject",
+          "step_id": "s4_08_mshta_script_interpreter-S02",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "mshta.exe (PID 4724) の 10.193.66.115:8080 への接続動作は候補に未記載。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S02:operation",
+          "step_id": "s4_08_mshta_script_interpreter-S02",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "「initiated connection」が再現されていない。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S02:object",
+          "step_id": "s4_08_mshta_script_interpreter-S02",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "接続先 10.193.66.115:8080 が欠落。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S02:critical_evidence",
+          "step_id": "s4_08_mshta_script_interpreter-S02",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "当該接続の CBC EDR 根拠が提示されていない。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S03:subject",
+          "step_id": "s4_08_mshta_script_interpreter-S03",
+          "kind": "subject",
+          "matched_candidate_excerpt": "S3.execution_context.parent_process=mshta.exe, parent_pid=4724",
+          "score": "1",
+          "reason_ja": "S3の親プロセス情報から「mshta.exe (PID 4724)」を特定可能。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S03:operation",
+          "step_id": "s4_08_mshta_script_interpreter-S03",
+          "kind": "operation",
+          "matched_candidate_excerpt": "S3 で parent→child 関係（process creation）",
+          "score": "1",
+          "reason_ja": "親子関係により「started」と同義の開始動作が示されている。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S03:object",
+          "step_id": "s4_08_mshta_script_interpreter-S03",
+          "kind": "object",
+          "matched_candidate_excerpt": "S3.subject_process.name=powershell.exe, pid=2976",
+          "score": "1",
+          "reason_ja": "子プロセスとして powershell.exe (PID 2976) が明示。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S03:critical_evidence",
+          "step_id": "s4_08_mshta_script_interpreter-S03",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "S3.evidence[0].source_stream=cbc-edr",
+          "score": "1",
+          "reason_ja": "CBC EDR イベント出自が提示され、根拠要件を満たす。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S04:subject",
+          "step_id": "s4_08_mshta_script_interpreter-S04",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "powershell.exe (PID 2976) が powershell.exe (PID 3820) を開始する事実は未再現（オブジェクトPID欠落）。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S04:operation",
+          "step_id": "s4_08_mshta_script_interpreter-S04",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "開始（started）動作としての 2976→3820 が欠落。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S04:object",
+          "step_id": "s4_08_mshta_script_interpreter-S04",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "powershell.exe (PID 3820) が提示されていない。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S04:critical_evidence",
+          "step_id": "s4_08_mshta_script_interpreter-S04",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "当該開始イベントの CBC EDR 根拠がない。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S05:subject",
+          "step_id": "s4_08_mshta_script_interpreter-S05",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "powershell.exe (PID 3820) の通信開始は未再現。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S05:operation",
+          "step_id": "s4_08_mshta_script_interpreter-S05",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "「initiated connection」が欠落。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S05:object",
+          "step_id": "s4_08_mshta_script_interpreter-S05",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "ortrta.net / 10.193.66.115:8443 が提示されていない。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S05:critical_evidence",
+          "step_id": "s4_08_mshta_script_interpreter-S05",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "当該通信の CBC EDR 根拠がない。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S06:subject",
+          "step_id": "s4_08_mshta_script_interpreter-S06",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "powershell.exe (PID 3820)→cmd.exe (PID 2168) の開始動作が未再現。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S06:operation",
+          "step_id": "s4_08_mshta_script_interpreter-S06",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "開始（started）が欠落。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S06:object",
+          "step_id": "s4_08_mshta_script_interpreter-S06",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "cmd.exe (PID 2168) が提示されていない。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S06:critical_evidence",
+          "step_id": "s4_08_mshta_script_interpreter-S06",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "当該開始の CBC EDR 根拠がない。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S07:subject",
+          "step_id": "s4_08_mshta_script_interpreter-S07",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "cmd.exe (PID 2168)→payload.exe (PID 4184) の開始動作が未再現。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S07:operation",
+          "step_id": "s4_08_mshta_script_interpreter-S07",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "開始（started）が欠落。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S07:object",
+          "step_id": "s4_08_mshta_script_interpreter-S07",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "payload.exe (PID 4184) が提示されていない。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S07:critical_evidence",
+          "step_id": "s4_08_mshta_script_interpreter-S07",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "当該開始の CBC EDR 根拠がない。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S08:subject",
+          "step_id": "s4_08_mshta_script_interpreter-S08",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "payload.exe (PID 4184)→payload.exe (PID 3652) の開始が未再現。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S08:operation",
+          "step_id": "s4_08_mshta_script_interpreter-S08",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "開始（started）が欠落。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S08:object",
+          "step_id": "s4_08_mshta_script_interpreter-S08",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "payload.exe (PID 3652) が提示されていない。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S08:critical_evidence",
+          "step_id": "s4_08_mshta_script_interpreter-S08",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "当該開始の CBC EDR 根拠がない。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S09:subject",
+          "step_id": "s4_08_mshta_script_interpreter-S09",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "payload.exe (PID 3652) の通信開始は未再現。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S09:operation",
+          "step_id": "s4_08_mshta_script_interpreter-S09",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "「initiated connection」が欠落。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S09:object",
+          "step_id": "s4_08_mshta_script_interpreter-S09",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "ortrta.net / 10.193.66.115:9999 が提示されていない。"
+        },
+        {
+          "item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S09:critical_evidence",
+          "step_id": "s4_08_mshta_script_interpreter-S09",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "当該通信の CBC EDR 根拠がない。"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "C1a",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "execution_context.parent_process=svchost.exe (ppid=644); subject_process=mshta.exe (pid=4724)",
+          "normalized_action_claim_ja": "svchost.exe (PID 644) が mshta.exe (PID 4724) を開始",
+          "slot_scores": [
+            {
+              "slot_id": "C1a:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "svchost.exe (PID 644)",
+              "matched_gold_item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S01:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "親プロセスとして明示され、金標準の主体に一致。"
+            },
+            {
+              "slot_id": "C1a:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "started（parent→child のプロセス作成に基づく）",
+              "matched_gold_item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S01:operation",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "親子関係は開始（プロセス作成）を意味し、実質一致。"
+            },
+            {
+              "slot_id": "C1a:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "mshta.exe (PID 4724)",
+              "matched_gold_item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S01:object",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "子プロセスとして一致。"
+            },
+            {
+              "slot_id": "C1a:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "cbc-edr イベント（S1.evidence）",
+              "matched_gold_item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S01:critical_evidence",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "CBC EDR 由来のイベント提示。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C1b",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "subject_process=mshta.exe (pid=4724); operation=process_start; object=mshta.exe; command_line=\"C:\\Windows\\System32\\mshta.exe\" -Embedding",
+          "normalized_action_claim_ja": "mshta.exe (PID 4724) が mshta.exe を開始",
+          "slot_scores": [
+            {
+              "slot_id": "C1b:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "mshta.exe (PID 4724)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_inference",
+              "reason_ja": "mshta.exe 自身を開始する主張は金標準に存在せず不適切。"
+            },
+            {
+              "slot_id": "C1b:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "process_start（=started）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_inference",
+              "reason_ja": "操作の対象が誤っており、金標準に合致しない。"
+            },
+            {
+              "slot_id": "C1b:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "mshta.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_inference",
+              "reason_ja": "オブジェクトが誤り（本来は mshta が powershell 等を開始）。"
+            },
+            {
+              "slot_id": "C1b:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "\"C:\\Windows\\System32\\mshta.exe\" -Embedding",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "金標準に command_line 要件は無く、照合先なし。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C2",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "mshta.exe (pid=4724) が default[1].hta に file_write",
+          "normalized_action_claim_ja": "mshta.exe (PID 4724) がファイル default[1].hta に書き込み",
+          "slot_scores": [
+            {
+              "slot_id": "C2:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "mshta.exe (PID 4724)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "本評価チェーンに該当しない動作。"
+            },
+            {
+              "slot_id": "C2:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "file_write",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "金標準の必須動作ではない。"
+            },
+            {
+              "slot_id": "C2:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Users\\aalsahee\\AppData\\Local\\Microsoft\\Windows\\Temporary Internet Files\\Content.IE5\\CKKIICUI\\default[1].hta",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "金標準にこのファイル対象は存在しない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C3a",
+          "candidate_step_id": "S3",
+          "claim_excerpt": "execution_context.parent_process=mshta.exe (ppid=4724); subject_process=powershell.exe (pid=2976)",
+          "normalized_action_claim_ja": "mshta.exe (PID 4724) が powershell.exe (PID 2976) を開始",
+          "slot_scores": [
+            {
+              "slot_id": "C3a:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "mshta.exe (PID 4724)",
+              "matched_gold_item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S03:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "S3 の主体に一致。"
+            },
+            {
+              "slot_id": "C3a:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "started（parent→child のプロセス作成に基づく）",
+              "matched_gold_item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S03:operation",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "開始動作として一致。"
+            },
+            {
+              "slot_id": "C3a:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "powershell.exe (PID 2976)",
+              "matched_gold_item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S03:object",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "オブジェクトに一致。"
+            },
+            {
+              "slot_id": "C3a:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "cbc-edr イベント（S3.evidence）",
+              "matched_gold_item_id": "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S03:critical_evidence",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "CBC EDR 根拠あり。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C3b",
+          "candidate_step_id": "S3",
+          "claim_excerpt": "subject_process=powershell.exe (pid=2976); operation=process_start; object=powershell.exe; command_line=\"... -nop -w hidden -e <Base64>\"",
+          "normalized_action_claim_ja": "powershell.exe (PID 2976) が powershell.exe を開始",
+          "slot_scores": [
+            {
+              "slot_id": "C3b:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "powershell.exe (PID 2976)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_inference",
+              "reason_ja": "金標準では 2976 が 3820 を開始するが、PID のない自己開始主張は不一致。"
+            },
+            {
+              "slot_id": "C3b:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "process_start（=started）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_inference",
+              "reason_ja": "対象が誤りのためマッチしない。"
+            },
+            {
+              "slot_id": "C3b:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "powershell.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_inference",
+              "reason_ja": "必要なオブジェクトは powershell.exe (PID 3820) であり一致しない。"
+            },
+            {
+              "slot_id": "C3b:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -nop -w hidden -e <Base64エンコードスクリプト省略>",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "金標準に command_line 要件はなく、照合先なし。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C4",
+          "candidate_step_id": "S4",
+          "claim_excerpt": "powershell.exe (pid=2976) による file_access（対象不明）",
+          "normalized_action_claim_ja": "powershell.exe (PID 2976) が不特定ファイルへアクセス",
+          "slot_scores": [
+            {
+              "slot_id": "C4:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "powershell.exe (PID 2976)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "評価対象外の汎用ファイル操作。"
+            },
+            {
+              "slot_id": "C4:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "file_access",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "金標準の必須動作ではない。"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "s4_08_mshta_script_interpreter-S01",
+          "after_step_id": "s4_08_mshta_script_interpreter-S02",
+          "score": "0",
+          "reason_ja": "S02 が未再現のため順序を評価できない。"
+        },
+        {
+          "before_step_id": "s4_08_mshta_script_interpreter-S02",
+          "after_step_id": "s4_08_mshta_script_interpreter-S03",
+          "score": "0",
+          "reason_ja": "S02 が未再現のため順序を評価できない。"
+        },
+        {
+          "before_step_id": "s4_08_mshta_script_interpreter-S03",
+          "after_step_id": "s4_08_mshta_script_interpreter-S04",
+          "score": "0",
+          "reason_ja": "S04 が未再現のため順序を評価できない。"
+        },
+        {
+          "before_step_id": "s4_08_mshta_script_interpreter-S04",
+          "after_step_id": "s4_08_mshta_script_interpreter-S05",
+          "score": "0",
+          "reason_ja": "S04/S05 が未再現のため順序を評価できない。"
+        },
+        {
+          "before_step_id": "s4_08_mshta_script_interpreter-S05",
+          "after_step_id": "s4_08_mshta_script_interpreter-S06",
+          "score": "0",
+          "reason_ja": "S05/S06 が未再現のため順序を評価できない。"
+        },
+        {
+          "before_step_id": "s4_08_mshta_script_interpreter-S06",
+          "after_step_id": "s4_08_mshta_script_interpreter-S07",
+          "score": "0",
+          "reason_ja": "S06/S07 が未再現のため順序を評価できない。"
+        },
+        {
+          "before_step_id": "s4_08_mshta_script_interpreter-S07",
+          "after_step_id": "s4_08_mshta_script_interpreter-S08",
+          "score": "0",
+          "reason_ja": "S07/S08 が未再現のため順序を評価できない。"
+        },
+        {
+          "before_step_id": "s4_08_mshta_script_interpreter-S08",
+          "after_step_id": "s4_08_mshta_script_interpreter-S09",
+          "score": "0",
+          "reason_ja": "S08/S09 が未再現のため順序を評価できない。"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S02:subject",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S02:operation",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S02:object",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S04:subject",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S04:operation",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S04:object",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S05:subject",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S05:operation",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S05:object",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S06:subject",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S06:operation",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S06:object",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S07:subject",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S07:operation",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S07:object",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S08:subject",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S08:operation",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S08:object",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S09:subject",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S09:operation",
+      "s4_pt_03_mshta_c1:s4_08_mshta_script_interpreter-S09:object"
+    ],
+    "chain_mixing": true,
+    "hallucinated_claims": [],
+    "unsupported_evidence": [],
+    "contradicted_evidence": [],
+    "nearby_action_false_positives": [
+      "mshta.exe による default[1].hta への file_write（S2）",
+      "powershell.exe (PID 2976) による不特定 file_access（S4）",
+      "mshta.exe (PID 4724) が mshta.exe を開始（S1b）",
+      "powershell.exe (PID 2976) が powershell.exe を開始（S3b）"
+    ],
+    "weak_grounding": true,
+    "false_positive_claims": [
+      "自己開始（mshta→mshta, powershell→powershell）の誤主張",
+      "金標準外のファイル操作（file_write/file_access）"
+    ],
+    "notes_ja": [
+      "金標準のネットワーク接続・後続プロセス生成が広く欠落。",
+      "CBC EDR 根拠は一部の開始イベントでのみ提示。"
+    ]
+  },
+  "candidate_action_claim_count": 6,
+  "candidate_action_claim_slot_count": 21,
+  "candidate_action_claim_true_positive_slot_count": 8,
+  "hallucinated_claim_count": 0,
+  "unsupported_evidence_count": 0,
+  "contradicted_evidence_count": 0,
+  "nearby_action_fp_count": 4,
+  "main_missing_items": [
+    "S02: mshta.exe (PID 4724) が 10.193.66.115:8080 へ接続開始",
+    "S04: powershell.exe (PID 2976) が powershell.exe (PID 3820) を開始",
+    "S05: powershell.exe (PID 3820) が ortrta.net:8443 へ接続開始",
+    "S06: powershell.exe (PID 3820) が cmd.exe (PID 2168) を開始",
+    "S07: cmd.exe (PID 2168) が payload.exe (PID 4184) を開始",
+    "S08: payload.exe (PID 4184) が payload.exe (PID 3652) を開始",
+    "S09: payload.exe (PID 3652) が ortrta.net:9999 へ接続開始"
+  ],
+  "main_false_positive_claims": [
+    "mshta.exe (PID 4724) が mshta.exe を開始（自己開始の誤り）",
+    "powershell.exe (PID 2976) が powershell.exe を開始（PID 不明・自己開始の誤り）",
+    "mshta.exe による default[1].hta への file_write（チェーン外）",
+    "powershell.exe (PID 2976) による不特定 file_access（チェーン外）"
+  ]
+}

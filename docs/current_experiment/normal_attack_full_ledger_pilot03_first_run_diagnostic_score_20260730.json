@@ -1,0 +1,128 @@
+{
+  "status": "diagnostic_only_not_formally_adoptable",
+  "reviewed_at": "2026-07-30",
+  "model": "gpt-4.1-mini",
+  "stage": "stage1",
+  "instance_id": "chain_04_e03_dns_packet_capture_batch_chain_stage1",
+  "run": "docs/current_experiment/results_2026-07-30/normal_attack_full_ledger_pilot_03/normal/runs/gpt-4.1-mini/stage1/chain_04_e03_dns_packet_capture_batch_chain_stage1_run.json",
+  "run_sha256": "0a431c66adc43e706a7e6d56b7ef30a10efda94a4f643bd430d6ec6a1ab775ef",
+  "gold": "data/current_experiment/gold/normal8_observable_component_v3_gold_20260726/by_chain/chain_04_e03_dns_packet_capture_batch_chain/chain_gold.json",
+  "gold_sha256": "df4e3489062862d594c3533c9d38b276238b40bfbe46968865b7c6654ab4c7af",
+  "rubric": {
+    "action_components": [
+      "subject",
+      "operation",
+      "object"
+    ],
+    "candidate_claim_alignment": "Each candidate claim aligns to at most one Gold step. TP slots in the claim must reference that same step.",
+    "pid_and_path_policy": "This normal observable-component v3 Gold is identity-strict. A name-only or wrong-PID candidate does not match a PID-specific Gold item; a basename-only candidate does not match a path-specific Gold item.",
+    "behavior_step_policy": "A Gold behavior step is complete only when subject, operation, and object all score 1.",
+    "critical_evidence_separate": true,
+    "command_line_is_action_attribute": true
+  },
+  "totals": {
+    "action_recall_hits": 4,
+    "action_recall_total": 21,
+    "action_recall": 0.19047619047619047,
+    "candidate_precision_hits": 4,
+    "candidate_precision_total": 12,
+    "candidate_precision": 0.3333333333333333,
+    "behavior_step_recall_hits": 0,
+    "behavior_step_recall_total": 7,
+    "behavior_step_recall": 0.0,
+    "critical_evidence_hits": 0,
+    "critical_evidence_total": 7,
+    "critical_evidence_recall": 0.0,
+    "order_hits": 1,
+    "order_total": 6,
+    "order_recall": 0.16666666666666666
+  },
+  "candidate_claims": [
+    {
+      "candidate_claim_id": "C1",
+      "candidate_step_id": "S1",
+      "aligned_gold_step_id": "N8V3-02-S02",
+      "slot_scores": {
+        "subject": 0,
+        "operation": 1,
+        "object": 0
+      },
+      "notes": "Batch execution operation matches. PID 3344 does not match Gold PID 3652, and the object omits the Gold full path."
+    },
+    {
+      "candidate_claim_id": "C2",
+      "candidate_step_id": "S2",
+      "aligned_gold_step_id": "N8V3-02-S04",
+      "slot_scores": {
+        "subject": 0,
+        "operation": 1,
+        "object": 1
+      },
+      "notes": "The tshark execution/start and tshark PID 2496 object match. The stated subject is tshark itself rather than Gold cmd.exe PID 3652. The RepMgr.exe parent assertion is contradicted by the target-instance evidence."
+    },
+    {
+      "candidate_claim_id": "C3",
+      "candidate_step_id": "S3",
+      "aligned_gold_step_id": null,
+      "slot_scores": {
+        "subject": 0,
+        "operation": 0,
+        "object": 0
+      },
+      "notes": "Generic dumpcap spawn does not identify the Gold tshark actor, the interface-discovery versus DNS-capture operation, or the required dumpcap instance."
+    },
+    {
+      "candidate_claim_id": "C4",
+      "candidate_step_id": "S4",
+      "aligned_gold_step_id": "N8V3-02-S03",
+      "slot_scores": {
+        "subject": 0,
+        "operation": 0,
+        "object": 1
+      },
+      "notes": "The logs\\dns object path matches. PID 3344 does not match Gold PID 3652, and file_write is not the Gold semantic action created directory."
+    }
+  ],
+  "order_pairs": [
+    {
+      "pair": "N8V3-02-S01->N8V3-02-S02",
+      "score": 0
+    },
+    {
+      "pair": "N8V3-02-S02->N8V3-02-S03",
+      "score": 1
+    },
+    {
+      "pair": "N8V3-02-S03->N8V3-02-S04",
+      "score": 0
+    },
+    {
+      "pair": "N8V3-02-S04->N8V3-02-S05",
+      "score": 0
+    },
+    {
+      "pair": "N8V3-02-S05->N8V3-02-S06",
+      "score": 0
+    },
+    {
+      "pair": "N8V3-02-S06->N8V3-02-S07",
+      "score": 0
+    }
+  ],
+  "internal_processing_assessment": {
+    "multi_lead_chief_behavior": "pass",
+    "full_pipeline_usage_ledger": "pass",
+    "lead_expansion_guard": "pass",
+    "initial_target_chain_retrieval": "partial_pass",
+    "process_instance_scope_control": "fail",
+    "evidence_state_consistency": "fail",
+    "final_synthesis": "fail",
+    "overall": "fail_do_not_expand_pilot"
+  },
+  "key_trace_findings": [
+    "The first lead retrieved explorer.exe -> cmd.exe PID 3652 -> tshark.exe PID 2496 -> dumpcap.exe PIDs 2164/2384/3288.",
+    "Later unscoped SQL searched all start_dns_logs.bat instances and introduced PID 3344 from 13:13:01 and other unrelated instances.",
+    "A later lead selected the 13:08:26 reuse of PID 2496 and attributed it to RepMgr.exe/RepWmiUtils.exe, then propagated the wrong parent into the final answer.",
+    "The final answer omitted the Gold explorer-to-cmd edge, the two distinct dumpcap behaviors, and the materialized pcapng file."
+  ]
+}

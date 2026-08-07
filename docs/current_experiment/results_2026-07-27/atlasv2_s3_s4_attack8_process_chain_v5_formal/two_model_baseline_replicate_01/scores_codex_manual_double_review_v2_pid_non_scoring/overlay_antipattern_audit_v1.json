@@ -1,0 +1,107 @@
+{
+  "schema_version": "overlay_antipattern_audit_v1",
+  "audit_scope": {
+    "wrapper": "src/clouseau_process_time/codex_manual_attack8_scoring_v2_pid_non_scoring.py",
+    "score_root": "docs/current_experiment/results_2026-07-27/atlasv2_s3_s4_attack8_process_chain_v5_formal/two_model_baseline_replicate_01/scores_codex_manual_double_review_v2_pid_non_scoring",
+    "mode": "read_only_inspection_except_for_this_new_audit_artifact",
+    "external_api_calls_made_by_audit": false
+  },
+  "overall_status": "FAIL",
+  "summary": "The wrapper's static controls pass all requested anti-pattern checks. The required overlay-bound runtime artifacts were directory-listed but not readable/existent through Test-Path at audit time, so their manifest/queue/hash binding could not be verified dynamically. Formal review/finalization must not proceed until those artifacts are restored and verify-queue passes.",
+  "checks": [
+    {
+      "id": "pid_strict_or_name_only_mismatch",
+      "status": "PASS_STATIC",
+      "evidence": [
+        "wrapper lines 31-34 retain the old strict-PID sentence only as an identifier for the superseded v1 prose",
+        "lines 91-107 define PID identity/equality as non-scoring",
+        "lines 114-115 mark the old text explicitly superseded and not effective",
+        "lines 153-168 reject an unbound/wrong-schema queue, an overlay mismatch, an effective-policy mismatch, remaining effective strict-PID text, PID scoring, or action/operation alias mismatch"
+      ],
+      "repair_required": false
+    },
+    {
+      "id": "overlayless_queue_as_formal_queue",
+      "status": "PASS_STATIC",
+      "evidence": [
+        "bind-overlay lines 217-301 may read the v1 prepare queue only to create a new bound queue; it validates the source manifest hash and preserves frozen contract fields",
+        "verify-queue, validate-review, and finalize all call verify_bundle_paths first (lines 493-499, 587-600, 690-703)",
+        "verify_bundle_paths lines 347-400 requires v2 schema, queue/manifest hashes, overlay path/hash, effective policy hash, and source provenance before formal review use"
+      ],
+      "repair_required": false
+    },
+    {
+      "id": "overlay_hash_unverified",
+      "status": "PASS_STATIC",
+      "evidence": [
+        "validate_overlay lines 53-72 computes the authoritative overlay SHA-256 after validating the required PID and terminology content",
+        "queue validation lines 155-162 requires the same overlay path/hash and exact effective policy/hash in every queue row",
+        "review validation lines 514-553 requires the review row's overlay path/hash and acknowledgement to match its queue row",
+        "finalize lines 691-709 re-verifies the bundle and accepts only validated review maps bound to that queue"
+      ],
+      "repair_required": false
+    },
+    {
+      "id": "action_operation_double_count",
+      "status": "PASS_STATIC",
+      "evidence": [
+        "wrapper lines 84-90 fixes canonical slots to subject/operation/object, aliases action to operation, and keeps command line as an action attribute",
+        "wrapper lines 192-197 rejects non-canonical candidate slot kinds",
+        "base scorer lines 339-345 extracts exactly subject/operation/object and excludes command lines and critical evidence from independent action slots",
+        "base scorer validation lines 766-866 requires the exact frozen candidate-slot ID set, immutable kind/content, and inclusion of every slot"
+      ],
+      "repair_required": false
+    },
+    {
+      "id": "hidden_alert_mapping_scored",
+      "status": "PASS_STATIC",
+      "evidence": [
+        "wrapper lines 109-112 explicitly prohibit scoring hidden alert id/title/reason/alert-to-Gold mapping",
+        "manifest construction lines 294-299 records hidden_alert_mapping_scored=false",
+        "bundle verification lines 377-382 rejects a manifest that does not set hidden_alert_mapping_scored=false"
+      ],
+      "repair_required": false
+    },
+    {
+      "id": "candidate_slot_omission",
+      "status": "PASS_STATIC",
+      "evidence": [
+        "wrapper lines 179-197 checks extraction equality, duplicate IDs, denominator counts, and canonical kinds",
+        "base scorer lines 766-866 rejects incomplete/extra candidate-slot IDs and requires every fixed slot to be included in the denominator",
+        "base scorer lines 1081-1155 computes precision from included subject/operation/object slots with critical evidence separate"
+      ],
+      "repair_required": false
+    },
+    {
+      "id": "v1_overwrite_or_external_api",
+      "status": "PASS_STATIC",
+      "evidence": [
+        "wrapper docstring lines 2-9 says it leaves v1 unchanged, is create-only, and calls no model API",
+        "all wrapper outputs use base.write_json_new or base.write_jsonl_new (lines 266-301, 500-501, 651-686, 791-820)",
+        "base scorer lines 140-150 routes those helpers through ensure_new, which refuses existing paths",
+        "no requests, urllib, httpx, OpenAI, Anthropic, socket, subprocess, curl, or Invoke-WebRequest usage was found in wrapper/base scorer"
+      ],
+      "repair_required": false
+    },
+    {
+      "id": "runtime_overlay_bound_bundle_available",
+      "status": "FAIL",
+      "evidence": [
+        "At audit time Test-Path returned false for review_queue_v2_pid_non_scoring_overlay_bound.jsonl, queue_manifest_v2_pid_non_scoring_overlay_bound.json, review_template_v2_pid_non_scoring_overlay_bound.jsonl, queue_overlay_binding_self_validation_v2.json, and synthetic_validator_finalizer_smoke_v1.json.",
+        "Their names were visible in directory enumeration/rg results, but opening or hashing them failed with path-not-found; therefore the v2 queue, manifest hashes, and recorded self-validation cannot be independently verified.",
+        "The only readable queue/manifest in this score root were review_queue.jsonl and queue_manifest.json, whose schema_version is the old codex_manual_action_claim_review_v2 and whose queue is intentionally an overlayless source queue."
+      ],
+      "repair_required": true,
+      "required_repair": "Restore or regenerate the missing overlay-bound artifacts without overwriting v1 or existing v2 names. Then run the wrapper verify-queue command against the bound queue, bound manifest, and authoritative overlay; retain its new create-only report and re-run this audit. Do not use review_queue.jsonl as a formal review/finalize queue."
+    }
+  ],
+  "authoritative_overlay_observed": {
+    "path": "docs/current_experiment/results_2026-07-27/atlasv2_s3_s4_attack8_process_chain_v5_formal/two_model_baseline_replicate_01/scores_codex_manual_double_review_v1/formal_review_policy_overlay_v1.json",
+    "sha256": "a2cdb045fbe8e95b6db0ee136a3f9d0d97841b93cf362cb414397224f7cfcd91",
+    "pid_identity_scored": false,
+    "action_aliases_operation": true,
+    "hidden_alert_mapping_scored": false,
+    "retroactive_adoption_allowed": false
+  },
+  "formal_use_gate": "BLOCKED: runtime artifact availability must be repaired and the overlay-bound bundle must verify before any formal review validation or finalization."
+}

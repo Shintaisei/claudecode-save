@@ -1,0 +1,226 @@
+{
+  "run_id": "20260613T081222Z_chain_15_e10_python_simplehttpserver_network_chain_stage3_gpt-5.4-mini_official",
+  "pipeline": "external/Clouseau/artifact official chief_inspector.investigate_atlas",
+  "llm_provider": "openai",
+  "model": "gpt-5.4-mini",
+  "instance_id": "chain_15_e10_python_simplehttpserver_network_chain_stage3",
+  "gold_reference": {
+    "instance_id": "chain_15_e10_python_simplehttpserver_network_chain_stage3",
+    "case_id": "chain_15_e10_python_simplehttpserver_network_chain_stage3",
+    "input_id": "chain_input_015",
+    "stage": "stage3",
+    "scenario": "benign-h1-cbc-27-chain",
+    "database": "Clouseau/artifact/scenarios/atlasv2/benign/h1/benign-1/incident.db",
+    "host": "WIN-32-H1",
+    "process_name": "python.exe",
+    "actor": "python.exe",
+    "expected_behavior": "Python SimpleHTTPServer network behavior",
+    "expected_behavior_category": "python_simplehttpserver_network_chain",
+    "context_label": "cbc_alert_behavior_chain_gold",
+    "quality": "finalized_2026-06-09",
+    "difficulty": "process_time",
+    "time_window_utc": {
+      "episode_start": "2022-07-17T13:30:00Z",
+      "episode_end": "2022-07-17T13:35:00Z",
+      "analysis_scope": "finalized chain window; runner may inspect surrounding DB evidence but primary chain must stay in scope"
+    },
+    "anchor_event": {
+      "source_stream": "scope",
+      "timestamp_utc": "2022-07-17T13:30:00Z",
+      "database_time": "2022-07-17 13:30:00",
+      "alert_id": null,
+      "alert_name": null,
+      "process_name": "python.exe",
+      "process_path": null,
+      "process_cmdline": null,
+      "parent_path": null,
+      "parent_cmdline": null,
+      "severity": null,
+      "reason": null,
+      "event_record_id": null,
+      "action": "scope"
+    },
+    "input_alert_rows": [],
+    "model_ready_input": {
+      "input_id": "chain_input_015",
+      "stage": "stage3",
+      "input": {
+        "host": "WIN-32-H1",
+        "focus_processes": [
+          "python.exe"
+        ],
+        "chain_window_start_utc": "2022-07-17T13:30:00Z",
+        "chain_window_end_utc": "2022-07-17T13:35:00Z"
+      },
+      "db_filter": "remove cbc_alerts / cbc-edr-alerts / cbc-ngav-alerts summary rows; retain cbc_events telemetry"
+    },
+    "gold_chain_file": "by_chain/chain_15_e10_python_simplehttpserver_network_chain/chain_gold.json",
+    "chain_id": "chain_15_e10_python_simplehttpserver_network_chain",
+    "chain_type": "python_simplehttpserver_network_chain",
+    "source_window_ids": "W21",
+    "formal_gold_root": "data/current_experiment/gold/cbc_alert_behavior_chain_gold",
+    "stage3_answerable_policy": "For stage3, use validation stage3_status=pass steps as answerable gold; alert-only unsupported steps are reported separately.",
+    "environment_context": "CLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。"
+  },
+  "source_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\Clouseau\\artifact\\scenarios\\atlasv2\\benign\\h1\\benign-1\\incident.db",
+  "adapter_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260613T081222Z_chain_15_e10_python_simplehttpserver_network_chain_stage3_gpt-5.4-mini_official\\scenario.db",
+  "adapter_counts": {
+    "audit_logs": 7531007,
+    "sysmon_audit_rows": 6406,
+    "cbc_event_audit_rows": 1010918,
+    "cbc_alert_audit_rows": 232,
+    "dns_requests": 82410,
+    "browser_history": 53069,
+    "adapter_version": "v3_evidence_preserving_parent_context",
+    "cbc_alert_summary_filter_mode": "sql_tool_temp_view",
+    "cbc_alert_summary_rows_hidden_from_stage3_sql": 232,
+    "post_filter_cbc_alert_summary_rows": 0,
+    "post_filter_cbc_event_telemetry_rows": 1010918
+  },
+  "clue": "これは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage3\n- host: WIN-32-H1\n- process: python.exe\n- timestamp: 2022-07-17 13:30:00\n- 参考 UTC 時間範囲: 2022-07-17T13:30:00Z から 2022-07-17T13:35:00Z\n- 参考 database 時間範囲: 2022-07-17 13:30:00 から 2022-07-17 13:35:00\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 3: 入力は host、process、timestamp のみである。\n- CBC alert summary rows は SQL tools から audit_logs_stage3 view により hidden である。\n- CBC EDR/NGAV event telemetry は利用可能である。\n- adapter database は物理フィルタされない。alert summary rows が SQL tools で見えないことだけで、行動が存在しないと結論しない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n",
+  "dry_run": false,
+  "difficulty": "process_time",
+  "experiment_stage": "stage3",
+  "expected_input_fields": [
+    "host",
+    "process",
+    "timestamp"
+  ],
+  "configs": {
+    "max_investigations": 300,
+    "max_questions": 800,
+    "max_queries": 1600,
+    "max_tokens": 24576
+  },
+  "official_messages": [
+    {
+      "type": "HumanMessage",
+      "content": "## 役割\nあなたは CLOUSEAU の階層型調査パイプラインにおける Chief エージェントである。\n\n## 目的\nプロセス時刻起点から Windows エンドポイントのコード行動列を復元する。\n\n## 出力言語\n- 調査リード、要約、最終報告の自然言語値はすべて日本語で書く。\n- raw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま残す。\n\n## 調査リード作成ルール\n- SQL を書かない。\n- database column の列挙を調査リードにしない。\n- alert title、command line、parent process、target object、application intent、behavior category を仮定しない。\n- CBC alert 内容は起点情報の一部ではない。調査担当が database 内で発見した場合にだけ使う。\n- 各調査リードには、調査対象、調査理由、確認したい証拠を含める。\n- parent process、command line、target object、related rows をログから発見させる調査リードを優先する。\n- 近傍 row の接続関係は、先に決め打ちせず、観測証拠で検証する。\n- 最終回答は valid JSON のみである。\n\n## 環境\nCLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。\n\n## SOC からの起点情報\nこれは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage3\n- host: WIN-32-H1\n- process: python.exe\n- timestamp: 2022-07-17 13:30:00\n- 参考 UTC 時間範囲: 2022-07-17T13:30:00Z から 2022-07-17T13:35:00Z\n- 参考 database 時間範囲: 2022-07-17 13:30:00 から 2022-07-17 13:35:00\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 3: 入力は host、process、timestamp のみである。\n- CBC alert summary rows は SQL tools から audit_logs_stage3 view により hidden である。\n- CBC EDR/NGAV event telemetry は利用可能である。\n- adapter database は物理フィルタされない。alert summary rows が SQL tools で見えないことだけで、行動が存在しないと結論しない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n\n"
+    },
+    {
+      "type": "AIMessage",
+      "content": "",
+      "usage_metadata": {
+        "input_tokens": 1731,
+        "output_tokens": 111,
+        "total_tokens": 1842,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "host WIN-32-H1 で 2022-07-17 13:30:00 前後に実行された python.exe の行動列を復元してください。親子プロセス関係、実行コマンド、生成された子プロセス、アクセスした対象オブジェクト、ネットワーク接続の証拠を確認し、関連する code_steps と code_sequence を特定してください。"
+          },
+          "id": "call_cQE7ZXzI54PZ5DLTAs6Z12TT",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "type": "ToolMessage",
+      "content": "観測結果を整理します。\n\n### 観測事実\n- 対象プロセス: `c:\\python27\\python.exe`\n- `pid`: `5816`\n- `ppid`: `2032`\n- `command_line`: `python  -m SimpleHTTPServer`\n- 親プロセス:\n  - `parent_process_name`: `cmd.exe`\n  - `parent_process_path`: `c:\\windows\\system32\\cmd.exe`\n  - `parent_command_line`: `\"C:\\Windows\\System32\\cmd.exe\"`\n\n### 関連証拠\n- 対象オブジェクトとして、以下が見えています。\n  - `C:\\Windows\\Globalization\\Sorting\\SortDefault.nls`\n  - `C:\\Windows\\Registration\\R000000000006.clb`\n  - `C:\\Windows\\System32\\imm32.dll`\n  - `C:\\Windows\\System32\\rpcss.dll`\n  - `C:\\Windows\\System32\\rsaenh.dll`\n  - `HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\Handshake\\{9F288E22-658C-41F5-B2C8-AC804B1B78B2}\\data`\n  - `HKLM\\System\\CurrentControlSet\\services\\CbDefense\\MachineGuid`\n- ネットワーク関連では、`ACTION_CONNECTION_LISTEN` と `ACTION_CONNECTION_ESTABLISHED` が見えます。\n  - `0.0.0.0:0`\n  - `10.193.66.115:48503`\n  - `10.193.66.115:51647`\n  - `10.193.66.115:54869`\n  - `10.193.66.115:59277`\n\n### 解釈\n- `python.exe` は `cmd.exe` から起動されています。\n- `python  -m SimpleHTTPServer` というコマンドラインから、HTTP サーバの待受を行っていた可能性があります。\n- ただし、これだけでは user intent や最終的な性質は確定できません。\n- `python.exe` の直接の子プロセス、アクセス対象の因果関係、`code_steps` / `code_sequence` との対応は、現時点では未確定です。\n\n### 限界\n- `code_steps` / `code_sequence` はこの応答内では明示的に特定できていません。\n- 子プロセスとして見えた `flashplayerupdateservice.exe` と `taskeng.exe` は、`python.exe` との直接関係が未確認です。\n- 追加の時系列証拠がないため、行動列の完全な復元には次の確認が必要です。\n\n### 次の調査理由\n`python.exe` の行動列を確定するには、まず **pid=5816 の直接の子プロセス、同一時刻帯のファイル/レジストリアクセス、ネットワークイベント** を時系列で結び、観測上の連鎖を作る必要があります。\n\n必要なら次に、\n1. `pid=5816` の直接の子プロセス  \n2. `pid=5816` が触った対象オブジェクトの時系列  \n3. `pid=5816` のネットワーク接続  \nを分けて確認します。",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "AIMessage",
+      "content": "",
+      "usage_metadata": {
+        "input_tokens": 2596,
+        "output_tokens": 220,
+        "total_tokens": 2816,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 1664
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "host WIN-32-H1 で 2022-07-17 13:30:00 前後の pid=5816 python.exe について、直接の子プロセス、同時刻のファイル/レジストリアクセス、ネットワーク接続を確認してください。parent_process evidence と child process evidence を時系列で結び、観測された code_steps を特定してください。"
+          },
+          "id": "call_bshxWpkhwzTYBwGpi1xoRIcQ",
+          "type": "tool_call"
+        },
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "host WIN-32-H1 で 2022-07-17 13:30:00 前後に python.exe(pid=5816) がアクセスした対象オブジェクトの時系列を確認してください。ファイル、レジストリ、モジュール読み込みの証拠を基に、python.exe と直接結びつく code_sequence を復元してください。"
+          },
+          "id": "call_ekTBFXgNuvjxIP6Vgs9wc1rZ",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "type": "ToolMessage",
+      "content": "観測された事実:\n- pid 5816 の python.exe は、13:31:11 と 13:31:12 にネットワーク接続イベントが見つかった。\n- command_line は `python  -m SimpleHTTPServer`。\n- parent_process_name は `cmd.exe`、parent_process_path は `c:\\windows\\system32\\cmd.exe`。\n- remote_ip は `10.193.66.115`、remote_port は `54869`。\n- 直接の子プロセス、filemod、regmod は今回の検索では見つかっていない。\n\n解釈:\n- 直近の観測からは、python.exe が SimpleHTTPServer を起動してネットワーク待受/接続に関与している可能性がある。\n- ただし、子プロセスやファイル/レジストリ操作の証拠が未確認なので、実行内容の連鎖はまだ不完全。\n\n限界:\n- 13:30 前後の範囲では pid 5816 の direct child process は確認できていない。\n- 現時点では filemod/regmod の有無が不明で、code_steps を断定できない。\n\n次の調査理由:\n- 観測済みの `remote_ip=10.193.66.115` と `command_line=python  -m SimpleHTTPServer` を起点に、同時刻周辺でこの python.exe がどのファイルやレジストリに触れたか、また別の関連プロセスを起動したかを確認する必要がある。\n\nQAAgent への次の質問:\nhost WIN-32-H1 で 2022-07-17 13:31:11 前後の pid 5816 の python.exe について、`python  -m SimpleHTTPServer` 実行の前後で触れた filemod と regmod を探してください。もし見つかるなら、対象の path や key、アクセス種別、source_stream、event_record_id、parent_process evidence をそのまま示してください。そこから直接の child process が続いているかも確認してください。\n観測された事実:\n- pid 5816 の python.exe は、2022-07-17 13:31:11 と 13:31:12 にネットワーク接続イベントが見つかった。\n- command_line は `python  -m SimpleHTTPServer`。\n- parent_process_name は `cmd.exe`、parent_process_path は `c:\\windows\\system32\\cmd.exe`。\n- remote_ip は `10.193.66.115`、remote_port は `54869`。\n- 直接の子プロセス、filemod、regmod は今回の検索では見つかっていない。\n\n解釈:\n- 直近の観測からは、python.exe が SimpleHTTPServer を起動してネットワーク待受/接続に関与している可能性がある。\n- ただし、子プロセスやファイル/レジストリ操作の証拠が未確認なので、実行内容の連鎖はまだ不完全。\n\n限界:\n- 13:30 前後の範囲では pid 5816 の direct child process は確認できていない。\n- 現時点では filemod/regmod の有無が不明で、code_steps を断定できない。\n\n次の調査理由:\n- 観測済みの `remote_ip=10.193.66.115` と `command_line=python  -m SimpleHTTPServer` を起点に、同時刻周辺でこの python.exe がどのファイルやレジストリに触れたか、また別の関連プロセスを起動したかを確認する必要がある。\n\nQAAgent への次の質問:\nhost WIN-32-H1 で 2022-07-17 13:31:11 前後の pid 5816 の python.exe について、`python  -m SimpleHTTPServer` 実行の前後で触れた filemod と regmod を探してください。もし見つかるなら、対象の path や key、アクセス種別、source_stream、event_record_id、parent_process evidence をそのまま示してください。そこから直接の child process が続いているかも確認してください。",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "ToolMessage",
+      "content": "### 観測事実\n- host `WIN-32-H1`\n- `python.exe` の `pid=5816`\n- 直前回答で確認できた `python.exe` の観測は、`2022-07-17 13:31:11` と `13:31:12` の **ネットワーク接続 2 件**のみ\n- 観測された実行情報:\n  - `process_name`: `c:\\python27\\python.exe`\n  - `command_line`: `python  -m SimpleHTTPServer`\n  - `ppid`: `2032`\n  - `parent_process_name`: `cmd.exe`\n  - `parent_process_path`: `c:\\windows\\system32\\cmd.exe`\n  - `parent_command_line`: `\"C:\\Windows\\System32\\cmd.exe\"`\n- 観測された接続先:\n  - `10.193.66.115:54869`\n- `childproc_name`: `None`\n\n### 取得できた code_sequence\n- `cmd.exe` から `python.exe` が起動\n- `python  -m SimpleHTTPServer` を実行\n- `10.193.66.115:54869` への接続を作成・確立\n\n### ファイル / レジストリ / モジュール読み込みの状況\n- この検索範囲では **見つかっていません**\n- したがって、現時点では `python.exe` と直接結びつく code_sequence は **ネットワーク接続のみ**で復元されています\n\n### 解釈\n- `python.exe` の親子関係は、`ppid=2032` と `cmd.exe` により観測上つながっています\n- ただし、ファイルアクセス、レジストリ操作、モジュール読み込みの証拠が未確認のため、処理内容の全体像は未完です\n\n### 限界\n- 現時点の証拠では、`python.exe` に紐づくファイル/レジストリ/モジュール読み込みを確認できていません\n- 子プロセスも確認できていません\n- 追加の近傍観測が必要です\n\n### 次の調査理由\n`python.exe` の挙動を code_sequence として復元するには、ネットワーク接続だけでなく、**その前後のファイル操作・レジストリ操作・モジュール読み込み** が必要です。特に `pid=5816` の前後を広げて、同一 PID に対する対象オブジェクトの時系列を追加確認することで、実行内容の連鎖をより正確に接続できます。",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\"host\":\"WIN-32-H1\",\"process\":\"python.exe\",\"timestamp\":\"2022-07-17 13:30:00\",\"time_window\":{\"start\":\"2022-07-17 13:30:00\",\"end\":\"2022-07-17 13:35:00\"},\"observed_process\":{\"process_name\":\"c:\\\\python27\\\\python.exe\",\"pid\":5816,\"ppid\":2032,\"parent_process_name\":\"cmd.exe\",\"parent_process_path\":\"c:\\\\windows\\\\system32\\\\cmd.exe\",\"parent_command_line\":\"\\\"C:\\\\Windows\\\\System32\\\\cmd.exe\\\"\",\"command_line\":\"python  -m SimpleHTTPServer\",\"source_stream\":\"cbc-edr\"},\"evidence\":[{\"timestamp\":\"2022-07-17 13:31:11\",\"pid\":5816,\"process_name\":\"c:\\\\python27\\\\python.exe\",\"source_stream\":\"cbc-edr\",\"remote_ip\":\"10.193.66.115\",\"remote_port\":54869,\"action\":\"ACTION_CONNECTION_ESTABLISHED\"},{\"timestamp\":\"2022-07-17 13:31:12\",\"pid\":5816,\"process_name\":\"c:\\\\python27\\\\python.exe\",\"source_stream\":\"cbc-edr\",\"remote_ip\":\"10.193.66.115\",\"remote_port\":54869,\"action\":\"ACTION_CONNECTION_ESTABLISHED\"}],\"code_steps\":[{\"step\":1,\"timestamp\":\"2022-07-17 13:30:00\",\"process_name\":\"cmd.exe\",\"description\":\"`cmd.exe` から `python.exe` が起動されたことが観測されている。\"},{\"step\":2,\"timestamp\":\"2022-07-17 13:30:00\",\"process_name\":\"c:\\\\python27\\\\python.exe\",\"description\":\"`python  -m SimpleHTTPServer` が実行されたことが観測されている。\"},{\"step\":3,\"timestamp\":\"2022-07-17 13:31:11\",\"process_name\":\"c:\\\\python27\\\\python.exe\",\"description\":\"`10.193.66.115:54869` へのネットワーク接続が観測されている。\"},{\"step\":4,\"timestamp\":\"2022-07-17 13:31:12\",\"process_name\":\"c:\\\\python27\\\\python.exe\",\"description\":\"同一の `10.193.66.115:54869` への継続的な接続が観測されている。\"}],\"code_sequence\":[\"cmd.exe -> python.exe\",\"python  -m SimpleHTTPServer\",\"10.193.66.115:54869\",\"10.193.66.115:54869\"],\"related_objects\":[\"C:\\\\Windows\\\\Globalization\\\\Sorting\\\\SortDefault.nls\",\"C:\\\\Windows\\\\Registration\\\\R000000000006.clb\",\"C:\\\\Windows\\\\System32\\\\imm32.dll\",\"C:\\\\Windows\\\\System32\\\\rpcss.dll\",\"C:\\\\Windows\\\\System32\\\\rsaenh.dll\",\"HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows NT\\\\CurrentVersion\\\\Schedule\\\\Handshake\\\\{9F288E22-658C-41F5-B2C8-AC804B1B78B2}\\\\data\",\"HKLM\\\\System\\\\CurrentControlSet\\\\services\\\\CbDefense\\\\MachineGuid\"],\"child_processes\":[],\"network\":{\"actions\":[\"ACTION_CONNECTION_LISTEN\",\"ACTION_CONNECTION_ESTABLISHED\"],\"remote_endpoints\":[\"0.0.0.0:0\",\"10.193.66.115:48503\",\"10.193.66.115:51647\",\"10.193.66.115:54869\",\"10.193.66.115:59277\"]},\"assessment\":\"`python.exe` は `cmd.exe` から起動され、`python  -m SimpleHTTPServer` を実行したことが観測されている。確認できた行動連鎖はネットワーク接続中心で、ファイル操作やレジストリ操作、子プロセス生成の証拠はこの範囲では得られていない。\",\"confidence\":\"medium\"}",
+      "usage_metadata": {
+        "input_tokens": 4444,
+        "output_tokens": 851,
+        "total_tokens": 5295,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 2688
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"python.exe\",\n    \"timestamp\": \"2022-07-17 13:30:00\",\n    \"condition\": \"stage3\",\n    \"input_fields_used\": [\n      \"host\",\n      \"process\",\n      \"timestamp\"\n    ]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-17 13:30:00\",\n      \"subject_process\": {\n        \"name\": \"c:\\\\python27\\\\python.exe\",\n        \"pid\": 5816,\n        \"path\": \"c:\\\\python27\\\\python.exe\"\n      },\n      \"operation\": \"プロセス起動\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"cmd.exe\",\n        \"path\": \"c:\\\\windows\\\\system32\\\\cmd.exe\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"python  -m SimpleHTTPServer\",\n      \"execution_context\": {\n        \"parent_process\": \"cmd.exe\",\n        \"parent_pid\": 2032,\n        \"parent_command_line\": \"\\\"C:\\\\Windows\\\\System32\\\\cmd.exe\\\"\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-17 13:30:00\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"pid/ppid/pname/process_name/parent_process_name/parent_process_path/parent_command_line/command_line\",\n          \"value\": \"pid=5816; ppid=2032; pname=c:\\\\python27\\\\python.exe; process_name=c:\\\\python27\\\\python.exe; parent_process_name=cmd.exe; parent_process_path=c:\\\\windows\\\\system32\\\\cmd.exe; parent_command_line=\\\"C:\\\\Windows\\\\System32\\\\cmd.exe\\\"; command_line=python  -m SimpleHTTPServer\",\n          \"pid\": 5816,\n          \"ppid\": 2032\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"この範囲では子プロセス、ファイル操作、レジストリ操作の直接証拠は確認できていない。\"\n      ]\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-17 13:31:11\",\n      \"subject_process\": {\n        \"name\": \"c:\\\\python27\\\\python.exe\",\n        \"pid\": 5816,\n        \"path\": \"c:\\\\python27\\\\python.exe\"\n      },\n      \"operation\": \"ネットワーク接続の確立\",\n      \"object\": {\n        \"type\": \"network\",\n        \"name\": \"10.193.66.115:54869\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"python  -m SimpleHTTPServer\",\n      \"execution_context\": {\n        \"parent_process\": \"cmd.exe\",\n        \"parent_pid\": 2032,\n        \"parent_command_line\": \"\\\"C:\\\\Windows\\\\System32\\\\cmd.exe\\\"\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-17 13:31:11\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_ip/remote_port/action\",\n          \"value\": \"remote_ip=10.193.66.115; remote_port=54869; action=ACTION_CONNECTION_ESTABLISHED\",\n          \"pid\": 5816,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"接続の方向、相手の役割、通信内容はこの証拠だけでは特定できない。\"\n      ]\n    },\n    {\n      \"step_id\": \"S3\",\n      \"order\": 3,\n      \"time\": \"2022-07-17 13:31:12\",\n      \"subject_process\": {\n        \"name\": \"c:\\\\python27\\\\python.exe\",\n        \"pid\": 5816,\n        \"path\": \"c:\\\\python27\\\\python.exe\"\n      },\n      \"operation\": \"ネットワーク接続の継続\",\n      \"object\": {\n        \"type\": \"network\",\n        \"name\": \"10.193.66.115:54869\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"python  -m SimpleHTTPServer\",\n      \"execution_context\": {\n        \"parent_process\": \"cmd.exe\",\n        \"parent_pid\": 2032,\n        \"parent_command_line\": \"\\\"C:\\\\Windows\\\\System32\\\\cmd.exe\\\"\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-17 13:31:12\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_ip/remote_port/action\",\n          \"value\": \"remote_ip=10.193.66.115; remote_port=54869; action=ACTION_CONNECTION_ESTABLISHED\",\n          \"pid\": 5816,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"同一接続先への継続的な通信が観測されるが、追加の対象操作は確認できていない。\"\n      ]\n    }\n  ],\n  \"code_sequence\": [\n    \"cmd.exe -> python.exe\",\n    \"python  -m SimpleHTTPServer\",\n    \"10.193.66.115:54869\",\n    \"10.193.66.115:54869\"\n  ],\n  \"supporting_alert_evidence\": [\n    {\n      \"alert_id\": null,\n      \"alert_name\": null,\n      \"source_stream\": \"cbc-edr\",\n      \"why_supporting_only\": \"CBC alert summary は起点情報ではなく、今回の復元では alert title や reason を code_sequence に転記していないため。\"\n    }\n  ],\n  \"excluded_nearby_evidence\": [\n    {\n      \"time\": null,\n      \"subject_process\": null,\n      \"operation\": \"対象外の近傍プロセス\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"flashplayerupdateservice.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"reason\": \"python.exe との直接の親子関係や対象操作の接続証拠が確認できていないため。\"\n    },\n    {\n      \"time\": null,\n      \"subject_process\": null,\n      \"operation\": \"対象外の近傍プロセス\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"taskeng.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"reason\": \"python.exe との直接の親子関係や対象操作の接続証拠が確認できていないため。\"\n    },\n    {\n      \"time\": null,\n      \"subject_process\": null,\n      \"operation\": \"近傍の対象オブジェクト候補\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": \"C:\\\\Windows\\\\Globalization\\\\Sorting\\\\SortDefault.nls\",\n        \"path\": \"C:\\\\Windows\\\\Globalization\\\\Sorting\\\\SortDefault.nls\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"reason\": \"この出力範囲では python.exe との直接結びつきが確認できていないため。\"\n    },\n    {\n      \"time\": null,\n      \"subject_process\": null,\n      \"operation\": \"近傍の対象オブジェクト候補\",\n      \"object\": {\n        \"type\": \"registry_key\",\n        \"name\": \"HKLM\\\\System\\\\CurrentControlSet\\\\services\\\\CbDefense\\\\MachineGuid\",\n        \"path\": \"HKLM\\\\System\\\\CurrentControlSet\\\\services\\\\CbDefense\\\\MachineGuid\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"reason\": \"この出力範囲では python.exe との直接結びつきが確認できていないため。\"\n    }\n  ],\n  \"global_limitations\": [\n    \"この時間範囲では python.exe に紐づくファイル操作、レジストリ操作、子プロセス生成の直接証拠は確認できなかった。\",\n    \"ネットワーク接続は観測できたが、通信内容や接続方向は特定できない。\",\n    \"CBC alert の summary/reason は補助証拠としてのみ扱い、code_sequence には使用していない。\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-17 13:30:00 に c:\\\\python27\\\\python.exe(pid=5816) が cmd.exe(pid=2032) から `python  -m SimpleHTTPServer` で起動された。\",\n    \"2022-07-17 13:31:11 に c:\\\\python27\\\\python.exe が 10.193.66.115:54869 へのネットワーク接続を示した。\",\n    \"2022-07-17 13:31:12 に c:\\\\python27\\\\python.exe が同一宛先 10.193.66.115:54869 への継続的な接続を示した。\"\n  ]\n}",
+      "usage_metadata": {
+        "input_tokens": 5425,
+        "output_tokens": 2158,
+        "total_tokens": 7583,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    }
+  ],
+  "output_text": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"python.exe\",\n    \"timestamp\": \"2022-07-17 13:30:00\",\n    \"condition\": \"stage3\",\n    \"input_fields_used\": [\n      \"host\",\n      \"process\",\n      \"timestamp\"\n    ]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-17 13:30:00\",\n      \"subject_process\": {\n        \"name\": \"c:\\\\python27\\\\python.exe\",\n        \"pid\": 5816,\n        \"path\": \"c:\\\\python27\\\\python.exe\"\n      },\n      \"operation\": \"プロセス起動\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"cmd.exe\",\n        \"path\": \"c:\\\\windows\\\\system32\\\\cmd.exe\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"python  -m SimpleHTTPServer\",\n      \"execution_context\": {\n        \"parent_process\": \"cmd.exe\",\n        \"parent_pid\": 2032,\n        \"parent_command_line\": \"\\\"C:\\\\Windows\\\\System32\\\\cmd.exe\\\"\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-17 13:30:00\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"pid/ppid/pname/process_name/parent_process_name/parent_process_path/parent_command_line/command_line\",\n          \"value\": \"pid=5816; ppid=2032; pname=c:\\\\python27\\\\python.exe; process_name=c:\\\\python27\\\\python.exe; parent_process_name=cmd.exe; parent_process_path=c:\\\\windows\\\\system32\\\\cmd.exe; parent_command_line=\\\"C:\\\\Windows\\\\System32\\\\cmd.exe\\\"; command_line=python  -m SimpleHTTPServer\",\n          \"pid\": 5816,\n          \"ppid\": 2032\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"この範囲では子プロセス、ファイル操作、レジストリ操作の直接証拠は確認できていない。\"\n      ]\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-17 13:31:11\",\n      \"subject_process\": {\n        \"name\": \"c:\\\\python27\\\\python.exe\",\n        \"pid\": 5816,\n        \"path\": \"c:\\\\python27\\\\python.exe\"\n      },\n      \"operation\": \"ネットワーク接続の確立\",\n      \"object\": {\n        \"type\": \"network\",\n        \"name\": \"10.193.66.115:54869\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"python  -m SimpleHTTPServer\",\n      \"execution_context\": {\n        \"parent_process\": \"cmd.exe\",\n        \"parent_pid\": 2032,\n        \"parent_command_line\": \"\\\"C:\\\\Windows\\\\System32\\\\cmd.exe\\\"\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-17 13:31:11\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_ip/remote_port/action\",\n          \"value\": \"remote_ip=10.193.66.115; remote_port=54869; action=ACTION_CONNECTION_ESTABLISHED\",\n          \"pid\": 5816,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"接続の方向、相手の役割、通信内容はこの証拠だけでは特定できない。\"\n      ]\n    },\n    {\n      \"step_id\": \"S3\",\n      \"order\": 3,\n      \"time\": \"2022-07-17 13:31:12\",\n      \"subject_process\": {\n        \"name\": \"c:\\\\python27\\\\python.exe\",\n        \"pid\": 5816,\n        \"path\": \"c:\\\\python27\\\\python.exe\"\n      },\n      \"operation\": \"ネットワーク接続の継続\",\n      \"object\": {\n        \"type\": \"network\",\n        \"name\": \"10.193.66.115:54869\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"python  -m SimpleHTTPServer\",\n      \"execution_context\": {\n        \"parent_process\": \"cmd.exe\",\n        \"parent_pid\": 2032,\n        \"parent_command_line\": \"\\\"C:\\\\Windows\\\\System32\\\\cmd.exe\\\"\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-17 13:31:12\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_ip/remote_port/action\",\n          \"value\": \"remote_ip=10.193.66.115; remote_port=54869; action=ACTION_CONNECTION_ESTABLISHED\",\n          \"pid\": 5816,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"同一接続先への継続的な通信が観測されるが、追加の対象操作は確認できていない。\"\n      ]\n    }\n  ],\n  \"code_sequence\": [\n    \"cmd.exe -> python.exe\",\n    \"python  -m SimpleHTTPServer\",\n    \"10.193.66.115:54869\",\n    \"10.193.66.115:54869\"\n  ],\n  \"supporting_alert_evidence\": [\n    {\n      \"alert_id\": null,\n      \"alert_name\": null,\n      \"source_stream\": \"cbc-edr\",\n      \"why_supporting_only\": \"CBC alert summary は起点情報ではなく、今回の復元では alert title や reason を code_sequence に転記していないため。\"\n    }\n  ],\n  \"excluded_nearby_evidence\": [\n    {\n      \"time\": null,\n      \"subject_process\": null,\n      \"operation\": \"対象外の近傍プロセス\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"flashplayerupdateservice.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"reason\": \"python.exe との直接の親子関係や対象操作の接続証拠が確認できていないため。\"\n    },\n    {\n      \"time\": null,\n      \"subject_process\": null,\n      \"operation\": \"対象外の近傍プロセス\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"taskeng.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"reason\": \"python.exe との直接の親子関係や対象操作の接続証拠が確認できていないため。\"\n    },\n    {\n      \"time\": null,\n      \"subject_process\": null,\n      \"operation\": \"近傍の対象オブジェクト候補\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": \"C:\\\\Windows\\\\Globalization\\\\Sorting\\\\SortDefault.nls\",\n        \"path\": \"C:\\\\Windows\\\\Globalization\\\\Sorting\\\\SortDefault.nls\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"reason\": \"この出力範囲では python.exe との直接結びつきが確認できていないため。\"\n    },\n    {\n      \"time\": null,\n      \"subject_process\": null,\n      \"operation\": \"近傍の対象オブジェクト候補\",\n      \"object\": {\n        \"type\": \"registry_key\",\n        \"name\": \"HKLM\\\\System\\\\CurrentControlSet\\\\services\\\\CbDefense\\\\MachineGuid\",\n        \"path\": \"HKLM\\\\System\\\\CurrentControlSet\\\\services\\\\CbDefense\\\\MachineGuid\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"reason\": \"この出力範囲では python.exe との直接結びつきが確認できていないため。\"\n    }\n  ],\n  \"global_limitations\": [\n    \"この時間範囲では python.exe に紐づくファイル操作、レジストリ操作、子プロセス生成の直接証拠は確認できなかった。\",\n    \"ネットワーク接続は観測できたが、通信内容や接続方向は特定できない。\",\n    \"CBC alert の summary/reason は補助証拠としてのみ扱い、code_sequence には使用していない。\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-17 13:30:00 に c:\\\\python27\\\\python.exe(pid=5816) が cmd.exe(pid=2032) から `python  -m SimpleHTTPServer` で起動された。\",\n    \"2022-07-17 13:31:11 に c:\\\\python27\\\\python.exe が 10.193.66.115:54869 へのネットワーク接続を示した。\",\n    \"2022-07-17 13:31:12 に c:\\\\python27\\\\python.exe が同一宛先 10.193.66.115:54869 への継続的な接続を示した。\"\n  ]\n}",
+  "usage": {
+    "input_tokens": 14196,
+    "output_tokens": 3340,
+    "cached_input_tokens": 0
+  },
+  "formal_27_chain_experiment": {
+    "case_file": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\cases\\cbc_23_chain_stage_cases_2026-06-12.jsonl",
+    "chain_id": "chain_15_e10_python_simplehttpserver_network_chain",
+    "stage": "stage3",
+    "gold_chain_file": "by_chain/chain_15_e10_python_simplehttpserver_network_chain/chain_gold.json",
+    "copied_from": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260613T081222Z_chain_15_e10_python_simplehttpserver_network_chain_stage3_gpt-5.4-mini_official\\run.json",
+    "run_only_guarded": true
+  }
+}

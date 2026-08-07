@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="900" viewBox="0 0 1480 900">
+  <rect width="1480" height="900" fill="#f7f4ec"/>
+  <rect x="40" y="40" width="1400" height="820" rx="28" fill="#fffdf8" stroke="#e5dccb"/>
+
+  <text x="70" y="95" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="34" font-weight="700" fill="#1d1d1b">抽出フロー: Sequence anomaly から mixed 100 logs まで</text>
+  <text x="70" y="130" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="18" fill="#59554f">どこまでが異常検知の直接出力か、どこからがレビュー用の再構成かを分けて示す。</text>
+
+  <rect x="70" y="170" width="640" height="620" rx="20" fill="#eef5ff" stroke="#b7d0f2"/>
+  <text x="95" y="210" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="26" font-weight="700" fill="#123b6d">A. 異常検知の直接出力</text>
+
+  <rect x="95" y="245" width="590" height="120" rx="16" fill="#ffffff" stroke="#c7d8ef"/>
+  <text x="120" y="285" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="22" font-weight="700" fill="#1d1d1b">1. 正常学習</text>
+  <text x="120" y="318" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="18" fill="#59554f">入力: benign-1to4</text>
+  <text x="120" y="345" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="18" fill="#59554f">ここは「正常4日分」を学習しているが、「5日目1回検証」と同義ではない</text>
+
+  <rect x="95" y="390" width="590" height="140" rx="16" fill="#ffffff" stroke="#c7d8ef"/>
+  <text x="120" y="430" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="22" font-weight="700" fill="#1d1d1b">2. Security first pass</text>
+  <text x="120" y="463" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="18" fill="#59554f">単位: 10分 sequence</text>
+  <text x="120" y="490" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="18" fill="#59554f">出力: 上位 anomaly sequences</text>
+  <text x="120" y="517" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="18" fill="#59554f">例: S3=2本, M4=4本, M6=3本, S4=3本</text>
+
+  <rect x="95" y="555" width="590" height="140" rx="16" fill="#ffffff" stroke="#c7d8ef"/>
+  <text x="120" y="595" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="22" font-weight="700" fill="#1d1d1b">3. Sysmon minute score</text>
+  <text x="120" y="628" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="18" fill="#59554f">単位: 1分 minute</text>
+  <text x="120" y="655" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="18" fill="#59554f">役割: sequence の近傍で「どの process がいたか」を説明する</text>
+  <text x="120" y="682" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="18" fill="#59554f">注意: ここも直接の usecase ではなく、文脈補助</text>
+
+  <rect x="770" y="170" width="640" height="620" rx="20" fill="#fff5ea" stroke="#efcfaa"/>
+  <text x="795" y="210" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="26" font-weight="700" fill="#8a4a00">B. レビュー用の再構成</text>
+
+  <rect x="795" y="245" width="590" height="120" rx="16" fill="#ffffff" stroke="#f1d7b6"/>
+  <text x="820" y="285" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="22" font-weight="700" fill="#1d1d1b">4. review queue を作る</text>
+  <text x="820" y="318" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="18" fill="#59554f">上位 sequence に近い Sysmon minute を束ねる</text>
+  <text x="820" y="345" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="18" fill="#59554f">ここで初めて sequence から個別ログへ降りる</text>
+
+  <rect x="795" y="390" width="590" height="140" rx="16" fill="#ffffff" stroke="#f1d7b6"/>
+  <text x="820" y="430" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="22" font-weight="700" fill="#1d1d1b">5. minute を4分類する</text>
+  <text x="820" y="463" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="18" fill="#59554f">core_normal / attack_near / neutral_context / background_context</text>
+  <text x="820" y="490" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="18" fill="#59554f">ここはルールベースで、恣意性が入り得る部分</text>
+  <text x="820" y="517" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="18" fill="#59554f">つまり「異常検知の直接出力」ではなく「レビュー設計」</text>
+
+  <rect x="795" y="555" width="590" height="170" rx="16" fill="#ffffff" stroke="#f1d7b6"/>
+  <text x="820" y="595" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="22" font-weight="700" fill="#1d1d1b">6. mixed 100 logs に再構成する</text>
+  <text x="820" y="628" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="18" fill="#59554f">優先順: core_normal → attack_near → neutral → background</text>
+  <text x="820" y="655" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="18" fill="#59554f">結果: attack と normal が混ざった 100 event</text>
+  <text x="820" y="682" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="18" fill="#59554f">この中の normal 側から usecase を作る</text>
+  <text x="820" y="709" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="18" fill="#59554f">なので「top sequence そのもの」ではなく「sequence 起点の再構成集合」</text>
+
+  <line x1="710" y1="480" x2="770" y2="480" stroke="#9a7b4f" stroke-width="4"/>
+  <polygon points="770,480 752,470 752,490" fill="#9a7b4f"/>
+
+  <rect x="70" y="805" width="1340" height="30" rx="10" fill="#f0ece3"/>
+  <text x="90" y="826" font-family="Segoe UI, Yu Gothic, sans-serif" font-size="17" fill="#59554f">要点: 今の 100ログは「異常検知が直接吐いた 100ログ」ではなく、「上位 sequence 数本を起点に Sysmon へ降り、レビュー目的で再構成した 100ログ」である。</text>
+</svg>

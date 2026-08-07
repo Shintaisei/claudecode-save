@@ -1,0 +1,141 @@
+{
+  "case_id": "chain_21_e15_python_simplehttpserver_network_chain_stage2",
+  "reviewer": "codex_manual_review2",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "gold_chain": {
+    "chain_id": "chain_21_e15_python_simplehttpserver_network_chain",
+    "chain_type": "python_simplehttpserver_network_chain",
+    "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_21_e15_python_simplehttpserver_network_chain/chain_gold.json",
+    "gold_steps": [
+      {
+        "step_id": "C21-S01",
+        "order": 1,
+        "subject": "python.exe",
+        "action": "start SimpleHTTPServer module",
+        "object": "python  -m SimpleHTTPServer",
+        "critical_evidence": "CBC event process_cmdline"
+      },
+      {
+        "step_id": "C21-S02",
+        "order": 2,
+        "subject": "python.exe",
+        "action": "detected as network server behavior",
+        "object": "10.193.66.115:49187",
+        "critical_evidence": "CBC event netconn"
+      }
+    ]
+  },
+  "per_gold_step": [
+    {
+      "step_id": "C21-S01",
+      "gold_order": 1,
+      "matched_candidate_claim_ids": [
+        "cand-01"
+      ],
+      "subject": {
+        "score": 1,
+        "note": "Candidate identifies python.exe as the subject process."
+      },
+      "action": {
+        "score": 1,
+        "note": "Candidate reports a process_start for python.exe with the SimpleHTTPServer module command."
+      },
+      "object": {
+        "score": 1,
+        "note": "Candidate includes command_line/code_sequence 'python -m SimpleHTTPServer'; this matches the SimpleHTTPServer command object semantically, though not the exact double-space spelling in gold."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "note": "Candidate cites generic audit_logs fields pname/command_line, not a CBC event process_cmdline field. Under the strict evidence rule this is not sufficient."
+      },
+      "step_total": 3
+    },
+    {
+      "step_id": "C21-S02",
+      "gold_order": 2,
+      "matched_candidate_claim_ids": [],
+      "subject": {
+        "score": 0,
+        "note": "No candidate behavior step claims python.exe network-server/netconn behavior."
+      },
+      "action": {
+        "score": 0,
+        "note": "Candidate explicitly says python.exe network connections were not observed rather than recovering the network server behavior."
+      },
+      "object": {
+        "score": 0,
+        "note": "Gold netconn object 10.193.66.115:49187 is absent."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "note": "No CBC event netconn evidence is provided."
+      },
+      "step_total": 0
+    }
+  ],
+  "order_pairs": [
+    {
+      "gold_pair": [
+        "C21-S01",
+        "C21-S02"
+      ],
+      "candidate_pair": null,
+      "score": 0,
+      "note": "Candidate has only the SimpleHTTPServer start step and omits the following netconn/network-server step."
+    }
+  ],
+  "candidate_claims": [
+    {
+      "claim_id": "cand-01",
+      "candidate_location": "code_steps[0]",
+      "claim": "python.exe PID 1356 started with command_line 'python -m SimpleHTTPServer' at 2022-07-18 13:25:00.",
+      "mapped_gold_step": "C21-S01",
+      "precision_hit": 1,
+      "overclaim": false,
+      "note": "Correct behavioral step for SimpleHTTPServer startup, but its cited evidence is not the required CBC event process_cmdline."
+    },
+    {
+      "claim_id": "cand-02",
+      "candidate_location": "code_steps[0].execution_context",
+      "claim": "Parent process is cmd.exe PID 2032.",
+      "mapped_gold_step": null,
+      "precision_hit": 0,
+      "overclaim": true,
+      "note": "Parent cmd context is outside this gold chain and should not be counted as a recovered behavior step."
+    },
+    {
+      "claim_id": "cand-03",
+      "candidate_location": "global_limitations/timeline_ja",
+      "claim": "python.exe network connections were not observed in the expanded time range.",
+      "mapped_gold_step": "C21-S02",
+      "precision_hit": 0,
+      "overclaim": false,
+      "note": "This contradicts the gold CBC netconn/network-server behavior object 10.193.66.115:49187."
+    }
+  ],
+  "totals": {
+    "item_score": 3,
+    "item_denominator": 8,
+    "action_step_recall_hits/total": "1/2",
+    "action_step_recall": 0.5,
+    "action_step_precision_hits/total": "1/1",
+    "action_step_precision": 1.0,
+    "candidate_claim_precision_hits/total": "1/3",
+    "candidate_claim_precision": 0.3333333333,
+    "overclaim_slot_count": 1,
+    "behavior_sequence_order_hits/total": "0/1",
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits/total": "0/2",
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits/total": "1/2",
+    "behavior_step_recall": 0.5
+  },
+  "notes": [
+    "Manual Review2 only; no OpenAI API or GPT grading script was used.",
+    "Candidate recovered the SimpleHTTPServer startup behavior but did not recover the CBC netconn/network-server behavior.",
+    "Critical evidence was scored strictly: generic audit_logs command_line/pname evidence does not satisfy CBC event process_cmdline, and the candidate provides no CBC event netconn evidence.",
+    "The candidate's statement that network connections were not observed is a false negative against the gold netconn object 10.193.66.115:49187.",
+    "Existing unrelated workspace changes were not modified."
+  ]
+}

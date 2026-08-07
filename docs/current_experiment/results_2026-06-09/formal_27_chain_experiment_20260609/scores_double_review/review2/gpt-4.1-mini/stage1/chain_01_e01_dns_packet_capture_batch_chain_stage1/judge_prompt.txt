@@ -1,0 +1,477 @@
+You are a strict evaluator for Windows endpoint behavior-chain reconstruction.
+
+Score CANDIDATE_OUTPUT against GOLD using action-claim metrics.
+
+Core definitions:
+- An action_claim is the smallest behavior assertion where one subject performs one operation against one object.
+- A candidate code_step may contain multiple action_claims. Split it when it contains multiple subjects, operations, objects, command lines, or unrelated behaviors.
+- The candidate's surface output is code_steps/code_sequence. The scoring unit is the action_claim you extract from those outputs.
+- Each action_claim can have at most these scoring slots: subject, operation, object, command_line, critical_evidence.
+- command_line is an attribute of the relevant action_claim. It is not an independent behavior step.
+- critical_evidence is one slot per action_claim. If the candidate lists many evidence rows for the same claim, select the best support and score only one critical_evidence slot. Do not increase the denominator because evidence is verbose.
+
+Primary metrics:
+- behavior_step_recall: step-level recall over GOLD.gold_step_count. A gold step is covered when at least one required item from that step is recovered.
+- action_step_recall: for every GOLD.gold_required_items item, score 1 if the candidate reconstructs the same substantive value, otherwise 0.
+- action_step_precision: score gold-aligned correctness on the same dynamic GOLD.gold_required_items denominator as recall. The numerator is the number of unique true-positive candidate slots that match gold required items.
+- candidate_claim_precision is a diagnostic: for every non-null candidate action_claim slot you list, mark it as true positive or false positive against gold. This diagnostic keeps the candidate-side denominator.
+- behavior_sequence_order: score each gold order pair as 1 only when the related action claims are recovered and their relative order is correct.
+
+Extraction and denominator rules:
+- Recall denominator is the number of GOLD.gold_required_items in the GOLD block. In this run it is 12.
+- Main precision denominator is the same number of GOLD.gold_required_items. In this run it is 12.
+- Step-level behavior_step_recall / coarse action-step coverage denominator is GOLD.gold_step_count. In this run it is 3.
+- Behavior order denominator is GOLD.gold_order_pair_count. In this run it is 2.
+- Candidate-side overclaiming is not folded into the main precision denominator. It is reported by candidate_claim_precision and overclaim_slot_count.
+- Do not list null, unknown, not observed, absent, or explicitly uncertain placeholder values as candidate slots.
+- If a candidate says an observed gold value does not exist, or makes a negative claim that contradicts observed evidence, list that negative claim as a false positive slot.
+- If the candidate mixes in a nearby unrelated behavior, split that nearby behavior into its own action_claims and score their slots as false positives unless they match gold.
+- Duplicate true-positive slots may match the same gold item only once for the numerator. Repeated duplicate claims do not increase the main precision denominator; they remain in the candidate_claim_precision denominator and overclaim diagnostics.
+- Do not score precision at the sentence, paragraph, major-claim, or coarse-step level.
+
+Evidence policy:
+- Gold uses critical_evidence, not arbitrary evidence count.
+- Candidate evidence verbosity must not expand recall or precision denominators.
+- CBC alert report_name/reason is evidence only.
+- If an alert name such as "Discovery - Query Registry" or "Persistence - Regmod Run or Runonce Key Modification" is emitted as the behavior operation, mark that operation slot as false positive with false_positive_type=alert_name_as_behavior.
+- Fabricated concrete PID, event_id, alert_id, path, command line, process relation, registry path, or timestamp must reduce precision and be listed in hallucinated_claims.
+- A real-but-noncritical extra evidence citation for an otherwise correct action_claim should not create additional denominator slots; unsupported or contradicted evidence should be counted in unsupported_evidence or contradicted_evidence diagnostics.
+
+Scoring style:
+- Give 0 for missing, ambiguous, partially wrong, unrelated-chain, or unsupported values. Do not use 0.5.
+- Return JSON only. All scores must be integer 0 or 1.
+- Use Japanese for reasons and summaries. Preserve raw paths, command lines, alert IDs, source_stream values, and timestamps exactly.
+
+Expected JSON schema:
+{
+  "case_id": "string",
+  "judge_summary_ja": "string",
+  "chains": [
+    {
+      "chain_id": "string",
+      "gold_required_item_scores": [
+        {
+          "item_id": "string",
+          "step_id": "string",
+          "kind": "subject|operation|object|command_line|critical_evidence",
+          "matched_candidate_excerpt": "string|null",
+          "score": "0|1",
+          "reason_ja": "string"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "string",
+          "candidate_step_id": "string|null",
+          "claim_excerpt": "string",
+          "normalized_action_claim_ja": "string",
+          "slot_scores": [
+            {
+              "slot_id": "string",
+              "kind": "subject|operation|object|command_line|critical_evidence",
+              "candidate_slot_excerpt": "string",
+              "matched_gold_item_id": "string|null",
+              "is_true_positive": "0|1",
+              "false_positive_type": "nearby_unrelated|hallucinated_value|alert_name_as_behavior|unsupported_negative|unsupported_inference|unsupported_evidence|contradicted_evidence|duplicate_claim|none",
+              "reason_ja": "string"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "string",
+          "after_step_id": "string",
+          "score": "0|1",
+          "reason_ja": "string"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "item_id"
+    ],
+    "chain_mixing": "boolean",
+    "hallucinated_claims": [
+      "string"
+    ],
+    "unsupported_evidence": [
+      "string"
+    ],
+    "contradicted_evidence": [
+      "string"
+    ],
+    "nearby_action_false_positives": [
+      "string"
+    ],
+    "weak_grounding": "boolean",
+    "false_positive_claims": [
+      "string"
+    ],
+    "notes_ja": [
+      "string"
+    ]
+  },
+  "candidate_action_claim_count": "integer",
+  "candidate_action_claim_slot_count": "integer",
+  "candidate_action_claim_true_positive_slot_count": "integer",
+  "hallucinated_claim_count": "integer",
+  "unsupported_evidence_count": "integer",
+  "contradicted_evidence_count": "integer",
+  "nearby_action_fp_count": "integer",
+  "main_missing_items": [
+    "string"
+  ],
+  "main_false_positive_claims": [
+    "string"
+  ]
+}
+
+GOLD:
+{
+  "evaluation_unit": "action_claim_required_items",
+  "case_id": null,
+  "gold_step_count": 3,
+  "gold_required_item_count": 12,
+  "gold_order_pair_count": 2,
+  "gold_required_items": [
+    {
+      "chain_id": "chain_01_e01_dns_packet_capture_batch_chain",
+      "step_id": "C01-S01",
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:subject",
+      "kind": "subject",
+      "gold_value": "explorer.exe",
+      "acceptable_terms": [
+        "explorer.exe"
+      ]
+    },
+    {
+      "chain_id": "chain_01_e01_dns_packet_capture_batch_chain",
+      "step_id": "C01-S01",
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:operation",
+      "kind": "operation",
+      "gold_value": "cmd.exeを子プロセスとして起動した",
+      "acceptable_terms": [
+        "cmd.exeを子プロセスとして起動した"
+      ]
+    },
+    {
+      "chain_id": "chain_01_e01_dns_packet_capture_batch_chain",
+      "step_id": "C01-S01",
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:object",
+      "kind": "object",
+      "gold_value": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+      "acceptable_terms": [
+        "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \""
+      ]
+    },
+    {
+      "chain_id": "chain_01_e01_dns_packet_capture_batch_chain",
+      "step_id": "C01-S01",
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "CBC alert / CBC event の parent_path と process_cmdline",
+      "acceptable_terms": [
+        "CBC alert / CBC event の parent_path と process_cmdline"
+      ]
+    },
+    {
+      "chain_id": "chain_01_e01_dns_packet_capture_batch_chain",
+      "step_id": "C01-S02",
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:subject",
+      "kind": "subject",
+      "gold_value": "cmd.exe",
+      "acceptable_terms": [
+        "cmd.exe"
+      ]
+    },
+    {
+      "chain_id": "chain_01_e01_dns_packet_capture_batch_chain",
+      "step_id": "C01-S02",
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:operation",
+      "kind": "operation",
+      "gold_value": "/cでバッチファイルを実行した",
+      "acceptable_terms": [
+        "/cでバッチファイルを実行した"
+      ]
+    },
+    {
+      "chain_id": "chain_01_e01_dns_packet_capture_batch_chain",
+      "step_id": "C01-S02",
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:object",
+      "kind": "object",
+      "gold_value": "start_dns_logs.bat",
+      "acceptable_terms": [
+        "start_dns_logs.bat"
+      ]
+    },
+    {
+      "chain_id": "chain_01_e01_dns_packet_capture_batch_chain",
+      "step_id": "C01-S02",
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "process_cmdline",
+      "acceptable_terms": [
+        "process_cmdline"
+      ]
+    },
+    {
+      "chain_id": "chain_01_e01_dns_packet_capture_batch_chain",
+      "step_id": "C01-S03",
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:subject",
+      "kind": "subject",
+      "gold_value": "cmd.exe",
+      "acceptable_terms": [
+        "cmd.exe"
+      ]
+    },
+    {
+      "chain_id": "chain_01_e01_dns_packet_capture_batch_chain",
+      "step_id": "C01-S03",
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:operation",
+      "kind": "operation",
+      "gold_value": "ログ収集系プロセスを派生させた",
+      "acceptable_terms": [
+        "ログ収集系プロセスを派生させた"
+      ]
+    },
+    {
+      "chain_id": "chain_01_e01_dns_packet_capture_batch_chain",
+      "step_id": "C01-S03",
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:object",
+      "kind": "object",
+      "gold_value": "tshark.exe",
+      "acceptable_terms": [
+        "tshark.exe"
+      ]
+    },
+    {
+      "chain_id": "chain_01_e01_dns_packet_capture_batch_chain",
+      "step_id": "C01-S03",
+      "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event childproc/object",
+      "acceptable_terms": [
+        "CBC event childproc/object"
+      ]
+    }
+  ],
+  "chains": [
+    {
+      "chain_id": "chain_01_e01_dns_packet_capture_batch_chain",
+      "chain_title": "DNS packet capture batch execution",
+      "gold_steps": [
+        {
+          "step_id": "C01-S01",
+          "source_step_id": "W01-S01",
+          "source_case_id": "gold_5min33_01_e01_w01_cmd_exe_2022_07_15t13_15_00z",
+          "source_window_id": "W01",
+          "episode_id": "E01",
+          "order": 1,
+          "focus_process": "cmd.exe",
+          "subject": "explorer.exe",
+          "action": "cmd.exeを子プロセスとして起動した",
+          "object": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+          "evidence_basis": "CBC alert / CBC event の parent_path と process_cmdline",
+          "confidence": "観測",
+          "supporting_evidence": {
+            "source_types": [
+              "CBC alert",
+              "Security",
+              "Sysmon",
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr-alerts create_time=2022-07-15T13:18:55.479Z alert_id=CFnKBKLTv6hUkBGFobRdg-565642 report/reason=Execution - Command-Line Interface (cmd.exe /c)",
+              "cbc-edr-alerts create_time=2022-07-15T13:18:55.487Z alert_id=CFnKBKLTv6hUkBGFobRdg-565644 report/reason=Execution - Command and Scripting Interpreter Execution",
+              "Security EventRecordID=2489278 EventID=4663 timestamp=2022-07-15T13:13:01.360084Z",
+              "window_start_utc=2022-07-15T13:13:00Z event_id_distribution=4656:137; 4658:134; 4663:101; 4688:3; 4689:1",
+              "Sysmon EventRecordID=2102 EventID=1 timestamp=2022-07-15T13:13:01.313283Z",
+              "ParentImage=C:\\Windows\\explorer.exe ProcessGuid={558F98EB-67DD-62D1-4900-000000003700}",
+              "window_start_utc=2022-07-15T13:13:00Z event_id_distribution=1:3; 5:1",
+              "Security EventRecordID=2520443 EventID=4663 timestamp=2022-07-15T13:14:01.874590Z"
+            ]
+          },
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "process_code_object": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \""
+        },
+        {
+          "step_id": "C01-S02",
+          "source_step_id": "W01-S02",
+          "source_case_id": "gold_5min33_01_e01_w01_cmd_exe_2022_07_15t13_15_00z",
+          "source_window_id": "W01",
+          "episode_id": "E01",
+          "order": 2,
+          "focus_process": "cmd.exe",
+          "subject": "cmd.exe",
+          "action": "/cでバッチファイルを実行した",
+          "object": "start_dns_logs.bat",
+          "evidence_basis": "process_cmdline",
+          "confidence": "観測",
+          "supporting_evidence": {
+            "source_types": [
+              "CBC alert",
+              "Security",
+              "Sysmon",
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr-alerts create_time=2022-07-15T13:18:55.479Z alert_id=CFnKBKLTv6hUkBGFobRdg-565642 report/reason=Execution - Command-Line Interface (cmd.exe /c)",
+              "cbc-edr-alerts create_time=2022-07-15T13:18:55.487Z alert_id=CFnKBKLTv6hUkBGFobRdg-565644 report/reason=Execution - Command and Scripting Interpreter Execution",
+              "Security EventRecordID=2489278 EventID=4663 timestamp=2022-07-15T13:13:01.360084Z",
+              "window_start_utc=2022-07-15T13:13:00Z event_id_distribution=4656:137; 4658:134; 4663:101; 4688:3; 4689:1",
+              "Sysmon EventRecordID=2102 EventID=1 timestamp=2022-07-15T13:13:01.313283Z",
+              "ParentImage=C:\\Windows\\explorer.exe ProcessGuid={558F98EB-67DD-62D1-4900-000000003700}",
+              "window_start_utc=2022-07-15T13:13:00Z event_id_distribution=1:3; 5:1",
+              "Security EventRecordID=2520443 EventID=4663 timestamp=2022-07-15T13:14:01.874590Z"
+            ]
+          },
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "process_code_object": "start_dns_logs.bat"
+        },
+        {
+          "step_id": "C01-S03",
+          "source_step_id": "W01-S03",
+          "source_case_id": "gold_5min33_01_e01_w01_cmd_exe_2022_07_15t13_15_00z",
+          "source_window_id": "W01",
+          "episode_id": "E01",
+          "order": 3,
+          "focus_process": "cmd.exe",
+          "subject": "cmd.exe",
+          "action": "ログ収集系プロセスを派生させた",
+          "object": "tshark.exe",
+          "evidence_basis": "CBC event childproc/object",
+          "confidence": "観測",
+          "supporting_evidence": {
+            "source_types": [
+              "CBC alert",
+              "Security",
+              "Sysmon",
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr-alerts create_time=2022-07-15T13:18:55.479Z alert_id=CFnKBKLTv6hUkBGFobRdg-565642 report/reason=Execution - Command-Line Interface (cmd.exe /c)",
+              "cbc-edr-alerts create_time=2022-07-15T13:18:55.487Z alert_id=CFnKBKLTv6hUkBGFobRdg-565644 report/reason=Execution - Command and Scripting Interpreter Execution",
+              "Security EventRecordID=2489278 EventID=4663 timestamp=2022-07-15T13:13:01.360084Z",
+              "window_start_utc=2022-07-15T13:13:00Z event_id_distribution=4656:137; 4658:134; 4663:101; 4688:3; 4689:1",
+              "Sysmon EventRecordID=2102 EventID=1 timestamp=2022-07-15T13:13:01.313283Z",
+              "ParentImage=C:\\Windows\\explorer.exe ProcessGuid={558F98EB-67DD-62D1-4900-000000003700}",
+              "window_start_utc=2022-07-15T13:13:00Z event_id_distribution=1:3; 5:1",
+              "Security EventRecordID=2520443 EventID=4663 timestamp=2022-07-15T13:14:01.874590Z"
+            ]
+          },
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "process_code_object": "tshark.exe"
+        }
+      ],
+      "gold_order_pairs": []
+    }
+  ]
+}
+
+CANDIDATE_OUTPUT:
+{
+  "source_run_json": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\docs\\current_experiment\\results_2026-06-09\\formal_27_chain_experiment_20260609\\runs\\gpt-4.1-mini\\stage1\\chain_01_e01_dns_packet_capture_batch_chain_stage1_run.json",
+  "run_id": "20260610T045629Z_chain_01_e01_dns_packet_capture_batch_chain_stage1_gpt-4.1-mini_official",
+  "model": "gpt-4.1-mini",
+  "instance_id": "chain_01_e01_dns_packet_capture_batch_chain_stage1",
+  "difficulty": "alert_input",
+  "experiment_stage": "stage1",
+  "expected_input_fields": [
+    "host",
+    "focus_processes",
+    "chain_window_start_utc",
+    "chain_window_end_utc",
+    "alert_time",
+    "alert_id",
+    "alert_name",
+    "alert_reason",
+    "alert_process",
+    "alert_pid",
+    "alert_source_stream",
+    "alert_severity"
+  ],
+  "clue": "これは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage1\n- host: WIN-32-H1\n- process: cmd.exe\n- timestamp: 2022-07-15 13:18:55\n- 参考 UTC 時間範囲: 2022-07-15T13:15:00Z から 2022-07-15T13:20:00Z\n- 参考 database 時間範囲: 2022-07-15 13:15:00 から 2022-07-15 13:20:00\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 1: SOC analyst が見ている CBC alert triage 情報を初期入力に含める。\n- 入力 alert fields は探索起点であり、最終的な code step ではない。\n- alert report_name/reason は evidence として扱い、operation や code_sequence に入れない。\n- command line、parent process、child process、registry object、file object、network object、behavior category は入力から仮定しない。\n- それらの値は、存在するなら log から発見する必要がある。\n- input_alert_timestamp_utc: 2022-07-15T13:18:55.479Z\n- input_alert_database_time: 2022-07-15 13:18:55\n- input_alert_source_stream: cbc-edr-alerts\n- input_alert_id: CFnKBKLTv6hUkBGFobRdg-565642\n- input_alert_name: Execution - Command-Line Interface (cmd.exe /c)\n- input_alert_reason: None\n- input_alert_process_name: cmd.exe\n- input_alert_severity: 1\n- input_alert_rows:\n  1. alert_time=2022-07-15T13:18:55.479Z; alert_id=CFnKBKLTv6hUkBGFobRdg-565642; alert_name=Execution - Command-Line Interface (cmd.exe /c); alert_reason=None; alert_process=None; alert_pid=3344; alert_source_stream=cbc-edr-alerts; alert_severity=1\n  2. alert_time=2022-07-15T13:18:55.479Z; alert_id=CFnKBKLTv6hUkBGFobRdg-565642; alert_name=Execution - Command-Line Interface (cmd.exe /c); alert_reason=None; alert_process=None; alert_pid=336; alert_source_stream=cbc-edr-alerts; alert_severity=1\n  3. alert_time=2022-07-15T13:18:55.487Z; alert_id=CFnKBKLTv6hUkBGFobRdg-565644; alert_name=Execution - Command and Scripting Interpreter Execution; alert_reason=None; alert_process=None; alert_pid=3344; alert_source_stream=cbc-edr-alerts; alert_severity=1\n  4. alert_time=2022-07-15T13:18:55.487Z; alert_id=CFnKBKLTv6hUkBGFobRdg-565644; alert_name=Execution - Command and Scripting Interpreter Execution; alert_reason=None; alert_process=None; alert_pid=336; alert_source_stream=cbc-edr-alerts; alert_severity=1\n- database には CBC alert summary rows、CBC EDR/NGAV event telemetry、Security、Sysmon、DNS、browser history が残っている。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n",
+  "output_text": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"cmd.exe\",\n    \"timestamp\": \"2022-07-15 13:18:55\",\n    \"condition\": \"stage1\",\n    \"input_fields_used\": [\"host\", \"process\", \"timestamp\"]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-15 13:13:01\",\n      \"subject_process\": {\n        \"name\": \"cmd.exe\",\n        \"pid\": 3344,\n        \"path\": null\n      },\n      \"operation\": \"execute\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": \"start_dns_logs.bat\",\n        \"path\": \"C:\\\\Users\\\\aalsahee\\\\Desktop\\\\start_dns_logs.bat\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"cmd.exe /c C:\\\\Users\\\\aalsahee\\\\Desktop\\\\start_dns_logs.bat\",\n      \"execution_context\": {\n        \"parent_process\": \"explorer.exe\",\n        \"parent_pid\": null,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr-alerts\",\n          \"timestamp\": \"2022-07-15T13:18:55.479Z\",\n          \"alert_id\": \"CFnKBKLTv6hUkBGFobRdg-565642\",\n          \"event_record_id\": null,\n          \"field\": \"command_line\",\n          \"value\": \"cmd.exe /c C:\\\\Users\\\\aalsahee\\\\Desktop\\\\start_dns_logs.bat\",\n          \"pid\": 3344,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"msft-security\",\n          \"timestamp\": \"2022-07-15 13:13:01\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"file_access\",\n          \"value\": \"C:\\\\Users\\\\aalsahee\\\\Desktop\\\\start_dns_logs.bat\",\n          \"pid\": 3344,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-15 13:13:01\",\n      \"subject_process\": {\n        \"name\": \"tshark.exe\",\n        \"pid\": 3352,\n        \"path\": \"C:\\\\Program Files\\\\Wireshark\\\\tshark.exe\"\n      },\n      \"operation\": \"file_access\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": \"ctiuser.dll\",\n        \"path\": \"C:\\\\Windows\\\\System32\\\\ctiuser.dll\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"C:\\\\Program Files\\\\Wireshark\\\\tshark.exe -i 1 -f \\\"udp port 53\\\" -w C:\\\\Users\\\\aalsahee\\\\Desktop\\\\logs\\\\dns\\\\dns.pcap\",\n      \"execution_context\": {\n        \"parent_process\": \"cmd.exe\",\n        \"parent_pid\": 3344,\n        \"parent_command_line\": \"cmd.exe /c C:\\\\Users\\\\aalsahee\\\\Desktop\\\\start_dns_logs.bat\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"msft-security\",\n          \"timestamp\": \"2022-07-15 13:13:01\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"file_access\",\n          \"value\": \"C:\\\\Windows\\\\System32\\\\ctiuser.dll\",\n          \"pid\": 3352,\n          \"ppid\": 3344\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S3\",\n      \"order\": 3,\n      \"time\": \"2022-07-15 13:13:01\",\n      \"subject_process\": {\n        \"name\": \"dumpcap.exe\",\n        \"pid\": 1956,\n        \"path\": null\n      },\n      \"operation\": \"file_access\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": \"plugin.dll\",\n        \"path\": \"C:\\\\Program Files\\\\Wireshark\\\\plugins\\\\plugin.dll\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"tshark.exe\",\n        \"parent_pid\": 3352,\n        \"parent_command_line\": \"C:\\\\Program Files\\\\Wireshark\\\\tshark.exe -i 1 -f \\\"udp port 53\\\" -w C:\\\\Users\\\\aalsahee\\\\Desktop\\\\logs\\\\dns\\\\dns.pcap\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"msft-security\",\n          \"timestamp\": \"2022-07-15 13:13:01\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"file_access\",\n          \"value\": \"C:\\\\Program Files\\\\Wireshark\\\\plugins\\\\plugin.dll\",\n          \"pid\": 1956,\n          \"ppid\": 3352\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S4\",\n      \"order\": 4,\n      \"time\": \"2022-07-15 13:13:39\",\n      \"subject_process\": {\n        \"name\": \"cmd.exe\",\n        \"pid\": 336,\n        \"path\": null\n      },\n      \"operation\": \"execute\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": \"run_http_server.bat\",\n        \"path\": \"C:\\\\Users\\\\aalsahee\\\\Desktop\\\\run_http_server.bat\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"cmd.exe /c C:\\\\Users\\\\aalsahee\\\\Desktop\\\\run_http_server.bat\",\n      \"execution_context\": {\n        \"parent_process\": \"explorer.exe\",\n        \"parent_pid\": null,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr-alerts\",\n          \"timestamp\": \"2022-07-15T13:18:55.479Z\",\n          \"alert_id\": \"CFnKBKLTv6hUkBGFobRdg-565642\",\n          \"event_record_id\": null,\n          \"field\": \"command_line\",\n          \"value\": \"cmd.exe /c C:\\\\Users\\\\aalsahee\\\\Desktop\\\\run_http_server.bat\",\n          \"pid\": 336,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"msft-security\",\n          \"timestamp\": \"2022-07-15 13:13:39\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"file_access\",\n          \"value\": \"C:\\\\Users\\\\aalsahee\\\\Desktop\\\\run_http_server.bat\",\n          \"pid\": 336,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S5\",\n      \"order\": 5,\n      \"time\": \"2022-07-15 13:13:39\",\n      \"subject_process\": {\n        \"name\": \"python.exe\",\n        \"pid\": 720,\n        \"path\": null\n      },\n      \"operation\": \"execute\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"python.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"cmd.exe\",\n        \"parent_pid\": 336,\n        \"parent_command_line\": \"cmd.exe /c C:\\\\Users\\\\aalsahee\\\\Desktop\\\\run_http_server.bat\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"msft-security\",\n          \"timestamp\": \"2022-07-15 13:13:39\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"process_start\",\n          \"value\": \"python.exe\",\n          \"pid\": 720,\n          \"ppid\": 336\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"python.exeのコマンドラインがログに記録されていないため、実行内容は不明\"\n      ]\n    }\n  ],\n  \"code_sequence\": [\n    \"cmd.exe /c C:\\\\Users\\\\aalsahee\\\\Desktop\\\\start_dns_logs.bat\",\n    \"tshark.exe -i 1 -f \\\"udp port 53\\\" -w C:\\\\Users\\\\aalsahee\\\\Desktop\\\\logs\\\\dns\\\\dns.pcap\",\n    \"dumpcap.exe (複数インスタンス起動)\",\n    \"cmd.exe /c C:\\\\Users\\\\aalsahee\\\\Desktop\\\\run_http_server.bat\",\n    \"python.exe (起動コマンドライン不明)\"\n  ],\n  \"supporting_alert_evidence\": [\n    {\n      \"alert_id\": \"CFnKBKLTv6hUkBGFobRdg-565642\",\n      \"alert_name\": \"Execution - Command-Line Interface (cmd.exe /c)\",\n      \"source_stream\": \"cbc-edr-alerts\",\n      \"why_supporting_only\": \"起点のcmd.exe実行に関する補助的な証拠であり、行動連鎖の主証拠ではないため\"\n    },\n    {\n      \"alert_id\": \"CFnKBKLTv6hUkBGFobRdg-565644\",\n      \"alert_name\": \"Execution - Command and Scripting Interpreter Execution\",\n      \"source_stream\": \"cbc-edr-alerts\",\n      \"why_supporting_only\": \"同上\"\n    }\n  ],\n  \"excluded_nearby_evidence\": [],\n  \"global_limitations\": [\n    \"python.exeのコマンドラインがログに記録されていないため、実行内容の詳細は不明\",\n    \"tshark.exeおよびdumpcap.exeのネットワーク接続の直接的なログは見つかっていない\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-15 13:13:01 - cmd.exe (PID 3344) が start_dns_logs.bat を実行\",\n    \"2022-07-15 13:13:01 - tshark.exe (PID 3352) が起動し、Wireshark関連ファイルにアクセス\",\n    \"2022-07-15 13:13:01 - dumpcap.exe (PID 1956 他) が複数起動し、Wiresharkプラグインにアクセス\",\n    \"2022-07-15 13:13:39 - cmd.exe (PID 336) が run_http_server.bat を実行\",\n    \"2022-07-15 13:13:39 - python.exe (PID 720) が起動（コマンドライン不明）\"\n  ]\n}",
+  "usage": {
+    "input_tokens": 38314,
+    "output_tokens": 4054,
+    "cached_input_tokens": 0
+  }
+}

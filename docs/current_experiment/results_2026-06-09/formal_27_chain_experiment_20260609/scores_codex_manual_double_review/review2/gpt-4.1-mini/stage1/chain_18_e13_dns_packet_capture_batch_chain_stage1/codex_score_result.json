@@ -1,0 +1,348 @@
+{
+  "reviewer": "codex_review2",
+  "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage1/chain_18_e13_dns_packet_capture_batch_chain_stage1_run.json",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_18_e13_dns_packet_capture_batch_chain/chain_gold.json",
+  "case_id": "chain_18_e13_dns_packet_capture_batch_chain_stage1",
+  "chain_id": "chain_18_e13_dns_packet_capture_batch_chain",
+  "model": "gpt-4.1-mini",
+  "stage": "stage1",
+  "method": "codex_manual_review2_no_api_strict_subject_action_object_evidence",
+  "judge_summary_ja": "候補は explorer.exe から cmd.exe が起動された関係と、cmd.exe /c で start_dns_logs.bat を実行する中核はおおむね復元している。ただし C18-S01 の object は gold が要求する C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \" という完全なコマンドラインではなく、候補 S1 は object=cmd.exe かつ command_line=C:\\Windows\\Explorer.EXE に留まるため不一致とした。C18-S01 の critical_evidence も parent_path と process_cmdline の組を示していない。C18-S02 は command_line/code_sequence/timeline で cmd.exe /c start_dns_logs.bat を示すため subject/action/object/critical_evidence を採点対象として回収とした。一方、tshark.exe、dumpcap.exe、pcapng file_modify は gold の2ステップ外なので unrelated_overclaim として扱った。",
+  "final_totals": {
+    "gold_required_item_count": 8,
+    "action_step_recall_hits": 6,
+    "action_step_recall_total": 8,
+    "action_step_recall": 0.75,
+    "critical_evidence_recall_hits": 1,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.5,
+    "behavior_step_recall_hits": 1,
+    "behavior_step_recall_total": 2,
+    "behavior_step_recall": 0.5,
+    "behavior_sequence_order_hits": 1,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 1.0,
+    "candidate_claim_precision_hits": 7,
+    "candidate_claim_precision_total": 24,
+    "candidate_claim_precision": 0.2916666666666667,
+    "overclaim_slot_count": 17,
+    "candidate_action_claim_count": 6,
+    "candidate_action_claim_true_positive_slot_count": 7,
+    "candidate_action_claim_slot_count": 24,
+    "unrelated_overclaim_claim_count": 4,
+    "unsupported_evidence_count": 5,
+    "contradicted_evidence_count": 0,
+    "hallucinated_claim_count": 0,
+    "behavior_element_diagnostics": {
+      "subject": {
+        "recall_hits": 2,
+        "recall_total": 2,
+        "precision_hits": 3,
+        "precision_total": 6
+      },
+      "action": {
+        "recall_hits": 2,
+        "recall_total": 2,
+        "precision_hits": 2,
+        "precision_total": 6
+      },
+      "object": {
+        "recall_hits": 1,
+        "recall_total": 2,
+        "precision_hits": 1,
+        "precision_total": 6
+      },
+      "critical_evidence": {
+        "recall_hits": 1,
+        "recall_total": 2,
+        "precision_hits": 1,
+        "precision_total": 6
+      }
+    }
+  },
+  "gold_item_scores": [
+    {
+      "step_id": "C18-S01",
+      "gold_summary": "explorer.exe starts cmd.exe with the full start_dns_logs.bat /c command",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "matched_candidate_excerpt": "S1 subject_process.name=explorer.exe; S1 operation=process_start; S1 object.name=cmd.exe; S1 execution_context.child_process=cmd.exe",
+      "reason_ja": "subject と cmd.exe 子プロセス起動の action は候補 S1 で一致する。しかし object は gold の完全な C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \" ではなく、S1 object は cmd.exe のみで command_line も C:\\Windows\\Explorer.EXE になっている。S2/code_sequence の cmd.exe /c \"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" も system32 パスと gold の完全な引用形を欠くため、厳格採点では C18-S01 object は未回収。critical_evidence も parent_path と process_cmdline の組として示されていない。"
+    },
+    {
+      "step_id": "C18-S02",
+      "gold_summary": "cmd.exe executes start_dns_logs.bat via /c",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 1
+      },
+      "matched_candidate_excerpt": "S2 subject_process.name=cmd.exe; S2 command_line=cmd.exe /c \"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\"; code_sequence[0]=cmd.exe /c \"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\"; timeline says cmd.exe executed start_dns_logs.bat",
+      "reason_ja": "cmd.exe が /c で start_dns_logs.bat を実行する内容は S2 の command_line、code_sequence、timeline に明示されている。gold の evidence_basis は process_cmdline であり、候補の command_line がこの根拠に相当するため critical_evidence も回収とした。"
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_step_id": "C18-S01",
+      "after_step_id": "C18-S02",
+      "matched_candidate_before_claim_id": "R2-C18-CLAIM-01",
+      "matched_candidate_after_claim_id": "R2-C18-CLAIM-02",
+      "score": 1,
+      "reason_ja": "候補 timeline は explorer.exe -> cmd.exe 起動を先に置き、その直後に cmd.exe による start_dns_logs.bat 実行を置いている。code_steps では S2 が tshark 起動まで含むため過剰だが、gold の隣接順序自体は保持されている。"
+    }
+  ],
+  "candidate_claim_scores": [
+    {
+      "candidate_claim_id": "R2-C18-CLAIM-01",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "explorer.exe process_start cmd.exe; child_process=cmd.exe",
+      "normalized_action_claim_ja": "explorer.exe が cmd.exe を子プロセスとして起動した。",
+      "slot_scores": [
+        {
+          "kind": "subject",
+          "candidate_slot_excerpt": "explorer.exe",
+          "matched_gold_item": "C18-S01:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "C18-S01 の subject と一致する。"
+        },
+        {
+          "kind": "action",
+          "candidate_slot_excerpt": "process_start cmd.exe / child_process=cmd.exe",
+          "matched_gold_item": "C18-S01:action",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "explorer.exe による cmd.exe 子プロセス起動として一致する。"
+        },
+        {
+          "kind": "object",
+          "candidate_slot_excerpt": "object.name=cmd.exe",
+          "matched_gold_item": null,
+          "is_true_positive": 0,
+          "false_positive_type": "partial_missing_full_command",
+          "reason_ja": "gold が要求する完全な cmd.exe /c start_dns_logs.bat コマンドラインではなく、cmd.exe 名だけである。"
+        },
+        {
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "evidence field=pname value=explorer.exe",
+          "matched_gold_item": null,
+          "is_true_positive": 0,
+          "false_positive_type": "weak_grounding",
+          "reason_ja": "parent_path と process_cmdline の組ではなく、explorer.exe の pname だけなので gold の evidence_basis を満たさない。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R2-C18-CLAIM-02",
+      "candidate_step_id": "S2/code_sequence/timeline",
+      "claim_excerpt": "cmd.exe /c \"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\"; timeline says cmd.exe executed start_dns_logs.bat",
+      "normalized_action_claim_ja": "cmd.exe が /c で start_dns_logs.bat を実行した。",
+      "slot_scores": [
+        {
+          "kind": "subject",
+          "candidate_slot_excerpt": "cmd.exe",
+          "matched_gold_item": "C18-S02:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "C18-S02 の subject と一致する。"
+        },
+        {
+          "kind": "action",
+          "candidate_slot_excerpt": "/c batch execution",
+          "matched_gold_item": "C18-S02:action",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "/c でバッチファイルを実行する action と一致する。"
+        },
+        {
+          "kind": "object",
+          "candidate_slot_excerpt": "C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat",
+          "matched_gold_item": "C18-S02:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "gold object の start_dns_logs.bat と一致する。"
+        },
+        {
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "command_line=cmd.exe /c \"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\"",
+          "matched_gold_item": "C18-S02:critical_evidence",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "process_cmdline に相当する command_line で batch execution を示している。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R2-C18-CLAIM-03",
+      "candidate_step_id": "S2",
+      "claim_excerpt": "cmd.exe process_start tshark.exe with child_pid=2980",
+      "normalized_action_claim_ja": "cmd.exe が tshark.exe を起動した。",
+      "slot_scores": [
+        {
+          "kind": "subject",
+          "candidate_slot_excerpt": "cmd.exe",
+          "matched_gold_item": "C18-S02:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "subject 名だけは gold の cmd.exe と一致する。"
+        },
+        {
+          "kind": "action",
+          "candidate_slot_excerpt": "process_start tshark.exe",
+          "matched_gold_item": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason_ja": "gold の C18 は cmd.exe /c batch execution までで、tshark.exe 起動は gold step 外である。"
+        },
+        {
+          "kind": "object",
+          "candidate_slot_excerpt": "C:\\Program Files\\Wireshark\\tshark.exe",
+          "matched_gold_item": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason_ja": "tshark.exe は C18 の gold object ではない。"
+        },
+        {
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs pname cmd.exe and pname tshark.exe",
+          "matched_gold_item": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unsupported_for_gold",
+          "reason_ja": "tshark 起動の根拠であり、C18 の required evidence basis ではない。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R2-C18-CLAIM-04",
+      "candidate_step_id": "S3",
+      "claim_excerpt": "tshark.exe process_start dumpcap.exe",
+      "normalized_action_claim_ja": "tshark.exe が dumpcap.exe を起動した。",
+      "slot_scores": [
+        {
+          "kind": "subject",
+          "candidate_slot_excerpt": "tshark.exe",
+          "matched_gold_item": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason_ja": "tshark.exe は gold の subject ではない。"
+        },
+        {
+          "kind": "action",
+          "candidate_slot_excerpt": "process_start dumpcap.exe",
+          "matched_gold_item": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason_ja": "dumpcap.exe 起動は gold の2ステップに含まれない。"
+        },
+        {
+          "kind": "object",
+          "candidate_slot_excerpt": "C:\\Program Files\\Wireshark\\dumpcap.exe",
+          "matched_gold_item": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason_ja": "dumpcap.exe は gold object ではない。"
+        },
+        {
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs pname dumpcap.exe",
+          "matched_gold_item": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unsupported_for_gold",
+          "reason_ja": "C18 の required evidence basis ではない。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R2-C18-CLAIM-05",
+      "candidate_step_id": "S4",
+      "claim_excerpt": "tshark.exe file_modify wireshark_...pcapng",
+      "normalized_action_claim_ja": "tshark.exe が pcapng ファイルを変更した。",
+      "slot_scores": [
+        {
+          "kind": "subject",
+          "candidate_slot_excerpt": "tshark.exe",
+          "matched_gold_item": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason_ja": "gold subject ではない。"
+        },
+        {
+          "kind": "action",
+          "candidate_slot_excerpt": "file_modify",
+          "matched_gold_item": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason_ja": "file_modify は gold action ではない。"
+        },
+        {
+          "kind": "object",
+          "candidate_slot_excerpt": "c:\\users\\aalsahee\\appdata\\local\\temp\\wireshark_...pcapng",
+          "matched_gold_item": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason_ja": "pcapng ファイルは gold object ではない。"
+        },
+        {
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs object=pcapng path",
+          "matched_gold_item": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unsupported_for_gold",
+          "reason_ja": "file evidence であり、gold の parent_path/process_cmdline または process_cmdline 根拠ではない。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R2-C18-CLAIM-06",
+      "candidate_step_id": "S5",
+      "claim_excerpt": "dumpcap.exe file_modify wireshark_...pcapng",
+      "normalized_action_claim_ja": "dumpcap.exe が pcapng ファイルを変更した。",
+      "slot_scores": [
+        {
+          "kind": "subject",
+          "candidate_slot_excerpt": "dumpcap.exe",
+          "matched_gold_item": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason_ja": "gold subject ではない。"
+        },
+        {
+          "kind": "action",
+          "candidate_slot_excerpt": "file_modify",
+          "matched_gold_item": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason_ja": "file_modify は gold action ではない。"
+        },
+        {
+          "kind": "object",
+          "candidate_slot_excerpt": "c:\\users\\aalsahee\\appdata\\local\\temp\\wireshark_...pcapng",
+          "matched_gold_item": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason_ja": "pcapng ファイルは gold object ではない。"
+        },
+        {
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs object=pcapng path",
+          "matched_gold_item": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unsupported_for_gold",
+          "reason_ja": "file evidence であり、gold の required evidence basis ではない。"
+        }
+      ]
+    }
+  ],
+  "notes_ja": [
+    "OpenAI/API scorer は使用していない。local の gold JSON と candidate run JSON のみを読んで採点した。",
+    "C18-S01 は explorer.exe -> cmd.exe の関係は回収しているが、完全な cmd.exe /c start_dns_logs.bat コマンドライン object と parent_path/process_cmdline evidence basis は未回収とした。",
+    "C18-S02 は cmd.exe /c start_dns_logs.bat の batch execution と process_cmdline 相当の command_line を示すため満点とした。",
+    "候補の tshark.exe、dumpcap.exe、pcapng file_modify は同じ DNS packet capture 文脈に見えるが、この gold chain の required steps 外なので unrelated_overclaim として precision から減点した。",
+    "既存の未関係な git 変更には触れていない。"
+  ]
+}

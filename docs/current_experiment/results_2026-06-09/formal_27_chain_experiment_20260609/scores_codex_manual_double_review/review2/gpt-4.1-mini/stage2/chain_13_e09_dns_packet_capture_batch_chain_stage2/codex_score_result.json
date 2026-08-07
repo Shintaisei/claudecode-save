@@ -1,0 +1,523 @@
+{
+  "case_id": "chain_13_e09_dns_packet_capture_batch_chain_stage2",
+  "reviewer": "codex_manual_review2",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "method": "manual_strict_review2_no_openai_api_no_gpt_scorer",
+  "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage2/chain_13_e09_dns_packet_capture_batch_chain_stage2_run.json",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_13_e09_dns_packet_capture_batch_chain/chain_gold.json",
+  "gold_chain": {
+    "chain_id": "chain_13_e09_dns_packet_capture_batch_chain",
+    "chain_type": "dns_packet_capture_batch_chain",
+    "required_steps": [
+      {
+        "step_id": "C13-S01",
+        "order": 1,
+        "subject": "explorer.exe",
+        "action": "spawn cmd.exe as a child process",
+        "object": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+        "critical_evidence": "CBC alert / CBC event parent_path and process_cmdline"
+      },
+      {
+        "step_id": "C13-S02",
+        "order": 2,
+        "subject": "cmd.exe",
+        "action": "execute the batch file with /c",
+        "object": "start_dns_logs.bat",
+        "critical_evidence": "process_cmdline"
+      },
+      {
+        "step_id": "C13-S03",
+        "order": 3,
+        "subject": "cmd.exe",
+        "action": "spawn a log-capture child process",
+        "object": "tshark.exe",
+        "critical_evidence": "CBC event childproc/object"
+      },
+      {
+        "step_id": "C13-S05",
+        "order": 5,
+        "subject": "explorer.exe",
+        "action": "spawn cmd.exe as a child process",
+        "object": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+        "critical_evidence": "CBC alert / CBC event parent_path and process_cmdline"
+      },
+      {
+        "step_id": "C13-S06",
+        "order": 6,
+        "subject": "cmd.exe",
+        "action": "execute the batch file with /c",
+        "object": "start_dns_logs.bat",
+        "critical_evidence": "process_cmdline"
+      }
+    ]
+  },
+  "per_gold_step": [
+    {
+      "step_id": "C13-S01",
+      "matched_candidate_claim_ids": [
+        "R2-C13-CLAIM-01"
+      ],
+      "slot_scores": {
+        "subject": {
+          "score": 1,
+          "matched_candidate_excerpt": "S1.execution_context.parent_process=explorer.exe; timeline says cmd.exe was a child of explorer.exe",
+          "reason": "The candidate identifies explorer.exe as the parent for the cmd.exe instance."
+        },
+        "action": {
+          "score": 1,
+          "matched_candidate_excerpt": "cmd.exe ... as child of explorer.exe",
+          "reason": "The candidate states the parent-child relation from explorer.exe to cmd.exe."
+        },
+        "object": {
+          "score": 0,
+          "matched_candidate_excerpt": "object.path=C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat; command_line=null",
+          "reason": "The gold object for this parent-launch step is the full cmd.exe /c command line, but the candidate only gives the batch path and leaves command_line null."
+        },
+        "critical_evidence": {
+          "score": 0,
+          "matched_candidate_excerpt": "source_stream=audit_logs, event_record_id=123456, field=process_name",
+          "reason": "Generic audit_logs evidence with a placeholder event_record_id is not CBC parent_path/process_cmdline evidence."
+        }
+      },
+      "step_total": 2,
+      "step_max": 4,
+      "behavior_step_recovered": 1
+    },
+    {
+      "step_id": "C13-S02",
+      "matched_candidate_claim_ids": [
+        "R2-C13-CLAIM-02"
+      ],
+      "slot_scores": {
+        "subject": {
+          "score": 1,
+          "matched_candidate_excerpt": "S1.subject_process.name=cmd.exe",
+          "reason": "The acting process for the batch execution is cmd.exe."
+        },
+        "action": {
+          "score": 1,
+          "matched_candidate_excerpt": "S1.operation=execute_batch_file",
+          "reason": "The candidate says cmd.exe executed the batch file."
+        },
+        "object": {
+          "score": 1,
+          "matched_candidate_excerpt": "object.name=start_dns_logs.bat; object.path=C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat",
+          "reason": "The candidate names the required batch file."
+        },
+        "critical_evidence": {
+          "score": 0,
+          "matched_candidate_excerpt": "source_stream=audit_logs, event_record_id=123456, field=process_name",
+          "reason": "The evidence does not show the concrete process_cmdline containing /c and start_dns_logs.bat."
+        }
+      },
+      "step_total": 3,
+      "step_max": 4,
+      "behavior_step_recovered": 1
+    },
+    {
+      "step_id": "C13-S03",
+      "matched_candidate_claim_ids": [
+        "R2-C13-CLAIM-04"
+      ],
+      "slot_scores": {
+        "subject": {
+          "score": 1,
+          "matched_candidate_excerpt": "S3.execution_context.parent_process=cmd.exe",
+          "reason": "Although the structured subject_process is tshark.exe, the candidate explicitly identifies cmd.exe as the parent process for tshark.exe."
+        },
+        "action": {
+          "score": 1,
+          "matched_candidate_excerpt": "S3.operation=spawned_by; parent_process=cmd.exe",
+          "reason": "The candidate recovers the cmd.exe to tshark.exe spawn relation."
+        },
+        "object": {
+          "score": 1,
+          "matched_candidate_excerpt": "S3.object.name=tshark.exe",
+          "reason": "The spawned process object is tshark.exe."
+        },
+        "critical_evidence": {
+          "score": 0,
+          "matched_candidate_excerpt": "source_stream=audit_logs, event_record_id=123458, field=process_name",
+          "reason": "The candidate does not cite CBC event childproc/object evidence; audit_logs plus placeholder event_record_id is insufficient."
+        }
+      },
+      "step_total": 3,
+      "step_max": 4,
+      "behavior_step_recovered": 1
+    },
+    {
+      "step_id": "C13-S05",
+      "matched_candidate_claim_ids": [],
+      "slot_scores": {
+        "subject": {
+          "score": 0,
+          "matched_candidate_excerpt": null,
+          "reason": "The candidate does not recover the second W20 explorer.exe to cmd.exe launch for start_dns_logs.bat."
+        },
+        "action": {
+          "score": 0,
+          "matched_candidate_excerpt": null,
+          "reason": "The only later explorer/cmd batch claim is run_http_server.bat, which is out of scope and not the DNS batch launch."
+        },
+        "object": {
+          "score": 0,
+          "matched_candidate_excerpt": null,
+          "reason": "The required full cmd.exe /c start_dns_logs.bat command line for the second occurrence is missing."
+        },
+        "critical_evidence": {
+          "score": 0,
+          "matched_candidate_excerpt": null,
+          "reason": "No valid CBC parent_path/process_cmdline evidence is supplied for the second occurrence."
+        }
+      },
+      "step_total": 0,
+      "step_max": 4,
+      "behavior_step_recovered": 0
+    },
+    {
+      "step_id": "C13-S06",
+      "matched_candidate_claim_ids": [],
+      "slot_scores": {
+        "subject": {
+          "score": 0,
+          "matched_candidate_excerpt": null,
+          "reason": "The second cmd.exe /c execution of start_dns_logs.bat is not recovered."
+        },
+        "action": {
+          "score": 0,
+          "matched_candidate_excerpt": null,
+          "reason": "No second in-scope batch execution is identified."
+        },
+        "object": {
+          "score": 0,
+          "matched_candidate_excerpt": null,
+          "reason": "start_dns_logs.bat is not claimed for the second W20 batch execution."
+        },
+        "critical_evidence": {
+          "score": 0,
+          "matched_candidate_excerpt": null,
+          "reason": "No concrete process_cmdline evidence is supplied for the second occurrence."
+        }
+      },
+      "step_total": 0,
+      "step_max": 4,
+      "behavior_step_recovered": 0
+    }
+  ],
+  "order_pairs": [
+    {
+      "pair_id": "C13-S01->C13-S02",
+      "before_step_id": "C13-S01",
+      "after_step_id": "C13-S02",
+      "matched_candidate_before_claim_id": "R2-C13-CLAIM-01",
+      "matched_candidate_after_claim_id": "R2-C13-CLAIM-02",
+      "score": 0,
+      "reason": "The candidate collapses the explorer.exe parent launch and cmd.exe /c batch execution into one step, so the required parent-launch-to-batch adjacent order is not separately demonstrated."
+    },
+    {
+      "pair_id": "C13-S02->C13-S03",
+      "before_step_id": "C13-S02",
+      "after_step_id": "C13-S03",
+      "matched_candidate_before_claim_id": "R2-C13-CLAIM-02",
+      "matched_candidate_after_claim_id": "R2-C13-CLAIM-04",
+      "score": 1,
+      "reason": "The candidate places start_dns_logs.bat execution before the tshark.exe spawn claim."
+    },
+    {
+      "pair_id": "C13-S03->C13-S05",
+      "before_step_id": "C13-S03",
+      "after_step_id": "C13-S05",
+      "matched_candidate_before_claim_id": "R2-C13-CLAIM-04",
+      "matched_candidate_after_claim_id": null,
+      "score": 0,
+      "reason": "The candidate does not recover the later W20 DNS batch relaunch after the tshark.exe step."
+    },
+    {
+      "pair_id": "C13-S05->C13-S06",
+      "before_step_id": "C13-S05",
+      "after_step_id": "C13-S06",
+      "matched_candidate_before_claim_id": null,
+      "matched_candidate_after_claim_id": null,
+      "score": 0,
+      "reason": "The second parent launch and second batch execution are both missing; the run_http_server.bat claim is out of scope."
+    }
+  ],
+  "candidate_claims": [
+    {
+      "candidate_claim_id": "R2-C13-CLAIM-01",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "cmd.exe PID 336 was a child of explorer.exe while executing start_dns_logs.bat",
+      "normalized_action_claim": "explorer.exe spawned cmd.exe for the DNS batch context",
+      "slot_scores": [
+        {
+          "kind": "subject",
+          "candidate_slot_excerpt": "explorer.exe",
+          "matched_gold_item_id": "chain_13_e09_dns_packet_capture_batch_chain:C13-S01:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the first parent-launch subject."
+        },
+        {
+          "kind": "operation",
+          "candidate_slot_excerpt": "cmd.exe as child of explorer.exe",
+          "matched_gold_item_id": "chain_13_e09_dns_packet_capture_batch_chain:C13-S01:action",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the first parent-launch relation."
+        },
+        {
+          "kind": "object",
+          "candidate_slot_excerpt": "start_dns_logs.bat, command_line=null",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "partial_missing_full_command_line",
+          "reason": "The full cmd.exe /c command line required for the parent-launch object is missing."
+        },
+        {
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs event_record_id=123456 field=process_name",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "weak_or_placeholder_evidence",
+          "reason": "Not CBC parent_path/process_cmdline evidence."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R2-C13-CLAIM-02",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "cmd.exe PID 336 execute_batch_file C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat",
+      "normalized_action_claim": "cmd.exe executed start_dns_logs.bat",
+      "slot_scores": [
+        {
+          "kind": "subject",
+          "candidate_slot_excerpt": "cmd.exe",
+          "matched_gold_item_id": "chain_13_e09_dns_packet_capture_batch_chain:C13-S02:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the first batch-execution subject."
+        },
+        {
+          "kind": "operation",
+          "candidate_slot_excerpt": "execute_batch_file",
+          "matched_gold_item_id": "chain_13_e09_dns_packet_capture_batch_chain:C13-S02:action",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches batch execution at the behavior level."
+        },
+        {
+          "kind": "object",
+          "candidate_slot_excerpt": "start_dns_logs.bat",
+          "matched_gold_item_id": "chain_13_e09_dns_packet_capture_batch_chain:C13-S02:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the required batch file object."
+        },
+        {
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs event_record_id=123456 field=process_name",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "weak_or_placeholder_evidence",
+          "reason": "Does not show concrete process_cmdline evidence for /c start_dns_logs.bat."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R2-C13-CLAIM-03",
+      "candidate_step_id": "S2",
+      "claim_excerpt": "python.exe PID 720 spawned_by cmd.exe PID 336",
+      "normalized_action_claim": "cmd.exe spawned python.exe",
+      "slot_scores": [
+        {
+          "kind": "subject",
+          "candidate_slot_excerpt": "cmd.exe / python.exe relation",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "out_of_scope_python",
+          "reason": "python.exe belongs to nearby/out-of-scope behavior for this DNS batch gold chain."
+        },
+        {
+          "kind": "operation",
+          "candidate_slot_excerpt": "spawned_by",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "out_of_scope_python",
+          "reason": "The gold DNS chain does not include a python.exe child step."
+        },
+        {
+          "kind": "object",
+          "candidate_slot_excerpt": "python.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "out_of_scope_python",
+          "reason": "python.exe is explicitly out of scope for this chain."
+        },
+        {
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs event_record_id=123457 field=process_name",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "weak_or_placeholder_evidence",
+          "reason": "Placeholder audit_logs evidence does not support a gold DNS-chain step."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R2-C13-CLAIM-04",
+      "candidate_step_id": "S3",
+      "claim_excerpt": "tshark.exe PID 3352 spawned_by cmd.exe PID 3344",
+      "normalized_action_claim": "cmd.exe spawned tshark.exe",
+      "slot_scores": [
+        {
+          "kind": "subject",
+          "candidate_slot_excerpt": "parent_process=cmd.exe",
+          "matched_gold_item_id": "chain_13_e09_dns_packet_capture_batch_chain:C13-S03:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the gold spawning subject when read from the parent context."
+        },
+        {
+          "kind": "operation",
+          "candidate_slot_excerpt": "spawned_by",
+          "matched_gold_item_id": "chain_13_e09_dns_packet_capture_batch_chain:C13-S03:action",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the cmd.exe to tshark.exe spawn relation."
+        },
+        {
+          "kind": "object",
+          "candidate_slot_excerpt": "tshark.exe",
+          "matched_gold_item_id": "chain_13_e09_dns_packet_capture_batch_chain:C13-S03:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the gold child process object."
+        },
+        {
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs event_record_id=123458 field=process_name",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "weak_or_placeholder_evidence",
+          "reason": "Does not cite CBC childproc/object evidence."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R2-C13-CLAIM-05",
+      "candidate_step_id": "S4",
+      "claim_excerpt": "dumpcap.exe PID 3440 spawned_by tshark.exe PID 3352",
+      "normalized_action_claim": "tshark.exe spawned dumpcap.exe",
+      "slot_scores": [
+        {
+          "kind": "subject",
+          "candidate_slot_excerpt": "tshark.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "extra_child_process",
+          "reason": "dumpcap.exe is not a gold step for this chain."
+        },
+        {
+          "kind": "operation",
+          "candidate_slot_excerpt": "spawned_by",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "extra_child_process",
+          "reason": "The gold chain stops at tshark.exe as the child object and does not require a dumpcap child."
+        },
+        {
+          "kind": "object",
+          "candidate_slot_excerpt": "dumpcap.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "extra_child_process",
+          "reason": "dumpcap.exe is an extra claim outside the gold step list."
+        },
+        {
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs event_record_id=123459 field=process_name",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "weak_or_placeholder_evidence",
+          "reason": "This evidence does not support any gold step."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R2-C13-CLAIM-06",
+      "candidate_step_id": "S5",
+      "claim_excerpt": "cmd.exe PID 3344 execute_batch_file C:\\Users\\aalsahee\\Desktop\\run_http_server.bat under explorer.exe",
+      "normalized_action_claim": "cmd.exe executed run_http_server.bat",
+      "slot_scores": [
+        {
+          "kind": "subject",
+          "candidate_slot_excerpt": "cmd.exe / explorer.exe context",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "out_of_scope_run_http_server",
+          "reason": "The run_http_server.bat chain is explicitly out of scope and cannot recover the W20 DNS relaunch."
+        },
+        {
+          "kind": "operation",
+          "candidate_slot_excerpt": "execute_batch_file",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "out_of_scope_run_http_server",
+          "reason": "This is a different batch behavior, not start_dns_logs.bat."
+        },
+        {
+          "kind": "object",
+          "candidate_slot_excerpt": "run_http_server.bat",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "out_of_scope_run_http_server",
+          "reason": "Gold requires start_dns_logs.bat, not run_http_server.bat."
+        },
+        {
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs event_record_id=123460 field=process_name",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "weak_or_placeholder_evidence",
+          "reason": "Placeholder audit_logs evidence does not support an in-scope DNS-chain step."
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "action_step_recall_hits": 8,
+    "action_step_recall_total": 20,
+    "action_step_recall": 0.4,
+    "action_step_precision_hits": 8,
+    "action_step_precision_total": 24,
+    "action_step_precision": 0.3333333333333333,
+    "candidate_claim_precision_hits": 8,
+    "candidate_claim_precision_total": 24,
+    "candidate_claim_precision": 0.3333333333333333,
+    "overclaim_slot_count": 16,
+    "behavior_sequence_order_hits": 1,
+    "behavior_sequence_order_total": 4,
+    "behavior_sequence_order": 0.25,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 5,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 3,
+    "behavior_step_recall_total": 5,
+    "behavior_step_recall": 0.6,
+    "gold_required_item_count": 20,
+    "candidate_action_claim_count": 6,
+    "candidate_action_claim_slot_count": 24,
+    "unsupported_or_weak_evidence_slot_count": 6,
+    "out_of_scope_claim_count": 3,
+    "duplicate_gold_step_credit_disallowed_count": 2
+  },
+  "notes": [
+    "No OpenAI API or GPT scoring script was used; this file is a manual Codex review2 judgment.",
+    "The candidate partially recovers the first DNS batch sequence: explorer.exe parent context, cmd.exe executing start_dns_logs.bat, and cmd.exe spawning tshark.exe.",
+    "The candidate collapses explorer.exe -> cmd.exe launch and cmd.exe /c batch execution into one step, so the C13-S01->C13-S02 adjacent order pair receives no credit.",
+    "Critical evidence receives zero credit throughout because the candidate uses generic audit_logs rows and placeholder event_record_id values rather than CBC parent_path/process_cmdline or CBC childproc/object fields.",
+    "The second W20 recurrence of explorer.exe -> cmd.exe -> start_dns_logs.bat is not recovered.",
+    "python.exe and run_http_server.bat are treated as out-of-scope overclaims for this DNS packet capture batch chain; dumpcap.exe is an extra child-process claim not present in the gold step list."
+  ]
+}

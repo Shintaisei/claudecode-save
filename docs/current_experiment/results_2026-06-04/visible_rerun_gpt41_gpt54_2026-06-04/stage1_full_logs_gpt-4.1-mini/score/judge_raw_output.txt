@@ -1,0 +1,258 @@
+{
+  "case_id": "gold_reviewed_10_regexe_20220716t150700z",
+  "judge_summary_ja": "Discord.exe と reg.exe の Run キー操作は一部復元できているが、reg.exe の正確な親子関係の証拠、正確なコマンドライン、Run 値のデータ、CBC アラート証拠が欠落している。さらに、関係のない consent.exe / csrss.exe / conhost.exe / dllhost.exe の行動が混入し、具体的な PID・パス・event_id も多数 hallucinate されている。",
+  "chains": [
+    {
+      "chain_id": "B1",
+      "gold_element_scores": [
+        {
+          "element_id": "D1_subject",
+          "step_id": "D1",
+          "kind": "subject",
+          "matched_candidate_excerpt": "\"subject_process\": { \"name\": \"Discord.exe\" }",
+          "score": 1,
+          "reason_ja": "Discord.exe という主体値は復元されている。"
+        },
+        {
+          "element_id": "D1_operation",
+          "step_id": "D1",
+          "kind": "operation",
+          "matched_candidate_excerpt": "\"execution_context\": { \"child_process\": \"reg.exe\" }",
+          "score": 1,
+          "reason_ja": "Discord.exe が reg.exe を子プロセスとして起動した関係が復元されている。"
+        },
+        {
+          "element_id": "D1_object",
+          "step_id": "D1",
+          "kind": "object",
+          "matched_candidate_excerpt": "\"object\": { \"path\": \"C:\\\\Program Files\\\\Discord\\\\Discord.exe\" }",
+          "score": 0,
+          "reason_ja": "gold は reg.exe だが、candidate は Discord.exe のパスを置いており対象が一致しない。"
+        },
+        {
+          "element_id": "D1_evidence",
+          "step_id": "D1",
+          "kind": "evidence",
+          "matched_candidate_excerpt": "\"source_stream\": \"audit_logs\", \"event_record_id\": \"EID-1001\"",
+          "score": 0,
+          "reason_ja": "親子関係を示す CBC 証拠ではなく、audit_logs の一般的なイベントしか示していない。"
+        },
+        {
+          "element_id": "D2_subject",
+          "step_id": "D2",
+          "kind": "subject",
+          "matched_candidate_excerpt": "\"subject_process\": { \"name\": \"reg.exe\" }",
+          "score": 1,
+          "reason_ja": "subject は reg.exe で一致する。"
+        },
+        {
+          "element_id": "D2_operation",
+          "step_id": "D2",
+          "kind": "operation",
+          "matched_candidate_excerpt": "\"operation\": \"registry_query\" / \"reg.exe が Run キーの Discord 値を照会した\"",
+          "score": 1,
+          "reason_ja": "Run キーの Discord 値を照会した操作が復元されている。"
+        },
+        {
+          "element_id": "D2_object",
+          "step_id": "D2",
+          "kind": "object",
+          "matched_candidate_excerpt": "\"object\": { \"path\": \"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\", \"name\": \"Discord\" }",
+          "score": 1,
+          "reason_ja": "Run キーの Discord 値に相当する対象が復元されている。"
+        },
+        {
+          "element_id": "D2_command_line",
+          "step_id": "D2",
+          "kind": "command_line",
+          "matched_candidate_excerpt": "\"command_line\": \"reg.exe query HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord\"",
+          "score": 0,
+          "reason_ja": "gold はフルパス付きの正確なコマンドラインだが、candidate は C:\\\\Windows\\\\System32\\\\reg.exe を欠いている。"
+        },
+        {
+          "element_id": "D2_evidence",
+          "step_id": "D2",
+          "kind": "evidence",
+          "matched_candidate_excerpt": "\"source_stream\": \"audit_logs\", \"event_record_id\": \"EID-1003\"",
+          "score": 0,
+          "reason_ja": "CBC の Discovery - Query Registry 証拠ではなく、audit_logs のイベントのみ。"
+        },
+        {
+          "element_id": "D3_subject",
+          "step_id": "D3",
+          "kind": "subject",
+          "matched_candidate_excerpt": "\"subject_process\": { \"name\": \"reg.exe\" }",
+          "score": 1,
+          "reason_ja": "subject は reg.exe で一致する。"
+        },
+        {
+          "element_id": "D3_operation",
+          "step_id": "D3",
+          "kind": "operation",
+          "matched_candidate_excerpt": "\"reg.exe が Run キーの Discord 値を追加した\"",
+          "score": 1,
+          "reason_ja": "Run キーの Discord 値を追加/更新した操作自体は復元されている。"
+        },
+        {
+          "element_id": "D3_object",
+          "step_id": "D3",
+          "kind": "object",
+          "matched_candidate_excerpt": "\"command_line\": \"reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /t REG_SZ /d \\\"C:\\\\Program Files\\\\Discord\\\\Discord.exe\\\" /f\"",
+          "score": 0,
+          "reason_ja": "gold の値データは Update.exe --processStart Discord.exe だが、candidate は別パスの Discord.exe を入れている。"
+        },
+        {
+          "element_id": "D3_command_line",
+          "step_id": "D3",
+          "kind": "command_line",
+          "matched_candidate_excerpt": "\"command_line\": \"reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /t REG_SZ /d \\\"C:\\\\Program Files\\\\Discord\\\\Discord.exe\\\" /f\"",
+          "score": 0,
+          "reason_ja": "gold の正確な add コマンドラインと一致せず、フルパスや値データも異なる。"
+        },
+        {
+          "element_id": "D3_evidence",
+          "step_id": "D3",
+          "kind": "evidence",
+          "matched_candidate_excerpt": "\"source_stream\": \"audit_logs\", \"event_record_id\": \"EID-1002\" / \"EID-1003\"",
+          "score": 0,
+          "reason_ja": "CBC の Run key write 証拠ではなく、audit_logs のイベントしか示していない。"
+        }
+      ],
+      "candidate_element_scores": [
+        {
+          "candidate_element_excerpt": "Discord.exe が reg.exe を子プロセスとして起動した",
+          "matched_gold_element_id": "D1_operation",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "Discord.exe と reg.exe の親子関係を示す行動として gold と整合する。"
+        },
+        {
+          "candidate_element_excerpt": "Discord.exe のパスが C:\\Program Files\\Discord\\Discord.exe",
+          "matched_gold_element_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "hallucinated_value",
+          "reason_ja": "gold の Discord.exe はユーザープロファイル下のパスであり、このパスは支持されない。"
+        },
+        {
+          "candidate_element_excerpt": "reg.exe が Run キーの Discord 値を追加した",
+          "matched_gold_element_id": "D3_operation",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "Run キーの Discord 値の追加/更新という操作は gold と一致する。"
+        },
+        {
+          "candidate_element_excerpt": "reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /t REG_SZ /d \"C:\\\\Program Files\\\\Discord\\\\Discord.exe\" /f",
+          "matched_gold_element_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "hallucinated_value",
+          "reason_ja": "追加先は近いが、/d の値データが gold と異なる。"
+        },
+        {
+          "candidate_element_excerpt": "reg.exe が Run キーの Discord 値を照会した",
+          "matched_gold_element_id": "D2_operation",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "query 操作として gold と一致する。"
+        },
+        {
+          "candidate_element_excerpt": "consent.exe が Windows システムファイルにアクセスした",
+          "matched_gold_element_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold の reg.exe チェーンとは無関係な周辺行動。"
+        },
+        {
+          "candidate_element_excerpt": "csrss.exe が Windows システムファイル群にアクセスした",
+          "matched_gold_element_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold の対象チェーンに含まれない別行動。"
+        },
+        {
+          "candidate_element_excerpt": "conhost.exe が reg.exe や upd.exe 関連ファイルにアクセスした",
+          "matched_gold_element_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold には存在しない周辺/別系統の行動。"
+        },
+        {
+          "candidate_element_excerpt": "dllhost.exe が複数のシステム DLL を実行した",
+          "matched_gold_element_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold の reg.exe 行動列に対応しない unrelated claim。"
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "D1",
+          "after_step_id": "D2",
+          "score": 1,
+          "reason_ja": "Discord.exe の起動/親文脈が query より前に復元されている。"
+        },
+        {
+          "before_step_id": "D2",
+          "after_step_id": "D3",
+          "score": 0,
+          "reason_ja": "candidate では add が query より前に置かれており、gold の順序と逆。"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "D1_object",
+      "D1_evidence",
+      "D2_command_line",
+      "D2_evidence",
+      "D3_object",
+      "D3_command_line",
+      "D3_evidence"
+    ],
+    "chain_mixing": true,
+    "hallucinated_claims": [
+      "Discord.exe のパスが C:\\Program Files\\Discord\\Discord.exe である",
+      "Discord.exe の PID を 3768 としている",
+      "reg.exe の PID を 4000 としている",
+      "reg.exe add の /d 値を C:\\Program Files\\Discord\\Discord.exe としている",
+      "consent.exe が C:\\Windows\\System32\\consent.exe に対する file_access を行った",
+      "csrss.exe が Windowsシステムファイル群にアクセスした",
+      "conhost.exe が C:\\Program Files\\Confer\\scanner\\upd.exe にアクセスした",
+      "dllhost.exe が複数のシステム DLL を実行した",
+      "event_record_id として EID-1001 から EID-1007 を具体的に捏造している"
+    ],
+    "weak_grounding": true,
+    "false_positive_elements": [
+      "Discord.exe の実パスを C:\\Program Files\\Discord\\Discord.exe とした点",
+      "reg.exe add の値データを C:\\Program Files\\Discord\\Discord.exe とした点",
+      "consent.exe / csrss.exe / conhost.exe / dllhost.exe の追加行動",
+      "具体的な PID を多数断定している点",
+      "具体的な event_record_id を断定している点"
+    ],
+    "notes_ja": [
+      "D2/D3 の操作レベルは部分的に合うが、gold が要求する command_line と object の正確値が落ちている。",
+      "CBC alert の report_name や alert_id を behavior 本体として扱っていない点は評価上は妥当だが、証拠要件は満たしていない。",
+      "無関係な process 行動が複数混入しており、chain reconstruction としての純度が低い。"
+    ]
+  },
+  "candidate_element_count": 9,
+  "candidate_true_positive_count": 3,
+  "hallucinated_claim_count": 9,
+  "main_missing_elements": [
+    "D1_object",
+    "D1_evidence",
+    "D2_command_line",
+    "D2_evidence",
+    "D3_object",
+    "D3_command_line",
+    "D3_evidence"
+  ],
+  "main_false_positive_elements": [
+    "Discord.exe のパスを C:\\Program Files\\Discord\\Discord.exe とした",
+    "reg.exe add の /d 値を C:\\Program Files\\Discord\\Discord.exe とした",
+    "consent.exe / csrss.exe / conhost.exe / dllhost.exe の周辺行動を chain に混入した",
+    "多数の具体的 PID を捏造した",
+    "多数の event_record_id を捏造した",
+    "reg.exe add/query の正確なフルパスコマンドラインを再現できていない"
+  ]
+}

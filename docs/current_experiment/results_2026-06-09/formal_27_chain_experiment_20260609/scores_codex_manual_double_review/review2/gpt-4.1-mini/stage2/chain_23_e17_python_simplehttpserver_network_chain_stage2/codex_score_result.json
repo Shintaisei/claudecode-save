@@ -1,0 +1,172 @@
+{
+  "case_id": "chain_23_e17_python_simplehttpserver_network_chain_stage2",
+  "reviewer": "codex_manual_review2",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "gold_chain": {
+    "chain_id": "chain_23_e17_python_simplehttpserver_network_chain",
+    "chain_type": "python_simplehttpserver_network_chain",
+    "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_23_e17_python_simplehttpserver_network_chain/chain_gold.json",
+    "run_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage2/chain_23_e17_python_simplehttpserver_network_chain_stage2_run.json",
+    "gold_steps": [
+      {
+        "step_id": "C23-S01",
+        "order": 1,
+        "subject": "python.exe",
+        "action": "launches/runs the SimpleHTTPServer module",
+        "object": "python  -m SimpleHTTPServer",
+        "critical_evidence": "CBC event process_cmdline"
+      },
+      {
+        "step_id": "C23-S02",
+        "order": 2,
+        "subject": "python.exe",
+        "action": "detected as network server / netconn behavior",
+        "object": "10.193.66.115:41345",
+        "critical_evidence": "CBC event netconn"
+      }
+    ]
+  },
+  "per_gold_step": [
+    {
+      "step_id": "C23-S01",
+      "gold_order": 1,
+      "matched_candidate_claim_ids": [
+        "cand-01"
+      ],
+      "subject": {
+        "score": 1,
+        "note": "Candidate identifies python.exe as the subject process."
+      },
+      "action": {
+        "score": 1,
+        "note": "Candidate reports process_start for python.exe with the SimpleHTTPServer module command."
+      },
+      "object": {
+        "score": 1,
+        "note": "Candidate includes command_line/code_sequence 'python -m SimpleHTTPServer'; this is counted as the same SimpleHTTPServer command object despite spacing normalization from the gold double space."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "note": "Candidate cites generic audit_logs command_line evidence, not a concrete CBC event process_cmdline field."
+      },
+      "step_total": 3,
+      "step_total_max": 4
+    },
+    {
+      "step_id": "C23-S02",
+      "gold_order": 2,
+      "matched_candidate_claim_ids": [
+        "cand-03"
+      ],
+      "subject": {
+        "score": 1,
+        "note": "Candidate S3 keeps python.exe as the subject for the network-related step."
+      },
+      "action": {
+        "score": 1,
+        "note": "Candidate claims network_listen / network-server-like behavior, which partially recovers the network behavior action."
+      },
+      "object": {
+        "score": 0,
+        "note": "Gold requires the CBC netconn object 10.193.66.115:41345. Candidate instead claims port 8000 and says communication peer IP/domain details were not observed."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "note": "Candidate cites sysmon network_port evidence, not CBC event netconn evidence."
+      },
+      "step_total": 2,
+      "step_total_max": 4
+    }
+  ],
+  "order_pairs": [
+    {
+      "gold_pair": [
+        "C23-S01",
+        "C23-S02"
+      ],
+      "candidate_pair": null,
+      "score": 0,
+      "max": 1,
+      "note": "Gold requires adjacent SimpleHTTPServer launch followed by CBC netconn/network-server behavior. Candidate inserts an unrelated file_access step between launch and network_listen, and the network object is wrong."
+    }
+  ],
+  "candidate_claims": [
+    {
+      "claim_id": "cand-01",
+      "candidate_location": "code_steps[0]",
+      "claim": "python.exe PID 720 process_start at 2022-07-18 18:50:00 with command_line 'python -m SimpleHTTPServer' and generic audit_logs command_line evidence.",
+      "mapped_gold_step": "C23-S01",
+      "slot_precision": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "precision_hits": 3,
+      "precision_total": 4,
+      "overclaim_slot_count": 1,
+      "overclaim": true,
+      "note": "Behavioral content matches the SimpleHTTPServer launch, but evidence is not the required CBC event process_cmdline."
+    },
+    {
+      "claim_id": "cand-02",
+      "candidate_location": "code_steps[1]",
+      "claim": "python.exe file_access to C:\\Python27\\Lib\\ / Python standard library files.",
+      "mapped_gold_step": null,
+      "slot_precision": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "precision_hits": 0,
+      "precision_total": 4,
+      "overclaim_slot_count": 4,
+      "overclaim": true,
+      "note": "The gold chain has no file_access step; this is an extra behavior claim."
+    },
+    {
+      "claim_id": "cand-03",
+      "candidate_location": "code_steps[2]",
+      "claim": "python.exe network_listen at port 8000 with sysmon network_port evidence.",
+      "mapped_gold_step": "C23-S02",
+      "slot_precision": {
+        "subject": 1,
+        "action": 1,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "precision_hits": 2,
+      "precision_total": 4,
+      "overclaim_slot_count": 2,
+      "overclaim": true,
+      "note": "The network action is related, but the required CBC netconn object 10.193.66.115:41345 and CBC event netconn evidence are absent."
+    }
+  ],
+  "totals": {
+    "item_score": 5,
+    "item_denominator": 8,
+    "action_step_recall_hits/total": "2/2",
+    "action_step_recall": 1.0,
+    "action_step_precision_hits/total": "2/3",
+    "action_step_precision": 0.6666666667,
+    "candidate_claim_precision_hits/total": "5/12",
+    "candidate_claim_precision": 0.4166666667,
+    "overclaim_slot_count": 7,
+    "behavior_sequence_order_hits/total": "0/1",
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits/total": "0/2",
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits/total": "1/2",
+    "behavior_step_recall": 0.5
+  },
+  "notes": [
+    "Manual Review2 only; no OpenAI API or GPT scoring script was used.",
+    "Candidate recovers the SimpleHTTPServer launch behavior semantically, but cites generic audit_logs command_line rather than CBC event process_cmdline.",
+    "Candidate's file_access step is an overclaim for this gold chain.",
+    "Candidate's network_listen port 8000 is not the gold CBC netconn object 10.193.66.115:41345, and sysmon network_port is not credited as CBC event netconn evidence.",
+    "The adjacent order pair is not credited because the candidate sequence has an extra file_access step between the launch and network claim and still misses the required netconn object.",
+    "Existing unrelated workspace changes were not modified."
+  ]
+}

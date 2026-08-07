@@ -1,0 +1,233 @@
+{
+  "reviewer": "Review2",
+  "scoring_mode": "codex_manual_local_only",
+  "case_id": "chain_03_e02_dns_packet_capture_batch_chain_stage2",
+  "chain_id": "chain_03_e02_dns_packet_capture_batch_chain",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_03_e02_dns_packet_capture_batch_chain/chain_gold.json",
+  "candidate_run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage2/chain_03_e02_dns_packet_capture_batch_chain_stage2_run.json",
+  "rubric": {
+    "item_kinds": [
+      "subject",
+      "action",
+      "object",
+      "critical_evidence"
+    ],
+    "score_values": [
+      0,
+      1
+    ],
+    "strictness_note": "Strict exact command/evidence scoring: generic cmd.exe, nearby tshark/dumpcap activity, and unrelated SimpleHTTPServer/RepWmiUtils/Flash activity do not satisfy the required dns batch execution chain."
+  },
+  "gold_required_items": [
+    {
+      "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S01:subject",
+      "step_id": "C03-S01",
+      "kind": "subject",
+      "gold_value": "explorer.exe"
+    },
+    {
+      "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S01:action",
+      "step_id": "C03-S01",
+      "kind": "action",
+      "gold_value": "explorer.exe starts cmd.exe as a child process"
+    },
+    {
+      "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S01:object",
+      "step_id": "C03-S01",
+      "kind": "object",
+      "gold_value": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \""
+    },
+    {
+      "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S01:critical_evidence",
+      "step_id": "C03-S01",
+      "kind": "critical_evidence",
+      "gold_value": "CBC alert / CBC event parent_path and process_cmdline"
+    },
+    {
+      "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S02:subject",
+      "step_id": "C03-S02",
+      "kind": "subject",
+      "gold_value": "cmd.exe"
+    },
+    {
+      "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S02:action",
+      "step_id": "C03-S02",
+      "kind": "action",
+      "gold_value": "cmd.exe executes a batch file via /c"
+    },
+    {
+      "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S02:object",
+      "step_id": "C03-S02",
+      "kind": "object",
+      "gold_value": "start_dns_logs.bat"
+    },
+    {
+      "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S02:critical_evidence",
+      "step_id": "C03-S02",
+      "kind": "critical_evidence",
+      "gold_value": "process_cmdline"
+    }
+  ],
+  "score": {
+    "summary": "The candidate does not recover the target chain. It reports a generic cmd.exe near the scoped time, but with RepWmiUtils.exe as parent and no command line. It does not identify explorer.exe, the exact cmd.exe /c start_dns_logs.bat command, or process_cmdline/CBC parent evidence. It also overclaims unrelated nearby RepWmiUtils, SimpleHTTPServer, tshark/dumpcap, and Flash updater activity.",
+    "chains": [
+      {
+        "chain_id": "chain_03_e02_dns_packet_capture_batch_chain",
+        "gold_required_item_scores": [
+          {
+            "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S01:subject",
+            "step_id": "C03-S01",
+            "kind": "subject",
+            "matched_candidate_excerpt": null,
+            "score": 0,
+            "reason": "Candidate never identifies explorer.exe as the parent/subject of the target cmd.exe launch."
+          },
+          {
+            "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S01:action",
+            "step_id": "C03-S01",
+            "kind": "action",
+            "matched_candidate_excerpt": null,
+            "score": 0,
+            "reason": "Candidate reports cmd.exe as started by RepWmiUtils.exe, not explorer.exe starting cmd.exe."
+          },
+          {
+            "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S01:object",
+            "step_id": "C03-S01",
+            "kind": "object",
+            "matched_candidate_excerpt": null,
+            "score": 0,
+            "reason": "Candidate does not provide the exact command line C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"."
+          },
+          {
+            "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S01:critical_evidence",
+            "step_id": "C03-S01",
+            "kind": "critical_evidence",
+            "matched_candidate_excerpt": null,
+            "score": 0,
+            "reason": "Candidate does not cite the required CBC alert/CBC event parent_path plus process_cmdline evidence for this launch."
+          },
+          {
+            "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S02:subject",
+            "step_id": "C03-S02",
+            "kind": "subject",
+            "matched_candidate_excerpt": "\"subject_process\":{\"name\":\"cmd.exe\",\"pid\":null,\"path\":null}",
+            "score": 1,
+            "reason": "Candidate includes cmd.exe as the subject process near the scoped time, but without the required batch command details."
+          },
+          {
+            "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S02:action",
+            "step_id": "C03-S02",
+            "kind": "action",
+            "matched_candidate_excerpt": null,
+            "score": 0,
+            "reason": "Candidate describes only a generic process_start and explicitly lacks the cmd.exe command line; it does not show /c batch execution."
+          },
+          {
+            "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S02:object",
+            "step_id": "C03-S02",
+            "kind": "object",
+            "matched_candidate_excerpt": null,
+            "score": 0,
+            "reason": "Candidate never identifies start_dns_logs.bat as the object."
+          },
+          {
+            "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S02:critical_evidence",
+            "step_id": "C03-S02",
+            "kind": "critical_evidence",
+            "matched_candidate_excerpt": null,
+            "score": 0,
+            "reason": "Candidate does not provide process_cmdline evidence for cmd.exe /c start_dns_logs.bat."
+          }
+        ],
+        "order_score": {
+          "score": 0,
+          "max": 1,
+          "reason": "The candidate does not recover both target steps, and its sequence is dominated by unrelated earlier/later actions rather than explorer.exe -> cmd.exe /c start_dns_logs.bat followed by cmd.exe batch execution."
+        }
+      }
+    ],
+    "precision_and_overclaims": {
+      "candidate_action_claim_count": 7,
+      "candidate_slot_kind_count_per_claim": 4,
+      "candidate_action_claim_slot_count": 28,
+      "candidate_action_claim_true_positive_slot_count": 1,
+      "candidate_claim_precision": 0.03571428571428571,
+      "overclaim_slot_count": 27,
+      "nearby_action_false_positive_claims": [
+        "RepWmiUtils.exe process starts at 13:28:16 and 17:45:44",
+        "cmd.exe started by RepWmiUtils.exe at 20:35:00",
+        "python -m SimpleHTTPServer started by cmd.exe",
+        "tshark.exe pcapng file access",
+        "dumpcap.exe started by tshark.exe",
+        "flashplayerupdateservice.exe started by RepWmiUtils.exe"
+      ],
+      "precision_note": "Only the generic cmd.exe subject slot is credited. All action/object/evidence claims for the target chain are missing, and most candidate claims are unrelated nearby behavior."
+    },
+    "error_flags": {
+      "target_missing": [
+        "chain_03_e02_dns_packet_capture_batch_chain:C03-S01:subject",
+        "chain_03_e02_dns_packet_capture_batch_chain:C03-S01:action",
+        "chain_03_e02_dns_packet_capture_batch_chain:C03-S01:object",
+        "chain_03_e02_dns_packet_capture_batch_chain:C03-S01:critical_evidence",
+        "chain_03_e02_dns_packet_capture_batch_chain:C03-S02:action",
+        "chain_03_e02_dns_packet_capture_batch_chain:C03-S02:object",
+        "chain_03_e02_dns_packet_capture_batch_chain:C03-S02:critical_evidence"
+      ],
+      "chain_mixing": true,
+      "unsupported_evidence": true,
+      "weak_grounding": true,
+      "nearby_action_false_positives": true,
+      "notes": [
+        "No OpenAI/API scorer was called.",
+        "Scored only from local gold and candidate JSON files.",
+        "Exact command/evidence requirement was applied strictly."
+      ]
+    },
+    "totals": {
+      "gold_required_item_count": 8,
+      "gold_required_item_score": 1,
+      "gold_required_item_score_max": 8,
+      "action_step_recall": 0.125,
+      "action_step_recall_hits": 1,
+      "action_step_recall_total": 8,
+      "critical_evidence_recall": 0.0,
+      "critical_evidence_recall_hits": 0,
+      "critical_evidence_recall_total": 2,
+      "behavior_sequence_order": 0.0,
+      "behavior_sequence_order_hits": 0,
+      "behavior_sequence_order_total": 1,
+      "candidate_claim_precision": 0.03571428571428571,
+      "candidate_claim_precision_hits": 1,
+      "candidate_claim_precision_total": 28,
+      "overclaim_slot_count": 27,
+      "behavior_element_diagnostics": {
+        "subject": {
+          "recall_hits": 1,
+          "recall_total": 2,
+          "precision_hits": 1,
+          "precision_total": 7
+        },
+        "action": {
+          "recall_hits": 0,
+          "recall_total": 2,
+          "precision_hits": 0,
+          "precision_total": 7
+        },
+        "object": {
+          "recall_hits": 0,
+          "recall_total": 2,
+          "precision_hits": 0,
+          "precision_total": 7
+        },
+        "critical_evidence": {
+          "recall_hits": 0,
+          "recall_total": 2,
+          "precision_hits": 0,
+          "precision_total": 7
+        }
+      }
+    }
+  }
+}

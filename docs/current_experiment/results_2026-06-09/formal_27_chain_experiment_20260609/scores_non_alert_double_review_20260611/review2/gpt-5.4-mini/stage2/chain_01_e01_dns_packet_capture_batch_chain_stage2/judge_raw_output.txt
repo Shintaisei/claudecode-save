@@ -1,0 +1,317 @@
+{
+  "case_id": "cbc_non_alert_behavior_chain_gold_2026-06-11",
+  "judge_summary_ja": "候補は explorer.exe → cmd.exe の親子関係を一部示唆し、主語の一致（explorer.exe, cmd.exe）だけは回収できた。しかし、決定的な行動内容（/c でのバッチ実行、対象 start_dns_logs.bat、tshark.exe の派生）やコマンドラインは復元できていない。さらに、同時期の無関係な python.exe（SimpleHTTPServer）チェーンを混在させており、主要ゴールド行動の順序性も満たせていない。",
+  "chains": [
+    {
+      "chain_id": "chain_01_e01_dns_packet_capture_batch_chain",
+      "gold_required_item_scores": [
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:subject",
+          "step_id": "C01-S01",
+          "kind": "subject",
+          "matched_candidate_excerpt": "execution_context.parent_process=\"explorer.exe\"",
+          "score": "1",
+          "reason_ja": "親プロセスとして explorer.exe を明示し、主語値が一致。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:operation",
+          "step_id": "C01-S01",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "候補は「プロセス実行」とのみ記載し、gold の「cmd.exeを子プロセスとして起動した」と一致しない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:object",
+          "step_id": "C01-S01",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "対象としての cmd.exe の完全なコマンドライン（/c と start_dns_logs.bat を含む）が提示されていない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:critical_evidence",
+          "step_id": "C01-S01",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "gold の非アラート cbc_events（moduleload, process_cmdline 等を含む）に対応する要素列が提示されていない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:subject",
+          "step_id": "C01-S02",
+          "kind": "subject",
+          "matched_candidate_excerpt": "execution_context.parent_process=\"cmd.exe\"",
+          "score": "1",
+          "reason_ja": "cmd.exe が親として現れ、主語値として一致（ただし行動内容は別物）。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:operation",
+          "step_id": "C01-S02",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "「/cでバッチファイルを実行した」を示す記述がなく、/c も start_dns_logs.bat も示されていない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:object",
+          "step_id": "C01-S02",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "対象 start_dns_logs.bat が候補に存在しない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:critical_evidence",
+          "step_id": "C01-S02",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "gold の cbc_events（moduleload, process_cmdline 等）の決定的証拠に対応する提示がない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:subject",
+          "step_id": "C01-S03",
+          "kind": "subject",
+          "matched_candidate_excerpt": "execution_context.parent_process=\"cmd.exe\"",
+          "score": "1",
+          "reason_ja": "cmd.exe の主語値自体は再現されている（ただし対象や操作は不一致）。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:operation",
+          "step_id": "C01-S03",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "「ログ収集系プロセスを派生させた」の行動表現がなく、tshark.exe も示されていない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:object",
+          "step_id": "C01-S03",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "対象 tshark.exe が候補に存在しない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:critical_evidence",
+          "step_id": "C01-S03",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "gold の cbc_events（procstart で tshark.exe を示す）の非アラート証拠が未提示。"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "CLAIM-1",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "execution_context.parent_process=\"explorer.exe\", subject_process.name=\"cmd.exe\", operation=\"プロセス実行\", object.name=\"cmd.exe\"",
+          "normalized_action_claim_ja": "explorer.exe が cmd.exe をプロセス実行した",
+          "slot_scores": [
+            {
+              "slot_id": "CLAIM-1:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "explorer.exe",
+              "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "主語 explorer.exe は C01-S01 と一致。"
+            },
+            {
+              "slot_id": "CLAIM-1:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "プロセス実行",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "gold の操作表現（子プロセス起動）と一致しない一般表現。"
+            },
+            {
+              "slot_id": "CLAIM-1:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "cmd.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "対象は完全なコマンドラインが必要だが提示なし。"
+            },
+            {
+              "slot_id": "CLAIM-1:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "cbc-edr event: field=parent_process_name, value=\"explorer.exe\"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "gold 要求の cbc_events 要約（type=moduleload, process_cmdline 等の全項目）に合致しない提示形式。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CLAIM-2",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "execution_context.parent_process=\"cmd.exe\", child_process=\"C:\\\\Python27\\\\python.exe\", operation=\"プロセス実行\"",
+          "normalized_action_claim_ja": "cmd.exe が C:\\Windows\\Python27\\python.exe をプロセス実行した",
+          "slot_scores": [
+            {
+              "slot_id": "CLAIM-2:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "cmd.exe",
+              "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "主語 cmd.exe は C01-S02 の主語と一致（ただし行動・対象は不一致）。"
+            },
+            {
+              "slot_id": "CLAIM-2:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "プロセス実行",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "gold の /c バッチ実行やログ収集プロセス派生とは別動作。"
+            },
+            {
+              "slot_id": "CLAIM-2:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Python27\\python.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "gold の対象（start_dns_logs.bat または tshark.exe）ではない。"
+            },
+            {
+              "slot_id": "CLAIM-2:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "sysmon: parent_process_name=\"cmd.exe\", process_name=\"C:\\\\Python27\\\\python.exe\"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "gold は cbc_events の決定的証拠を要請。sysmon のみでは gold クリティカル要件を満たさない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CLAIM-3",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "subject_process.name=\"C:\\\\Python27\\\\python.exe\", operation=\"プロセス実行\", object.name=\"python.exe\", command_line=\"python -m SimpleHTTPServer\"",
+          "normalized_action_claim_ja": "C:\\Python27\\python.exe が python.exe をプロセス実行し、コマンドライン「python -m SimpleHTTPServer」を使用した",
+          "slot_scores": [
+            {
+              "slot_id": "CLAIM-3:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "C:\\Python27\\python.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "gold に python.exe は登場しない。"
+            },
+            {
+              "slot_id": "CLAIM-3:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "プロセス実行",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "gold の行動種別とは無関係。"
+            },
+            {
+              "slot_id": "CLAIM-3:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "python.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "gold の対象（start_dns_logs.bat, tshark.exe）に該当しない。"
+            },
+            {
+              "slot_id": "CLAIM-3:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "python -m SimpleHTTPServer",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "gold の cmd.exe /c ... とは無関係。"
+            },
+            {
+              "slot_id": "CLAIM-3:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "sysmon: command_line=\"python -m SimpleHTTPServer\"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "gold のクリティカル証拠（cbc_events all-term）と一致しない。"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "C01-S01",
+          "after_step_id": "C01-S02",
+          "score": "0",
+          "reason_ja": "S01（CLAIM-1）と S02（CLAIM-2）がともに order=1 の候補由来で相対順序を満たせない。"
+        },
+        {
+          "before_step_id": "C01-S02",
+          "after_step_id": "C01-S03",
+          "score": "0",
+          "reason_ja": "S02 と S03 は同一候補主語（cmd.exe）に依存し、別個の行動主張として順序を示せていない。"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:operation",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:object",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:critical_evidence",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:operation",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:object",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:critical_evidence",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:operation",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:object",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:critical_evidence"
+    ],
+    "chain_mixing": true,
+    "hallucinated_claims": [],
+    "unsupported_evidence": [
+      "cbc-edr event fragments lacking type/action/process_cmdline for moduleload",
+      "sysmon-only evidence where gold requires cbc_events all-term support",
+      "cbc/sysmon evidence not tied to gold objects (start_dns_logs.bat, tshark.exe)"
+    ],
+    "contradicted_evidence": [],
+    "nearby_action_false_positives": [
+      "cmd.exe → C:\\Python27\\python.exe の派生",
+      "python.exe による \"python -m SimpleHTTPServer\" 実行"
+    ],
+    "weak_grounding": true,
+    "false_positive_claims": [
+      "cmd.exe が C:\\Python27\\python.exe を実行（gold と無関係）",
+      "C:\\Python27\\python.exe が python -m SimpleHTTPServer を実行（gold と無関係）"
+    ],
+    "notes_ja": [
+      "S1 の subject_process.name=cmd.exe かつ path=c:\\windows\\explorer.exe は値の取り違えが疑われ、grounding が弱い。",
+      "gold の決定的証拠（cbc_events モジュールロード/プロセス開始 with process_cmdline 等）に到達していない。"
+    ]
+  },
+  "candidate_action_claim_count": "3",
+  "candidate_action_claim_slot_count": "13",
+  "candidate_action_claim_true_positive_slot_count": "2",
+  "hallucinated_claim_count": "0",
+  "unsupported_evidence_count": "3",
+  "contradicted_evidence_count": "0",
+  "nearby_action_fp_count": "2",
+  "main_missing_items": [
+    "C01-S01: operation=cmd.exeを子プロセスとして起動した",
+    "C01-S01: object=C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+    "C01-S02: operation=/cでバッチファイルを実行した",
+    "C01-S02: object=start_dns_logs.bat",
+    "C01-S03: operation=ログ収集系プロセスを派生させた",
+    "C01-S03: object=tshark.exe"
+  ],
+  "main_false_positive_claims": [
+    "cmd.exe が C:\\Python27\\python.exe を実行",
+    "python.exe が \"python -m SimpleHTTPServer\" を実行"
+  ]
+}

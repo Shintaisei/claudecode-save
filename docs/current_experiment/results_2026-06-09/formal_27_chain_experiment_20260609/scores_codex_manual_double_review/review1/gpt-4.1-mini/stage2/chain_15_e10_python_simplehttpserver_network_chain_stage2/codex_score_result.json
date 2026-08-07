@@ -1,0 +1,251 @@
+{
+  "case_id": "chain_15_e10_python_simplehttpserver_network_chain_stage2",
+  "reviewer": "review1",
+  "method": "codex_manual_double_review_no_api",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "gold_chain": {
+    "chain_id": "chain_15_e10_python_simplehttpserver_network_chain",
+    "chain_type": "python_simplehttpserver_network_chain",
+    "chain_title": "Python SimpleHTTPServer network behavior",
+    "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_15_e10_python_simplehttpserver_network_chain/chain_gold.json",
+    "candidate_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage2/chain_15_e10_python_simplehttpserver_network_chain_stage2_run.json",
+    "gold_steps": [
+      {
+        "step_id": "C15-S01",
+        "order": 1,
+        "subject": "python.exe",
+        "action": "launches/runs the SimpleHTTPServer module",
+        "object": "python  -m SimpleHTTPServer",
+        "critical_evidence": "CBC event process_cmdline"
+      },
+      {
+        "step_id": "C15-S02",
+        "order": 2,
+        "subject": "python.exe",
+        "action": "network server/netconn behavior",
+        "object": "10.193.66.115:54869",
+        "critical_evidence": "CBC event netconn"
+      }
+    ]
+  },
+  "scoring_policy": "Strict manual scoring. Each gold step is scored on subject, action(operation), object, and critical_evidence. Critical evidence receives credit only for concrete CBC event fields such as process_cmdline or netconn; generic audit_logs references, fabricated-looking event ids, or inference are not sufficient. For this SimpleHTTPServer chain, the required behaviors are the python  -m SimpleHTTPServer launch and the 10.193.66.115:54869 netconn/network-server detection. Parent cmd.exe, batch-file context, file_read, and different-date process chains are overclaims or mismatches.",
+  "per_gold_step": [
+    {
+      "gold_step_id": "C15-S01",
+      "gold_order": 1,
+      "gold_expected": {
+        "subject": "python.exe",
+        "action": "launches/runs the SimpleHTTPServer module",
+        "object": "python  -m SimpleHTTPServer",
+        "critical_evidence": "CBC event process_cmdline"
+      },
+      "matched_candidate": "Final candidate S2 has subject_process.name=python.exe, operation=process_start, command_line=\"python -m SimpleHTTPServer\", and generic audit_logs evidence at 2022-07-15 13:13:40.",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "step_total": 3,
+      "step_total_max": 4,
+      "reason": "The candidate recovers the SimpleHTTPServer command shape for python.exe, so subject/action/object receive partial slot credit. It is not the target 2022-07-17 chain instance, uses a different-date batch/cmd context, does not preserve the exact double-space command string, and gives only generic audit_logs/field=command_line evidence rather than CBC process_cmdline evidence."
+    },
+    {
+      "gold_step_id": "C15-S02",
+      "gold_order": 2,
+      "gold_expected": {
+        "subject": "python.exe",
+        "action": "network server/netconn behavior",
+        "object": "10.193.66.115:54869",
+        "critical_evidence": "CBC event netconn"
+      },
+      "matched_candidate": "No matching final network/netconn code_step or code_sequence item. The final candidate's global_limitations state that python.exe network connection records were not found.",
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "step_total": 0,
+      "step_total_max": 4,
+      "reason": "The final answer omits the required netconn/network-server behavior and does not assert 10.193.66.115:54869. Intermediate investigation text mentioned this IP/port, but the final output contradicted or dropped it, so no final-output credit is given."
+    }
+  ],
+  "order_pairs": [
+    {
+      "gold_pair": [
+        "C15-S01",
+        "C15-S02"
+      ],
+      "expected_order": "SimpleHTTPServer command launch before network server/netconn behavior",
+      "candidate_pair": [
+        "S2 python.exe process_start python -m SimpleHTTPServer",
+        "no final netconn/network-server step"
+      ],
+      "score": 0,
+      "max": 1,
+      "reason": "The candidate has a SimpleHTTPServer-like process_start claim but no final netconn step, so the required adjacent behavior pair is not recovered."
+    }
+  ],
+  "candidate_claims": [
+    {
+      "candidate_step_id": "S1",
+      "order": 1,
+      "claim": {
+        "subject": "cmd.exe",
+        "action": "process_start",
+        "object": "python.exe",
+        "critical_evidence": "audit_logs field=process_name/command_line with event_record_id 123456/123457"
+      },
+      "mapped_gold_step": null,
+      "slot_hits": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "precision_hits": 0,
+      "precision_total": 4,
+      "overclaim_slots": [
+        "subject",
+        "action",
+        "object",
+        "critical_evidence"
+      ],
+      "reason": "The gold step subject is python.exe and the behavior is SimpleHTTPServer launch or netconn; cmd.exe parent/batch context from 2022-07-15 is outside the target gold chain."
+    },
+    {
+      "candidate_step_id": "S2",
+      "order": 2,
+      "claim": {
+        "subject": "python.exe",
+        "action": "process_start with SimpleHTTPServer command line",
+        "object": "python -m SimpleHTTPServer",
+        "critical_evidence": "audit_logs field=process_name/command_line with event_record_id 123458/123459"
+      },
+      "mapped_gold_step": "C15-S01 partial",
+      "slot_hits": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "precision_hits": 3,
+      "precision_total": 4,
+      "overclaim_slots": [
+        "critical_evidence"
+      ],
+      "reason": "This is the only final claim that matches the SimpleHTTPServer behavior shape. It lacks concrete CBC process_cmdline evidence and is tied to a different timestamp/parent batch chain, so it is only partial slot credit and not a complete recalled behavior step."
+    },
+    {
+      "candidate_step_id": "S3",
+      "order": 3,
+      "claim": {
+        "subject": "RepWmiUtils.exe",
+        "action": "process_start",
+        "object": "cmd.exe",
+        "critical_evidence": "audit_logs field=process_name with event_record_id 123455"
+      },
+      "mapped_gold_step": null,
+      "slot_hits": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "precision_hits": 0,
+      "precision_total": 4,
+      "overclaim_slots": [
+        "subject",
+        "action",
+        "object",
+        "critical_evidence"
+      ],
+      "reason": "RepWmiUtils.exe starting cmd.exe is not part of the gold SimpleHTTPServer/netconn two-step behavior chain."
+    },
+    {
+      "candidate_step_id": "S4",
+      "order": 4,
+      "claim": {
+        "subject": "repmgr.exe",
+        "action": "process_start",
+        "object": "RepWmiUtils.exe",
+        "critical_evidence": "audit_logs field=process_name with event_record_id 123454"
+      },
+      "mapped_gold_step": null,
+      "slot_hits": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "precision_hits": 0,
+      "precision_total": 4,
+      "overclaim_slots": [
+        "subject",
+        "action",
+        "object",
+        "critical_evidence"
+      ],
+      "reason": "repmgr.exe starting RepWmiUtils.exe is not in the gold chain and is an unrelated parent-chain overclaim."
+    },
+    {
+      "candidate_step_id": "S5",
+      "order": 5,
+      "claim": {
+        "subject": "cmd.exe",
+        "action": "file_read",
+        "object": "C:\\Users\\aalsahee\\Desktop\\run_http_server.bat",
+        "critical_evidence": "audit_logs field=file_name with event_record_id 123460"
+      },
+      "mapped_gold_step": null,
+      "slot_hits": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "precision_hits": 0,
+      "precision_total": 4,
+      "overclaim_slots": [
+        "subject",
+        "action",
+        "object",
+        "critical_evidence"
+      ],
+      "reason": "The gold chain has no batch-file file_read step; this is extra context from a different-date chain and does not satisfy either gold step."
+    }
+  ],
+  "totals": {
+    "item_recall_hits": 3,
+    "item_recall_total": 8,
+    "item_recall": 0.375,
+    "action_step_recall_hits": 1,
+    "action_step_recall_total": 2,
+    "action_step_recall": 0.5,
+    "action_step_precision_hits": 1,
+    "action_step_precision_total": 5,
+    "action_step_precision": 0.2,
+    "candidate_claim_precision_hits": 3,
+    "candidate_claim_precision_total": 20,
+    "candidate_claim_precision": 0.15,
+    "overclaim_slot_count": 17,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 0,
+    "behavior_step_recall_total": 2,
+    "behavior_step_recall": 0.0
+  },
+  "notes": [
+    "Final candidate output_text contains five code_steps from a 2022-07-15 parent/batch chain, not the target 2022-07-17 13:30-13:35 chain.",
+    "The final answer includes python.exe with command_line python -m SimpleHTTPServer, so C15-S01 receives subject/action/object slot credit, but no critical_evidence credit because CBC event process_cmdline is not shown.",
+    "The final answer does not include the required CBC netconn/network-server step for 10.193.66.115:54869 and even states that python.exe network connection records were not found.",
+    "Intermediate investigation text mentions 10.193.66.115:54869, but final scoring is based on the final output_text; the final answer omitted or contradicted that claim.",
+    "Strict behavior_step_recall is 0/2 because neither gold step is completely recovered for the target chain with required concrete evidence; item recall is 3/8 from partial C15-S01 slot matches."
+  ]
+}

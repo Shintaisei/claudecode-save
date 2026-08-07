@@ -1,0 +1,232 @@
+{
+  "run_id": "20260726T032933Z_s3_pt_03_regsvr32_long_chain_stage2_gpt-5.4-mini_official",
+  "pipeline": "external/Clouseau/artifact official chief_inspector.investigate_atlas",
+  "llm_provider": "openai",
+  "model": "gpt-5.4-mini",
+  "instance_id": "s3_pt_03_regsvr32_long_chain_stage2",
+  "gold_reference": {
+    "instance_id": "s3_pt_03_regsvr32_long_chain_stage2",
+    "case_id": "s3_pt_03_regsvr32_long_chain_stage2",
+    "input_id": "atlasv2_attack8_paired_03_stage2",
+    "stage": "stage2",
+    "scenario": "atlasv2-attack-h1-s3",
+    "database": "Clouseau\\artifact\\scenarios\\atlasv2\\attack\\h1\\s3\\incident.db",
+    "host": "WIN-32-H1",
+    "process_name": "regsvr32.exe",
+    "actor": "regsvr32.exe",
+    "expected_behavior": "S3-C3: regsvr32 to PowerShell/payload lineage",
+    "expected_behavior_category": "cbc_alert_attack_behavior_reconstruction",
+    "context_label": "attack_behavior_chain_paired",
+    "suite_group": "atlasv2_s3_s4_attack8_paired",
+    "difficulty": "process_time",
+    "time_window_utc": {
+      "episode_start": "2022-07-19T14:26:57.791000Z",
+      "episode_end": "2022-07-19T14:56:57.791000Z",
+      "analysis_scope": "Finalized behavior-chain window; as in the normal reconstruction experiment, the runner may inspect surrounding database evidence but the primary chain must stay in the declared scope."
+    },
+    "anchor_event": {
+      "source_stream": "scope",
+      "timestamp_utc": "2022-07-19T14:26:57.791000Z",
+      "database_time": "2022-07-19 14:26:57",
+      "alert_id": null,
+      "alert_name": null,
+      "process_name": "regsvr32.exe",
+      "process_path": null,
+      "process_cmdline": null,
+      "parent_path": null,
+      "parent_cmdline": null,
+      "severity": null,
+      "reason": null,
+      "event_record_id": null,
+      "action": "scope"
+    },
+    "input_alert_rows": [],
+    "model_ready_input": {
+      "input_id": "atlasv2_attack8_paired_03",
+      "stage": "stage2",
+      "input": {
+        "host": "WIN-32-H1",
+        "focus_processes": [
+          "regsvr32.exe"
+        ],
+        "chain_window_start_utc": "2022-07-19T14:26:57.791000Z",
+        "chain_window_end_utc": "2022-07-19T14:56:57.791000Z"
+      }
+    },
+    "gold_chain_file": "by_chain/s3_pt_03_regsvr32_long_chain/chain_gold.json",
+    "chain_id": "s3_pt_03_regsvr32_long_chain",
+    "chain_type": "cbc_alert_attack_behavior_reconstruction",
+    "formal_gold_root": "data\\current_experiment\\gold\\atlasv2_s3_s4_attack8_paired_gold_20260724",
+    "stage_input_policy": "Stage 2: host/process/time only; CBC alert summaries remain discoverable in the database.",
+    "stage23_answerable_policy": "CBC alert fields are excluded from the model input. Gold is based only on canonical CBC telemetry events.",
+    "quality": "paired_normal_method_20260724",
+    "stage3_answerable_policy": "Stage 3 uses the same Gold, filtered to validated canonical cbc_events evidence.",
+    "paired_stage_contract": {
+      "evaluation_unit": "behavior_chain",
+      "chain_index": 3,
+      "same_gold_all_stages": true,
+      "hard_time_scope": false,
+      "representative_alert_row_id": 4
+    },
+    "environment_context": "CLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。"
+  },
+  "source_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\Clouseau\\artifact\\scenarios\\atlasv2\\attack\\h1\\s3\\incident.db",
+  "adapter_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260726T032933Z_s3_pt_03_regsvr32_long_chain_stage2_gpt-5.4-mini_official\\scenario.db",
+  "adapter_counts": {
+    "audit_logs": 279959,
+    "sysmon_audit_rows": 661,
+    "cbc_event_audit_rows": 21376,
+    "cbc_alert_audit_rows": 35,
+    "dns_requests": 12502,
+    "browser_history": 10304,
+    "adapter_version": "v3_evidence_preserving_parent_context"
+  },
+  "clue": "これは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage2\n- host: WIN-32-H1\n- process: regsvr32.exe\n- timestamp: 2022-07-19 14:26:57\n- 参考 UTC 時間範囲: 2022-07-19T14:26:57.791000Z から 2022-07-19T14:56:57.791000Z\n- 参考 database 時間範囲: 2022-07-19 14:26:57 から 2022-07-19 14:56:57\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 2: 入力は host、process、timestamp のみである。\n- CBC alert name、alert reason、alert_id、command line、parent process、registry object は入力から仮定しない。\n- 全ログを利用できる。database 内に存在する場合、CBC alert summary rows も調査で発見可能な証拠として残っている。\n- CBC alert rows は調査で発見された後にだけ使える。これは証拠であり、入力事実ではない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n",
+  "dry_run": false,
+  "difficulty": "process_time",
+  "reasoning_effort": null,
+  "experiment_stage": "stage2",
+  "expected_input_fields": [
+    "host",
+    "process",
+    "timestamp"
+  ],
+  "configs": {
+    "max_investigations": null,
+    "max_questions": null,
+    "max_queries": null,
+    "max_tokens": 8192,
+    "reasoning_effort": null,
+    "agent_call_limit_policy": "unbounded_by_experiment"
+  },
+  "official_messages": [
+    {
+      "type": "HumanMessage",
+      "content": "## 役割\nあなたは CLOUSEAU の階層型調査パイプラインにおける Chief エージェントである。\n\n## 目的\nプロセス時刻起点から Windows エンドポイントのコード行動列を復元する。\n\n## 出力言語\n- 調査リード、要約、最終報告の自然言語値はすべて日本語で書く。\n- raw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま残す。\n\n## 調査リード作成ルール\n- SQL を書かない。\n- database column の列挙を調査リードにしない。\n- alert title、command line、parent process、target object、application intent、behavior category を仮定しない。\n- CBC alert 内容は起点情報の一部ではない。調査担当が database 内で発見した場合にだけ使う。\n- 各調査リードには、調査対象、調査理由、確認したい証拠を含める。\n- parent process、command line、target object、related rows をログから発見させる調査リードを優先する。\n- 近傍 row の接続関係は、先に決め打ちせず、観測証拠で検証する。\n- 最終回答は valid JSON のみである。\n\n## 環境\nCLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。\n\n## SOC からの起点情報\nこれは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage2\n- host: WIN-32-H1\n- process: regsvr32.exe\n- timestamp: 2022-07-19 14:26:57\n- 参考 UTC 時間範囲: 2022-07-19T14:26:57.791000Z から 2022-07-19T14:56:57.791000Z\n- 参考 database 時間範囲: 2022-07-19 14:26:57 から 2022-07-19 14:56:57\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 2: 入力は host、process、timestamp のみである。\n- CBC alert name、alert reason、alert_id、command line、parent process、registry object は入力から仮定しない。\n- 全ログを利用できる。database 内に存在する場合、CBC alert summary rows も調査で発見可能な証拠として残っている。\n- CBC alert rows は調査で発見された後にだけ使える。これは証拠であり、入力事実ではない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n\n\n\n## Shared CBC alert investigation policy\nWhen the initial task contains CBC alert triage information, use the same procedure for every case:\n1. Reconstruct the evidence-backed behavior relevant to the input alert.\n2. Inspect the supplied host and time scope for any separately reportable behavior that could affect the alert-level or host-level disposition.\n3. Keep sequences separate unless an observed parent/child, command-line, or object edge connects them; do not infer causality from temporal proximity alone.\n4. Do not assume that the alert or any nearby behavior is benign or malicious before observing evidence.\n5. In the final JSON, always provide triage_decision.alert_disposition and triage_decision.host_disposition based on observed evidence.\n"
+    },
+    {
+      "type": "AIMessage",
+      "content": "",
+      "usage_metadata": {
+        "input_tokens": 1904,
+        "output_tokens": 138,
+        "total_tokens": 2042,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "host WIN-32-H1 の 2022-07-19 14:26:57 前後に実行された regsvr32.exe の実行系を起点に、親子プロセス関係、command line、生成されたプロセス、関連ファイル/レジストリ/ネットワーク操作を確認したい。特に parent_process_name / parent_process_path / parent_command_line と、同時刻近傍の関連 row を突き合わせて、観測された code_steps と code_sequence を復元したい。"
+          },
+          "id": "call_ZyqRYLPtfRkUqUTqR2OK7ImA",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "type": "ToolMessage",
+      "content": "### 仮説\n- 2022-07-19 14:25:40 付近に、`eqnedt32.exe` と `regsvr32.exe` に関する CBC NGAV アラートは観測されるが、`audit_logs` 上の実プロセス行としては `eqnedt32.exe` / `regsvr32.exe` の実行痕跡は確認できていない。\n- したがって、現時点では **アラート本文に含まれる記述** と **実ログのプロセス関係** を切り分けて扱う必要がある。\n\n### 質問\n- 2022-07-19 14:25:40 前後に、`cbc-ngav-alerts` で観測された `The application eqnedt32.exe leveraged regsvr32.exe to execute a potentially malicious script over the network.` に関連して、同時刻近傍の **実ログのプロセス行** を再確認してください。\n- 特に、`eqnedt32.exe` または `regsvr32.exe` の **親プロセス名、親プロセスパス、親コマンドライン、子プロセス名、コマンドライン、対象オブジェクト、source_stream、event_record_id、event_id** を持つ行があるかを確認し、あれば時系列で示してください。\n- もし実プロセス行がない場合は、このアラートに対応する **直前・直後の実行プロセス** を、同一ホスト・同時刻近傍で探してください。\n\n### 結果要約\n- 観測事実:\n  - 2022-07-19 14:25:40 に `cbc-ngav-alerts` の記録として  \n    `The application eqnedt32.exe leveraged regsvr32.exe to execute a potentially malicious script over the network. | reason_code=T_SQUIBLYDOO | category=WARNING`\n    が観測された。\n  - `regsvr32.exe` / `eqnedt32.exe` の **実行プロセス行は未確認**。\n- 解釈:\n  - 現状は、alert 文面に両プロセス名が含まれることは確認できるが、親子関係や command line の連結は未証明。\n- 限界:\n  - `audit_logs` では該当プロセス行が見つからず、`parent_process_path` や `parent_command_line` などの証拠が欠落している。\n\n### 次の調査理由\n- いま確認できたのはアラート本文のみで、behavior-chain の復元に必要な **観測された親子関係** が不足しているため。\n- 次は同時刻近傍の実プロセス、またはその親子接続に直接つながる行を特定して、`code_sequence` を証拠ベースで復元する必要がある。\n\n### triage_decision\n```json\n{\n  \"triage_decision\": {\n    \"alert_disposition\": \"unknown\",\n    \"host_disposition\": \"unknown\"\n  }\n}\n```",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "AIMessage",
+      "content": "",
+      "usage_metadata": {
+        "input_tokens": 2770,
+        "output_tokens": 265,
+        "total_tokens": 3035,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 1664
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "host WIN-32-H1 の 2022-07-19 14:26:57 前後に観測された regsvr32.exe の実行行を探し、親プロセス名、親プロセスパス、親コマンドライン、子プロセス、command line、対象オブジェクト、source_stream、event_record_id、event_id を確認したい。観測された親子関係と対象操作を時系列で復元したい。"
+          },
+          "id": "call_HG98qeiDoXhpQf7JvXMfEqDp",
+          "type": "tool_call"
+        },
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "host WIN-32-H1 の 2022-07-19 14:26:57 前後で、regsvr32.exe と直接つながる可能性があるプロセスの直前・直後の行を確認したい。特に eqnedt32.exe、関連する子プロセス、ネットワーク接続、ファイル作成、レジストリ操作の観測証拠を探し、連結できるものだけを時系列で示したい。"
+          },
+          "id": "call_LR39M4MmiaKiZPlxzrBmvqYo",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "type": "ToolMessage",
+      "content": "{\n  \"仮説\": \"host WIN-32-H1 の 2022-07-19 14:26:57 前後には regsvr32.exe の実行痕跡は見当たらず、同時刻帯に別のプロセス活動が記録されている可能性がある。\",\n  \"質問\": [\n    \"host WIN-32-H1 の 2022-07-19 14:26:40〜14:27:20 で、regsvr32.exe そのもの、または command_line / parent_command_line / object に regsvr32 を含む行をもう一度確認してください。\",\n    \"同時刻帯に、cmd.exe、powershell.exe、rundll32.exe、mshta.exe、wscript.exe、cscript.exe、explorer.exe、svchost.exe、services.exe を起点とする実行連鎖があれば、親プロセス名、親プロセスパス、親コマンドライン、子プロセス名、command line、target object、source_stream、event_record_id、event_id を示してください。\",\n    \"regsvr32.exe に至る観測がない場合でも、同時刻帯の近傍で観測された別プロセス活動として、親子関係と対象操作が分かる行を示してください。\"\n  ],\n  \"結果要約\": [\n    \"2022-07-19 14:26:57 前後、host WIN-32-H1 で regsvr32.exe に一致する行は見つかりませんでした。\",\n    \"command_line、parent_command_line、object に regsvr32 を含む行も 0 件でした。\",\n    \"指定された候補プロセス群から始まる、regsvr32.exe に到達しうる実行連鎖も audit_logs 上では確認できませんでした。\",\n    \"同時刻帯には explorer.exe を親とする firefox.exe の CBC EDR 由来の filemod イベントが観測されました。\"\n  ],\n  \"次の調査理由\": [\n    \"Chief の起点である regsvr32.exe の実行行が未観測のため、まずは時間範囲を少し広げて再探索する必要があります。\",\n    \"同時刻帯に別活動があるため、regsvr32 以外の親子関係や対象操作が同一タイムウィンドウ内で連鎖しているかを確認する価値があります。\"\n  ],\n  \"triage_decision\": {\n    \"alert_disposition\": \"unknown\",\n    \"host_disposition\": \"unknown\"\n  }\n}",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "ToolMessage",
+      "content": "{\n  \"triage_decision\": {\n    \"alert_disposition\": \"要調査継続\",\n    \"host_disposition\": \"限定的な観測あり\"\n  },\n  \"hypothesis\": \"2022-07-19 14:26:57 前後に、eqnedt32.exe と regsvr32.exe を結ぶ実行連鎖が存在する可能性があるが、現時点で生ログ上の親子関係やコマンドラインは未確認。\",\n  \"evidence\": [\n    {\n      \"time\": \"2022-07-19 14:25:40\",\n      \"type\": \"CBC alert\",\n      \"raw_value\": \"The application eqnedt32.exe leveraged regsvr32.exe to execute a potentially malicious script over the network. | reason_code=T_SQUIBLYDOO | category=WARNING\",\n      \"observed_context\": {\n        \"pname\": \"python.exe\",\n        \"process_name\": \"python.exe\",\n        \"access\": \"cbc_alert\",\n        \"event_id\": \"eqnedt32.exe\",\n        \"subject_user_name\": \"T_SQUIBLYDOO\",\n        \"raw_event_type\": \"cbc_alert\",\n        \"original_table\": \"cbc_alerts\",\n        \"source_row_id\": \"d34d0916-0525-a1e1-bcc9-d26e21d93757\"\n      }\n    }\n  ],\n  \"結果要約\": [\n    \"対象時刻帯 2022-07-19 14:21:57〜14:31:57 の audit_logs からは、regsvr32.exe / eqnedt32.exe に直接つながる行は確認できなかった。\",\n    \"ただし CBC alert として、eqnedt32.exe が regsvr32.exe を利用してネットワーク上のスクリプトを実行した可能性を示す警告が 1 件観測された。\",\n    \"親プロセス、子プロセス、コマンドライン、ファイル作成、レジストリ操作、ネットワーク接続の生ログ証拠は未取得。\"\n  ],\n  \"次の調査理由\": [\n    \"CBC alert 以外の詳細イベントが未確認のため、実行連鎖の有無を生ログで裏づける必要がある。\",\n    \"次は 14:25:40 前後の regsvr32.exe、eqnedt32.exe、parent/child 関係、command_line を優先して確認すると、観測値に基づく接続可否を判定しやすい。\"\n  ]\n}",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\"code_steps\":[],\"code_sequence\":[],\"evidence_summary\":\"入力時刻 2022-07-19 14:26:57 前後の host WIN-32-H1 について、regsvr32.exe の実行行や、eqnedt32.exe から regsvr32.exe へつながる親子関係・command line・対象操作を audit_logs 上で確認できませんでした。CBC NGAV アラートとしては 2022-07-19 14:25:40 に `The application eqnedt32.exe leveraged regsvr32.exe to execute a potentially malicious script over the network. | reason_code=T_SQUIBLYDOO | category=WARNING` が観測されていますが、これは実ログのプロセス行で裏づけられていません。近傍では explorer.exe を親とする firefox.exe の filemod イベントが別件として観測されていますが、regsvr32.exe との観測上の接続は確認できませんでした。\",\"observed_entities\":[{\"timestamp\":\"2022-07-19 14:25:40\",\"source_stream\":\"cbc-ngav-alerts\",\"process_name\":\"python.exe\",\"event_record_id\":null,\"event_id\":\"eqnedt32.exe\",\"alert_id\":\"d34d0916-0525-a1e1-bcc9-d26e21d93757\",\"details\":\"`The application eqnedt32.exe leveraged regsvr32.exe to execute a potentially malicious script over the network. | reason_code=T_SQUIBLYDOO | category=WARNING`\"}],\"triage_decision\":{\"alert_disposition\":\"unknown\",\"host_disposition\":\"unknown\"},\"notes\":\"観測された証拠だけでは code_steps / code_sequence を復元できませんでした。親子関係、command line、対象オブジェクトのいずれも未確認のため、推定は行っていません。\"}",
+      "usage_metadata": {
+        "input_tokens": 4146,
+        "output_tokens": 413,
+        "total_tokens": 4559,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 2688
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"regsvr32.exe\",\n    \"timestamp\": \"2022-07-19 14:26:57\",\n    \"condition\": \"stage2\",\n    \"input_fields_used\": [\n      \"host\",\n      \"process\",\n      \"timestamp\"\n    ]\n  },\n  \"code_steps\": [],\n  \"code_sequence\": [],\n  \"supporting_alert_evidence\": [\n    {\n      \"alert_id\": \"d34d0916-0525-a1e1-bcc9-d26e21d93757\",\n      \"alert_name\": null,\n      \"source_stream\": \"cbc-ngav-alerts\",\n      \"why_supporting_only\": \"CBC NGAV アラートとして `The application eqnedt32.exe leveraged regsvr32.exe to execute a potentially malicious script over the network. | reason_code=T_SQUIBLYDOO | category=WARNING` が観測されたが、regsvr32.exe / eqnedt32.exe の実行プロセス行、親子関係、command line、対象オブジェクトは audit_logs で確認できず、code_steps を構成する観測証拠にはできない。\"\n    }\n  ],\n  \"triage_decision\": {\n    \"alert_disposition\": \"escalate_alert\",\n    \"host_disposition\": \"escalate_host_investigation\",\n    \"evidence_basis\": [\n      \"regsvr32.exe の実行行は audit_logs 上で未確認\",\n      \"eqnedt32.exe と regsvr32.exe を結ぶ親子関係や command line は未確認\",\n      \"CBC NGAV アラートが 1 件観測され、同一ホスト・同時刻近傍の別証拠で裏づけできていない\"\n    ]\n  },\n  \"excluded_nearby_evidence\": [\n    {\n      \"time\": \"2022-07-19 14:26:57 前後\",\n      \"source_stream\": \"audit_logs\",\n      \"description\": \"explorer.exe を親とする firefox.exe の filemod イベントが観測されたが、regsvr32.exe との観測上の接続は確認できなかったため、今回の code_sequence には含めない。\"\n    }\n  ],\n  \"global_limitations\": [\n    \"入力は host、process、timestamp のみであり、CBC alert 名や command line、parent process は入力事実としては与えられていない。\",\n    \"regsvr32.exe / eqnedt32.exe の生ログ実行行が見つからず、code_steps を復元できなかった。\",\n    \"alert 文面は補助証拠としてのみ扱い、実観測の command line や対象操作としては採用していない。\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-19 14:25:40 に cbc-ngav-alerts で regsvr32.exe を含む警告が観測されたが、実行プロセス行は未確認。\",\n    \"2022-07-19 14:26:57 前後の audit_logs では regsvr32.exe / eqnedt32.exe の親子関係や command line は確認できなかった。\",\n    \"同時刻近傍に explorer.exe -> firefox.exe の別イベントはあるが、今回の起点との接続は証拠不足で除外した。\"\n  ]\n}",
+      "usage_metadata": {
+        "input_tokens": 4893,
+        "output_tokens": 765,
+        "total_tokens": 5658,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    }
+  ],
+  "output_text": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"regsvr32.exe\",\n    \"timestamp\": \"2022-07-19 14:26:57\",\n    \"condition\": \"stage2\",\n    \"input_fields_used\": [\n      \"host\",\n      \"process\",\n      \"timestamp\"\n    ]\n  },\n  \"code_steps\": [],\n  \"code_sequence\": [],\n  \"supporting_alert_evidence\": [\n    {\n      \"alert_id\": \"d34d0916-0525-a1e1-bcc9-d26e21d93757\",\n      \"alert_name\": null,\n      \"source_stream\": \"cbc-ngav-alerts\",\n      \"why_supporting_only\": \"CBC NGAV アラートとして `The application eqnedt32.exe leveraged regsvr32.exe to execute a potentially malicious script over the network. | reason_code=T_SQUIBLYDOO | category=WARNING` が観測されたが、regsvr32.exe / eqnedt32.exe の実行プロセス行、親子関係、command line、対象オブジェクトは audit_logs で確認できず、code_steps を構成する観測証拠にはできない。\"\n    }\n  ],\n  \"triage_decision\": {\n    \"alert_disposition\": \"escalate_alert\",\n    \"host_disposition\": \"escalate_host_investigation\",\n    \"evidence_basis\": [\n      \"regsvr32.exe の実行行は audit_logs 上で未確認\",\n      \"eqnedt32.exe と regsvr32.exe を結ぶ親子関係や command line は未確認\",\n      \"CBC NGAV アラートが 1 件観測され、同一ホスト・同時刻近傍の別証拠で裏づけできていない\"\n    ]\n  },\n  \"excluded_nearby_evidence\": [\n    {\n      \"time\": \"2022-07-19 14:26:57 前後\",\n      \"source_stream\": \"audit_logs\",\n      \"description\": \"explorer.exe を親とする firefox.exe の filemod イベントが観測されたが、regsvr32.exe との観測上の接続は確認できなかったため、今回の code_sequence には含めない。\"\n    }\n  ],\n  \"global_limitations\": [\n    \"入力は host、process、timestamp のみであり、CBC alert 名や command line、parent process は入力事実としては与えられていない。\",\n    \"regsvr32.exe / eqnedt32.exe の生ログ実行行が見つからず、code_steps を復元できなかった。\",\n    \"alert 文面は補助証拠としてのみ扱い、実観測の command line や対象操作としては採用していない。\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-19 14:25:40 に cbc-ngav-alerts で regsvr32.exe を含む警告が観測されたが、実行プロセス行は未確認。\",\n    \"2022-07-19 14:26:57 前後の audit_logs では regsvr32.exe / eqnedt32.exe の親子関係や command line は確認できなかった。\",\n    \"同時刻近傍に explorer.exe -> firefox.exe の別イベントはあるが、今回の起点との接続は証拠不足で除外した。\"\n  ]\n}",
+  "usage": {
+    "input_tokens": 13713,
+    "output_tokens": 1581,
+    "cached_input_tokens": 0
+  },
+  "atlasv2_s3_s4_attack8_paired_experiment": {
+    "case_file": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\cases\\atlasv2_s3_s4_attack8_paired_stage_cases_20260724.jsonl",
+    "chain_id": "s3_pt_03_regsvr32_long_chain",
+    "stage": "stage2",
+    "gold": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\gold\\atlasv2_s3_s4_attack8_paired_gold_20260724\\by_chain\\s3_pt_03_regsvr32_long_chain\\chain_gold.json",
+    "copied_from": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260726T032933Z_s3_pt_03_regsvr32_long_chain_stage2_gpt-5.4-mini_official\\run.json"
+  }
+}

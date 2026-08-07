@@ -1,0 +1,62 @@
+{
+  "case": "chain_18_e13_dns_packet_capture_batch_chain_stage2",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "method": "codex_manual_double_review_adjudicated_no_api",
+  "review1_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/scores_codex_manual_double_review/review1/gpt-4.1-mini/stage2/chain_18_e13_dns_packet_capture_batch_chain_stage2/codex_score_result.json",
+  "review2_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/scores_codex_manual_double_review/review2/gpt-4.1-mini/stage2/chain_18_e13_dns_packet_capture_batch_chain_stage2/codex_score_result.json",
+  "adjudication_ja": "Both reviews agree on item recall and precision. Candidate partially recovers explorer.exe/cmd.exe and start_dns_logs.bat, but not the full cmd.exe /c command object or CBC evidence. The batch execution step is recovered; the parent-launch step is not a complete behavior step because its object is incomplete. Order is 0 because the parent launch and batch execution are not recovered as a strict adjacent gold pair with full command evidence.",
+  "final_totals": {
+    "action_step_recall_hits": 5,
+    "action_step_recall_total": 8,
+    "action_step_recall": 0.625,
+    "action_step_precision_hits": 5,
+    "action_step_precision_total": 24,
+    "action_step_precision": 0.20833333333333334,
+    "candidate_claim_precision_hits": 5,
+    "candidate_claim_precision_total": 24,
+    "candidate_claim_precision": 0.20833333333333334,
+    "overclaim_slot_count": 19,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 1,
+    "behavior_step_recall_total": 2,
+    "behavior_step_recall": 0.5
+  },
+  "final_gold_step_scores": [
+    {
+      "step_id": "C18-S01",
+      "summary": "explorer.exe starts cmd.exe with full /c start_dns_logs.bat command",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate links explorer.exe to cmd.exe, but does not recover the full C:\\Windows\\system32\\cmd.exe /c command object or CBC parent_path/process_cmdline evidence."
+    },
+    {
+      "step_id": "C18-S02",
+      "summary": "cmd.exe executes start_dns_logs.bat",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate identifies cmd.exe accessing/executing start_dns_logs.bat, but evidence is msft-security/audit_logs rather than the required process_cmdline evidence."
+    }
+  ],
+  "final_order_pairs": [
+    {
+      "before_step_id": "C18-S01",
+      "after_step_id": "C18-S02",
+      "score": 0,
+      "reason": "The full parent-launch command is incomplete and the chain is mixed with out-of-scope python/tshark/dumpcap behavior."
+    }
+  ]
+}

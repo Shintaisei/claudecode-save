@@ -1,0 +1,802 @@
+{
+  "reviewer": "codex_review2",
+  "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage1/chain_07_e05_sublime_python_script_execution_chain_stage1_run.json",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_07_e05_sublime_python_script_execution_chain/chain_gold.json",
+  "stage": "stage1",
+  "chain_id": "chain_07_e05_sublime_python_script_execution_chain",
+  "judge_summary_ja": "候補は前半の helloworld.py 実行について、plugin_host.exe から cmd.exe、cmd.exe から python.exe、python.exe によるスクリプト実行という主要な流れを部分的に復元している。一方で、helloworld2.py 側の3 stepと、後半の sublime_text.exe から python.exe を起動する別実行は復元していない。さらに sublime_text.exe と explorer.exe のファイル書き込みを行動列に混入しているため、近傍 unrelated action のFPとして扱った。",
+  "gold_required_item_scores": [
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S01:subject",
+      "step_id": "C07-S01",
+      "kind": "subject",
+      "gold_value": "plugin_host.exe",
+      "matched_candidate_excerpt": "timeline_ja: plugin_host.exe から cmd.exe (PID 2244) が起動され",
+      "score": 1,
+      "reason_ja": "候補はcode step本文ではparent_processとして、timelineでは起動元としてplugin_host.exeを明示している。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S01:operation",
+      "step_id": "C07-S01",
+      "kind": "operation",
+      "gold_value": "cmd.exeを子プロセスとして起動した",
+      "matched_candidate_excerpt": "timeline_ja: plugin_host.exe から cmd.exe (PID 2244) が起動され",
+      "score": 1,
+      "reason_ja": "plugin_host.exeからcmd.exeが起動された関係を行動として再構成している。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S01:object",
+      "step_id": "C07-S01",
+      "kind": "object",
+      "gold_value": "C:\\Windows\\system32\\cmd.exe /c \"python -u \"C:\\Program Files\\Sublime Text 3\\helloworld.py\"\"",
+      "matched_candidate_excerpt": "command_line: C:\\Windows\\system32\\cmd.exe /c \"python -u \\\"C:\\Program Files\\Sublime Text 3\\helloworld.py\\\"\"",
+      "score": 1,
+      "reason_ja": "cmd.exe /c と helloworld.py を含む同じコマンドラインを保持している。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S01:critical_evidence",
+      "step_id": "C07-S01",
+      "kind": "critical_evidence",
+      "gold_value": "CBC alert / CBC event の parent_path と process_cmdline",
+      "matched_candidate_excerpt": "source_stream=cbc-edr, field=command_line, value=C:\\Windows\\system32\\cmd.exe /c \"python -u \\\"C:\\Program Files\\Sublime Text 3\\helloworld.py\\\"\", ppid=3376",
+      "score": 1,
+      "reason_ja": "CBC event側のcommand_lineと親プロセス文脈を根拠として提示しており、alert名だけに依存していない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S02:subject",
+      "step_id": "C07-S02",
+      "kind": "subject",
+      "gold_value": "cmd.exe",
+      "matched_candidate_excerpt": "subject_process.name: cmd.exe",
+      "score": 1,
+      "reason_ja": "候補S1でcmd.exeを主体としている。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S02:operation",
+      "step_id": "C07-S02",
+      "kind": "operation",
+      "gold_value": "/cでPython実行コマンドを起動した",
+      "matched_candidate_excerpt": "command_line: C:\\Windows\\system32\\cmd.exe /c \"python -u \\\"C:\\Program Files\\Sublime Text 3\\helloworld.py\\\"\"",
+      "score": 1,
+      "reason_ja": "operation名はprocess_creationだが、/cでpython実行コマンドを起動した内容がcommand_lineとcode_sequenceで復元されている。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S02:object",
+      "step_id": "C07-S02",
+      "kind": "object",
+      "gold_value": "C:\\Windows\\system32\\cmd.exe /c \"python -u \"C:\\Program Files\\Sublime Text 3\\helloworld.py\"\"",
+      "matched_candidate_excerpt": "code_sequence[0]: C:\\Windows\\system32\\cmd.exe /c \"python -u \\\"C:\\Program Files\\Sublime Text 3\\helloworld.py\\\"\"",
+      "score": 1,
+      "reason_ja": "対象のcmd /cコマンドラインを正しく保持している。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S02:critical_evidence",
+      "step_id": "C07-S02",
+      "kind": "critical_evidence",
+      "gold_value": "CBC alert / CBC event process_cmdline",
+      "matched_candidate_excerpt": "evidence field=command_line, source_stream=cbc-edr, value=C:\\Windows\\system32\\cmd.exe /c \"python -u \\\"C:\\Program Files\\Sublime Text 3\\helloworld.py\\\"\"",
+      "score": 1,
+      "reason_ja": "process_cmdline相当のCBC EDR evidenceを示している。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S03:subject",
+      "step_id": "C07-S03",
+      "kind": "subject",
+      "gold_value": "cmd.exe",
+      "matched_candidate_excerpt": "subject_process.name: cmd.exe",
+      "score": 1,
+      "reason_ja": "cmd.exeをpython.exe生成側の主体として扱っている。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S03:operation",
+      "step_id": "C07-S03",
+      "kind": "operation",
+      "gold_value": "python.exeを子プロセスとして起動した",
+      "matched_candidate_excerpt": "operation=process_creation, execution_context.child_process=python.exe, child_pid=1108",
+      "score": 1,
+      "reason_ja": "cmd.exeがpython.exeを子プロセスとして生成した関係を復元している。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S03:object",
+      "step_id": "C07-S03",
+      "kind": "object",
+      "gold_value": "C:\\Program Files\\Sublime Text 3\\helloworld.py",
+      "matched_candidate_excerpt": "command_line includes C:\\Program Files\\Sublime Text 3\\helloworld.py",
+      "score": 1,
+      "reason_ja": "生成されたpython.exeの対象スクリプトとしてhelloworld.pyが示されている。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S03:critical_evidence",
+      "step_id": "C07-S03",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event procstart childproc_name",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "候補はchild_process=python.exeを出しているが、critical evidenceとしてprocstart childproc_nameを示していない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S04:subject",
+      "step_id": "C07-S04",
+      "kind": "subject",
+      "gold_value": "cmd.exe",
+      "matched_candidate_excerpt": "S2 execution_context.parent_process: cmd.exe",
+      "score": 1,
+      "reason_ja": "python.exe実行の親としてcmd.exeを復元している。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S04:operation",
+      "step_id": "C07-S04",
+      "kind": "operation",
+      "gold_value": "python.exeを起動した",
+      "matched_candidate_excerpt": "S2 parent_process=cmd.exe, subject_process.name=python.exe",
+      "score": 1,
+      "reason_ja": "cmd.exeによるpython.exe起動の親子関係を再構成している。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S04:object",
+      "step_id": "C07-S04",
+      "kind": "object",
+      "gold_value": "C:\\Program Files\\Sublime Text 3\\helloworld.py",
+      "matched_candidate_excerpt": "S2 object.path: C:\\Program Files\\Sublime Text 3\\helloworld.py",
+      "score": 1,
+      "reason_ja": "python.exe起動の対象スクリプトパスを正しく示している。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S04:critical_evidence",
+      "step_id": "C07-S04",
+      "kind": "critical_evidence",
+      "gold_value": "CBC alert / CBC event parent_path",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "parent_processはあるが、parent_pathをcritical evidenceとして提示していない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S05:subject",
+      "step_id": "C07-S05",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": "S2 subject_process.name: python.exe",
+      "score": 1,
+      "reason_ja": "python.exeを主体として復元している。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S05:operation",
+      "step_id": "C07-S05",
+      "kind": "operation",
+      "gold_value": "Pythonスクリプトを実行した",
+      "matched_candidate_excerpt": "operation: script_execution",
+      "score": 1,
+      "reason_ja": "Pythonスクリプト実行を明示している。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S05:object",
+      "step_id": "C07-S05",
+      "kind": "object",
+      "gold_value": "C:\\Program Files\\Sublime Text 3\\helloworld.py",
+      "matched_candidate_excerpt": "object.path: C:\\Program Files\\Sublime Text 3\\helloworld.py",
+      "score": 1,
+      "reason_ja": "対象スクリプトパスを正しく示している。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S05:critical_evidence",
+      "step_id": "C07-S05",
+      "kind": "critical_evidence",
+      "gold_value": "process_cmdline",
+      "matched_candidate_excerpt": "evidence field=command_line, value=python -u \"C:\\Program Files\\Sublime Text 3\\helloworld.py\"",
+      "score": 1,
+      "reason_ja": "python.exe側のprocess_cmdlineを根拠として示している。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S06:subject",
+      "step_id": "C07-S06",
+      "kind": "subject",
+      "gold_value": "plugin_host.exe",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "helloworld2.py側のplugin_host.exe起点実行を復元していない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S06:operation",
+      "step_id": "C07-S06",
+      "kind": "operation",
+      "gold_value": "cmd.exeを子プロセスとして起動した",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "2本目のcmd.exe起動を復元していない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S06:object",
+      "step_id": "C07-S06",
+      "kind": "object",
+      "gold_value": "C:\\Windows\\system32\\cmd.exe /c \"python -u \"C:\\Program Files\\Sublime Text 3\\helloworld2.py\"\"",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "候補にhelloworld2.pyのcmd /cコマンドラインがない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S06:critical_evidence",
+      "step_id": "C07-S06",
+      "kind": "critical_evidence",
+      "gold_value": "CBC alert / CBC event の parent_path と process_cmdline",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "2本目のCBC parent/process_cmdline evidenceを提示していない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S07:subject",
+      "step_id": "C07-S07",
+      "kind": "subject",
+      "gold_value": "cmd.exe",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "helloworld2.py側のcmd.exe action claimがない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S07:operation",
+      "step_id": "C07-S07",
+      "kind": "operation",
+      "gold_value": "/cでPython実行コマンドを起動した",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "helloworld2.pyの/c Python実行コマンドを復元していない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S07:object",
+      "step_id": "C07-S07",
+      "kind": "object",
+      "gold_value": "C:\\Windows\\system32\\cmd.exe /c \"python -u \"C:\\Program Files\\Sublime Text 3\\helloworld2.py\"\"",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "対象コマンドラインにhelloworld2.pyが現れない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S07:critical_evidence",
+      "step_id": "C07-S07",
+      "kind": "critical_evidence",
+      "gold_value": "CBC alert / CBC event process_cmdline",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "2本目のprocess_cmdline evidenceがない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S08:subject",
+      "step_id": "C07-S08",
+      "kind": "subject",
+      "gold_value": "cmd.exe",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "helloworld2.py側のcmd.exeからpython.exeへの子プロセス生成を復元していない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S08:operation",
+      "step_id": "C07-S08",
+      "kind": "operation",
+      "gold_value": "python.exeを子プロセスとして起動した",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "2本目のpython.exe子プロセス生成がない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S08:object",
+      "step_id": "C07-S08",
+      "kind": "object",
+      "gold_value": "C:\\Program Files\\Sublime Text 3\\helloworld2.py",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "helloworld2.pyパスを復元していない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S08:critical_evidence",
+      "step_id": "C07-S08",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event procstart childproc_name",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "2本目のprocstart childproc_name evidenceがない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S09:subject",
+      "step_id": "C07-S09",
+      "kind": "subject",
+      "gold_value": "sublime_text.exe",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "候補はsublime_text.exeのfile_writeを出しているが、python.exe起動の主体としては復元していない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S09:operation",
+      "step_id": "C07-S09",
+      "kind": "operation",
+      "gold_value": "python.exeを起動した",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "sublime_text.exeによるpython.exe起動ではなく、helloworld.pyへの書き込みとして出力している。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S09:object",
+      "step_id": "C07-S09",
+      "kind": "object",
+      "gold_value": "C:\\Program Files\\Sublime Text 3\\helloworld.py",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "同じファイル名はあるが、python.exe起動action claimのobjectとして復元されていない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S09:critical_evidence",
+      "step_id": "C07-S09",
+      "kind": "critical_evidence",
+      "gold_value": "CBC alert / CBC event parent_path",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "sublime_text.exeをparent_pathとするpython.exe起動evidenceを示していない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S10:subject",
+      "step_id": "C07-S10",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "後半の別インスタンスとしてのpython.exeスクリプト実行を復元していない。前半S05のpython.exeとは重複扱いしない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S10:operation",
+      "step_id": "C07-S10",
+      "kind": "operation",
+      "gold_value": "Pythonスクリプトを実行した",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "2回目のPythonスクリプト実行を独立したaction claimとして示していない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S10:object",
+      "step_id": "C07-S10",
+      "kind": "object",
+      "gold_value": "C:\\Program Files\\Sublime Text 3\\helloworld.py",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "同一パスは前半S05で出ているが、後半S10の別実行としては復元していない。"
+    },
+    {
+      "item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S10:critical_evidence",
+      "step_id": "C07-S10",
+      "kind": "critical_evidence",
+      "gold_value": "process_cmdline",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "後半S10のprocess_cmdline evidenceを提示していない。"
+    }
+  ],
+  "candidate_action_claim_scores": [
+    {
+      "candidate_claim_id": "R2-C07-CLAIM-01",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "plugin_host.exe から cmd.exe (PID 2244) が起動され / parent_process=plugin_host.exe / command_line=C:\\Windows\\system32\\cmd.exe /c \"python -u \\\"C:\\Program Files\\Sublime Text 3\\helloworld.py\\\"\"",
+      "normalized_action_claim_ja": "plugin_host.exe が helloworld.py を実行するcmd.exeコマンドを子プロセスとして起動した。",
+      "slot_scores": [
+        {
+          "slot_id": "R2-C07-CLAIM-01-subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "plugin_host.exe",
+          "matched_gold_item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S01:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "C07-S01の起動元プロセスと一致する。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-01-operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "cmd.exe が起動され",
+          "matched_gold_item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S01:operation",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "plugin_host.exeによるcmd.exe子プロセス起動に対応する。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-01-object",
+          "kind": "object",
+          "candidate_slot_excerpt": "C:\\Windows\\system32\\cmd.exe /c \"python -u \\\"C:\\Program Files\\Sublime Text 3\\helloworld.py\\\"\"",
+          "matched_gold_item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S01:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "C07-S01のcmd /cコマンドラインと一致する。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-01-critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "source_stream=cbc-edr, field=command_line, ppid=3376",
+          "matched_gold_item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S01:critical_evidence",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "CBC eventのcommand_lineと親文脈を根拠としている。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R2-C07-CLAIM-02",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "cmd.exe command_line=C:\\Windows\\system32\\cmd.exe /c \"python -u \\\"C:\\Program Files\\Sublime Text 3\\helloworld.py\\\"\"",
+      "normalized_action_claim_ja": "cmd.exe が /c で helloworld.py のPython実行コマンドを起動した。",
+      "slot_scores": [
+        {
+          "slot_id": "R2-C07-CLAIM-02-subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "cmd.exe",
+          "matched_gold_item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S02:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "C07-S02の主体と一致する。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-02-operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "/c \"python -u ...\"",
+          "matched_gold_item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S02:operation",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "/cでPython実行コマンドを起動した内容を保持している。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-02-object",
+          "kind": "object",
+          "candidate_slot_excerpt": "C:\\Windows\\system32\\cmd.exe /c \"python -u \\\"C:\\Program Files\\Sublime Text 3\\helloworld.py\\\"\"",
+          "matched_gold_item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S02:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "C07-S02の対象コマンドラインと一致する。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-02-critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "field=command_line, source_stream=cbc-edr",
+          "matched_gold_item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S02:critical_evidence",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "process_cmdline相当のevidenceである。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R2-C07-CLAIM-03",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "operation=process_creation, child_process=python.exe, child_pid=1108",
+      "normalized_action_claim_ja": "cmd.exe が python.exe を子プロセスとして起動した。",
+      "slot_scores": [
+        {
+          "slot_id": "R2-C07-CLAIM-03-subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "cmd.exe",
+          "matched_gold_item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S03:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "C07-S03の主体と一致する。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-03-operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "process_creation / child_process=python.exe",
+          "matched_gold_item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S03:operation",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "python.exe子プロセス起動に対応する。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-03-object",
+          "kind": "object",
+          "candidate_slot_excerpt": "C:\\Program Files\\Sublime Text 3\\helloworld.py",
+          "matched_gold_item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S03:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "対象スクリプトパスをcommand_lineから復元している。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-03-critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "execution_context.child_process=python.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unsupported_evidence",
+          "reason_ja": "child_process値はあるが、goldのcritical evidenceであるCBC event procstart childproc_nameを根拠として示していない。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R2-C07-CLAIM-04",
+      "candidate_step_id": "S2",
+      "claim_excerpt": "python.exe parent_process=cmd.exe, parent_command_line=C:\\Windows\\system32\\cmd.exe /c \"python -u \\\"C:\\Program Files\\Sublime Text 3\\helloworld.py\\\"\"",
+      "normalized_action_claim_ja": "cmd.exe が helloworld.py を対象に python.exe を起動した。",
+      "slot_scores": [
+        {
+          "slot_id": "R2-C07-CLAIM-04-subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "cmd.exe",
+          "matched_gold_item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S04:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "S2のparent_processとしてcmd.exeが示されている。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-04-operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "cmd.exe parent of python.exe",
+          "matched_gold_item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S04:operation",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "cmd.exeによるpython.exe起動関係に対応する。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-04-object",
+          "kind": "object",
+          "candidate_slot_excerpt": "C:\\Program Files\\Sublime Text 3\\helloworld.py",
+          "matched_gold_item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S04:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "対象スクリプトパスが一致する。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-04-critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "parent_process=cmd.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unsupported_evidence",
+          "reason_ja": "goldが要求するparent_path evidenceを示していない。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R2-C07-CLAIM-05",
+      "candidate_step_id": "S2",
+      "claim_excerpt": "python.exe operation=script_execution object.path=C:\\Program Files\\Sublime Text 3\\helloworld.py command_line=python -u \"C:\\Program Files\\Sublime Text 3\\helloworld.py\"",
+      "normalized_action_claim_ja": "python.exe が helloworld.py をPythonスクリプトとして実行した。",
+      "slot_scores": [
+        {
+          "slot_id": "R2-C07-CLAIM-05-subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "python.exe",
+          "matched_gold_item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S05:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "C07-S05の主体と一致する。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-05-operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "script_execution",
+          "matched_gold_item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S05:operation",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "Pythonスクリプト実行に対応する。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-05-object",
+          "kind": "object",
+          "candidate_slot_excerpt": "C:\\Program Files\\Sublime Text 3\\helloworld.py",
+          "matched_gold_item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S05:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "対象スクリプトパスが一致する。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-05-critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "field=command_line, value=python -u \"C:\\Program Files\\Sublime Text 3\\helloworld.py\"",
+          "matched_gold_item_id": "chain_07_e05_sublime_python_script_execution_chain:C07-S05:critical_evidence",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "process_cmdlineを示している。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R2-C07-CLAIM-06",
+      "candidate_step_id": "S3",
+      "claim_excerpt": "sublime_text.exe file_write helloworld.py",
+      "normalized_action_claim_ja": "sublime_text.exe が helloworld.py に書き込みを行った。",
+      "slot_scores": [
+        {
+          "slot_id": "R2-C07-CLAIM-06-subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "sublime_text.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "goldのC07-S09はsublime_text.exeによるpython.exe起動であり、file_write actionではない。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-06-operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "file_write",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "goldの操作はpython.exe起動であり、ファイル書き込みではない。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-06-object",
+          "kind": "object",
+          "candidate_slot_excerpt": "helloworld.py",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "同じファイル名だが、誤ったfile_write action claim内のobjectなのでTPにしない。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-06-critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "source_stream=sysmon, field=file_access, value=helloworld.py 書き込み",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "goldのcritical evidenceであるCBC parent_path/process contextではなく、近傍file_write証拠である。"
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "R2-C07-CLAIM-07",
+      "candidate_step_id": "S4",
+      "claim_excerpt": "explorer.exe file_write helloworld.py ショートカットファイル",
+      "normalized_action_claim_ja": "explorer.exe が helloworld.py のショートカットファイルに書き込みを行った。",
+      "slot_scores": [
+        {
+          "slot_id": "R2-C07-CLAIM-07-subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "explorer.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold chainにexplorer.exe主体の行動はない。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-07-operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "file_write",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold chainの操作ではない。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-07-object",
+          "kind": "object",
+          "candidate_slot_excerpt": "helloworld.py ショートカットファイル",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "goldの対象はスクリプトまたはcmd/python起動であり、ショートカットファイル書き込みではない。"
+        },
+        {
+          "slot_id": "R2-C07-CLAIM-07-critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "source_stream=sysmon, field=file_access, value=helloworld.py ショートカットファイル 書き込み",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "gold chainのcritical evidenceではない。"
+        }
+      ]
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_step_id": "C07-S01",
+      "after_step_id": "C07-S02",
+      "score": 1,
+      "reason_ja": "plugin_host.exeからcmd.exe起動、そのcmd.exe /cコマンドという関係をS1とtimelineで同じ順に示している。"
+    },
+    {
+      "before_step_id": "C07-S02",
+      "after_step_id": "C07-S03",
+      "score": 1,
+      "reason_ja": "cmd /cコマンドとpython.exe child_process生成が同じS1内で因果的に結び付けられている。"
+    },
+    {
+      "before_step_id": "C07-S03",
+      "after_step_id": "C07-S04",
+      "score": 1,
+      "reason_ja": "S1のchild_process=python.exeからS2のpython.exe parent_process=cmd.exeへ、同じ親子関係を後続の実行文脈として示している。"
+    },
+    {
+      "before_step_id": "C07-S04",
+      "after_step_id": "C07-S05",
+      "score": 1,
+      "reason_ja": "cmd.exeをparentとするpython.exe起動から、python.exeによるscript_executionへ進む順序がS2で示されている。"
+    },
+    {
+      "before_step_id": "C07-S05",
+      "after_step_id": "C07-S06",
+      "score": 0,
+      "reason_ja": "C07-S06のhelloworld2.py側のcmd.exe起動が欠落している。"
+    },
+    {
+      "before_step_id": "C07-S06",
+      "after_step_id": "C07-S07",
+      "score": 0,
+      "reason_ja": "C07-S06とC07-S07の両方が欠落している。"
+    },
+    {
+      "before_step_id": "C07-S07",
+      "after_step_id": "C07-S08",
+      "score": 0,
+      "reason_ja": "helloworld2.py側の/cコマンドとpython.exe子プロセス生成が復元されていない。"
+    },
+    {
+      "before_step_id": "C07-S08",
+      "after_step_id": "C07-S09",
+      "score": 0,
+      "reason_ja": "C07-S08が欠落し、C07-S09もfile_writeに置き換わっている。"
+    },
+    {
+      "before_step_id": "C07-S09",
+      "after_step_id": "C07-S10",
+      "score": 0,
+      "reason_ja": "後半のsublime_text.exeによるpython.exe起動とその後のpython.exe script_executionを復元していない。"
+    }
+  ],
+  "totals": {
+    "behavior_step_recall": 0.5,
+    "behavior_step_recall_hits": 5,
+    "behavior_step_recall_total": 10,
+    "action_step_recall": 0.45,
+    "action_step_recall_hits": 18,
+    "action_step_recall_total": 40,
+    "action_step_precision": 0.45,
+    "action_step_precision_hits": 18,
+    "action_step_precision_total": 40,
+    "gold_required_item_count": 40,
+    "candidate_claim_precision": 0.6428571428571429,
+    "candidate_claim_precision_hits": 18,
+    "candidate_claim_precision_total": 28,
+    "overclaim_slot_count": 10,
+    "candidate_action_claim_true_positive_slot_count": 18,
+    "candidate_action_claim_slot_count": 28,
+    "candidate_action_claim_raw_slot_count": 28,
+    "candidate_action_claim_duplicate_true_positive_slot_count": 0,
+    "behavior_sequence_order": 0.4444444444444444,
+    "behavior_sequence_order_hits": 4,
+    "behavior_sequence_order_total": 9,
+    "critical_evidence_recall": 0.3,
+    "critical_evidence_recall_hits": 3,
+    "critical_evidence_recall_total": 10,
+    "coarse_action_step_coverage": 0.5,
+    "coarse_action_step_coverage_hits": 5,
+    "coarse_action_step_coverage_total": 10,
+    "hallucinated_claim_count": 0,
+    "unsupported_evidence_count": 2,
+    "contradicted_evidence_count": 0,
+    "nearby_action_fp_count": 2,
+    "behavior_element_diagnostics": {
+      "critical_evidence": {
+        "recall_hits": 3,
+        "recall_total": 10,
+        "precision_hits": 3,
+        "precision_total": 7
+      },
+      "object": {
+        "recall_hits": 5,
+        "recall_total": 10,
+        "precision_hits": 5,
+        "precision_total": 7
+      },
+      "operation": {
+        "recall_hits": 5,
+        "recall_total": 10,
+        "precision_hits": 5,
+        "precision_total": 7
+      },
+      "subject": {
+        "recall_hits": 5,
+        "recall_total": 10,
+        "precision_hits": 5,
+        "precision_total": 7
+      }
+    }
+  },
+  "notes_ja": [
+    "OpenAI APIおよびscore_element_order_with_gpt.pyは使用していない。",
+    "候補のS1/S2は複数のaction claimに分割して評価した。",
+    "alert名だけをoperationとして採点した箇所はない。",
+    "helloworld.pyの前半実行と後半実行は別インスタンスとして扱い、前半の復元をC07-S10へ重複適用しない。",
+    "sublime_text.exeとexplorer.exeのfile_writeは同一時間近傍の証拠ではあるが、このgold chainのpython起動行動ではないためFPにした。"
+  ]
+}

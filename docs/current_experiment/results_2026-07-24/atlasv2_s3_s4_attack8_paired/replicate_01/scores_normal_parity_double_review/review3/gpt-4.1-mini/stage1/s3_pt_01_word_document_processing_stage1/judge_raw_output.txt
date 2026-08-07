@@ -1,0 +1,477 @@
+{
+  "case_id": "s3_pt_01_word_document_processing",
+  "judge_summary_ja": "候補は、WINWORD.EXE (PID 5592) が msf.rtf を開く動作（対象ファイルと主体）は正しく復元した。一方で、Word による一時RTFの作成および削除（S3-01-S02, S3-01-S03）はまったく再現できていない。加えて、explorer.exe の子プロセス生成や cmd.exe によるバッチ実行など、ゴールドチェーンと無関係な動作を多数混在させ、具体的なイベントIDやコマンドラインの捏造も見られる。順序はS3-01-S01→S3-01-S02の対については（S2の主体一致により）辛うじて順守だが、S3-01-S03は復元できておらず不合格。",
+  "chains": [
+    {
+      "chain_id": "s3_pt_01_word_document_processing",
+      "gold_required_item_scores": [
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S01:subject",
+          "step_id": "S3-01-S01",
+          "kind": "subject",
+          "matched_candidate_excerpt": "winword.exe (PID 5592)",
+          "score": "1",
+          "reason_ja": "候補S1で主体 winword.exe (PID 5592) を明示。プロセス名とPIDが一致。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S01:operation",
+          "step_id": "S3-01-S01",
+          "kind": "operation",
+          "matched_candidate_excerpt": "open_file",
+          "score": "1",
+          "reason_ja": "候補のopen_fileはゴールドのopened/readと同義のファイル開操作として妥当。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S01:object",
+          "step_id": "S3-01-S01",
+          "kind": "object",
+          "matched_candidate_excerpt": "C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf",
+          "score": "1",
+          "reason_ja": "対象ファイルパスが一致。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S01:critical_evidence",
+          "step_id": "S3-01-S01",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "source_stream=cbc-edr のイベント（ファイルopen）",
+          "score": "1",
+          "reason_ja": "cbc-edr由来のEDRテレメトリを提示しており、ゴールドの「Canonical CBC EDR telemetry event row (Stage 3-visible)」に合致。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S02:subject",
+          "step_id": "S3-01-S02",
+          "kind": "subject",
+          "matched_candidate_excerpt": "winword.exe (PID 5592)",
+          "score": "1",
+          "reason_ja": "候補S2にも主体winword.exe (PID 5592)の記載があり、当該ステップの主体要件を満たす。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S02:operation",
+          "step_id": "S3-01-S02",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "Wordによる一時RTFのcreated操作が復元されていない。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S02:object",
+          "step_id": "S3-01-S02",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "作成対象ファイル（Temp配下 c586a0f0.rtf）の復元なし。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S02:critical_evidence",
+          "step_id": "S3-01-S02",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "当該作成操作に対するCBC EDRテレメトリ提示がない。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S03:subject",
+          "step_id": "S3-01-S03",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "WINWORD.EXE (PID 5592) 主体の削除ステップに対応する記述なし。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S03:operation",
+          "step_id": "S3-01-S03",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "deleted 操作が復元されていない。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S03:object",
+          "step_id": "S3-01-S03",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "削除対象の一時RTF（c586a0f0.rtf）の記載なし。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S03:critical_evidence",
+          "step_id": "S3-01-S03",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "削除操作を裏付けるCBC EDRイベント提示がない。"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "c1_s1_open_msf",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "winword.exe (PID 5592) が C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf を open_file",
+          "normalized_action_claim_ja": "WINWORD.EXE (PID 5592) が msf.rtf を開いた/読んだ",
+          "slot_scores": [
+            {
+              "slot_id": "c1_s1_open_msf:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "winword.exe (PID 5592)",
+              "matched_gold_item_id": "s3_pt_01_word_document_processing:S3-01-S01:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "主体とPIDがゴールドS3-01-S01と一致。"
+            },
+            {
+              "slot_id": "c1_s1_open_msf:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "open_file",
+              "matched_gold_item_id": "s3_pt_01_word_document_processing:S3-01-S01:operation",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "open_file は opened/read と実質同義。"
+            },
+            {
+              "slot_id": "c1_s1_open_msf:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf",
+              "matched_gold_item_id": "s3_pt_01_word_document_processing:S3-01-S01:object",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "対象パスが完全一致。"
+            },
+            {
+              "slot_id": "c1_s1_open_msf:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "\"c:\\program files\\microsoft office\\office14\\winword.exe\" \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "ゴールド要件にcommand_lineは含まれず、かつ観測コマンドライン（/n を含む）と不一致。"
+            },
+            {
+              "slot_id": "c1_s1_open_msf:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "cbc-edr イベント（ファイル開）",
+              "matched_gold_item_id": "s3_pt_01_word_document_processing:S3-01-S01:critical_evidence",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "CBC EDRテレメトリ行として妥当。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "c2_s2_modload",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "winword.exe (PID 5592) が load_modules",
+          "normalized_action_claim_ja": "WINWORD.EXE (PID 5592) がモジュールをロード",
+          "slot_scores": [
+            {
+              "slot_id": "c2_s2_modload:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "winword.exe (PID 5592)",
+              "matched_gold_item_id": "s3_pt_01_word_document_processing:S3-01-S02:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "主体はS3-01-S02の主体と一致。"
+            },
+            {
+              "slot_id": "c2_s2_modload:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "load_modules",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "S3-01-S02で期待されるのは created（ファイル作成）であり不一致。"
+            },
+            {
+              "slot_id": "c2_s2_modload:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "cbc-edr モジュールロード（event_record_id=123456, value=some_office_module.dll）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "該当ゴールド項目が存在しないモジュールロード。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "c3_s3_explorer_spawn",
+          "candidate_step_id": "S3",
+          "claim_excerpt": "explorer.exe (PID 1604) が spawn_processes",
+          "normalized_action_claim_ja": "EXPLORER.EXE (PID 1604) が子プロセス生成",
+          "slot_scores": [
+            {
+              "slot_id": "c3_s3_explorer_spawn:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "explorer.exe (PID 1604)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールドチェーンの主体はWINWORD.EXEであり不一致。"
+            },
+            {
+              "slot_id": "c3_s3_explorer_spawn:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "spawn_processes",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールドに該当操作なし。"
+            },
+            {
+              "slot_id": "c3_s3_explorer_spawn:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "sysmon イベント（event_record_id=234567）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "チェーン外の証跡。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "c4a_s4_spawn_firefox",
+          "candidate_step_id": "S4",
+          "claim_excerpt": "explorer.exe (PID 1604) が firefox.exe を spawn",
+          "normalized_action_claim_ja": "EXPLORER.EXE (PID 1604) が firefox.exe を生成",
+          "slot_scores": [
+            {
+              "slot_id": "c4a_s4_spawn_firefox:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "explorer.exe (PID 1604)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールド主体と無関係。"
+            },
+            {
+              "slot_id": "c4a_s4_spawn_firefox:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "spawn_processes",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールド操作に該当なし。"
+            },
+            {
+              "slot_id": "c4a_s4_spawn_firefox:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "firefox.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールドの対象オブジェクトではない。"
+            },
+            {
+              "slot_id": "c4a_s4_spawn_firefox:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "sysmon イベント（event_record_id=234568）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "チェーン外の証跡。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "c4b_s4_spawn_mmc",
+          "candidate_step_id": "S4",
+          "claim_excerpt": "explorer.exe (PID 1604) が mmc.exe を spawn",
+          "normalized_action_claim_ja": "EXPLORER.EXE (PID 1604) が mmc.exe を生成",
+          "slot_scores": [
+            {
+              "slot_id": "c4b_s4_spawn_mmc:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "explorer.exe (PID 1604)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "チェーン外。"
+            },
+            {
+              "slot_id": "c4b_s4_spawn_mmc:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "spawn_processes",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "該当操作なし。"
+            },
+            {
+              "slot_id": "c4b_s4_spawn_mmc:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "mmc.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールド対象外。"
+            },
+            {
+              "slot_id": "c4b_s4_spawn_mmc:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "sysmon イベント（event_record_id=234569）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "チェーン外の証跡。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "c4c_s4_spawn_cmd",
+          "candidate_step_id": "S4",
+          "claim_excerpt": "explorer.exe (PID 1604) が cmd.exe を spawn",
+          "normalized_action_claim_ja": "EXPLORER.EXE (PID 1604) が cmd.exe を生成",
+          "slot_scores": [
+            {
+              "slot_id": "c4c_s4_spawn_cmd:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "explorer.exe (PID 1604)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "チェーン外。"
+            },
+            {
+              "slot_id": "c4c_s4_spawn_cmd:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "spawn_processes",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "該当操作なし。"
+            },
+            {
+              "slot_id": "c4c_s4_spawn_cmd:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "cmd.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールド対象外。"
+            },
+            {
+              "slot_id": "c4c_s4_spawn_cmd:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "sysmon イベント（event_record_id=234570）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "チェーン外の証跡。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "c5_s5_cmd_exec_bat",
+          "candidate_step_id": "S5",
+          "claim_excerpt": "cmd.exe (PID 960) が C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat を execute_file",
+          "normalized_action_claim_ja": "CMD.EXE (PID 960) が start_dns_logs.bat を実行",
+          "slot_scores": [
+            {
+              "slot_id": "c5_s5_cmd_exec_bat:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "cmd.exe (PID 960)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "チェーン外の主体。"
+            },
+            {
+              "slot_id": "c5_s5_cmd_exec_bat:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "execute_file",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールド操作に該当なし。"
+            },
+            {
+              "slot_id": "c5_s5_cmd_exec_bat:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールド対象オブジェクトではない。"
+            },
+            {
+              "slot_id": "c5_s5_cmd_exec_bat:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "cbc-edr イベント（event_record_id=345678/345679）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "チェーン外の証跡。"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "S3-01-S01",
+          "after_step_id": "S3-01-S02",
+          "score": "1",
+          "reason_ja": "S1（open msf.rtf）→S2（winword.exe主体の別ステップ）と順序は維持。ただしS2の操作・対象は未復元。"
+        },
+        {
+          "before_step_id": "S3-01-S02",
+          "after_step_id": "S3-01-S03",
+          "score": "0",
+          "reason_ja": "S3-01-S03の動作（削除）が候補に存在せず、順序評価不能。"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [],
+    "chain_mixing": true,
+    "hallucinated_claims": [
+      "S1 の command_line: \"c:\\program files\\microsoft office\\office14\\winword.exe\" \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\" （観測値の /n が欠落）",
+      "S2 の cbc-edr modload event_record_id=123456, value=some_office_module.dll",
+      "S3 の sysmon event_record_id=234567 による explorer.exe spawn_processes",
+      "S4 の sysmon event_record_id=234568 childproc_name=firefox.exe",
+      "S4 の sysmon event_record_id=234569 childproc_name=mmc.exe",
+      "S4 の sysmon event_record_id=234570 childproc_name=cmd.exe",
+      "S5 の cbc-edr event_record_id=345679 file_name=start_dns_logs.bat（および tshark.exe 子起動）"
+    ],
+    "unsupported_evidence": [
+      "S1/S2 の evidence に alert_id（CFnKBKLTv6hUkBGFobRdg-565619）などCBCアラート要素を混在させており、テレメトリ根拠として不適切。"
+    ],
+    "contradicted_evidence": [],
+    "nearby_action_false_positives": [
+      "WINWORD.EXE の load_modules（ゴールド未要求）",
+      "EXPLORER.EXE の spawn_processes 一連（firefox.exe, mmc.exe, cmd.exe）",
+      "CMD.EXE による start_dns_logs.bat 実行（および tshark.exe 起動）"
+    ],
+    "weak_grounding": true,
+    "false_positive_claims": [
+      "winword.exe が load_modules",
+      "explorer.exe が spawn_processes",
+      "explorer.exe が firefox.exe を生成",
+      "explorer.exe が mmc.exe を生成",
+      "explorer.exe が cmd.exe を生成",
+      "cmd.exe が C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat を実行"
+    ],
+    "notes_ja": [
+      "ゴールドチェーンはWordによるmsf.rtfの処理と派生した一時RTFの作成・削除に限定される。候補はこれ以外の周辺動作を多く混在。"
+    ]
+  },
+  "candidate_action_claim_count": "7",
+  "candidate_action_claim_slot_count": "27",
+  "candidate_action_claim_true_positive_slot_count": "5",
+  "hallucinated_claim_count": "7",
+  "unsupported_evidence_count": "1",
+  "contradicted_evidence_count": "0",
+  "nearby_action_fp_count": "6",
+  "main_missing_items": [
+    "s3_pt_01_word_document_processing:S3-01-S02:operation",
+    "s3_pt_01_word_document_processing:S3-01-S02:object",
+    "s3_pt_01_word_document_processing:S3-01-S02:critical_evidence",
+    "s3_pt_01_word_document_processing:S3-01-S03:subject",
+    "s3_pt_01_word_document_processing:S3-01-S03:operation",
+    "s3_pt_01_word_document_processing:S3-01-S03:object",
+    "s3_pt_01_word_document_processing:S3-01-S03:critical_evidence"
+  ],
+  "main_false_positive_claims": [
+    "WINWORD.EXE のモジュールロード（load_modules）",
+    "EXPLORER.EXE の子プロセス生成（firefox.exe, mmc.exe, cmd.exe）",
+    "CMD.EXE のバッチ実行および tshark.exe 起動"
+  ]
+}

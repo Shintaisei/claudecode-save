@@ -1,0 +1,262 @@
+{
+  "score_run_id": "20260604T073457Z_gold_reviewed_10_regexe_20220716t150700z_gpt-5.4-mini_behavior_metrics_score",
+  "model": "gpt-5.4-mini",
+  "reasoning_effort": "medium",
+  "gold_file": "DOC_ACTIVE\\05_gold_evaluation_trials\\discord_reg_runkey\\gold_behavior_node.json",
+  "candidate_run_json": "DOC_ACTIVE\\03_clouseau_evaluation\\clouseau_reconstruction_outputs\\20260604T065754Z_gold_reviewed_10_regexe_20220716t150700z_gpt-5.4-mini_official\\run.json",
+  "score": {
+    "case_id": "gold_reviewed_10_regexe_20220716t150700z",
+    "judge_summary_ja": "候補は reg.exe による Run キーの query/add と Discord 関連の親プロセス文脈を概ね復元できている一方、CBC alert の alert_id や PID などを null と断定している点と、code_sequence を add→query と逆順にまとめている点が誤りです。Discord.exe が reg.exe を起動する親子関係の証拠はあるが、候補内の追加メタ記述に未支持の断定が混在しています。",
+    "chains": [
+      {
+        "chain_id": "B1",
+        "gold_element_scores": [
+          {
+            "element_id": "D1_subject",
+            "step_id": "D1",
+            "kind": "subject",
+            "matched_candidate_excerpt": "execution_context.parent_process: \"discord.exe\" / parent_command_line: \"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\" --squirrel-install 1.0.9005",
+            "score": 1,
+            "reason_ja": "親プロセスとして Discord.exe が復元されているため一致します。"
+          },
+          {
+            "element_id": "D1_operation",
+            "step_id": "D1",
+            "kind": "operation",
+            "matched_candidate_excerpt": "execution_context.parent_process: \"discord.exe\"",
+            "score": 1,
+            "reason_ja": "Discord.exe が reg.exe を親として起動した文脈が示されており、子プロセス起動の関係を復元しています。"
+          },
+          {
+            "element_id": "D1_object",
+            "step_id": "D1",
+            "kind": "object",
+            "matched_candidate_excerpt": "subject_process.path: \"C:\\\\Windows\\\\System32\\\\reg.exe\"",
+            "score": 1,
+            "reason_ja": "対象の reg.exe パスが一致しています。"
+          },
+          {
+            "element_id": "D1_evidence",
+            "step_id": "D1",
+            "kind": "evidence",
+            "matched_candidate_excerpt": "execution_context.parent_command_line: \"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\" --squirrel-install 1.0.9005",
+            "score": 1,
+            "reason_ja": "Discord.exe と reg.exe の親子関係を支える親コマンドライン証拠が含まれています。"
+          },
+          {
+            "element_id": "D2_subject",
+            "step_id": "D2",
+            "kind": "subject",
+            "matched_candidate_excerpt": "subject_process.name: \"reg.exe\" / subject_process.path: \"C:\\\\Windows\\\\System32\\\\reg.exe\"",
+            "score": 1,
+            "reason_ja": "主体は reg.exe で一致しています。"
+          },
+          {
+            "element_id": "D2_operation",
+            "step_id": "D2",
+            "kind": "operation",
+            "matched_candidate_excerpt": "operation: \"registry value の照会\"",
+            "score": 1,
+            "reason_ja": "Run キーの Discord 値を照会した操作に対応しています。"
+          },
+          {
+            "element_id": "D2_object",
+            "step_id": "D2",
+            "kind": "object",
+            "matched_candidate_excerpt": "object.path: \"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\\\\Discord\" / object.value: \"Discord\"",
+            "score": 1,
+            "reason_ja": "Run\\Discord の対象が一致しています。"
+          },
+          {
+            "element_id": "D2_command_line",
+            "step_id": "D2",
+            "kind": "command_line",
+            "matched_candidate_excerpt": "C:\\\\Windows\\\\System32\\\\reg.exe query HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord",
+            "score": 1,
+            "reason_ja": "照会コマンドが完全一致しています。"
+          },
+          {
+            "element_id": "D2_evidence",
+            "step_id": "D2",
+            "kind": "evidence",
+            "matched_candidate_excerpt": "source_stream: \"cbc-edr-alerts\"",
+            "score": 1,
+            "reason_ja": "CBC alert 系の証拠ストリームが含まれており、照会証拠として成立します。"
+          },
+          {
+            "element_id": "D3_subject",
+            "step_id": "D3",
+            "kind": "subject",
+            "matched_candidate_excerpt": "subject_process.name: \"reg.exe\" / subject_process.path: \"C:\\\\Windows\\\\System32\\\\reg.exe\"",
+            "score": 1,
+            "reason_ja": "主体は reg.exe で一致しています。"
+          },
+          {
+            "element_id": "D3_operation",
+            "step_id": "D3",
+            "kind": "operation",
+            "matched_candidate_excerpt": "operation: \"registry value の追加\"",
+            "score": 1,
+            "reason_ja": "Run キー値の追加・更新に一致しています。"
+          },
+          {
+            "element_id": "D3_object",
+            "step_id": "D3",
+            "kind": "object",
+            "matched_candidate_excerpt": "object.path: \"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\" / object.value: \"Discord\" / object.data: \"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\"",
+            "score": 1,
+            "reason_ja": "Run\\Discord と Discord Update.exe のデータが一致しています。"
+          },
+          {
+            "element_id": "D3_command_line",
+            "step_id": "D3",
+            "kind": "command_line",
+            "matched_candidate_excerpt": "C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\" /f",
+            "score": 1,
+            "reason_ja": "追加コマンドラインが完全一致しています。"
+          },
+          {
+            "element_id": "D3_evidence",
+            "step_id": "D3",
+            "kind": "evidence",
+            "matched_candidate_excerpt": "source_stream: \"cbc-edr-alerts\" / command_line: \"C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\\\" /f\"",
+            "score": 1,
+            "reason_ja": "Run キー書き込みの CBC 系証拠として成立しています。"
+          }
+        ],
+        "candidate_element_scores": [
+          {
+            "candidate_element_excerpt": "S1: reg.exe が HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run の Discord 値へ Add を実行し、command_line は reg.exe add ... /f",
+            "matched_gold_element_id": "D3_command_line",
+            "is_true_positive": 1,
+            "false_positive_type": "none",
+            "reason_ja": "Run キー追加の主張とコマンドラインが gold の D3 に一致します。"
+          },
+          {
+            "candidate_element_excerpt": "S1: execution_context.parent_process が discord.exe、parent_command_line が Discord.exe --squirrel-install 1.0.9005",
+            "matched_gold_element_id": "D1_evidence",
+            "is_true_positive": 1,
+            "false_positive_type": "none",
+            "reason_ja": "Discord.exe から reg.exe への親子関係証拠として一致します。"
+          },
+          {
+            "candidate_element_excerpt": "S2: reg.exe が HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\\\\Discord を query し、command_line は reg.exe query ... /v Discord",
+            "matched_gold_element_id": "D2_command_line",
+            "is_true_positive": 1,
+            "false_positive_type": "none",
+            "reason_ja": "照会操作とコマンドラインが gold の D2 に一致します。"
+          },
+          {
+            "candidate_element_excerpt": "S2: execution_context.parent_process が discord.exe、parent_command_line が Discord.exe --squirrel-firstrun",
+            "matched_gold_element_id": "D1_evidence",
+            "is_true_positive": 1,
+            "false_positive_type": "none",
+            "reason_ja": "Discord.exe の親文脈証拠として一致します。"
+          },
+          {
+            "candidate_element_excerpt": "supporting_alert_evidence: source_stream が cbc-edr-alerts",
+            "matched_gold_element_id": "D2_evidence",
+            "is_true_positive": 1,
+            "false_positive_type": "none",
+            "reason_ja": "CBC alert 系の補助証拠として gold の evidence 要件を満たします。"
+          },
+          {
+            "candidate_element_excerpt": "code_sequence: [add, query]",
+            "matched_gold_element_id": null,
+            "is_true_positive": 0,
+            "false_positive_type": "unsupported_inference",
+            "reason_ja": "gold の query→add と逆順であり、候補が独自に並べた sequence も不正確です。"
+          },
+          {
+            "candidate_element_excerpt": "evidence 内の alert_id / event_record_id / pid / ppid は null と記述",
+            "matched_gold_element_id": null,
+            "is_true_positive": 0,
+            "false_positive_type": "hallucinated_value",
+            "reason_ja": "gold では alert_id が存在し、PID/PPID も観測値として扱うべきで、null 断定は不正確です。"
+          },
+          {
+            "candidate_element_excerpt": "supporting_alert_evidence 内の alert_name は null と記述",
+            "matched_gold_element_id": null,
+            "is_true_positive": 0,
+            "false_positive_type": "hallucinated_value",
+            "reason_ja": "alert name を null と断定しており、gold の alert report_name を無視しています。"
+          },
+          {
+            "candidate_element_excerpt": "excluded_nearby_evidence: file/network/追加 registry/子プロセス連鎖は確認できなかった",
+            "matched_gold_element_id": null,
+            "is_true_positive": 0,
+            "false_positive_type": "unsupported_inference",
+            "reason_ja": "観測された事実としては提示されていない除外結論を追加しています。"
+          }
+        ],
+        "order_pairs": [
+          {
+            "before_step_id": "D1",
+            "after_step_id": "D2",
+            "score": 1,
+            "reason_ja": "Discord.exe の親子関係証拠が query より前の文脈として復元されており、相対順は正しいです。"
+          },
+          {
+            "before_step_id": "D2",
+            "after_step_id": "D3",
+            "score": 0,
+            "reason_ja": "候補の code_sequence は add→query であり、gold の query→add とは順序が逆です。"
+          }
+        ]
+      }
+    ],
+    "error_flags": {
+      "target_missing": [],
+      "chain_mixing": false,
+      "hallucinated_claims": [
+        "alert_id / event_record_id / pid / ppid を null と断定したこと",
+        "alert_name を null と断定したこと"
+      ],
+      "weak_grounding": true,
+      "false_positive_elements": [
+        "code_sequence を add→query としたこと",
+        "alert_id / event_record_id / pid / ppid を null としたこと",
+        "alert_name を null としたこと",
+        "file/network/追加 registry/子プロセス連鎖の除外結論を追加したこと"
+      ],
+      "notes_ja": [
+        "主たる registry 操作の復元は良好だが、メタ情報の null 断定が不適切です。",
+        "順序は gold と逆になっている部分があり、sequence reconstruction の精度を下げています。"
+      ]
+    },
+    "candidate_element_count": 9,
+    "candidate_true_positive_count": 5,
+    "hallucinated_claim_count": 2,
+    "main_missing_elements": [],
+    "main_false_positive_elements": [
+      "code_sequence が add→query であるという主張",
+      "alert_id / event_record_id / pid / ppid が null という主張",
+      "alert_name が null という主張",
+      "追加の file/network/子プロセス連鎖を否定する除外結論"
+    ],
+    "totals": {
+      "behavior_element_recall": 1.0,
+      "behavior_element_recall_hits": 14,
+      "behavior_element_recall_total": 14,
+      "behavior_element_precision": 0.5555555555555556,
+      "behavior_element_precision_hits": 5,
+      "behavior_element_precision_total": 9,
+      "behavior_sequence_order": 0.5,
+      "behavior_sequence_order_hits": 1,
+      "behavior_sequence_order_total": 2,
+      "hallucinated_claim_count": 2
+    }
+  },
+  "response_id": "resp_0e190ea2b9bc614d006a212aa16fc4819b82c7665f6833ebd7",
+  "usage": {
+    "input_tokens": 5748,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 13511,
+    "output_tokens_details": {
+      "reasoning_tokens": 10570
+    },
+    "total_tokens": 19259
+  }
+}

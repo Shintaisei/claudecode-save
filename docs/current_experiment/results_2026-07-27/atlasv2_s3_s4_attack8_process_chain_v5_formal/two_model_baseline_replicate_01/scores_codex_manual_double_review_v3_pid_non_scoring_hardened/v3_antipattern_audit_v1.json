@@ -1,0 +1,76 @@
+{
+  "schema_version": "v3_antipattern_audit_v1",
+  "status": "PASS",
+  "audited_at_utc": "2026-07-28T01:50:56Z",
+  "scope": {
+    "wrapper": "src/clouseau_process_time/codex_manual_attack8_scoring_v3_pid_non_scoring_hardened.py",
+    "score_root": "docs/current_experiment/results_2026-07-27/atlasv2_s3_s4_attack8_process_chain_v5_formal/two_model_baseline_replicate_01/scores_codex_manual_double_review_v3_pid_non_scoring_hardened",
+    "external_api_used": false,
+    "production_artifacts_modified": false
+  },
+  "artifact_hashes": {
+    "queue_sha256": "191246a1743b294974fe27334a8fe1a9262ba1a671ae0934fafa47bfb53a9835",
+    "manifest_sha256": "3384d682a67cbf550ea5f0bf633cdb2c79064df7caa3b640f730cb85e4cd4ceb",
+    "wrapper_sha256": "063f78b854e4a9e512d5da2497e8fc72146495e62f67c7543914e35d789f9bfb"
+  },
+  "tests": [
+    {
+      "id": "baseline_closed_bundle",
+      "status": "PASS",
+      "evidence": "verify_bundle_paths verified the live 48-row bundle and all declared hashes."
+    },
+    {
+      "id": "effective_old_strict_pid_path",
+      "status": "PASS",
+      "evidence": "Injecting v2.STRICT_PID_TEXT into a bound row's match_semantics was rejected with ValueError: Effective review policy mismatch at row 1. v3 validate_queue_rows additionally rejects a remaining strict sentence (wrapper lines 328-329)."
+    },
+    {
+      "id": "unbound_or_alternate_queue",
+      "status": "PASS",
+      "evidence": "Supplying the v1 source queue with the v3 manifest was rejected with ValueError: Manifest score_root mismatch. The verifier binds manifest queue/template paths, source provenance, row identity/order, and run/Gold paths (lines 438-567)."
+    },
+    {
+      "id": "hash_and_path_bypass",
+      "status": "PASS",
+      "evidence": "A copied manifest with queue_sha256 set to 64 zeroes was rejected with ValueError: Manifest queue SHA-256 mismatch. The live verifier recomputes every declared path/hash binding and frozen source path/hash."
+    },
+    {
+      "id": "incomplete_or_conflicted_finalization",
+      "status": "PASS",
+      "evidence": "Changing one synthetic second-review Gold-item score produced IncompleteFinalization: adopted=47/48, conflicts=1. build_finalization raises before publish when conflicts exist, adopted count is short, or queue length differs (lines 1011-1015)."
+    },
+    {
+      "id": "partial_output_on_collision",
+      "status": "PASS",
+      "evidence": "Publishing a complete synthetic result into a pre-created target was rejected with FileExistsError; its sentinel remained the sole child. atomic_publish_directory creates privately and publishes only by rename (lines 162-182)."
+    },
+    {
+      "id": "action_operation_double_counting",
+      "status": "PASS",
+      "evidence": "A synthetic step with subject, operation, object, and command_line emitted exactly subject/operation/object slots; command_line was not a slot. Live queue kinds were exactly object, operation, subject. Base candidate_slots lines 339-377 and v3 policy require action=operation."
+    },
+    {
+      "id": "hidden_alert_mapping_scoring",
+      "status": "PASS",
+      "evidence": "Setting alert_mapping_scored=true in a bound row was rejected with ValueError: Effective review policy mismatch at row 1. The verifier also requires manifest hidden_alert_mapping_scored=false (lines 583-594)."
+    },
+    {
+      "id": "external_or_api_judge_use",
+      "status": "PASS",
+      "evidence": "Static import/call scan found only argparse, json, os, shutil, sys, tempfile, uuid, pathlib, datetime, collections, typing, and local scorers; no requests/urllib/http/socket/API client or subprocess network invocation. All executed tests were local Python only."
+    },
+    {
+      "id": "long_windows_path_false_negative",
+      "status": "PASS",
+      "evidence": "atomic_publish_directory successfully created and base.filesystem_path read a result.json at full path length 298. This score root is length 229 and its normal artifact filenames reach 279; v3 uses the base extended-path adapter for filesystem I/O. Raw pathlib exists may be false at these lengths, but the scored verifier passed against the live bundle."
+    }
+  ],
+  "commands_and_reproductions": [
+    "python src/clouseau_process_time/codex_manual_attack8_scoring_v3_pid_non_scoring_hardened.py verify-queue --queue docs/current_experiment/results_2026-07-27/atlasv2_s3_s4_attack8_process_chain_v5_formal/two_model_baseline_replicate_01/scores_codex_manual_double_review_v3_pid_non_scoring_hardened/review_queue_v3_pid_non_scoring_hardened.jsonl --manifest docs/current_experiment/results_2026-07-27/atlasv2_s3_s4_attack8_process_chain_v5_formal/two_model_baseline_replicate_01/scores_codex_manual_double_review_v3_pid_non_scoring_hardened/queue_manifest_v3_pid_non_scoring_hardened.json --overlay docs/current_experiment/results_2026-07-27/atlasv2_s3_s4_attack8_process_chain_v5_formal/two_model_baseline_replicate_01/scores_codex_manual_double_review_v1/formal_review_policy_overlay_v1.json --expected-count 48",
+    "Local temporary Python harness: alternate v1 queue; strict-PID and hidden-alert policy mutations; manifest queue-hash mutation; 47/48 conflict; create-only collision sentinel; 298-character extended-path publish/read; all temporary files removed with Windows extended-path cleanup.",
+    "rg -n -i 'requests|urllib|http|socket|openai|anthropic|api[_ -]?key|subprocess|curl|invoke-webrequest' src/clouseau_process_time/codex_manual_attack8_scoring_v3_pid_non_scoring_hardened.py",
+    "Python AST import enumeration of the v3 wrapper."
+  ],
+  "exact_blockers": [],
+  "conclusion": "No requested anti-pattern was accepted by the independently reproduced tests. The native pathlib long-path observation is environmental only; all scorer filesystem operations exercised here use the extended-path adapter and passed."
+}

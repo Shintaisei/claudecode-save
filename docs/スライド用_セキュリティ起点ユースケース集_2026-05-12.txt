@@ -1,0 +1,382 @@
+スライド用 セキュリティ起点ユースケース集
+更新日: 2026-05-12
+
+0. このテキストの使い方
+- これは削る前提の濃い版である
+- 1 スライド 1 セクション程度で分けている
+- 各ユースケースで
+  - 異常検知でどう見えたか
+  - 生 Security ログで何が見えたか
+  - 何を起点にすれば探索が回せそうか
+  - どこに限界があるか
+  を書いている
+- raw の具体例は代表行であり、既存の anomaly micro-chunk と 1 行単位で完全再リンクしたものではない
+
+
+1. 研究上の前提
+- 今回の異常検知入力は主に Security ログ由来の file access 系テンプレート列である
+- 代表 EventID は 4656, 4663, 4658 であり、一部 4660, 4690, 4688, 5156 も見える
+- したがって「異常検知が何に反応したか」を Security 観点で説明するのが自然である
+- 一方で、process 名だけでは弱いケースがあるため、起点には ObjectName / TargetFilename / TargetObject などの対象情報を優先したい
+
+
+2. Security 生ログで起点になりうる軸
+- 高特異性で使いやすい
+  - 具体的なファイルやディレクトリパス
+  - 具体的な生成プロセス名 NewProcessName
+  - 具体的な通信先 IP / Port
+- 中特異性で条件付きで使いやすい
+  - ProcessName + SubjectUserName + SubjectLogonId
+  - ProcessName + AccessMask / AccessList + ObjectName
+  - PrivilegeList + ProcessName
+- 低特異性で単独では弱い
+  - ProcessName 単独
+  - ObjectType 単独
+  - TargetUserName / LogonType 単独
+- 今回の raw 走査では ServiceName は有効な主起点としてほぼ使えなかった
+
+
+3. raw 走査の全体感
+- 走査対象
+  - analysis_data/atlasv2_benign_runs/jsonl/msft-security-h1-benign-2to4.jsonl
+  - 総行数 11,529,702
+- raw で多かった EventID
+  - 4663: 3,871,872
+  - 4658: 3,537,858
+  - 4656: 3,513,520
+  - 5156: 134,140
+  - 4660: 123,369
+  - 5447: 120,672
+- 候補 process の raw 出現件数
+  - explorer.exe: 60,259
+  - winword.exe: 10,761
+  - repmgr.exe: 375,736
+  - firefox.exe: 564,863
+  - repwmiutils.exe: 1,267,353
+  - spoolsv.exe: 1,477,480
+  - tpautoconnsvc.exe: 797,152
+- ここから読めること
+  - winword.exe は比較的まとまりやすい
+  - explorer.exe と firefox.exe は対象を一緒に見れば人の行動に寄せやすい
+  - repwmiutils.exe, spoolsv.exe, tpautoconnsvc.exe は背景反復が非常に強い
+
+
+4. ユースケース全体の読み方
+- 単発操作型に近い
+  - explorer.exe
+  - winword.exe
+  - firefox.exe
+- 条件付きでまとまりが見える
+  - repmgr.exe
+- 背景反復が強い
+  - repwmiutils.exe
+  - spoolsv.exe
+  - tpautoconnsvc.exe
+- よって発表では
+  - いける例
+  - 条件付きでいける例
+  - きつい例
+  の 3 群に分けると伝わりやすい
+
+
+5. UC01 explorer.exe
+- 異常検知での見え方
+  - host: win-32-h1
+  - 主体: aalsahee
+  - session bucket: 2022-07-19 14:30Z
+  - sequence rank: 6
+  - micro rank: 7
+  - LOF score: 9486381958.474821
+  - 10 event 中の出現: explorer.exe 3 件
+  - 10 event の構成: 0 attack / 10 normal
+  - 解釈上は top10 core の強い正常寄り偽陽性候補
+- raw Security の代表例
+  - 2022-07-17T21:06:24.9811227Z
+  - EventID 4663
+  - SubjectUserName: aalsahee
+  - ObjectName: C:\Users\aalsahee\AppData\Roaming\Microsoft\Windows\Recent\shared_logs.lnk
+  - AccessMask: 0x6
+  - 同時系列で 4656, 4663, 4660, 4658 がまとまって出ている
+  - 近い例として
+    - msft-security-day3.evtx.lnk
+    - AutomaticDestinations\1b4dd67f29cb1962.automaticDestinations-ms
+    が見えている
+- スライド上の行動説明
+  - 対話ユーザ aalsahee 文脈で Explorer が Recent / Jump List 系オブジェクトにアクセスしている
+  - したがって「単なる explorer.exe」ではなく「直近に開いたファイルやショートカットに関連する操作」の候補として書ける
+- 起点として使えるもの
+  - shared_logs.lnk のような具体パス
+  - Recent フォルダ配下
+  - AutomaticDestinations の具体ファイル
+- 探索成立性
+  - 高い
+  - ProcessName 単独ではなく、Recent / LNK / AutomaticDestinations の具体パスを起点にすればかなり追いやすい
+- スライドで強調したい点
+  - explorer.exe でも ObjectName が見えれば急に意味が出る
+  - process 起点単独より file path 起点が強い
+
+
+6. UC02 winword.exe
+- 異常検知での見え方
+  - host: win-32-h1
+  - 主体: aalsahee
+  - session bucket: 2022-07-19 14:30Z
+  - sequence rank: 4
+  - micro rank: 10
+  - LOF score: 7587739671.814433
+  - 10 event 中の出現: winword.exe 1 件
+  - 10 event の構成: 0 attack / 10 normal
+  - top10 core に残るが、証拠量は少なめ
+- raw Security の代表例
+  - 2022-07-17T14:35:09.2724502Z
+  - EventID 4663
+  - SubjectUserName: aalsahee
+  - ObjectName: C:\Users\aalsahee\AppData\Local\Temp\CVRF434.tmp.cvr
+  - AccessMask: 0x10000 / 0x80 / 0x10080
+  - 同帯域で
+    - C:\Users\aalsahee\AppData\Local\Microsoft\Windows\Temporary Internet Files\Content.Word\~WRS{...}.tmp
+    - C:\Windows\System32\powrprof.dll
+    が見える
+- スライド上の行動説明
+  - Word プロセスが一時ファイルと Content.Word 配下にアクセスしている
+  - したがって「文書を開いた / 一時展開した / 閲覧中のワークファイルに触れた」文脈として書ける
+- 起点として使えるもの
+  - Content.Word 配下の具体パス
+  - CVR / TMP 系の具体ファイル名
+  - winword.exe + aalsahee
+- 探索成立性
+  - 高い
+  - Word の一時ファイルは行動の意味が取りやすく、正常ユースケースとして説明しやすい
+- スライドで強調したい点
+  - winword.exe 単独より Content.Word や tmp.cvr の対象パスが重要
+  - 「文書閲覧型」の正常行動としてもっともスライド化しやすい候補の一つ
+
+
+7. UC03 repmgr.exe
+- 異常検知での見え方
+  - host: win-32-h1
+  - 主体: aalsahee として整理していたが、raw 代表例では service 文脈も強い
+  - session bucket: 2022-07-19 14:30Z
+  - sequence rank: 5
+  - micro rank: 6
+  - LOF score: 9559029010.546871
+  - 10 event 中の出現: repmgr.exe 4 件
+  - 0 attack / 10 normal
+  - top10 core でかなり強い
+- raw Security の代表例
+  - 2022-07-17T21:06:02.6538456Z
+  - EventID 4663 / 4656
+  - SubjectUserName: WIN-32-H1$
+  - ObjectName:
+    - C:\ProgramData\CarbonBlack\Events\psc_eventbatch_1738_timestamp_1658091962_events_439_size_84697
+    - C:\ProgramData\CarbonBlack\Events\psc_minibatch_1979_timestamp_1658091923_events_439_size_828912_version_3_8_0_627
+  - AccessMask:
+    - 0x10000
+    - 0x80
+    - 0x10080
+    - 0x120089
+- スライド上の行動説明
+  - repmgr.exe が Carbon Black 系イベントファイルにまとまってアクセスしている
+  - 以前は文書関連手続型として見ていたが、raw 側ではセンサ / 支援処理に近い手続の可能性が強く見える
+- 起点として使えるもの
+  - CarbonBlack\Events 配下の具体ファイル
+  - repmgr.exe + Carbon Black events
+- 探索成立性
+  - 条件付き
+  - 具体ファイルはあるので追えるが、人の操作というより補助・収集・管理処理寄りのため、ユースケースの命名には注意が要る
+- スライドで強調したい点
+  - repmgr.exe は process 名だけだと曖昧
+  - ただし Carbon Black の具体イベントファイルが見えるので「支援的・収集的手続型」の正常行動としては十分説明できる
+
+
+8. UC04 firefox.exe
+- 異常検知での見え方
+  - host: win-32-h1
+  - 主体: aalsahee
+  - session bucket: 2022-07-19 14:30Z
+  - sequence rank: 44
+  - micro rank: 52
+  - LOF score: 3.068800166621051
+  - 10 event 中の出現: firefox.exe 2 件
+  - browser 帯では最初に意味が出る候補
+- raw Security の代表例
+  - 2022-07-17T21:04:10.4364272Z
+  - EventID 4663 / 4656
+  - SubjectUserName: aalsahee
+  - ObjectName:
+    - C:\Users\aalsahee\AppData\Roaming\Mozilla\Firefox\Profiles\a6gl280b.default\datareporting\aborted-session-ping
+    - C:\Users\aalsahee\AppData\Roaming\Mozilla\Firefox\Profiles\a6gl280b.default\saved-telemetry-pings
+    - C:\Users\aalsahee\AppData\Roaming\Mozilla\Firefox\Profiles\a6gl280b.default\saved-telemetry-pings\fa78a11c-...tmp
+  - AccessMask:
+    - 0x10080
+    - 0x100002
+    - 0x110080
+- スライド上の行動説明
+  - Firefox プロファイル配下の telemetry / session 系ファイルにアクセスしている
+  - したがって「ブラウザ通常利用に伴うプロファイル更新・セッション保存」に近い行動として書ける
+- 起点として使えるもの
+  - Firefox profile の具体パス
+  - saved-telemetry-pings
+  - aborted-session-ping
+- 探索成立性
+  - 高い
+  - browser 行動は process 名だけだと弱いが、profile 配下の対象ファイルが見えるとかなり明確になる
+- スライドで強調したい点
+  - browser は anomaly rank 自体は中位でも、生ログの path が取れれば正常行動として十分説明できる
+  - 「browser 正常行動はノイズに埋もれやすいが、対象ファイルで復元可能」という知見にできる
+
+
+9. UC05 repwmiutils.exe
+- 異常検知での見え方
+  - host: win-32-h1
+  - 主体: win-32-h1$
+  - session bucket: 2022-07-19 14:30Z
+  - sequence rank: 99
+  - micro rank: 7
+  - LOF score: 7139584418.81725
+  - 10 event 中の出現: repwmiutils.exe 10 件
+  - background 帯ではかなり上位
+- raw Security の代表例
+  - 2022-07-17T21:05:51.6072138Z
+  - EventID 4663 / 4656
+  - SubjectUserName: WIN-32-H1$
+  - ObjectName:
+    - C:\Windows\System32\ntdsapi.dll
+    - C:\Windows\System32\wbem\fastprox.dll
+    - C:\Windows\System32\wbem\wbemsvc.dll
+    - C:\Windows\System32\RpcRtRemote.dll
+  - AccessMask:
+    - 0x20
+    - 0x100021
+- スライド上の行動説明
+  - WMI / RPC / system DLL 群を参照するサービス文脈の処理
+  - 人の操作ではなく、ホスト側の補助・管理・問い合わせ系の正常動作と読むのが自然
+- 起点として使えるもの
+  - repwmiutils.exe + DLL 群
+  - wbem / rpc 関連パス
+- 探索成立性
+  - 中
+  - path は具体的だが、意味がシステム寄りで、人間の業務ユースケースとしては説明が難しい
+- スライドで強調したい点
+  - raw では具体パスが見えるが、ユースケースの意味が背景処理に寄る
+  - 「起点としては立つが、行動としては業務に訳しにくい」例
+
+
+10. UC06 spoolsv.exe
+- 異常検知での見え方
+  - host: win-32-h1
+  - 主体: win-32-h1$
+  - session bucket: 2022-07-19 14:20Z
+  - sequence rank: 96
+  - micro rank: 1
+  - LOF score: 9218450223.576645
+  - 10 event 中の出現: spoolsv.exe 7 件
+  - background 帯では最上位
+- raw Security の代表例
+  - 2022-07-17T21:05:58.2495937Z
+  - EventID 4663 / 4656
+  - SubjectUserName: WIN-32-H1$
+  - ObjectName:
+    - C:\Windows\System32\spool\drivers\w32x86\3\TP PS Driver ... .ppd
+    - C:\Windows\System32\spool\drivers\w32x86\3\TP PS Driver ... .BPD
+    - C:\Windows\System32\spool\drivers\w32x86\3\TPPS.INI
+  - AccessMask:
+    - 0x10000
+    - 0x80
+    - 0x10080
+    - 0x120089
+- スライド上の行動説明
+  - spoolsv.exe がプリンタドライバ関連ファイル群に連続アクセスしている
+  - したがって「印刷スプーラ / ドライバ読込 / 印刷環境維持」に近い正常背景動作として書ける
+- 起点として使えるもの
+  - spool\drivers\w32x86 配下の具体パス
+  - PPD / BPD / INI ファイル
+- 探索成立性
+  - 中
+  - 具体パスはかなり強いが、サービス反復が多く、同型が多量に出るため、ユースケースとしては粒度が粗くなりやすい
+- スライドで強調したい点
+  - 異常検知では非常に上位でも、意味は背景サービス寄り
+  - 高スコアだから高価値ユースケースとは限らない
+
+
+11. UC07 tpautoconnsvc.exe
+- 異常検知での見え方
+  - host: win-32-h1
+  - 主体: win-32-h1$
+  - session bucket: 2022-07-19 14:20Z
+  - sequence rank: 96
+  - micro rank: 2
+  - LOF score: 8869773472.323963
+  - 10 event 中の出現: tpautoconnsvc.exe 7 件
+  - background 帯で非常に上位
+- raw Security の代表例
+  - 2022-07-17T21:05:58.2355929Z
+  - EventID 4663 / 4656
+  - SubjectUserName: WIN-32-H1$
+  - ObjectName:
+    - C:\Windows\System32\spool\drivers\w32x86\PS5UI.DLL
+    - C:\Windows\System32\spool\drivers\w32x86\PSCRIPT5.DLL
+    - C:\Windows\System32\spool\drivers\w32x86\PSCRIPT.HLP
+  - AccessMask:
+    - 0x10000
+    - 0x80
+    - 0x10080
+- スライド上の行動説明
+  - tpautoconnsvc.exe がプリント系 DLL / HLP に反復アクセスしている
+  - spoolsv.exe と同じく印刷関連の背景動作に近い
+- 起点として使えるもの
+  - spool driver 配下の具体 DLL / HLP パス
+  - tpautoconnsvc.exe + spool path
+- 探索成立性
+  - 中から低
+  - path は具体的だが、サービス固有の背景反復であり、業務ユースケースとしての説明はやや弱い
+- スライドで強調したい点
+  - raw 上はかなり具体的でも、人の行動に結び直しにくい
+  - 「起点はあるが、正常行動の意味づけが難しい」例
+
+
+12. 追加で見せられる Security 起点の断片
+- 1102 Security log cleared
+  - SubjectUserName: aalsahee
+  - かなり強い起点
+  - ただし正常行動としては扱いにくい
+- 4673 Privilege use by PowerShell
+  - ProcessName: powershell.exe
+  - PrivilegeList: SeCreateGlobalPrivilege
+  - 高権限行動の起点にはなる
+- 5156 network connection
+  - PowerShell や Word による通信先 IP / Port が見える
+  - 具体的な remote endpoint を起点にした追跡が可能
+- 4688 process creation
+  - NewProcessName が見える
+  - 「どの実行ファイルが起動したか」の起点として強い
+
+
+13. 発表での大きな結論
+- Security 生ログだけでも、起点として使える情報は process 名しかないわけではない
+- 特に有効なのは
+  - ObjectName / TargetFilename / TargetObject
+  - NewProcessName
+  - DestAddress / DestPort
+- 7 候補の中では
+  - まとまりやすい: explorer.exe, winword.exe, firefox.exe
+  - 条件付きでいける: repmgr.exe
+  - 背景反復が強い: repwmiutils.exe, spoolsv.exe, tpautoconnsvc.exe
+- したがって「どういう起点なら正常行動を復元しやすいか / しにくいか」を結論にできる
+
+
+14. 1 枚に圧縮するなら使える要約文
+- explorer.exe は Recent / Jump List 系の具体パスが見えるため、単なる process ではなく「直近ファイル操作」の起点として扱える
+- winword.exe は Content.Word や tmp.cvr など文書一時ファイルが見えるため、文書閲覧・一時展開の正常ユースケースとして説明しやすい
+- firefox.exe は profile 配下の telemetry / session ファイルが見えるため、ブラウザ通常利用に伴う状態保存として復元可能である
+- repmgr.exe は Carbon Black event ファイル群にアクセスしており、支援的・収集的な手続型の正常動作として読むのが自然である
+- repwmiutils.exe, spoolsv.exe, tpautoconnsvc.exe は具体パスは見えるが、背景サービス反復が強く、正常行動の意味づけは相対的に難しい
+
+
+15. この資料と対応するファイル
+- Excel
+  - docs_active/セキュリティ生ログ_ユースケース候補抽出_2026-05-12.xlsx
+- 候補一覧
+  - docs_active/セキュリティ生ログ起点候補一覧_2026-05-12.txt
+- raw 抽出 CSV
+  - docs_active/セキュリティ生ログ_ユースケース候補抽出_2026-05-12.csv

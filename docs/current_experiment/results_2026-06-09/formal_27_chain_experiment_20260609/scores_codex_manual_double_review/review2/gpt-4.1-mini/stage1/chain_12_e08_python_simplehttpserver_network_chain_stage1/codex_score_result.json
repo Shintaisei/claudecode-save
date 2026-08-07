@@ -1,0 +1,194 @@
+{
+  "case": "chain_12_e08_python_simplehttpserver_network_chain_stage1",
+  "model": "gpt-4.1-mini",
+  "stage": "stage1",
+  "reviewer": "Review2",
+  "method": "manual_local_file_review_no_api",
+  "final_totals": {
+    "action_step_recall_hits": 5,
+    "action_step_recall_total": 6,
+    "candidate_claim_precision_hits": 6,
+    "candidate_claim_precision_total": 12,
+    "overclaim_slot_count": 4,
+    "behavior_sequence_order_hits": 1,
+    "behavior_sequence_order_total": 1,
+    "critical_evidence_recall_hits": 1,
+    "critical_evidence_recall_total": 2,
+    "behavior_step_recall_hits": 1,
+    "behavior_step_recall_total": 2
+  },
+  "gold_item_scores": [
+    {
+      "step_id": "C12-S01",
+      "gold_order": 1,
+      "matched_candidate_step_ids": [
+        "S1"
+      ],
+      "subject": {
+        "score": 0,
+        "reason": "Gold subject is python.exe; candidate makes cmd.exe the subject and python.exe the child/object."
+      },
+      "action": {
+        "score": 1,
+        "reason": "Candidate explicitly reports launch via the SimpleHTTPServer module command."
+      },
+      "object": {
+        "score": 1,
+        "reason": "Candidate recovers the SimpleHTTPServer command as python -m SimpleHTTPServer."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "reason": "Gold requires CBC event process_cmdline; candidate cites sysmon command_line evidence instead."
+      },
+      "step_recall": {
+        "score": 0,
+        "reason": "Command behavior is partial, but exact subject and required evidence basis are not recovered."
+      }
+    },
+    {
+      "step_id": "C12-S02",
+      "gold_order": 2,
+      "matched_candidate_step_ids": [
+        "S3"
+      ],
+      "subject": {
+        "score": 1,
+        "reason": "Candidate identifies python.exe as the network step subject."
+      },
+      "action": {
+        "score": 1,
+        "reason": "Candidate reports network server/listen behavior for python.exe."
+      },
+      "object": {
+        "score": 1,
+        "reason": "Candidate explicitly recovers 10.193.66.115:39277."
+      },
+      "critical_evidence": {
+        "score": 1,
+        "reason": "Candidate cites CBC telemetry with a netconn field/value for 10.193.66.115:39277."
+      },
+      "step_recall": {
+        "score": 1,
+        "reason": "Subject, network action, netconn object, and CBC netconn evidence basis are recovered."
+      }
+    }
+  ],
+  "order_pairs": [
+    {
+      "gold_pair": [
+        "C12-S01",
+        "C12-S02"
+      ],
+      "candidate_pair": [
+        "S1",
+        "S3"
+      ],
+      "score": 1,
+      "reason": "Candidate places the SimpleHTTPServer launch before the network behavior, although it inserts an extra file_read step."
+    }
+  ],
+  "candidate_claim_scores": [
+    {
+      "candidate_step_id": "S1",
+      "slot": "subject",
+      "claim": "cmd.exe",
+      "score": 0,
+      "overclaim": true,
+      "reason": "Gold behavior subject is python.exe, not cmd.exe."
+    },
+    {
+      "candidate_step_id": "S1",
+      "slot": "action",
+      "claim": "process_start / launch python.exe with SimpleHTTPServer",
+      "score": 1,
+      "overclaim": false,
+      "reason": "Launch of the SimpleHTTPServer command matches the gold behavior action."
+    },
+    {
+      "candidate_step_id": "S1",
+      "slot": "object",
+      "claim": "python -m SimpleHTTPServer",
+      "score": 1,
+      "overclaim": false,
+      "reason": "The SimpleHTTPServer command is recovered."
+    },
+    {
+      "candidate_step_id": "S1",
+      "slot": "critical_evidence",
+      "claim": "sysmon command_line EventRecordID 4621",
+      "score": 0,
+      "overclaim": false,
+      "reason": "Evidence does not match the required CBC event process_cmdline basis."
+    },
+    {
+      "candidate_step_id": "S2",
+      "slot": "subject",
+      "claim": "python.exe",
+      "score": 0,
+      "overclaim": false,
+      "reason": "This belongs to an extra file_read step that is not part of the gold behavior chain."
+    },
+    {
+      "candidate_step_id": "S2",
+      "slot": "action",
+      "claim": "file_read",
+      "score": 0,
+      "overclaim": true,
+      "reason": "Gold does not include a file read behavior step."
+    },
+    {
+      "candidate_step_id": "S2",
+      "slot": "object",
+      "claim": "C:\\Users\\aalsahee\\index.html",
+      "score": 0,
+      "overclaim": true,
+      "reason": "Gold does not include this file object."
+    },
+    {
+      "candidate_step_id": "S2",
+      "slot": "critical_evidence",
+      "claim": "sysmon access/read EventRecordID 4630",
+      "score": 0,
+      "overclaim": true,
+      "reason": "Evidence supports an extra file step, not a required gold step."
+    },
+    {
+      "candidate_step_id": "S3",
+      "slot": "subject",
+      "claim": "python.exe",
+      "score": 1,
+      "overclaim": false,
+      "reason": "Matches the gold network step subject."
+    },
+    {
+      "candidate_step_id": "S3",
+      "slot": "action",
+      "claim": "network_listen / network server behavior",
+      "score": 1,
+      "overclaim": false,
+      "reason": "Matches the gold network server behavior."
+    },
+    {
+      "candidate_step_id": "S3",
+      "slot": "object",
+      "claim": "10.193.66.115:39277",
+      "score": 1,
+      "overclaim": false,
+      "reason": "Matches the gold netconn object exactly."
+    },
+    {
+      "candidate_step_id": "S3",
+      "slot": "critical_evidence",
+      "claim": "cbc-edr netconn_domain value 10.193.66.115:39277",
+      "score": 1,
+      "overclaim": false,
+      "reason": "Sufficiently identifies CBC event netconn evidence for the required object."
+    }
+  ],
+  "notes_ja": [
+    "S01 is partial: the SimpleHTTPServer command is present, but the candidate frames cmd.exe as subject and uses sysmon rather than the required CBC process_cmdline evidence.",
+    "S02 is recovered: python.exe network server behavior and 10.193.66.115:39277 are explicit with CBC netconn-style evidence.",
+    "The inserted index.html file_read step is not in gold and is counted as overclaim for candidate precision.",
+    "Order credit is given because the recovered launch behavior precedes the recovered network behavior."
+  ]
+}

@@ -1,0 +1,173 @@
+{
+  "case_id": "chain_14_e09_python_simplehttpserver_network_chain_stage2",
+  "reviewer": "codex_manual_review1_no_api",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "gold_chain": {
+    "chain_id": "chain_14_e09_python_simplehttpserver_network_chain",
+    "chain_type": "python_simplehttpserver_network_chain",
+    "gold_steps": [
+      {
+        "step_id": "C14-S01",
+        "order": 1,
+        "subject": "python.exe",
+        "action": "start SimpleHTTPServer module",
+        "object": "python  -m SimpleHTTPServer",
+        "critical_evidence": "CBC event process_cmdline"
+      },
+      {
+        "step_id": "C14-S02",
+        "order": 2,
+        "subject": "python.exe",
+        "action": "detected as network server / netconn behavior",
+        "object": "limited incoming/communication detail in chain_gold; requires concrete CBC event netconn or network-server evidence",
+        "critical_evidence": "CBC event netconn"
+      }
+    ]
+  },
+  "per_gold_step": [
+    {
+      "step_id": "C14-S01",
+      "candidate_alignment": "Candidate final S1 reports python.exe PID 5816 with command_line python -m SimpleHTTPServer and parent cmd.exe. This recovers the SimpleHTTPServer launch content, but not the required CBC event process_cmdline evidence.",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "slot_notes": {
+        "subject": "python.exe is explicitly identified as the subject process.",
+        "action": "The command_line says python -m SimpleHTTPServer, which is sufficient for the SimpleHTTPServer module launch action despite spacing normalization.",
+        "object": "The candidate recovers the SimpleHTTPServer command object, although with one space rather than the gold's two spaces.",
+        "critical_evidence": "Evidence is source_stream=audit_logs field=command_line. The rubric requires CBC event process_cmdline-style evidence, so this is not credited."
+      }
+    },
+    {
+      "step_id": "C14-S02",
+      "candidate_alignment": "Candidate final code_steps do not include a python.exe netconn/network-server step and the global limitations state that python.exe network connection logs were not observed.",
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "slot_notes": {
+        "subject": "No final network-server/netconn behavior claim is made for python.exe.",
+        "action": "The required network server / netconn behavior is absent from final code_steps and code_sequence.",
+        "object": "No CBC netconn object, remote endpoint, local listener, or network-server object is recovered.",
+        "critical_evidence": "No CBC event netconn field evidence is cited."
+      }
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_step_id": "C14-S01",
+      "after_step_id": "C14-S02",
+      "score": 0,
+      "reason": "Only the SimpleHTTPServer launch step is recovered. The adjacent gold pair requires the launch followed by python.exe netconn/network-server behavior, so order credit is not awarded."
+    }
+  ],
+  "candidate_claims": [
+    {
+      "candidate_step_id": "S1",
+      "order": 1,
+      "claim": "python.exe PID 5816 process_start at 2022-07-16 21:17:10 with command_line python -m SimpleHTTPServer and parent cmd.exe PID 2032",
+      "mapped_gold_step_id": "C14-S01",
+      "slot_precision": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": [
+        "critical_evidence"
+      ],
+      "note": "The behavioral content matches the launch step, but the cited evidence is generic audit_logs/command_line rather than CBC event process_cmdline."
+    },
+    {
+      "candidate_step_id": "S2",
+      "order": 2,
+      "claim": "flashplayerupdateservice.exe PID 5072 process_start at 2022-07-18 21:39:00 from taskeng.exe",
+      "mapped_gold_step_id": null,
+      "slot_precision": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": [
+        "subject",
+        "action",
+        "object",
+        "critical_evidence"
+      ],
+      "note": "This is a different process and date, outside the gold SimpleHTTPServer chain."
+    },
+    {
+      "candidate_step_id": "S3",
+      "order": 3,
+      "claim": "python.exe PID 5816 child_process_start of flashplayerupdateservice.exe PID 5072, with evidence timestamp 2022-07-18 21:39:00",
+      "mapped_gold_step_id": null,
+      "slot_precision": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": [
+        "subject",
+        "action",
+        "object",
+        "critical_evidence"
+      ],
+      "note": "The gold chain has no flashplayer child-process behavior. This claim is inconsistent with the target network-server/netconn step and relies on generic audit_logs evidence."
+    },
+    {
+      "candidate_step_id": "S4",
+      "order": 4,
+      "claim": "explorer.exe PID 1612 process_start at 2022-07-16 21:14:14 from userinit.exe",
+      "mapped_gold_step_id": null,
+      "slot_precision": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": [
+        "subject",
+        "action",
+        "object",
+        "critical_evidence"
+      ],
+      "note": "This is unrelated login shell context and not part of the python SimpleHTTPServer behavior chain."
+    }
+  ],
+  "totals": {
+    "action_step_recall_hits": 3,
+    "action_step_recall_total": 8,
+    "action_step_recall": 0.375,
+    "action_step_precision_hits": 3,
+    "action_step_precision_total": 16,
+    "action_step_precision": 0.1875,
+    "candidate_claim_precision_hits": 3,
+    "candidate_claim_precision_total": 16,
+    "candidate_claim_precision": 0.1875,
+    "overclaim_slot_count": 13,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 1,
+    "behavior_step_recall_total": 2,
+    "behavior_step_recall": 0.5
+  },
+  "notes": [
+    "Manual strict Review1 only; no OpenAI API or GPT scoring script was used.",
+    "Scoring is based on the candidate's final output_text/code_steps. Transient tool messages are not credited unless reflected in the final answer.",
+    "C14-S01 receives subject/action/object credit because the final answer recovers python.exe with python -m SimpleHTTPServer. Critical evidence remains 0 because audit_logs field=command_line is not CBC event process_cmdline.",
+    "C14-S02 receives no credit because the final answer omits python.exe netconn/network-server behavior and explicitly says network connection logs were not observed.",
+    "The flashplayerupdateservice.exe and explorer.exe claims are treated as unrelated overclaims for this chain."
+  ]
+}

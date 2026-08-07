@@ -1,0 +1,215 @@
+{
+  "schema_version": "v5_final_readonly_independent_audit_v2",
+  "audit_type": "independent_read_only_recomputation",
+  "overall_status": "PASS",
+  "blocker": false,
+  "scope": "v5 two-model formal score root, formal result report, Section 21 contract appendix, run audit provenance, and both detailed failure-analysis JSON sidecars",
+  "method_note": "Windows long-path-aware System.IO access (\\\\?\\ prefix) was used for score-root sidecars. Legacy path APIs falsely reported the long paths as absent; this is not a data-artifact failure.",
+  "findings": [
+    {
+      "id": "I-001",
+      "severity": "info",
+      "status": "PASS",
+      "finding": "detailed_failure_analysis_gpt41_v1.json and detailed_failure_analysis_gpt54_v1.json both exist, are readable, and parse as JSON when accessed with the Windows long-path prefix."
+    }
+  ],
+  "checks": [
+    {
+      "id": "C-001",
+      "status": "PASS",
+      "name": "Required JSON validity",
+      "artifacts": [
+        "atlasv2_s3_s4_attack8_process_chain_v5_two_model_formal_results_20260728.json",
+        "formal_aggregate_v5.json",
+        "metrics_by_model_stage_case_v5.json",
+        "merge_validation_v5.json",
+        "adjudication_manifest_v5.json",
+        "review3_targeted_v5.json",
+        "detailed_failure_analysis_gpt41_v1.json",
+        "detailed_failure_analysis_gpt54_v1.json"
+      ],
+      "result": "All eight artifacts parse as JSON; the two detailed-analysis JSON sidecars required long-path-aware access."
+    },
+    {
+      "id": "C-002",
+      "status": "PASS",
+      "name": "Adopted-ledger case coverage",
+      "recomputed": {
+        "rows": 48,
+        "unique_queue_ids": 48,
+        "by_model": {
+          "gpt-4.1-mini": 24,
+          "gpt-5.4-mini": 24
+        },
+        "by_stage": {
+          "stage1": 16,
+          "stage2": 16,
+          "stage3": 16
+        },
+        "by_use_case": {
+          "s3_pt_01_word_document_processing": 6,
+          "s3_pt_02_regsvr32_remote_sct": 6,
+          "s3_pt_03_regsvr32_long_chain": 6,
+          "s3_pt_04_powershell_mid_chain": 6,
+          "s4_pt_01_word_w1": 6,
+          "s4_pt_02_word_w3": 6,
+          "s4_pt_03_mshta_c1": 6,
+          "s4_pt_04_powershell_c1": 6
+        },
+        "by_model_stage": {
+          "gpt-4.1-mini/stage1": 8,
+          "gpt-4.1-mini/stage2": 8,
+          "gpt-4.1-mini/stage3": 8,
+          "gpt-5.4-mini/stage1": 8,
+          "gpt-5.4-mini/stage2": 8,
+          "gpt-5.4-mini/stage3": 8
+        }
+      }
+    },
+    {
+      "id": "C-003",
+      "status": "PASS",
+      "name": "Overall score recomputation from the 48 adopted records",
+      "recomputed": {
+        "candidate_slot_denominator": 414,
+        "candidate_slot_tp": 182,
+        "candidate_slot_fp": 232,
+        "gold_action_denominator": 774,
+        "gold_action_hits": 182,
+        "behavior_step_denominator": 258,
+        "behavior_step_hits": 36,
+        "critical_evidence_denominator": 258,
+        "critical_evidence_hits": 48,
+        "order_pair_denominator": 210,
+        "order_pair_hits": 24,
+        "duplicate_tp_slot_count": 0,
+        "false_positive_types": {
+          "duplicate": 25,
+          "unsupported": 161,
+          "wrong_relation": 8,
+          "wrong_value": 38
+        },
+        "rates": {
+          "action_recall": 0.2351421188630491,
+          "candidate_precision": 0.4396135265700483,
+          "behavior_step_recall": 0.13953488372093023,
+          "critical_evidence_recall": 0.18604651162790697,
+          "order_recall": 0.11428571428571428
+        }
+      },
+      "result": "Matches the aggregate, metric artifact, result JSON, and published report values."
+    },
+    {
+      "id": "C-004",
+      "status": "PASS",
+      "name": "All reported metric partitions",
+      "result": "Independent recomputation matched every model, stage, use-case, model-stage, and model-use-case cell in metrics_by_model_stage_case_v5.json and every model/stage/model-stage cell in formal_aggregate_v5.json, including hits, denominators, false-positive types, and rates."
+    },
+    {
+      "id": "C-005",
+      "status": "PASS",
+      "name": "Atomic alignment negatives",
+      "recomputed": {
+        "gold1_without_tp": 0,
+        "tp_gold0": 0,
+        "duplicate_tp_slot_count": 0
+      },
+      "result": "Every Gold subject/operation/object score was checked against included adopted TP matched_gold_item_id coverage."
+    },
+    {
+      "id": "C-006",
+      "status": "PASS",
+      "name": "Targeted third-review and adjudication reconciliation",
+      "recomputed": {
+        "candidate_slots": 29,
+        "critical_evidence": 12,
+        "order_pairs": 6,
+        "total": 47,
+        "unresolved": 0,
+        "stale": 0,
+        "rejected": 0,
+        "conservative_fallback_count": 6
+      },
+      "result": "All 47 adjudication-manifest targets exist in the adopted ledger and each adopted decision/score matches. review3 count and run/gold-hash validations are PASS."
+    },
+    {
+      "id": "C-007",
+      "status": "PASS",
+      "name": "Run-resource totals",
+      "recomputed_from_48_run_json_files": {
+        "input_tokens": 1135936,
+        "output_tokens": 169774,
+        "cached_input_tokens": 0,
+        "total_tokens": 1305710,
+        "code_steps": 140,
+        "empty_runs": 4
+      },
+      "recomputed_from_clouseau_api_costs_csv": {
+        "matched_unique_run_ids": 48,
+        "cost_usd": 1.07064845
+      },
+      "by_model": {
+        "gpt-4.1-mini": {
+          "input_tokens": 898659,
+          "output_tokens": 79571,
+          "total_tokens": 978230,
+          "code_steps": 77,
+          "empty_runs": 3,
+          "cost_usd": 0.486777
+        },
+        "gpt-5.4-mini": {
+          "input_tokens": 237277,
+          "output_tokens": 90203,
+          "total_tokens": 327480,
+          "code_steps": 63,
+          "empty_runs": 1,
+          "cost_usd": 0.583868
+        }
+      }
+    },
+    {
+      "id": "C-008",
+      "status": "PASS",
+      "name": "Detailed failure-analysis sidecar consistency",
+      "gpt41": {
+        "case_count": 24,
+        "action_hits_denominator_misses": "98/387/289",
+        "behavior_hits_denominator_incomplete": "19/129/110",
+        "critical_hits_denominator_misses": "21/129/108",
+        "order_hits_denominator_misses": "13/105/92",
+        "candidate_tp_denominator_fp": "98/228/130",
+        "sidecar_verification_all_checks_pass": true
+      },
+      "gpt54": {
+        "case_count": 24,
+        "action_hits_denominator_misses": "84/387/303",
+        "behavior_hits_denominator_incomplete": "17/129/112",
+        "critical_hits_denominator_misses": "27/129/102",
+        "order_hits_denominator_misses": "11/105/94",
+        "candidate_tp_denominator_fp": "84/186/102",
+        "sidecar_verification_pass": true
+      },
+      "result": "Both JSON sidecars agree with the adopted ledger, metric artifacts, formal result report, and their readable Markdown counterparts."
+    },
+    {
+      "id": "C-009",
+      "status": "PASS",
+      "name": "Provenance hashes",
+      "recomputed_sha256": {
+        "review1.jsonl": "9e6eea4d2d02aa7fb263513cda9563d1a5d8f4aad73e4cf5274f77d543c5220c",
+        "review2.jsonl": "2e56743bac7f20a5b660a982e5f4ab49b13fb923df6ddd02dd9252e1942ea443",
+        "review3_targeted_v5.json": "c2f4c6365ec98d231260c557191b898aab20db99ecc539ec6a0ad1eb659611c2",
+        "manifest.json": "adf6481f672b86141139e4176519b666be41761ce3f8d3af3bcd99b9f8769ef7",
+        "formal_adopted_reviews_v5.jsonl": "c7a53f95b88ecab9ad92f03c809c14b41f36470faf3004095240df33dda56635"
+      },
+      "result": "Matches merge_validation_v5.json, adjudication_manifest_v5.json, and the source-binding manifest where applicable."
+    },
+    {
+      "id": "C-010",
+      "status": "PASS",
+      "name": "Report claim scope",
+      "result": "Gold statements are bounded to traceability and absence of a clear defect explaining the observed misses; they do not claim universal Gold truth. Normal-versus-attack discussion explicitly says case count, chain length, model, and repetitions differ, and prohibits treating numerical differences as an attack-only causal effect."
+    }
+  ],
+  "conclusion": "PASS. No numerical, denominator, rate, adjudication, atomic-consistency, failure-count, resource, provenance, JSON-validity, or claim-scope mismatch was found."
+}

@@ -1,0 +1,198 @@
+{
+  "schema_version": "atlasv2_attack8_frontier_pilot_12valid_codex_results_v1",
+  "created_date": "2026-07-29",
+  "result_root": "docs/current_experiment/results_2026-07-28/attack8_frontier_pilot_01",
+  "score_root": "docs/current_experiment/results_2026-07-28/attack8_frontier_pilot_01/scores_codex_frontier_pilot_single_review_v1",
+  "review": {
+    "mode": "single_codex_pilot_review_plus_deterministic_audit",
+    "external_judge_api_used": false,
+    "action_components": [
+      "subject",
+      "operation",
+      "object"
+    ],
+    "pid_scored": false,
+    "hidden_alert_mapping_scored": false,
+    "critical_evidence_separate": true,
+    "audit_status": "PASS",
+    "atomic_consistency": {
+      "gold1_without_tp": 0,
+      "tp_gold0": 0,
+      "duplicate_tp_slot_count": 0,
+      "candidate_claim_multi_alignment_count": 0
+    }
+  },
+  "run_status": {
+    "planned": 18,
+    "valid": 12,
+    "invalid": 6,
+    "by_model": {
+      "gpt-4.1-mini": {
+        "planned": 6,
+        "valid": 6
+      },
+      "gpt-5.4-mini": {
+        "planned": 6,
+        "valid": 6
+      },
+      "gpt-5.5": {
+        "planned": 6,
+        "valid": 0,
+        "failure_count": 6,
+        "failure_type": "RateLimitError",
+        "http_status": 429,
+        "code": "insufficient_quota",
+        "output_text_null": 6,
+        "retry_policy": "do_not_auto_retry; use a separate versioned retry root after quota recovery"
+      }
+    }
+  },
+  "current_metrics": {
+    "overall": {
+      "action_recall": {
+        "hits": 85,
+        "denominator": 198,
+        "value": 0.4292929293
+      },
+      "candidate_precision": {
+        "hits": 85,
+        "denominator": 191,
+        "value": 0.445026178
+      },
+      "behavior_step_recall": {
+        "hits": 23,
+        "denominator": 66,
+        "value": 0.3484848485
+      },
+      "critical_evidence_recall": {
+        "hits": 34,
+        "denominator": 66,
+        "value": 0.5151515152
+      },
+      "order_recall": {
+        "hits": 9,
+        "denominator": 54,
+        "value": 0.1666666667
+      }
+    },
+    "by_model": {
+      "gpt-4.1-mini": {
+        "action_recall": "38/99",
+        "candidate_precision": "38/84",
+        "behavior_step_recall": "10/33",
+        "critical_evidence_recall": "15/33",
+        "order_recall": "3/27"
+      },
+      "gpt-5.4-mini": {
+        "action_recall": "47/99",
+        "candidate_precision": "47/107",
+        "behavior_step_recall": "13/33",
+        "critical_evidence_recall": "19/33",
+        "order_recall": "6/27"
+      }
+    },
+    "by_stage": {
+      "stage1": {
+        "action_recall": "30/66",
+        "candidate_precision": "30/58",
+        "behavior_step_recall": "8/22",
+        "critical_evidence_recall": "12/22",
+        "order_recall": "3/18"
+      },
+      "stage2": {
+        "action_recall": "22/66",
+        "candidate_precision": "22/58",
+        "behavior_step_recall": "6/22",
+        "critical_evidence_recall": "10/22",
+        "order_recall": "1/18"
+      },
+      "stage3": {
+        "action_recall": "33/66",
+        "candidate_precision": "33/75",
+        "behavior_step_recall": "9/22",
+        "critical_evidence_recall": "12/22",
+        "order_recall": "5/18"
+      }
+    }
+  },
+  "paired_baseline_comparison": {
+    "scope": "same two use cases, three stages, and two valid models from the pre-fix 48-run formal baseline",
+    "before": {
+      "action_recall": "48/198",
+      "candidate_precision": "48/98",
+      "behavior_step_recall": "12/66",
+      "critical_evidence_recall": "16/66",
+      "order_recall": "7/54"
+    },
+    "after": {
+      "action_recall": "85/198",
+      "candidate_precision": "85/191",
+      "behavior_step_recall": "23/66",
+      "critical_evidence_recall": "34/66",
+      "order_recall": "9/54"
+    },
+    "delta_percentage_points": {
+      "action_recall": 18.69,
+      "candidate_precision": -4.48,
+      "behavior_step_recall": 16.67,
+      "critical_evidence_recall": 27.27,
+      "order_recall": 3.7
+    }
+  },
+  "candidate_false_positives": {
+    "total": 106,
+    "unsupported": 94,
+    "wrong_component": 6,
+    "duplicate": 6
+  },
+  "trace_and_usage": {
+    "investigate_lead_calls": 134,
+    "investigate_lead_returns": 134,
+    "unresolved_frontier_sections": 137,
+    "investigator_numbered_questions": 213,
+    "sql_guard_config_recorded_runs": 8,
+    "sql_guard_events": 0,
+    "stage3_initial_alert_summary_visible_rows": 0,
+    "stage3_final_output_supporting_alert_evidence_rows": 3,
+    "input_tokens": 680097,
+    "output_tokens": 69186,
+    "cached_input_tokens": 0,
+    "recorded_cost_usd": null,
+    "cost_note": "No price or estimated_cost_usd field was persisted in these run artifacts."
+  },
+  "root_cause_assessment": {
+    "model": [
+      "gpt-4.1-mini performs many searches but can drift to nearby behavior",
+      "gpt-5.4-mini integrates components better but still stops early on some long chains",
+      "both models reverse local order or omit a discovered edge from the final structured output"
+    ],
+    "prompt_and_schema": [
+      "supporting evidence lacks a strict admission gate before entering code_sequence",
+      "subject/operation/object completeness is not enforced before finalization",
+      "there is no final timestamp-and-causal adjacency validator"
+    ],
+    "architecture": [
+      "frontier closure increases downstream retrieval and materially improves recall",
+      "frontier state is not yet a unified typed chain ledger",
+      "coverage holes at the beginning, middle, and end of a chain are not all checked",
+      "SQL guard did not fire and does not explain the scoring variation"
+    ]
+  },
+  "gate": {
+    "decision": "HOLD",
+    "reasons": [
+      "gpt-5.5 has no valid run because all six calls failed with insufficient_quota",
+      "stage2 and individual runs still show non-monotonic regressions",
+      "order recall remains 9/54"
+    ],
+    "next_action": "After quota recovery, run only the six gpt-5.5 cases in a new versioned retry root; do not rerun the 12 valid cases."
+  },
+  "artifacts": {
+    "formal_aggregate": "scores_codex_frontier_pilot_single_review_v1/formal_aggregate_v1.json",
+    "metrics_by_model_stage_case": "scores_codex_frontier_pilot_single_review_v1/metrics_by_model_stage_case_v1.json",
+    "codex_review": "scores_codex_frontier_pilot_single_review_v1/codex_review1_v5_atomic.jsonl",
+    "deterministic_audit": "scores_codex_frontier_pilot_single_review_v1/deterministic_audit_v1.json",
+    "trace_audit": "scores_codex_frontier_pilot_single_review_v1/trace_and_runtime_audit_v1.json"
+  }
+}
+

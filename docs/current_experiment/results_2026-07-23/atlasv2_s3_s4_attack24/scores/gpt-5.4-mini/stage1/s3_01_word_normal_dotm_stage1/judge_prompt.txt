@@ -1,0 +1,511 @@
+You are a strict evaluator for Windows endpoint behavior-chain reconstruction.
+
+Score CANDIDATE_OUTPUT against GOLD using action-claim metrics.
+
+Core definitions:
+- An action_claim is the smallest behavior assertion where one subject performs one operation against one object.
+- A candidate code_step may contain multiple action_claims. Split it when it contains multiple subjects, operations, objects, command lines, or unrelated behaviors.
+- The candidate's surface output is code_steps/code_sequence. The scoring unit is the action_claim you extract from those outputs.
+- Each action_claim can have at most these scoring slots: subject, operation, object, command_line, critical_evidence.
+- command_line is an attribute of the relevant action_claim. It is not an independent behavior step.
+- critical_evidence is one slot per action_claim. If the candidate lists many evidence rows for the same claim, select the best support and score only one critical_evidence slot. Do not increase the denominator because evidence is verbose.
+
+Primary metrics:
+- behavior_step_recall: step-level recall over GOLD.gold_step_count. A gold step is covered when at least one required item from that step is recovered.
+- action_step_recall: for every non-evidence GOLD.gold_required_items item (subject/operation/object/command_line), score 1 if the candidate reconstructs the same substantive value, otherwise 0.
+- action_step_precision: score gold-aligned correctness on the same dynamic non-evidence required-item denominator as recall. The numerator is the number of unique true-positive candidate subject/operation/object/command_line slots that match gold required items.
+- critical_evidence_recall: score critical_evidence separately. It is not part of the action_step_recall or action_step_precision denominator.
+- candidate_claim_precision is a diagnostic: for every non-null candidate action_claim slot you list, mark it as true positive or false positive against gold. This diagnostic keeps the candidate-side denominator.
+- behavior_sequence_order: score each gold order pair as 1 only when the related action claims are recovered and their relative order is correct.
+
+Extraction and denominator rules:
+- Action recall denominator is the number of non-critical-evidence GOLD.gold_required_items in the GOLD block. In this run it is 9.
+- Main action precision denominator is the same non-critical-evidence required-item count. In this run it is 9.
+- Step-level behavior_step_recall / coarse action-step coverage denominator is GOLD.gold_step_count. In this run it is 3.
+- Behavior order denominator is GOLD.gold_order_pair_count. In this run it is 2.
+- Candidate-side overclaiming is not folded into the main precision denominator. It is reported by candidate_claim_precision and overclaim_slot_count.
+- Do not list null, unknown, not observed, absent, or explicitly uncertain placeholder values as candidate slots.
+- If a candidate says an observed gold value does not exist, or makes a negative claim that contradicts observed evidence, list that negative claim as a false positive slot.
+- If the candidate mixes in a nearby unrelated behavior, split that nearby behavior into its own action_claims and score their slots as false positives unless they match gold.
+- Duplicate true-positive slots may match the same gold item only once for the numerator. Repeated duplicate claims do not increase the main precision denominator; they remain in the candidate_claim_precision denominator and overclaim diagnostics.
+- Do not score precision at the sentence, paragraph, major-claim, or coarse-step level.
+
+Evidence policy:
+- Gold uses critical_evidence, not arbitrary evidence count.
+- Candidate evidence verbosity must not expand recall or precision denominators.
+- CBC alert report_name/reason is evidence only.
+- If GOLD critical_evidence_policy excludes CBC alerts or the gold evaluation unit contains "non_alert", then CBC alert report_name, reason, alert_name, alert_id, and watchlist.hit rows are not valid true-positive critical_evidence.
+- If an alert name such as "Discovery - Query Registry" or "Persistence - Regmod Run or Runonce Key Modification" is emitted as the behavior operation, mark that operation slot as false positive with false_positive_type=alert_name_as_behavior.
+- Fabricated concrete PID, event_id, alert_id, path, command line, process relation, registry path, or timestamp must reduce precision and be listed in hallucinated_claims.
+- A real-but-noncritical extra evidence citation for an otherwise correct action_claim should not create additional denominator slots; unsupported or contradicted evidence should be counted in unsupported_evidence or contradicted_evidence diagnostics.
+
+Scoring style:
+- Give 0 for missing, ambiguous, partially wrong, unrelated-chain, or unsupported values. Do not use 0.5.
+- Return JSON only. All scores must be integer 0 or 1.
+- Use Japanese for reasons and summaries. Preserve raw paths, command lines, alert IDs, source_stream values, and timestamps exactly.
+
+Expected JSON schema:
+{
+  "case_id": "string",
+  "judge_summary_ja": "string",
+  "chains": [
+    {
+      "chain_id": "string",
+      "gold_required_item_scores": [
+        {
+          "item_id": "string",
+          "step_id": "string",
+          "kind": "subject|operation|object|command_line|critical_evidence",
+          "matched_candidate_excerpt": "string|null",
+          "score": "0|1",
+          "reason_ja": "string"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "string",
+          "candidate_step_id": "string|null",
+          "claim_excerpt": "string",
+          "normalized_action_claim_ja": "string",
+          "slot_scores": [
+            {
+              "slot_id": "string",
+              "kind": "subject|operation|object|command_line|critical_evidence",
+              "candidate_slot_excerpt": "string",
+              "matched_gold_item_id": "string|null",
+              "is_true_positive": "0|1",
+              "false_positive_type": "nearby_unrelated|hallucinated_value|alert_name_as_behavior|unsupported_negative|unsupported_inference|unsupported_evidence|contradicted_evidence|duplicate_claim|none",
+              "reason_ja": "string"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "string",
+          "after_step_id": "string",
+          "score": "0|1",
+          "reason_ja": "string"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "item_id"
+    ],
+    "chain_mixing": "boolean",
+    "hallucinated_claims": [
+      "string"
+    ],
+    "unsupported_evidence": [
+      "string"
+    ],
+    "contradicted_evidence": [
+      "string"
+    ],
+    "nearby_action_false_positives": [
+      "string"
+    ],
+    "weak_grounding": "boolean",
+    "false_positive_claims": [
+      "string"
+    ],
+    "notes_ja": [
+      "string"
+    ]
+  },
+  "candidate_action_claim_count": "integer",
+  "candidate_action_claim_slot_count": "integer",
+  "candidate_action_claim_true_positive_slot_count": "integer",
+  "hallucinated_claim_count": "integer",
+  "unsupported_evidence_count": "integer",
+  "contradicted_evidence_count": "integer",
+  "nearby_action_fp_count": "integer",
+  "main_missing_items": [
+    "string"
+  ],
+  "main_false_positive_claims": [
+    "string"
+  ]
+}
+
+GOLD:
+{
+  "evaluation_unit": "action_claim_required_items",
+  "case_id": null,
+  "gold_step_count": 3,
+  "gold_required_item_count": 12,
+  "gold_action_required_item_count": 9,
+  "gold_order_pair_count": 2,
+  "gold_required_items": [
+    {
+      "chain_id": "s3_01_word_normal_dotm",
+      "step_id": "S3-01-S01",
+      "item_id": "s3_01_word_normal_dotm:S3-01-S01:subject",
+      "kind": "subject",
+      "gold_value": "WINWORD.EXE (PID 5592)",
+      "acceptable_terms": [
+        "WINWORD.EXE (PID 5592)"
+      ]
+    },
+    {
+      "chain_id": "s3_01_word_normal_dotm",
+      "step_id": "S3-01-S01",
+      "item_id": "s3_01_word_normal_dotm:S3-01-S01:operation",
+      "kind": "operation",
+      "gold_value": "opened/read",
+      "acceptable_terms": [
+        "opened/read"
+      ]
+    },
+    {
+      "chain_id": "s3_01_word_normal_dotm",
+      "step_id": "S3-01-S01",
+      "item_id": "s3_01_word_normal_dotm:S3-01-S01:object",
+      "kind": "object",
+      "gold_value": "C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf",
+      "acceptable_terms": [
+        "C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf"
+      ]
+    },
+    {
+      "chain_id": "s3_01_word_normal_dotm",
+      "step_id": "S3-01-S01",
+      "item_id": "s3_01_word_normal_dotm:S3-01-S01:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+      "acceptable_terms": [
+        "Canonical CBC EDR telemetry event row (Stage 3-visible)"
+      ]
+    },
+    {
+      "chain_id": "s3_01_word_normal_dotm",
+      "step_id": "S3-01-S02",
+      "item_id": "s3_01_word_normal_dotm:S3-01-S02:subject",
+      "kind": "subject",
+      "gold_value": "WINWORD.EXE (PID 5592)",
+      "acceptable_terms": [
+        "WINWORD.EXE (PID 5592)"
+      ]
+    },
+    {
+      "chain_id": "s3_01_word_normal_dotm",
+      "step_id": "S3-01-S02",
+      "item_id": "s3_01_word_normal_dotm:S3-01-S02:operation",
+      "kind": "operation",
+      "gold_value": "created",
+      "acceptable_terms": [
+        "created"
+      ]
+    },
+    {
+      "chain_id": "s3_01_word_normal_dotm",
+      "step_id": "S3-01-S02",
+      "item_id": "s3_01_word_normal_dotm:S3-01-S02:object",
+      "kind": "object",
+      "gold_value": "C:\\Users\\aalsahee\\AppData\\Local\\Temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\c586a0f0.rtf",
+      "acceptable_terms": [
+        "C:\\Users\\aalsahee\\AppData\\Local\\Temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\c586a0f0.rtf"
+      ]
+    },
+    {
+      "chain_id": "s3_01_word_normal_dotm",
+      "step_id": "S3-01-S02",
+      "item_id": "s3_01_word_normal_dotm:S3-01-S02:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+      "acceptable_terms": [
+        "Canonical CBC EDR telemetry event row (Stage 3-visible)"
+      ]
+    },
+    {
+      "chain_id": "s3_01_word_normal_dotm",
+      "step_id": "S3-01-S03",
+      "item_id": "s3_01_word_normal_dotm:S3-01-S03:subject",
+      "kind": "subject",
+      "gold_value": "WINWORD.EXE (PID 5592)",
+      "acceptable_terms": [
+        "WINWORD.EXE (PID 5592)"
+      ]
+    },
+    {
+      "chain_id": "s3_01_word_normal_dotm",
+      "step_id": "S3-01-S03",
+      "item_id": "s3_01_word_normal_dotm:S3-01-S03:operation",
+      "kind": "operation",
+      "gold_value": "deleted",
+      "acceptable_terms": [
+        "deleted"
+      ]
+    },
+    {
+      "chain_id": "s3_01_word_normal_dotm",
+      "step_id": "S3-01-S03",
+      "item_id": "s3_01_word_normal_dotm:S3-01-S03:object",
+      "kind": "object",
+      "gold_value": "C:\\Users\\aalsahee\\AppData\\Local\\Temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\c586a0f0.rtf",
+      "acceptable_terms": [
+        "C:\\Users\\aalsahee\\AppData\\Local\\Temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\c586a0f0.rtf"
+      ]
+    },
+    {
+      "chain_id": "s3_01_word_normal_dotm",
+      "step_id": "S3-01-S03",
+      "item_id": "s3_01_word_normal_dotm:S3-01-S03:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+      "acceptable_terms": [
+        "Canonical CBC EDR telemetry event row (Stage 3-visible)"
+      ]
+    }
+  ],
+  "critical_evidence_policy": null,
+  "chains": [
+    {
+      "chain_id": "s3_01_word_normal_dotm",
+      "chain_title": "S3-01: Persistence - Office Application Startup - normal.dotm",
+      "gold_steps": [
+        {
+          "step_id": "S3-01-S01",
+          "order": 1,
+          "subject": "WINWORD.EXE (PID 5592)",
+          "action": "opened/read",
+          "object": "C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf",
+          "evidence_kind": "file",
+          "evidence_basis": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+          "confidence": "observed",
+          "one_line_ja": "Word が msf.rtf を開いた。",
+          "process_code_object": "C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 8705,
+              "timestamp_utc": "2022-07-19T14:33:20.0350217Z",
+              "action": "ACTION_FILE_MOD_OPEN | ACTION_FILE_OPEN_READ | ACTION_FILE_OPEN_WRITE | ACTION_FILE_OPEN_SET_ATTRIBUTES",
+              "process_path": "c:\\program files\\microsoft office\\office14\\winword.exe",
+              "process_pid": 5592,
+              "parent_path": "c:\\windows\\explorer.exe",
+              "parent_pid": 1604,
+              "process_cmdline": "\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"",
+              "object_name": "c:\\users\\aalsahee\\downloads\\s3take2\\msf.rtf",
+              "remote_ip": null,
+              "remote_port": null,
+              "netconn_domain": null,
+              "childproc_name": null,
+              "childproc_pid": null
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=8705 time=2022-07-19T14:33:20.0350217Z action=ACTION_FILE_MOD_OPEN | ACTION_FILE_OPEN_READ | ACTION_FILE_OPEN_WRITE | ACTION_FILE_OPEN_SET_ATTRIBUTES process=c:\\program files\\microsoft office\\office14\\winword.exe pid=5592 parent_path=c:\\windows\\explorer.exe parent_pid=1604 process_cmdline=\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\" object_name=c:\\users\\aalsahee\\downloads\\s3take2\\msf.rtf"
+            ]
+          }
+        },
+        {
+          "step_id": "S3-01-S02",
+          "order": 2,
+          "subject": "WINWORD.EXE (PID 5592)",
+          "action": "created",
+          "object": "C:\\Users\\aalsahee\\AppData\\Local\\Temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\c586a0f0.rtf",
+          "evidence_kind": "file",
+          "evidence_basis": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+          "confidence": "observed",
+          "one_line_ja": "Word が一時 RTF ファイルを作成した。",
+          "process_code_object": "C:\\Users\\aalsahee\\AppData\\Local\\Temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\c586a0f0.rtf",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 8767,
+              "timestamp_utc": "2022-07-19T14:33:20.389042Z",
+              "action": "ACTION_FILE_CREATE | ACTION_FILE_MOD_OPEN | ACTION_FILE_OPEN_READ | ACTION_FILE_OPEN_WRITE | ACTION_FILE_OPEN_DELETE | ACTION_FILE_OPEN_SET_ATTRIBUTES",
+              "process_path": "c:\\program files\\microsoft office\\office14\\winword.exe",
+              "process_pid": 5592,
+              "parent_path": "c:\\windows\\explorer.exe",
+              "parent_pid": 1604,
+              "process_cmdline": "\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"",
+              "object_name": "c:\\users\\aalsahee\\appdata\\local\\temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\c586a0f0.rtf",
+              "remote_ip": null,
+              "remote_port": null,
+              "netconn_domain": null,
+              "childproc_name": null,
+              "childproc_pid": null
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=8767 time=2022-07-19T14:33:20.389042Z action=ACTION_FILE_CREATE | ACTION_FILE_MOD_OPEN | ACTION_FILE_OPEN_READ | ACTION_FILE_OPEN_WRITE | ACTION_FILE_OPEN_DELETE | ACTION_FILE_OPEN_SET_ATTRIBUTES process=c:\\program files\\microsoft office\\office14\\winword.exe pid=5592 parent_path=c:\\windows\\explorer.exe parent_pid=1604 process_cmdline=\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\" object_name=c:\\users\\aalsahee\\appdata\\local\\temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\c586a0f0.rtf"
+            ]
+          }
+        },
+        {
+          "step_id": "S3-01-S03",
+          "order": 3,
+          "subject": "WINWORD.EXE (PID 5592)",
+          "action": "deleted",
+          "object": "C:\\Users\\aalsahee\\AppData\\Local\\Temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\c586a0f0.rtf",
+          "evidence_kind": "file",
+          "evidence_basis": "Canonical CBC EDR telemetry event row (Stage 3-visible)",
+          "confidence": "observed",
+          "one_line_ja": "Word が一時 RTF ファイルを削除した。",
+          "process_code_object": "C:\\Users\\aalsahee\\AppData\\Local\\Temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\c586a0f0.rtf",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 8041,
+              "timestamp_utc": "2022-07-19T14:33:27.1294275Z",
+              "action": "ACTION_FILE_DELETE",
+              "process_path": "c:\\program files\\microsoft office\\office14\\winword.exe",
+              "process_pid": 5592,
+              "parent_path": "c:\\windows\\explorer.exe",
+              "parent_pid": 1604,
+              "process_cmdline": "\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"",
+              "object_name": "c:\\users\\aalsahee\\appdata\\local\\temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\c586a0f0.rtf",
+              "remote_ip": null,
+              "remote_port": null,
+              "netconn_domain": null,
+              "childproc_name": null,
+              "childproc_pid": null
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=8041 time=2022-07-19T14:33:27.1294275Z action=ACTION_FILE_DELETE process=c:\\program files\\microsoft office\\office14\\winword.exe pid=5592 parent_path=c:\\windows\\explorer.exe parent_pid=1604 process_cmdline=\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\" object_name=c:\\users\\aalsahee\\appdata\\local\\temp\\oice_ce7908a8-1b1c-41bb-9778-64a530acad65.0\\c586a0f0.rtf"
+            ]
+          }
+        }
+      ],
+      "gold_order_pairs": [
+        [
+          "S3-01-S01",
+          "S3-01-S02"
+        ],
+        [
+          "S3-01-S02",
+          "S3-01-S03"
+        ]
+      ]
+    }
+  ]
+}
+
+CANDIDATE_OUTPUT:
+{
+  "source_run_json": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\docs\\current_experiment\\results_2026-07-23\\atlasv2_s3_s4_attack24\\runs\\gpt-5.4-mini\\stage1\\s3_01_word_normal_dotm_stage1_run.json",
+  "run_id": "20260723T080202Z_s3_01_word_normal_dotm_stage1_gpt-5.4-mini_official",
+  "model": "gpt-5.4-mini",
+  "instance_id": "s3_01_word_normal_dotm_stage1",
+  "difficulty": "alert_input",
+  "experiment_stage": "stage1",
+  "expected_input_fields": [
+    "host",
+    "focus_processes",
+    "chain_window_start_utc",
+    "chain_window_end_utc",
+    "alert_time",
+    "alert_id",
+    "alert_name",
+    "alert_reason",
+    "alert_process",
+    "alert_pid",
+    "alert_source_stream",
+    "alert_severity"
+  ],
+  "clue": "これは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage1\n- host: WIN-32-H1\n- process: winword.exe\n- timestamp: 2022-07-19 14:36:55\n- 参考 UTC 時間範囲: 2022-07-19T14:21:55.966000Z から 2022-07-19T14:51:55.966000Z\n- 参考 database 時間範囲: 2022-07-19 14:21:55 から 2022-07-19 14:51:55\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 1: SOC analyst が見ている CBC alert triage 情報を初期入力に含める。\n- 入力 alert fields は探索起点であり、最終的な code step ではない。\n- alert report_name/reason は evidence として扱い、operation や code_sequence に入れない。\n- command line、parent process、child process、registry object、file object、network object、behavior category は入力から仮定しない。\n- それらの値は、存在するなら log から発見する必要がある。\n- input_alert_timestamp_utc: 2022-07-19T14:36:55.966Z\n- input_alert_database_time: 2022-07-19 14:36:55\n- input_alert_source_stream: cbc-edr-alerts\n- input_alert_id: CFnKBKLTv6hUkBGFobRdg-565619\n- input_alert_name: Persistence - Office Application Startup - normal.dotm\n- input_alert_reason: None\n- input_alert_process_name: c:\\program files\\microsoft office\\office14\\winword.exe\n- input_alert_severity: 2\n- database には CBC alert summary rows、CBC EDR/NGAV event telemetry、Security、Sysmon、DNS、browser history が残っている。\n\n\n## CBC alert triage decision\n- For every Stage 1 CBC alert input, include a root JSON field triage_decision.\n- Set alert_disposition to close_alert or escalate_alert, and host_disposition to close_host or escalate_host_investigation.\n- Base both values on observed evidence and keep the alert-level and host-level decisions distinct.\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n",
+  "output_text": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"winword.exe\",\n    \"timestamp\": \"2022-07-19 14:36:55\",\n    \"condition\": \"stage1\",\n    \"input_fields_used\": [\n      \"host\",\n      \"process\",\n      \"timestamp\"\n    ]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-19 14:36:55\",\n      \"subject_process\": {\n        \"name\": \"winword.exe\",\n        \"pid\": 5592,\n        \"path\": \"c:\\\\program files\\\\microsoft office\\\\office14\\\\winword.exe\"\n      },\n      \"operation\": \"Word 文書を開いて起動した\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": null,\n        \"path\": \"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /n \\\"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\\\"\",\n      \"execution_context\": {\n        \"parent_process\": \"explorer.exe\",\n        \"parent_pid\": null,\n        \"parent_command_line\": \"C:\\\\Windows\\\\Explorer.EXE\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-19 14:36:55\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"command_line\",\n          \"value\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /n \\\"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\\\"\",\n          \"pid\": 5592,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-19 14:36:55\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_command_line\",\n          \"value\": \"C:\\\\Windows\\\\Explorer.EXE\",\n          \"pid\": 5592,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-19 14:36:55\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"object\",\n          \"value\": \"c:\\\\users\\\\aalsahee\\\\downloads\\\\s3take2\\\\~$msf.rtf\",\n          \"pid\": 5592,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr-alerts\",\n          \"timestamp\": \"2022-07-19 14:36:55\",\n          \"alert_id\": \"CFnKBKLTv6hUkBGFobRdg-565619\",\n          \"event_record_id\": null,\n          \"field\": \"alert_id\",\n          \"value\": \"CFnKBKLTv6hUkBGFobRdg-565619\",\n          \"pid\": null,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"parent_pid は観測できていない。\",\n        \"file open の直接イベント種別は提示ログからは確定できない。\"\n      ]\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-19 14:36:55\",\n      \"subject_process\": {\n        \"name\": \"winword.exe\",\n        \"pid\": 5592,\n        \"path\": \"c:\\\\program files\\\\microsoft office\\\\office14\\\\winword.exe\"\n      },\n      \"operation\": \"Word の一時ファイルおよび復旧関連レジストリを操作した\",\n      \"object\": {\n        \"type\": \"unknown\",\n        \"name\": null,\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"explorer.exe\",\n        \"parent_pid\": null,\n        \"parent_command_line\": \"C:\\\\Windows\\\\Explorer.EXE\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-19 14:36:55\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"object\",\n          \"value\": \"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\microsoft\\\\windows\\\\temporary internet files\\\\content.word\\\\~wrs{6533f535-5b6d-4c03-a8fd-280d83d8d296}.tmp\",\n          \"pid\": 5592,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-19 14:36:55\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"object\",\n          \"value\": \"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\microsoft\\\\windows\\\\temporary internet files\\\\content.word\\\\~wrs{f196aab5-3c0d-4f6a-b890-035629001f09}.tmp\",\n          \"pid\": 5592,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-19 14:36:55\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"object\",\n          \"value\": \"HKU\\\\...\\\\Software\\\\Microsoft\\\\Office\\\\14.0\\\\Word\\\\Resiliency\\\\DocumentRecovery\\\\CAB3D\\\\CAB3D\",\n          \"pid\": 5592,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-19 14:36:55\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"object\",\n          \"value\": \"HKU\\\\...\\\\Software\\\\Microsoft\\\\Office\\\\14.0\\\\Word\\\\Resiliency\\\\DocumentRecovery\\\\CAB3D\",\n          \"pid\": 5592,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-19 14:36:55\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"object\",\n          \"value\": \"HKU\\\\...\\\\Software\\\\Microsoft\\\\Office\\\\14.0\\\\Word\\\\Resiliency\\\\DocumentRecovery\",\n          \"pid\": 5592,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"object の raw event type は提示ログからは確定できない。\",\n        \"このステップ単体では normal.dotm の直接証拠ではない。\"\n      ]\n    },\n    {\n      \"step_id\": \"S3\",\n      \"order\": 3,\n      \"time\": \"2022-07-19 14:36:55\",\n      \"subject_process\": {\n        \"name\": \"winword.exe\",\n        \"pid\": 5592,\n        \"path\": \"c:\\\\program files\\\\microsoft office\\\\office14\\\\winword.exe\"\n      },\n      \"operation\": \"Word のローミング領域にアクセスした\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": null,\n        \"path\": \"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Roaming\\\\Microsoft\\\\Word\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"explorer.exe\",\n        \"parent_pid\": null,\n        \"parent_command_line\": \"C:\\\\Windows\\\\Explorer.EXE\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr-alerts\",\n          \"timestamp\": \"2022-07-19 14:36:55\",\n          \"alert_id\": \"CFnKBKLTv6hUkBGFobRdg-565619\",\n          \"event_record_id\": null,\n          \"field\": \"object\",\n          \"value\": \"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Roaming\\\\Microsoft\\\\Word\",\n          \"pid\": null,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"この証拠だけでは normal.dotm の直接存在を確認できない。\",\n        \"alert_name は code_sequence に含めていない。\"\n      ]\n    },\n    {\n      \"step_id\": \"S4\",\n      \"order\": 4,\n      \"time\": \"2022-07-19 14:36:55\",\n      \"subject_process\": {\n        \"name\": \"winword.exe\",\n        \"pid\": 3368,\n        \"path\": \"c:\\\\program files\\\\microsoft office\\\\office14\\\\winword.exe\"\n      },\n      \"operation\": \"Embedding モードで Word を起動した\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"winword.exe\",\n        \"path\": \"c:\\\\program files\\\\microsoft office\\\\office14\\\\winword.exe\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"  /Embedding\",\n      \"execution_context\": {\n        \"parent_process\": \"winword.exe\",\n        \"parent_pid\": 5592,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /n \\\"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\\\"\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:36:55\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"command_line\",\n          \"value\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"  /Embedding\",\n          \"pid\": 3368,\n          \"ppid\": 5592\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"このプロセスの後続 file / registry / network 証拠は提示されていない。\"\n      ]\n    }\n  ],\n  \"code_sequence\": [\n    \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /n \\\"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\\\"\",\n    \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"  /Embedding\"\n  ],\n  \"supporting_alert_evidence\": [\n    {\n      \"alert_id\": \"CFnKBKLTv6hUkBGFobRdg-565619\",\n      \"alert_name\": \"Persistence - Office Application Startup - normal.dotm\",\n      \"source_stream\": \"cbc-edr-alerts\",\n      \"why_supporting_only\": \"`normal.dotm` の直接オブジェクトは確認できず、CBC alert は Word 起動関連の補助証拠としてのみ扱ったため。\"\n    }\n  ],\n  \"triage_decision\": {\n    \"alert_disposition\": \"escalate_alert\",\n    \"host_disposition\": \"escalate_host_investigation\",\n    \"evidence_basis\": [\n      \"winword.exe が explorer.exe から起動され、`msf.rtf` を開いている。\",\n      \"Word の一時ファイルと DocumentRecovery 関連レジストリ操作が観測されている。\",\n      \"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Roaming\\\\Microsoft\\\\Word へのアクセスが観測されているが、normal.dotm の直接証拠はない。\",\n      \"別の winword.exe インスタンスが /Embedding で起動している。\"\n    ]\n  },\n  \"excluded_nearby_evidence\": [\n    {\n      \"time\": \"2022-07-19 14:36:55\",\n      \"process_name\": \"winword.exe\",\n      \"pid\": 3368,\n      \"reason\": \"同時刻帯の別インスタンスだが、提示証拠上は /Embedding 以外の file / registry / network で code_sequence に追加できる接続がない。\"\n    }\n  ],\n  \"global_limitations\": [\n    \"parent_pid、event_record_id、source_row_id は提示証拠から確定できないため null のままにした。\",\n    \"normal.dotm の生値は提示ログでは確認できなかった。\",\n    \"提示された要約にある追加の registry/file/network 詳細は、元ログの直接提示がないため最終 JSON の観測値としては採用していない。\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-19 14:36:55 に `winword.exe` が `explorer.exe` から `msf.rtf` を開いて起動した。\",\n    \"同時刻に Word の一時ファイルと DocumentRecovery 関連レジストリ操作が観測された。\",\n    \"同時刻に `C:\\\\Users\\\\aalsahee\\\\AppData\\\\Roaming\\\\Microsoft\\\\Word` へのアクセスが観測された。\",\n    \"別インスタンスの `winword.exe` が `/Embedding` で起動された。\"\n  ]\n}",
+  "usage": {
+    "input_tokens": 11065,
+    "output_tokens": 4546,
+    "cached_input_tokens": 0
+  }
+}

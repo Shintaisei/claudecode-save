@@ -1,0 +1,428 @@
+{
+  "case_id": "cbc_non_alert_behavior_chain_gold_2026-06-11",
+  "judge_summary_ja": "候補は「cmd.exe が start_dns_logs.bat を実行」(S1) を部分的に復元したが、核心となる2点「explorer.exe が cmd.exe を/ cで起動 (C01-S01)」と「cmd.exe が tshark.exe を派生 (C01-S03)」を復元できていない。操作(オペレーション)は「/cでバッチを実行」に一致せず一般化された\"execute\"に留まった。さらに、cbc_events(非アラート)の決定的証拠を提示しておらず、代わりにcbc-edr-alertsやmsft-securityの断片を引用しているため、critical_evidenceはすべて不一致。加えて run_http_server.bat や python.exe など近傍の無関係アクションが混入している。結果として、動作ステップ網羅は3中1、アクション項目一致は9中2、順序関係は未達成となった。",
+  "chains": [
+    {
+      "chain_id": "chain_01_e01_dns_packet_capture_batch_chain",
+      "gold_required_item_scores": [
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:subject",
+          "step_id": "C01-S01",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "explorer.exe を主体とする子プロセス起動アクションが候補に存在しない（親プロセスとしての記載のみでアクション主語としての復元なし）。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:operation",
+          "step_id": "C01-S01",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "「cmd.exeを子プロセスとして起動した」という操作は候補で表明されていない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:object",
+          "step_id": "C01-S01",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "対象オブジェクトである「C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"」は候補アクションのオブジェクトとして復元されていない（S1のコマンドラインは別主体の情報であり一致しない）。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:critical_evidence",
+          "step_id": "C01-S01",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "evidence.source_stream=cbc-edr-alerts / msft-security（cbc_eventsの提示なし）",
+          "score": "0",
+          "reason_ja": "gold指定の非アラートcbc_events（endpoint.event.moduleload）の決定的証拠が提示されていない。cbc-edr-alertsはポリシー上不可。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:subject",
+          "step_id": "C01-S02",
+          "kind": "subject",
+          "matched_candidate_excerpt": "S1.subject_process.name = \"cmd.exe\"",
+          "score": "1",
+          "reason_ja": "主体がcmd.exeで一致。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:operation",
+          "step_id": "C01-S02",
+          "kind": "operation",
+          "matched_candidate_excerpt": "S1.operation = \"execute\"",
+          "score": "0",
+          "reason_ja": "goldは「/cでバッチファイルを実行した」であり、候補の一般化された\"execute\"は同義と判断できない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:object",
+          "step_id": "C01-S02",
+          "kind": "object",
+          "matched_candidate_excerpt": "S1.object.name = \"start_dns_logs.bat\"",
+          "score": "1",
+          "reason_ja": "対象オブジェクトがstart_dns_logs.batで一致。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:critical_evidence",
+          "step_id": "C01-S02",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "S1.evidence: source_stream=msft-security（cbc_eventsではない）",
+          "score": "0",
+          "reason_ja": "goldの決定的証拠（cbc_events endpoint.event.moduleload）を提示していない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:subject",
+          "step_id": "C01-S03",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "cmd.exeがログ収集プロセスを派生させた主体としては復元されていない（tshark.exe側の動作のみ）。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:operation",
+          "step_id": "C01-S03",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "「ログ収集系プロセスを派生させた」操作の復元がない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:object",
+          "step_id": "C01-S03",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "対象オブジェクトtshark.exeの派生（子プロセス生成）としての復元がない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:critical_evidence",
+          "step_id": "C01-S03",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "S2.evidence: source_stream=msft-security（cbc_eventsのprocstart提示なし）",
+          "score": "0",
+          "reason_ja": "goldの決定的証拠（cbc_events endpoint.event.procstart）を提示していない。"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "CC1",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "cmd.exe /c C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat を実行",
+          "normalized_action_claim_ja": "cmd.exe が start_dns_logs.bat を実行した",
+          "slot_scores": [
+            {
+              "slot_id": "subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "cmd.exe",
+              "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "C01-S02の主体cmd.exeと一致。"
+            },
+            {
+              "slot_id": "operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "execute",
+              "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:operation",
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "\"/cでバッチファイルを実行\"を特定しておらず不一致。"
+            },
+            {
+              "slot_id": "object",
+              "kind": "object",
+              "candidate_slot_excerpt": "start_dns_logs.bat",
+              "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:object",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "対象オブジェクトが一致。"
+            },
+            {
+              "slot_id": "command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "cmd.exe /c C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "goldにcommand_lineスロットはなくTP計上不可。"
+            },
+            {
+              "slot_id": "critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "msft-security: file_access C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat",
+              "matched_gold_item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:critical_evidence",
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "gold要求のcbc_events（moduleload）ではないため不一致。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CC2",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "tshark.exe が C:\\Windows\\System32\\ctiuser.dll にアクセス",
+          "normalized_action_claim_ja": "tshark.exe が ctiuser.dll をファイルアクセスした",
+          "slot_scores": [
+            {
+              "slot_id": "subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "tshark.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "当該主体はgoldの主体と一致せず、別動作（近傍の無関係）。"
+            },
+            {
+              "slot_id": "operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "file_access",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "goldに該当操作がない。"
+            },
+            {
+              "slot_id": "object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Windows\\System32\\ctiuser.dll",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "goldに該当オブジェクトがない。"
+            },
+            {
+              "slot_id": "command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "C:\\Program Files\\Wireshark\\tshark.exe -i 1 -f \"udp port 53\" -w C:\\Users\\aalsahee\\Desktop\\logs\\dns\\dns.pcap",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "goldにcommand_lineスロットがない。"
+            },
+            {
+              "slot_id": "critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "msft-security: file_access C:\\Windows\\System32\\ctiuser.dll",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "goldのcritical_evidence要件（cbc_events）にも当てはまらず、無関係動作。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CC3",
+          "candidate_step_id": "S3",
+          "claim_excerpt": "dumpcap.exe が C:\\Program Files\\Wireshark\\plugins\\plugin.dll にアクセス",
+          "normalized_action_claim_ja": "dumpcap.exe が plugin.dll をファイルアクセスした",
+          "slot_scores": [
+            {
+              "slot_id": "subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "dumpcap.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "goldの主体ではない（無関係動作）。"
+            },
+            {
+              "slot_id": "operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "file_access",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "goldに該当操作がない。"
+            },
+            {
+              "slot_id": "object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Program Files\\Wireshark\\plugins\\plugin.dll",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "goldに該当オブジェクトがない。"
+            },
+            {
+              "slot_id": "critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "msft-security: file_access C:\\Program Files\\Wireshark\\plugins\\plugin.dll",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "goldのcritical_evidence要件にも合致しない無関係動作。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CC4",
+          "candidate_step_id": "S4",
+          "claim_excerpt": "cmd.exe /c C:\\Users\\aalsahee\\Desktop\\run_http_server.bat を実行",
+          "normalized_action_claim_ja": "cmd.exe が run_http_server.bat を実行した",
+          "slot_scores": [
+            {
+              "slot_id": "subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "cmd.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "同一ホスト上の近傍別動作であり、goldチェーンに接続できない。"
+            },
+            {
+              "slot_id": "operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "execute",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "goldの該当操作ではない。"
+            },
+            {
+              "slot_id": "object",
+              "kind": "object",
+              "candidate_slot_excerpt": "run_http_server.bat",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "goldに該当オブジェクトがない。"
+            },
+            {
+              "slot_id": "command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "cmd.exe /c C:\\Users\\aalsahee\\Desktop\\run_http_server.bat",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "goldにcommand_lineスロットがない。"
+            },
+            {
+              "slot_id": "critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "msft-security: file_access C:\\Users\\aalsahee\\Desktop\\run_http_server.bat",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "goldのcritical_evidence要件にも合致しない無関係動作。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "CC5",
+          "candidate_step_id": "S5",
+          "claim_excerpt": "python.exe が起動（引数不明）",
+          "normalized_action_claim_ja": "python.exe が実行された（コマンドライン不明）",
+          "slot_scores": [
+            {
+              "slot_id": "subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "python.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "goldチェーン外の別動作。"
+            },
+            {
+              "slot_id": "operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "execute",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "goldに該当操作がない。"
+            },
+            {
+              "slot_id": "object",
+              "kind": "object",
+              "candidate_slot_excerpt": "python.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "goldに該当オブジェクトがない。"
+            },
+            {
+              "slot_id": "critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "msft-security: process_start python.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "goldのcritical_evidence要件にも合致しない無関係動作。"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "C01-S01",
+          "after_step_id": "C01-S02",
+          "score": "0",
+          "reason_ja": "C01-S01が未復元のため順序評価不可。"
+        },
+        {
+          "before_step_id": "C01-S02",
+          "after_step_id": "C01-S03",
+          "score": "0",
+          "reason_ja": "C01-S03が未復元のため順序評価不可。"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:subject",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:operation",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:object",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:operation",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:subject",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:operation",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:object"
+    ],
+    "chain_mixing": true,
+    "hallucinated_claims": [],
+    "unsupported_evidence": [
+      "S1でcbc-edr-alertsを証拠として引用（goldポリシーでは不可）",
+      "S4でcbc-edr-alertsを証拠として引用（goldポリシーでは不可）"
+    ],
+    "contradicted_evidence": [],
+    "nearby_action_false_positives": [
+      "S2: tshark.exe が ctiuser.dll をアクセス",
+      "S3: dumpcap.exe が plugin.dll をアクセス",
+      "S4: cmd.exe が run_http_server.bat を実行",
+      "S5: python.exe が実行"
+    ],
+    "weak_grounding": true,
+    "false_positive_claims": [
+      "tshark.exe による DLL アクセス",
+      "dumpcap.exe による plugin DLL アクセス",
+      "cmd.exe による run_http_server.bat 実行",
+      "python.exe 実行（引数不明）"
+    ],
+    "notes_ja": [
+      "goldのcritical_evidenceはcbc_eventsのみ有効。cbc-edr-alertsは不可。",
+      "command_lineは本件goldでは要求スロットに含まれず、TP加点対象外。",
+      "explorer.exe→cmd.exeの派生とcmd.exe→tshark.exeの派生が未復元。"
+    ]
+  },
+  "candidate_action_claim_count": 5,
+  "candidate_action_claim_slot_count": 23,
+  "candidate_action_claim_true_positive_slot_count": 2,
+  "hallucinated_claim_count": 0,
+  "unsupported_evidence_count": 2,
+  "contradicted_evidence_count": 0,
+  "nearby_action_fp_count": 4,
+  "main_missing_items": [
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:subject",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:operation",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:object",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:operation",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:subject",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:operation",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:object"
+    ],
+  "main_false_positive_claims": [
+    "tshark.exe が ctiuser.dll をアクセス（gold外）",
+    "dumpcap.exe が plugin.dll をアクセス（gold外）",
+    "cmd.exe が run_http_server.bat を実行（gold外）",
+    "python.exe を実行（gold外）"
+  ]
+}

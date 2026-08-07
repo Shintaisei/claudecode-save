@@ -1,0 +1,220 @@
+{
+  "case_id": "chain_20_e14_dns_packet_capture_batch_chain_stage2",
+  "reviewer": "codex_manual_review2",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "gold_chain": {
+    "chain_id": "chain_20_e14_dns_packet_capture_batch_chain",
+    "chain_type": "dns_packet_capture_batch_chain",
+    "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_20_e14_dns_packet_capture_batch_chain/chain_gold.json",
+    "gold_steps": [
+      {
+        "step_id": "C20-S01",
+        "order": 1,
+        "subject": "explorer.exe",
+        "action": "start cmd.exe as child process",
+        "object": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+        "critical_evidence_required": "CBC alert/event parent_path and process_cmdline"
+      },
+      {
+        "step_id": "C20-S02",
+        "order": 2,
+        "subject": "cmd.exe",
+        "action": "execute the batch file via /c",
+        "object": "start_dns_logs.bat",
+        "critical_evidence_required": "process_cmdline"
+      }
+    ]
+  },
+  "per_gold_step": [
+    {
+      "gold_step_id": "C20-S01",
+      "candidate_mapping": "Candidate S1: explorer.exe start_process cmd.exe, with object only cmd.exe and no full /c command line.",
+      "subject": {
+        "score": 1,
+        "note": "Correctly names explorer.exe as the parent/subject."
+      },
+      "action": {
+        "score": 1,
+        "note": "Correctly claims explorer.exe started cmd.exe as a child process."
+      },
+      "object": {
+        "score": 0,
+        "note": "Only claims cmd.exe; it omits the full gold object command line with /c and the quoted C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat path."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "note": "Uses generic audit_logs evidence with a provisional event_record_id; it does not cite CBC alert/event parent_path or process_cmdline fields."
+      },
+      "step_total": 2,
+      "step_max": 4
+    },
+    {
+      "gold_step_id": "C20-S02",
+      "candidate_mapping": "Candidate S2: cmd.exe execute_file start_dns_logs.bat.",
+      "subject": {
+        "score": 1,
+        "note": "Correctly names cmd.exe as the subject."
+      },
+      "action": {
+        "score": 1,
+        "note": "Captures the batch-file execution by cmd.exe, although it does not explicitly preserve the /c switch."
+      },
+      "object": {
+        "score": 1,
+        "note": "Correctly identifies start_dns_logs.bat as the object."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "note": "Uses generic audit_logs evidence with a provisional event_record_id; it does not cite the concrete process_cmdline field from CBC evidence."
+      },
+      "step_total": 3,
+      "step_max": 4
+    }
+  ],
+  "order_pairs": {
+    "gold_adjacent_pairs": [
+      {
+        "pair": [
+          "C20-S01",
+          "C20-S02"
+        ],
+        "candidate_pair": [
+          "S1",
+          "S2"
+        ],
+        "score": 1,
+        "note": "Candidate separates explorer.exe -> cmd.exe from cmd.exe -> start_dns_logs.bat, so the parent-to-batch adjacent order is creditable. The later tshark/dumpcap/python steps are extra and do not affect this recall hit."
+      }
+    ],
+    "candidate_adjacent_pairs": [
+      {
+        "pair": [
+          "S1",
+          "S2"
+        ],
+        "precision_hit": 1,
+        "note": "Matches the only gold adjacent pair at the behavior level."
+      },
+      {
+        "pair": [
+          "S2",
+          "S3"
+        ],
+        "precision_hit": 0,
+        "note": "Introduces tshark.exe -> dumpcap.exe, which is out of scope for this gold chain."
+      },
+      {
+        "pair": [
+          "S3",
+          "S4"
+        ],
+        "precision_hit": 0,
+        "note": "Introduces an additional python.exe step, which is out of scope for this gold chain."
+      }
+    ],
+    "candidate_adjacent_precision_hits": 1,
+    "candidate_adjacent_precision_total": 3,
+    "candidate_adjacent_precision": 0.333333
+  },
+  "candidate_claims": [
+    {
+      "candidate_step_id": "S1",
+      "claim": "explorer.exe starts cmd.exe",
+      "mapped_gold_step": "C20-S01",
+      "precision_hit": 1,
+      "slot_hits": {
+        "subject": 1,
+        "action": 1,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": [
+        "critical_evidence"
+      ],
+      "note": "Behavior subject/action match, but the full /c command line is missing and evidence is generic audit_logs with a provisional event_record_id."
+    },
+    {
+      "candidate_step_id": "S2",
+      "claim": "cmd.exe executes start_dns_logs.bat",
+      "mapped_gold_step": "C20-S02",
+      "precision_hit": 1,
+      "slot_hits": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": [
+        "critical_evidence"
+      ],
+      "note": "Behavior matches the second gold step, but the evidence is not concrete CBC process_cmdline evidence."
+    },
+    {
+      "candidate_step_id": "S3",
+      "claim": "tshark.exe starts dumpcap.exe",
+      "mapped_gold_step": null,
+      "precision_hit": 0,
+      "slot_hits": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": [
+        "subject",
+        "action",
+        "object",
+        "critical_evidence"
+      ],
+      "note": "Out-of-scope process claim for this gold chain; tshark/dumpcap is not a gold step here."
+    },
+    {
+      "candidate_step_id": "S4",
+      "claim": "cmd.exe/python.exe related python.exe process start",
+      "mapped_gold_step": null,
+      "precision_hit": 0,
+      "slot_hits": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": [
+        "subject",
+        "action",
+        "object",
+        "critical_evidence"
+      ],
+      "note": "Out-of-scope python.exe claim for this gold chain."
+    }
+  ],
+  "totals": {
+    "action_step_recall_hits": 2,
+    "action_step_recall_total": 2,
+    "action_step_recall": 1.0,
+    "action_step_precision_hits": 2,
+    "action_step_precision_total": 4,
+    "action_step_precision": 0.5,
+    "candidate_claim_precision_hits": 5,
+    "candidate_claim_precision_total": 16,
+    "candidate_claim_precision": 0.3125,
+    "overclaim_slot_count": 10,
+    "behavior_sequence_order_hits": 1,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 1.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 5,
+    "behavior_step_recall_total": 8,
+    "behavior_step_recall": 0.625
+  },
+  "notes": [
+    "Manual Review2 only; no OpenAI API or GPT scoring script was used.",
+    "Candidate recovered the two main behavior actions in separated steps, so the gold adjacent order pair receives credit.",
+    "C20-S01 object is not credited because the candidate omits the full `C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"` object.",
+    "Critical evidence is 0 for both gold steps because the candidate cites generic audit_logs and provisional event_record_id values rather than concrete CBC alert/event fields such as parent_path, process_cmdline, childproc, or object.",
+    "tshark.exe, dumpcap.exe, and python.exe claims are out-of-scope for this gold chain and counted as overclaims."
+  ]
+}

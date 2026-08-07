@@ -1,0 +1,167 @@
+{
+  "case_id": "chain_21_e15_python_simplehttpserver_network_chain_stage2",
+  "reviewer": "codex_manual_review1",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "gold_chain": {
+    "chain_id": "chain_21_e15_python_simplehttpserver_network_chain",
+    "chain_type": "python_simplehttpserver_network_chain",
+    "gold_steps": [
+      {
+        "step_id": "C21-S01",
+        "order": 1,
+        "subject": "python.exe",
+        "action": "start SimpleHTTPServer module",
+        "object": "python  -m SimpleHTTPServer",
+        "critical_evidence": "CBC event process_cmdline"
+      },
+      {
+        "step_id": "C21-S02",
+        "order": 2,
+        "subject": "python.exe",
+        "action": "detected as network server behavior",
+        "object": "10.193.66.115:49187",
+        "critical_evidence": "CBC event netconn"
+      }
+    ]
+  },
+  "per_gold_step": [
+    {
+      "step_id": "C21-S01",
+      "gold_order": 1,
+      "matched_candidate_step_ids": [
+        "S1"
+      ],
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "score_total": 2,
+      "score_max": 4,
+      "rationale": {
+        "subject": "Candidate identifies python.exe as the acting process.",
+        "action": "Candidate claims python.exe was started with SimpleHTTPServer behavior.",
+        "object": "Candidate records object.name as python.exe and command_line as 'python -m SimpleHTTPServer'; gold object is the exact process code object 'python  -m SimpleHTTPServer'. Under the requested strict SimpleHTTPServer scoring, this object slot is not credited.",
+        "critical_evidence": "Candidate cites audit_logs fields pname/command_line. It does not explicitly cite CBC event process_cmdline."
+      }
+    },
+    {
+      "step_id": "C21-S02",
+      "gold_order": 2,
+      "matched_candidate_step_ids": [],
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "score_total": 0,
+      "score_max": 4,
+      "rationale": {
+        "subject": "No candidate network-server/netconn step is present for python.exe.",
+        "action": "Candidate explicitly reports no network connection logs for python.exe, missing the gold network server behavior.",
+        "object": "Gold netconn object 10.193.66.115:49187 is absent.",
+        "critical_evidence": "No CBC event netconn evidence is cited."
+      }
+    }
+  ],
+  "order_pairs": [
+    {
+      "gold_pair": [
+        "C21-S01",
+        "C21-S02"
+      ],
+      "candidate_pair": null,
+      "score": 0,
+      "rationale": "Candidate outputs only the SimpleHTTPServer start step and omits the subsequent netconn/network-server step, so the adjacent gold order pair is not recovered."
+    }
+  ],
+  "candidate_claims": [
+    {
+      "claim_id": "CL01",
+      "candidate_step_id": "S1",
+      "claim": "subject process python.exe, pid 1356",
+      "mapped_gold_step": "C21-S01",
+      "precision_hit": 1,
+      "overclaim": false,
+      "rationale": "Matches the gold subject for the start step; PID is extra but not used as a behavior object."
+    },
+    {
+      "claim_id": "CL02",
+      "candidate_step_id": "S1",
+      "claim": "operation process_start / SimpleHTTPServer start",
+      "mapped_gold_step": "C21-S01",
+      "precision_hit": 1,
+      "overclaim": false,
+      "rationale": "Correctly captures the start behavior at action level."
+    },
+    {
+      "claim_id": "CL03",
+      "candidate_step_id": "S1",
+      "claim": "object is process python.exe with command_line 'python -m SimpleHTTPServer'",
+      "mapped_gold_step": "C21-S01",
+      "precision_hit": 0,
+      "overclaim": true,
+      "rationale": "Gold object is the exact process code object 'python  -m SimpleHTTPServer'; candidate object is the process and the command line is normalized to one space."
+    },
+    {
+      "claim_id": "CL04",
+      "candidate_step_id": "S1",
+      "claim": "critical evidence from audit_logs fields pname and command_line",
+      "mapped_gold_step": "C21-S01",
+      "precision_hit": 0,
+      "overclaim": false,
+      "rationale": "The required critical evidence is CBC event process_cmdline, not generic audit_logs."
+    },
+    {
+      "claim_id": "CL05",
+      "candidate_step_id": "S1",
+      "claim": "parent process cmd.exe pid 2032",
+      "mapped_gold_step": null,
+      "precision_hit": 0,
+      "overclaim": true,
+      "rationale": "Parent cmd context is not a gold behavior step and is specifically not creditable for this SimpleHTTPServer chain."
+    },
+    {
+      "claim_id": "CL06",
+      "candidate_step_id": null,
+      "claim": "no python.exe network connection logs were observed",
+      "mapped_gold_step": "C21-S02",
+      "precision_hit": 0,
+      "overclaim": true,
+      "rationale": "Contradicts the gold CBC netconn/network server object 10.193.66.115:49187."
+    }
+  ],
+  "totals": {
+    "item_slot_recall_hits": 2,
+    "item_slot_recall_total": 8,
+    "item_slot_recall": 0.25,
+    "action_step_recall_hits": 1,
+    "action_step_recall_total": 2,
+    "action_step_recall": 0.5,
+    "action_step_precision_hits": 1,
+    "action_step_precision_total": 1,
+    "action_step_precision": 1.0,
+    "candidate_claim_precision_hits": 2,
+    "candidate_claim_precision_total": 6,
+    "candidate_claim_precision": 0.333333,
+    "overclaim_slot_count": 3,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 0,
+    "behavior_step_recall_total": 2,
+    "behavior_step_recall": 0.0
+  },
+  "notes": [
+    "Manual Codex review only; no OpenAI API or GPT scoring script was used.",
+    "The candidate recovers only the broad SimpleHTTPServer start action. It omits the CBC netconn/server behavior and the exact gold netconn object 10.193.66.115:49187.",
+    "Critical evidence is not credited because the candidate uses generic audit_logs command_line/pname evidence instead of explicit CBC event process_cmdline or CBC event netconn fields.",
+    "The SimpleHTTPServer command object was scored strictly against the gold object 'python  -m SimpleHTTPServer'; the candidate's normalized 'python -m SimpleHTTPServer' and process object python.exe were not credited for the object slot."
+  ]
+}

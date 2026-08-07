@@ -1,0 +1,137 @@
+{
+  "reviewer": "Review2",
+  "case_id": "chain_26_e18_python_simplehttpserver_network_chain_stage1",
+  "chain_id": "chain_26_e18_python_simplehttpserver_network_chain",
+  "model": "gpt-4.1-mini",
+  "stage": "stage1",
+  "method": "codex_manual_local_file_review_no_api",
+  "judge_summary": "The candidate recovers the python.exe SimpleHTTPServer launch with command-line evidence. It does not recover the gold network-server/netconn step as a code/action step and explicitly states that detailed python.exe network connection logs were not observed. The cmd.exe run_http_server.bat step is extra parent/batch context and is not counted as a gold target step.",
+  "gold_item_scores": [
+    {
+      "item_id": "chain_26_e18_python_simplehttpserver_network_chain:C26-S01:subject",
+      "step_id": "C26-S01",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": "S2.subject_process.name=python.exe",
+      "score": 1,
+      "reason": "The candidate's second code step uses python.exe as the subject process."
+    },
+    {
+      "item_id": "chain_26_e18_python_simplehttpserver_network_chain:C26-S01:action",
+      "step_id": "C26-S01",
+      "kind": "action",
+      "gold_value": "python.exe launches with the SimpleHTTPServer module",
+      "matched_candidate_excerpt": "S2.operation=execute; S2.command_line=python.exe -m SimpleHTTPServer",
+      "score": 1,
+      "reason": "The candidate preserves the SimpleHTTPServer module launch in the python.exe command line."
+    },
+    {
+      "item_id": "chain_26_e18_python_simplehttpserver_network_chain:C26-S01:object",
+      "step_id": "C26-S01",
+      "kind": "object",
+      "gold_value": "python  -m SimpleHTTPServer",
+      "matched_candidate_excerpt": "S2.command_line=python.exe -m SimpleHTTPServer",
+      "score": 1,
+      "reason": "The executable spelling and whitespace differ slightly, but the substantive object is the same SimpleHTTPServer command line."
+    },
+    {
+      "item_id": "chain_26_e18_python_simplehttpserver_network_chain:C26-S01:critical_evidence",
+      "step_id": "C26-S01",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event process_cmdline",
+      "matched_candidate_excerpt": "S2.evidence field=command_line value=python.exe -m SimpleHTTPServer",
+      "score": 1,
+      "reason": "The candidate labels the source as audit_logs, but it retains the critical process command-line value needed for the launch step."
+    },
+    {
+      "item_id": "chain_26_e18_python_simplehttpserver_network_chain:C26-S02:subject",
+      "step_id": "C26-S02",
+      "kind": "subject",
+      "gold_value": "python.exe",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason": "python.exe appears in the launch step, but the candidate does not produce a separate python.exe network-server action claim."
+    },
+    {
+      "item_id": "chain_26_e18_python_simplehttpserver_network_chain:C26-S02:action",
+      "step_id": "C26-S02",
+      "kind": "action",
+      "gold_value": "detected as network server behavior",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason": "The candidate only includes the CBC alert as supporting context and says direct network connection logs were not observed; it does not reconstruct netconn/server behavior as a code step."
+    },
+    {
+      "item_id": "chain_26_e18_python_simplehttpserver_network_chain:C26-S02:object",
+      "step_id": "C26-S02",
+      "kind": "object",
+      "gold_value": "limited receive/communication peer details",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason": "No network object, listener, remote endpoint, or explicitly limited netconn detail is supplied as a candidate action slot."
+    },
+    {
+      "item_id": "chain_26_e18_python_simplehttpserver_network_chain:C26-S02:critical_evidence",
+      "step_id": "C26-S02",
+      "kind": "critical_evidence",
+      "gold_value": "CBC event netconn",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason": "No CBC event netconn or equivalent network telemetry is cited. The alert name alone is not enough for critical evidence credit."
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_step_id": "C26-S01",
+      "after_step_id": "C26-S02",
+      "score": 0,
+      "reason": "The launch step is present, but the network-server/netconn step is missing as a scored action, so the gold two-step ordering is not recovered."
+    }
+  ],
+  "candidate_precision": {
+    "scored_candidate_action_claims": [
+      {
+        "candidate_step_id": "S1",
+        "claim_excerpt": "cmd.exe /c C:\\Users\\aalsahee\\Desktop\\run_http_server.bat",
+        "matched_gold_step_id": null,
+        "is_true_positive": 0,
+        "false_positive_type": "extra_parent_or_batch_context",
+        "reason": "The gold chain is scoped to python.exe SimpleHTTPServer launch plus python.exe netconn behavior; the cmd.exe batch launcher is extra context and not a gold item."
+      },
+      {
+        "candidate_step_id": "S2",
+        "claim_excerpt": "python.exe -m SimpleHTTPServer",
+        "matched_gold_step_id": "C26-S01",
+        "is_true_positive": 1,
+        "false_positive_type": "none",
+        "reason": "This is the gold python SimpleHTTPServer launch."
+      }
+    ],
+    "action_claim_true_positives": 1,
+    "action_claim_false_positives": 1,
+    "action_claim_precision": 0.5,
+    "unsupported_or_uncounted_claims": [
+      "Any suggestion of a possible listener or network-server state is not credited because the candidate also states that detailed python.exe network connection logs were not observed."
+    ]
+  },
+  "final_totals": {
+    "gold_item_score": 4,
+    "gold_item_max": 8,
+    "gold_item_recall": 0.5,
+    "gold_steps_fully_matched": 1,
+    "gold_steps_total": 2,
+    "order_score": 0,
+    "order_max": 1,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits": 1,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.5,
+    "candidate_action_claim_precision": 0.5
+  },
+  "notes": [
+    "No OpenAI/API scorer was used; scoring is based only on the local gold and candidate JSON files.",
+    "The candidate's command-line evidence is sufficient for C26-S01 despite source label differences.",
+    "The candidate's supporting CBC alert evidence is not counted as C26-S02 netconn evidence.",
+    "The extra cmd.exe run_http_server.bat claim lowers candidate precision but does not change gold recall for the python.exe launch."
+  ]
+}

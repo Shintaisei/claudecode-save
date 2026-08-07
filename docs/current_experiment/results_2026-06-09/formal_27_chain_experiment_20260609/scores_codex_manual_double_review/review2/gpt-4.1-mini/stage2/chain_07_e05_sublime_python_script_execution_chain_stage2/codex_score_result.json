@@ -1,0 +1,217 @@
+{
+  "reviewer": "Review2",
+  "scoring_method": "codex_manual_local_files_only",
+  "no_openai_or_api_scorer_used": true,
+  "case_id": "chain_07_e05_sublime_python_script_execution_chain_stage2",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_07_e05_sublime_python_script_execution_chain/chain_gold.json",
+  "candidate_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage2/chain_07_e05_sublime_python_script_execution_chain_stage2_run.json",
+  "rubric": {
+    "per_step_fields": [
+      "subject",
+      "action",
+      "object",
+      "critical_evidence"
+    ],
+    "field_score_values": [
+      0,
+      1
+    ],
+    "gold_step_count": 10,
+    "max_step_score": 40,
+    "sequence_checks": [
+      "temporal_order",
+      "step_separation",
+      "limitations"
+    ],
+    "max_sequence_score": 3,
+    "max_case_score": 43
+  },
+  "candidate_summary": {
+    "matched_content": [
+      "Reports a cmd.exe command line invoking python -u on C:\\Program Files\\Sublime Text 3\\helloworld.py.",
+      "Reports a python.exe step with command_line python -u C:\\Program Files\\Sublime Text 3\\helloworld.py."
+    ],
+    "major_misses": [
+      "Does not correctly express plugin_host.exe as the subject that starts cmd.exe in the gold steps.",
+      "Does not reconstruct the helloworld2.py cmd/python chain at all.",
+      "Does not reconstruct the later sublime_text.exe parent launching python.exe.",
+      "Does not provide required CBC alert/CBC event evidence; supporting_alert_evidence is empty and cited event_record_id values are placeholders.",
+      "Adds unrelated RepWmiUtils.exe overclaims that are not part of the gold chain."
+    ]
+  },
+  "step_scores": [
+    {
+      "order": 1,
+      "gold_step_id": "C07-S01",
+      "gold_requirement": "plugin_host.exe starts cmd.exe with C:\\Windows\\system32\\cmd.exe /c \"python -u \"C:\\Program Files\\Sublime Text 3\\helloworld.py\"\" using CBC parent_path and process_cmdline evidence.",
+      "candidate_mapping": "Candidate S1 has cmd.exe as subject_process and only places plugin_host.exe in execution_context.parent_process.",
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "step_total": 1,
+      "notes": "Object command line is present, but the candidate does not state the gold subject/action as plugin_host.exe starting cmd.exe. CBC alert/event parent_path plus process_cmdline evidence is not supplied."
+    },
+    {
+      "order": 2,
+      "gold_step_id": "C07-S02",
+      "gold_requirement": "cmd.exe runs the /c Python execution command for helloworld.py with CBC process_cmdline evidence.",
+      "candidate_mapping": "Candidate S1 reports cmd.exe, operation execute, and the full cmd.exe /c python -u helloworld.py command line.",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "step_total": 3,
+      "notes": "Subject/action/object match the first helloworld.py cmd command. Evidence is not credited because the candidate cites cbc-edr rows with placeholder event_record_id values and no CBC alert/CBC event process_cmdline evidence."
+    },
+    {
+      "order": 3,
+      "gold_step_id": "C07-S03",
+      "gold_requirement": "cmd.exe starts python.exe as a child for C:\\Program Files\\Sublime Text 3\\helloworld.py with CBC procstart childproc_name evidence.",
+      "candidate_mapping": "Candidate S1 reports cmd.exe as subject, python.exe as child_process, and the helloworld.py script in the command line.",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "step_total": 3,
+      "notes": "The process relationship and script are recoverable from S1. Critical evidence is absent; no real CBC procstart childproc_name row is cited."
+    },
+    {
+      "order": 4,
+      "gold_step_id": "C07-S04",
+      "gold_requirement": "cmd.exe launches python.exe for C:\\Program Files\\Sublime Text 3\\helloworld.py with CBC parent_path evidence.",
+      "candidate_mapping": "Candidate S1 gives cmd.exe as the parent-side process and python.exe as child_process for helloworld.py.",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "step_total": 3,
+      "notes": "The first cmd-to-python launch is described, but the required CBC alert/event parent_path evidence is not present."
+    },
+    {
+      "order": 5,
+      "gold_step_id": "C07-S05",
+      "gold_requirement": "python.exe executes the Python script C:\\Program Files\\Sublime Text 3\\helloworld.py with process_cmdline evidence.",
+      "candidate_mapping": "Candidate S2 has python.exe as subject and the helloworld.py command_line, but its operation is read and its object is C:\\Python27\\Lib\\.",
+      "scores": {
+        "subject": 1,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "step_total": 1,
+      "notes": "Only the python.exe subject is cleanly credited. The candidate step is framed as Python library reads rather than execution of the script object, and it lacks process_cmdline evidence."
+    },
+    {
+      "order": 6,
+      "gold_step_id": "C07-S06",
+      "gold_requirement": "plugin_host.exe starts cmd.exe with C:\\Windows\\system32\\cmd.exe /c \"python -u \"C:\\Program Files\\Sublime Text 3\\helloworld2.py\"\" using CBC parent_path and process_cmdline evidence.",
+      "candidate_mapping": "No candidate step for helloworld2.py.",
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "step_total": 0,
+      "notes": "The second Sublime/plugin_host cmd command is missing."
+    },
+    {
+      "order": 7,
+      "gold_step_id": "C07-S07",
+      "gold_requirement": "cmd.exe runs the /c Python execution command for helloworld2.py with CBC process_cmdline evidence.",
+      "candidate_mapping": "No candidate step for helloworld2.py.",
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "step_total": 0,
+      "notes": "The cmd.exe /c command for helloworld2.py is absent."
+    },
+    {
+      "order": 8,
+      "gold_step_id": "C07-S08",
+      "gold_requirement": "cmd.exe starts python.exe as a child for C:\\Program Files\\Sublime Text 3\\helloworld2.py with CBC procstart childproc_name evidence.",
+      "candidate_mapping": "No candidate step for helloworld2.py.",
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "step_total": 0,
+      "notes": "The python child process for helloworld2.py is missing."
+    },
+    {
+      "order": 9,
+      "gold_step_id": "C07-S09",
+      "gold_requirement": "sublime_text.exe launches python.exe for C:\\Program Files\\Sublime Text 3\\helloworld.py with CBC parent_path evidence.",
+      "candidate_mapping": "Candidate does not mention sublime_text.exe as a parent/subject and does not separate this later direct launch from the earlier cmd-mediated helloworld.py execution.",
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "step_total": 0,
+      "notes": "No credit: this gold step is the later sublime_text.exe-parent event, not the earlier plugin_host/cmd path. The candidate misses the subject, distinct event, and CBC parent_path evidence."
+    },
+    {
+      "order": 10,
+      "gold_step_id": "C07-S10",
+      "gold_requirement": "python.exe executes C:\\Program Files\\Sublime Text 3\\helloworld.py for the later W10 event with process_cmdline evidence.",
+      "candidate_mapping": "Candidate has only one python.exe read step tied to the earlier cmd-mediated helloworld.py execution and does not reconstruct the later W10 execution as a separate step.",
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "step_total": 0,
+      "notes": "No credit because the candidate does not separate or evidence the later python.exe execution event, and its python step is a library-read step rather than script execution."
+    }
+  ],
+  "sequence_level_scores": {
+    "temporal_order": {
+      "score": 0,
+      "max": 1,
+      "note": "The candidate orders one partial helloworld.py pair followed by unrelated RepWmiUtils.exe steps; it omits the helloworld2.py sequence and later sublime_text.exe event."
+    },
+    "step_separation": {
+      "score": 0,
+      "max": 1,
+      "note": "Distinct repeated executions are not separated. The candidate merges or omits chain events and adds unrelated overclaimed process steps."
+    },
+    "limitations": {
+      "score": 0,
+      "max": 1,
+      "note": "Although some generic uncertainty is stated, the answer overclaims placeholder evidence as observed and does not clearly preserve the CBC-alert evidentiary limitation required for this gold chain."
+    }
+  },
+  "case_scoring": {
+    "step_score_max": 40,
+    "step_score": 11,
+    "sequence_score_max": 3,
+    "sequence_score": 0,
+    "case_score_max": 43,
+    "case_score": 11
+  },
+  "strictness_notes": [
+    "Did not award critical_evidence for any step because the candidate has empty supporting_alert_evidence and uses placeholder event_record_id values instead of the required CBC alert/CBC event fields.",
+    "Did not double-count the first helloworld.py evidence for the later W10 sublime_text.exe/python.exe event.",
+    "Did not award helloworld2.py steps because that object is entirely absent.",
+    "Penalized unrelated RepWmiUtils.exe steps as overclaims and sequence errors."
+  ]
+}

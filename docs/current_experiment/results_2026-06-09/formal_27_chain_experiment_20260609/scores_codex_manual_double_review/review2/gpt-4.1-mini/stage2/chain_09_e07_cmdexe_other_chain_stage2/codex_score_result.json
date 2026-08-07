@@ -1,0 +1,213 @@
+{
+  "reviewer": "codex_review2",
+  "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage2/chain_09_e07_cmdexe_other_chain_stage2_run.json",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_09_e07_cmdexe_other_chain/chain_gold.json",
+  "case_id": "chain_09_e07_cmdexe_other_chain_stage2",
+  "chain_id": "chain_09_e07_cmdexe_other_chain",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "method": "codex_manual_review2_no_api_strict_item_rubric",
+  "judge_summary_ja": "Gold is a two-step cmd.exe chain: discord.exe starts cmd.exe with the full command line C:\\Windows\\system32\\cmd.exe /q /d /s /c \"undefined\\NVIDIA^ Corporation\\NVSMI\\nvidia-smi.exe\", then cmd.exe executes the /c command. The candidate only reports cmd.exe PID 4872 performing file_access on C:\\Windows\\System32\\ctiuser.dll, with parent process and command line unknown. Under strict command/object/evidence matching, only the C09-S02 subject cmd.exe is recovered. The candidate misses discord.exe as parent, the child-process launch, the /q /d /s /c NVIDIA nvidia-smi command object, and the required parent_path/process_cmdline or trace evidence. The ctiuser.dll file_access is a nearby unrelated overclaim for this gold behavior chain.",
+  "gold_required_item_scores": [
+    {
+      "item_id": "chain_09_e07_cmdexe_other_chain:C09-S01:subject",
+      "step_id": "C09-S01",
+      "kind": "subject",
+      "gold_value": "discord.exe",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "Candidate does not identify discord.exe as the parent/subject; parent_process is null and limitations state parent information is missing."
+    },
+    {
+      "item_id": "chain_09_e07_cmdexe_other_chain:C09-S01:operation",
+      "step_id": "C09-S01",
+      "kind": "operation",
+      "gold_value": "discord.exe starts cmd.exe as a child process",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "Candidate does not recover a discord.exe -> cmd.exe child-process launch; it reports only cmd.exe file_access."
+    },
+    {
+      "item_id": "chain_09_e07_cmdexe_other_chain:C09-S01:object",
+      "step_id": "C09-S01",
+      "kind": "object",
+      "gold_value": "C:\\Windows\\system32\\cmd.exe /q /d /s /c \"undefined\\NVIDIA^ Corporation\\NVSMI\\nvidia-smi.exe\"",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "Candidate object is C:\\Windows\\System32\\ctiuser.dll, not the full cmd.exe /q /d /s /c NVIDIA nvidia-smi command line."
+    },
+    {
+      "item_id": "chain_09_e07_cmdexe_other_chain:C09-S01:critical_evidence",
+      "step_id": "C09-S01",
+      "kind": "critical_evidence",
+      "gold_value": "CBC alert / CBC event parent_path and process_cmdline",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "Candidate evidence is an audit_logs object field for ctiuser.dll and does not provide the CBC parent_path/process_cmdline evidence for the discord.exe -> cmd.exe command."
+    },
+    {
+      "item_id": "chain_09_e07_cmdexe_other_chain:C09-S02:subject",
+      "step_id": "C09-S02",
+      "kind": "subject",
+      "gold_value": "cmd.exe",
+      "matched_candidate_excerpt": "code_steps[0].subject_process.name=cmd.exe; pid=4872",
+      "score": 1,
+      "reason_ja": "Candidate identifies cmd.exe PID 4872 as the acting process, matching the subject of C09-S02."
+    },
+    {
+      "item_id": "chain_09_e07_cmdexe_other_chain:C09-S02:operation",
+      "step_id": "C09-S02",
+      "kind": "operation",
+      "gold_value": "executes a command containing /c",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "Candidate operation is file_access, not execution of a /q /d /s /c command."
+    },
+    {
+      "item_id": "chain_09_e07_cmdexe_other_chain:C09-S02:object",
+      "step_id": "C09-S02",
+      "kind": "object",
+      "gold_value": "C:\\Windows\\system32\\cmd.exe /q /d /s /c \"undefined\\NVIDIA^ Corporation\\NVSMI\\nvidia-smi.exe\"",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "Candidate does not recover the full command object; it gives C:\\Windows\\System32\\ctiuser.dll."
+    },
+    {
+      "item_id": "chain_09_e07_cmdexe_other_chain:C09-S02:critical_evidence",
+      "step_id": "C09-S02",
+      "kind": "critical_evidence",
+      "gold_value": "trace evidence for the /c command execution",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason_ja": "Candidate evidence supports only the ctiuser.dll object access and does not support the /c NVIDIA nvidia-smi command execution."
+    }
+  ],
+  "candidate_action_claim_scores": [
+    {
+      "candidate_claim_id": "R2-C09-STAGE2-CLAIM-01",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "cmd.exe PID 4872 performed file_access on C:\\Windows\\System32\\ctiuser.dll at 2022-07-16 15:04:13",
+      "normalized_action_claim_ja": "cmd.exe accesses C:\\Windows\\System32\\ctiuser.dll",
+      "slot_scores": [
+        {
+          "slot_id": "R2-C09-STAGE2-CLAIM-01-subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "cmd.exe PID 4872",
+          "matched_gold_item_id": "chain_09_e07_cmdexe_other_chain:C09-S02:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "The process name cmd.exe matches the C09-S02 subject."
+        },
+        {
+          "slot_id": "R2-C09-STAGE2-CLAIM-01-operation",
+          "kind": "operation",
+          "candidate_slot_excerpt": "file_access",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "Gold operation is cmd.exe command execution with /c, not file access."
+        },
+        {
+          "slot_id": "R2-C09-STAGE2-CLAIM-01-object",
+          "kind": "object",
+          "candidate_slot_excerpt": "C:\\Windows\\System32\\ctiuser.dll",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason_ja": "Gold object is the full cmd.exe /q /d /s /c NVIDIA nvidia-smi command line, not ctiuser.dll."
+        },
+        {
+          "slot_id": "R2-C09-STAGE2-CLAIM-01-critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs timestamp=2022-07-16 15:04:13 field=object value=C:\\Windows\\System32\\ctiuser.dll pid=4872",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unsupported_evidence",
+          "reason_ja": "This evidence supports only the ctiuser.dll access and not the required parent_path/process_cmdline or /c command trace evidence."
+        }
+      ]
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_step_id": "C09-S01",
+      "after_step_id": "C09-S02",
+      "matched_candidate_before_claim_id": null,
+      "matched_candidate_after_claim_id": null,
+      "score": 0,
+      "reason_ja": "Candidate does not reconstruct either the discord.exe -> cmd.exe launch or the subsequent /c NVIDIA nvidia-smi command execution, so the gold sequence order is not recovered."
+    }
+  ],
+  "totals": {
+    "behavior_step_recall": 0.0,
+    "behavior_step_recall_hits": 0,
+    "behavior_step_recall_total": 2,
+    "action_step_recall": 0.125,
+    "action_step_recall_hits": 1,
+    "action_step_recall_total": 8,
+    "action_step_precision": 0.25,
+    "action_step_precision_hits": 1,
+    "action_step_precision_total": 4,
+    "gold_required_item_count": 8,
+    "candidate_claim_precision": 0.25,
+    "candidate_claim_precision_hits": 1,
+    "candidate_claim_precision_total": 4,
+    "overclaim_slot_count": 3,
+    "candidate_action_claim_true_positive_slot_count": 1,
+    "candidate_action_claim_slot_count": 4,
+    "candidate_action_claim_raw_slot_count": 4,
+    "candidate_action_claim_duplicate_true_positive_slot_count": 0,
+    "behavior_sequence_order": 0.0,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "critical_evidence_recall": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "coarse_action_step_coverage": 0.0,
+    "coarse_action_step_coverage_hits": 0,
+    "coarse_action_step_coverage_total": 2,
+    "hallucinated_claim_count": 0,
+    "unsupported_evidence_count": 1,
+    "contradicted_evidence_count": 0,
+    "nearby_action_fp_count": 1,
+    "behavior_element_diagnostics": {
+      "subject": {
+        "recall_hits": 1,
+        "recall_total": 2,
+        "precision_hits": 1,
+        "precision_total": 1
+      },
+      "operation": {
+        "recall_hits": 0,
+        "recall_total": 2,
+        "precision_hits": 0,
+        "precision_total": 1
+      },
+      "object": {
+        "recall_hits": 0,
+        "recall_total": 2,
+        "precision_hits": 0,
+        "precision_total": 1
+      },
+      "critical_evidence": {
+        "recall_hits": 0,
+        "recall_total": 2,
+        "precision_hits": 0,
+        "precision_total": 1
+      }
+    }
+  },
+  "candidate_action_claim_count": 1,
+  "candidate_action_claim_slot_count": 4,
+  "candidate_action_claim_true_positive_slot_count": 1,
+  "hallucinated_claim_count": 0,
+  "unsupported_evidence_count": 1,
+  "contradicted_evidence_count": 0,
+  "nearby_action_fp_count": 1,
+  "notes_ja": [
+    "OpenAI/API scorer was not used.",
+    "Scoring used only the local gold JSON and local candidate run JSON.",
+    "Strict item rubric: no credit for command/object/evidence unless the full nvidia-smi cmd.exe command chain is recovered.",
+    "The only credited item is the C09-S02 subject cmd.exe; ctiuser.dll file_access is not part of the gold chain."
+  ]
+}

@@ -1,0 +1,396 @@
+{
+  "case_id": "s3_pt_01_word_document_processing",
+  "judge_summary_ja": "候補は msf.rtf のオブジェクト自体と操作（open）を一部復元したが、実行主体の PID を誤っており（PID 3368 と主張）、Word による一時 RTF の作成・削除（両方とも同一パス c586a0f0.rtf）を全く復元できていない。証拠種別も CBC EDR の正規テレメトリ行では提示されず、時系列順も評価不能。周辺の DLL 読み取りやレジストリ操作など無関連動作が多数混入している。",
+  "chains": [
+    {
+      "chain_id": "s3_pt_01_word_document_processing",
+      "gold_required_item_scores": [
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S01:subject",
+          "step_id": "S3-01-S01",
+          "kind": "subject",
+          "matched_candidate_excerpt": "winword.exe (PID 5592)",
+          "score": "1",
+          "reason_ja": "候補の code_sequence/timeline_ja に「winword.exe (PID 5592)」が明記され、主体値が一致。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S01:operation",
+          "step_id": "S3-01-S01",
+          "kind": "operation",
+          "matched_candidate_excerpt": "file_open",
+          "score": "1",
+          "reason_ja": "候補 S4 の operation は \"file_open\" で、ゴールドの opened/read に実質一致。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S01:object",
+          "step_id": "S3-01-S01",
+          "kind": "object",
+          "matched_candidate_excerpt": "C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf",
+          "score": "1",
+          "reason_ja": "候補 S4 の対象パスがゴールドと完全一致。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S01:critical_evidence",
+          "step_id": "S3-01-S01",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "候補は CBC EDR の正規テレメトリ行を提示せず、audit_logs のみ。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S02:subject",
+          "step_id": "S3-01-S02",
+          "kind": "subject",
+          "matched_candidate_excerpt": "winword.exe (PID 5592)",
+          "score": "1",
+          "reason_ja": "候補に PID 5592 の主体が存在（S3/code_sequence）。主体値としては一致。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S02:operation",
+          "step_id": "S3-01-S02",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "ファイル作成（created）を主張する記述はなし。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S02:object",
+          "step_id": "S3-01-S02",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "一時 RTF ファイル（...\\c586a0f0.rtf）のパスは候補に出現しない。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S02:critical_evidence",
+          "step_id": "S3-01-S02",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBC EDR の正規テレメトリ行が提示されていない。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S03:subject",
+          "step_id": "S3-01-S03",
+          "kind": "subject",
+          "matched_candidate_excerpt": "winword.exe (PID 5592)",
+          "score": "1",
+          "reason_ja": "候補に PID 5592 の主体が存在。主体値としては一致。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S03:operation",
+          "step_id": "S3-01-S03",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "ファイル削除（deleted）を主張する記述はなし。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S03:object",
+          "step_id": "S3-01-S03",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "対象の一時 RTF（...\\c586a0f0.rtf）が候補に出現しない。"
+        },
+        {
+          "item_id": "s3_pt_01_word_document_processing:S3-01-S03:critical_evidence",
+          "step_id": "S3-01-S03",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBC EDR の正規テレメトリ行が提示されていない。"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "C1",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "winword.exe (PID 3332) file_read_execute C:\\Program Files\\Microsoft Office\\Office14\\WWINTL.DLL",
+          "normalized_action_claim_ja": "winword.exe (PID 3332) が C:\\Program Files\\Microsoft Office\\Office14\\WWINTL.DLL を読み取り・実行",
+          "slot_scores": [
+            {
+              "slot_id": "C1:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "winword.exe (PID 3332)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールドでは PID 5592 のみが対象。PID 3332 は行動連鎖外。"
+            },
+            {
+              "slot_id": "C1:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "file_read_execute",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールドの操作は opened/read, created, deleted のみ。"
+            },
+            {
+              "slot_id": "C1:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Program Files\\Microsoft Office\\Office14\\WWINTL.DLL",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールド対象は msf.rtf と一時 RTF のみ。"
+            },
+            {
+              "slot_id": "C1:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "winword.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "コマンドラインはゴールド必須項目ではない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C2",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "winword.exe (PID 3332) registry_write_delete HKCU\\Software\\Microsoft\\Office\\StartupItems",
+          "normalized_action_claim_ja": "winword.exe (PID 3332) がレジストリ HKCU\\Software\\Microsoft\\Office\\StartupItems に書き込み/削除操作",
+          "slot_scores": [
+            {
+              "slot_id": "C2:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "winword.exe (PID 3332)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールドでは PID 5592 のみが対象。"
+            },
+            {
+              "slot_id": "C2:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "registry_write_delete",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "レジストリ操作はゴールドの行動連鎖に含まれない。"
+            },
+            {
+              "slot_id": "C2:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "HKCU\\Software\\Microsoft\\Office\\StartupItems",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "対象オブジェクトがゴールドと無関係。"
+            },
+            {
+              "slot_id": "C2:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "winword.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "コマンドラインは評価対象外。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C3",
+          "candidate_step_id": "S3",
+          "claim_excerpt": "winword.exe (PID 5592) file_read C:\\Program Files\\Microsoft Office\\Office14\\OART.DLL",
+          "normalized_action_claim_ja": "winword.exe (PID 5592) が C:\\Program Files\\Microsoft Office\\Office14\\OART.DLL を読み取り",
+          "slot_scores": [
+            {
+              "slot_id": "C3:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "winword.exe (PID 5592)",
+              "matched_gold_item_id": "s3_pt_01_word_document_processing:S3-01-S01:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "主体値がゴールドの PID 5592 と一致。"
+            },
+            {
+              "slot_id": "C3:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "file_read",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "操作種別はゴールドの S1 と近いが、当該クレームの対象は DLL であり、ゴールド項目に対応しないため不一致として扱う。"
+            },
+            {
+              "slot_id": "C3:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Program Files\\Microsoft Office\\Office14\\OART.DLL",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "対象 DLL はゴールドに存在しない。"
+            },
+            {
+              "slot_id": "C3:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "winword.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "コマンドラインは評価対象外。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C4",
+          "candidate_step_id": "S4",
+          "claim_excerpt": "winword.exe (PID 3368) file_open C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf",
+          "normalized_action_claim_ja": "winword.exe (PID 3368) が C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf を開く",
+          "slot_scores": [
+            {
+              "slot_id": "C4:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "winword.exe (PID 3368)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "ゴールドでは msf.rtf を操作したのは PID 5592。PID 3368 という具体値は観測事実と矛盾。"
+            },
+            {
+              "slot_id": "C4:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "file_open",
+              "matched_gold_item_id": "s3_pt_01_word_document_processing:S3-01-S01:operation",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "msf.rtf に対する open 操作は S1 の opened/read に実質一致。"
+            },
+            {
+              "slot_id": "C4:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf",
+              "matched_gold_item_id": "s3_pt_01_word_document_processing:S3-01-S01:object",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "対象ファイルパスが完全一致。"
+            },
+            {
+              "slot_id": "C4:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "コマンドラインはゴールド必須項目ではないため TP には数えない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C5",
+          "candidate_step_id": "S5",
+          "claim_excerpt": "winword.exe (PID 2728) file_read_execute C:\\Program Files\\Microsoft Office\\Office14\\GFX.DLL",
+          "normalized_action_claim_ja": "winword.exe (PID 2728) が C:\\Program Files\\Microsoft Office\\Office14\\GFX.DLL を読み取り・実行",
+          "slot_scores": [
+            {
+              "slot_id": "C5:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "winword.exe (PID 2728)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "ゴールドでは PID 5592 のみが対象。"
+            },
+            {
+              "slot_id": "C5:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "file_read_execute",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "操作種別がゴールドの行動と一致しない。"
+            },
+            {
+              "slot_id": "C5:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Program Files\\Microsoft Office\\Office14\\GFX.DLL",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "対象 DLL はゴールドに存在しない。"
+            },
+            {
+              "slot_id": "C5:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "winword.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "コマンドラインは評価対象外。"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "S3-01-S01",
+          "after_step_id": "S3-01-S02",
+          "score": "0",
+          "reason_ja": "S2（作成）の必須項目が復元されておらず、順序判定ができない。"
+        },
+        {
+          "before_step_id": "S3-01-S02",
+          "after_step_id": "S3-01-S03",
+          "score": "0",
+          "reason_ja": "S2/S3 の行動が復元されていないため、順序判定ができない。"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "s3_pt_01_word_document_processing:S3-01-S02:operation",
+      "s3_pt_01_word_document_processing:S3-01-S02:object",
+      "s3_pt_01_word_document_processing:S3-01-S03:operation",
+      "s3_pt_01_word_document_processing:S3-01-S03:object"
+    ],
+    "chain_mixing": true,
+    "hallucinated_claims": [
+      "winword.exe (PID 3368) が C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf を開いた（ゴールドでは PID 5592）"
+    ],
+    "unsupported_evidence": [
+      "audit_logs event_record_id=1001",
+      "audit_logs event_record_id=1023",
+      "audit_logs event_record_id=1102",
+      "audit_logs event_record_id=1150",
+      "audit_logs event_record_id=1200"
+    ],
+    "contradicted_evidence": [],
+    "nearby_action_false_positives": [
+      "winword.exe (PID 3332) が WWINTL.DLL を読み取り・実行",
+      "winword.exe (PID 3332) がレジストリ HKCU\\Software\\Microsoft\\Office\\StartupItems を操作",
+      "winword.exe (PID 5592) が OART.DLL を読み取り",
+      "winword.exe (PID 2728) が GFX.DLL を読み取り・実行"
+    ],
+    "weak_grounding": true,
+    "false_positive_claims": [
+      "winword.exe (PID 3368) が msf.rtf を開く（主体 PID が誤り）",
+      "winword.exe (PID 3332) による StartupItems キーの書き込み/削除（行動連鎖外）"
+    ],
+    "notes_ja": [
+      "候補は msf.rtf の open を主張したが、主体 PID を誤認。",
+      "一時ファイル c586a0f0.rtf の作成・削除は未復元。",
+      "証拠に CBC EDR 正規テレメトリ行の提示なし。"
+    ]
+  },
+  "candidate_action_claim_count": 5,
+  "candidate_action_claim_slot_count": 20,
+  "candidate_action_claim_true_positive_slot_count": 3,
+  "hallucinated_claim_count": 1,
+  "unsupported_evidence_count": 5,
+  "contradicted_evidence_count": 0,
+  "nearby_action_fp_count": 4,
+  "main_missing_items": [
+    "s3_pt_01_word_document_processing:S3-01-S02:operation",
+    "s3_pt_01_word_document_processing:S3-01-S02:object",
+    "s3_pt_01_word_document_processing:S3-01-S03:operation",
+    "s3_pt_01_word_document_processing:S3-01-S03:object"
+  ],
+  "main_false_positive_claims": [
+    "S4: winword.exe (PID 3368) file_open C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf",
+    "S2: winword.exe (PID 3332) registry_write_delete HKCU\\Software\\Microsoft\\Office\\StartupItems"
+  ]
+}

@@ -1,0 +1,301 @@
+{
+  "case_id": "chain_11_e07_sublime_python_script_execution_chain_stage2",
+  "reviewer": "codex_manual_review1",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "gold_chain": "chain_11_e07_sublime_python_script_execution_chain",
+  "scoring_mode": "manual_strict_0_1_no_api",
+  "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage2/chain_11_e07_sublime_python_script_execution_chain_stage2_run.json",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_11_e07_sublime_python_script_execution_chain/chain_gold.json",
+  "per_gold_step": [
+    {
+      "gold_step_id": "C11-S01",
+      "matched_candidate_step_ids": [],
+      "subject": {
+        "hit": 0,
+        "rationale": "Gold subject is plugin_host.exe. The candidate final code_steps use cmd.exe as subject and do not identify plugin_host.exe as the specific parent spawning this cmd.exe command."
+      },
+      "action": {
+        "hit": 0,
+        "rationale": "Gold action is plugin_host.exe spawning cmd.exe. The candidate instead starts with cmd.exe executing python.exe."
+      },
+      "object": {
+        "hit": 0,
+        "rationale": "Gold object is the full command C:\\Windows\\system32\\cmd.exe /c \"python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\"\". The candidate provides only python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\" and does not include the cmd.exe /c wrapper."
+      },
+      "critical_evidence": {
+        "hit": 0,
+        "rationale": "No CBC parent_path/process_cmdline fields are cited for plugin_host.exe -> cmd.exe; candidate evidence is generic audit_logs command_line/object evidence."
+      }
+    },
+    {
+      "gold_step_id": "C11-S02",
+      "matched_candidate_step_ids": [
+        "S1"
+      ],
+      "subject": {
+        "hit": 1,
+        "rationale": "Candidate S1 names cmd.exe as the acting process, matching the gold subject."
+      },
+      "action": {
+        "hit": 1,
+        "rationale": "Candidate S1 says cmd.exe executes a Python command for hello.py. This partially recovers the cmd relay behavior, even though it omits the explicit /c wrapper."
+      },
+      "object": {
+        "hit": 0,
+        "rationale": "Gold requires the full cmd.exe /c command line. Candidate S1 gives python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\" without C:\\Windows\\system32\\cmd.exe /c."
+      },
+      "critical_evidence": {
+        "hit": 0,
+        "rationale": "Gold evidence requires CBC alert/event process_cmdline. Candidate cites audit_logs command_line and placeholder-like event_record_id values, not CBC fields."
+      }
+    },
+    {
+      "gold_step_id": "C11-S03",
+      "matched_candidate_step_ids": [
+        "S1"
+      ],
+      "subject": {
+        "hit": 1,
+        "rationale": "Candidate S1 uses cmd.exe as subject, matching the gold subject."
+      },
+      "action": {
+        "hit": 1,
+        "rationale": "Candidate S1 reports cmd.exe executing/starting python.exe as a child process, matching the gold child-process action."
+      },
+      "object": {
+        "hit": 1,
+        "rationale": "Candidate S1 command_line includes C:\\Users\\aalsahee\\Documents\\hello.py, matching the gold script object."
+      },
+      "critical_evidence": {
+        "hit": 0,
+        "rationale": "Gold evidence basis is CBC event procstart childproc_name. Candidate does not cite CBC childproc_name or other CBC event fields."
+      }
+    },
+    {
+      "gold_step_id": "C11-S04",
+      "matched_candidate_step_ids": [
+        "S1"
+      ],
+      "subject": {
+        "hit": 1,
+        "rationale": "Candidate S1 identifies cmd.exe as the process starting python.exe, matching the gold subject."
+      },
+      "action": {
+        "hit": 1,
+        "rationale": "Candidate S1 reports cmd.exe starting/executing python.exe, matching the gold operation."
+      },
+      "object": {
+        "hit": 1,
+        "rationale": "Candidate S1 includes the hello.py script path in the command_line, matching the gold object."
+      },
+      "critical_evidence": {
+        "hit": 0,
+        "rationale": "Gold requires CBC parent_path and process_cmdline for the cmd.exe -> python.exe launch. Candidate does not cite those CBC fields."
+      }
+    },
+    {
+      "gold_step_id": "C11-S05",
+      "matched_candidate_step_ids": [
+        "S1"
+      ],
+      "subject": {
+        "hit": 0,
+        "rationale": "Gold subject is python.exe. Candidate S1 keeps cmd.exe as subject and treats python.exe as child/object rather than a separate acting process."
+      },
+      "action": {
+        "hit": 1,
+        "rationale": "Candidate timeline and command_line state that hello.py is executed with python -u, recovering the script-execution behavior."
+      },
+      "object": {
+        "hit": 1,
+        "rationale": "Candidate S1 names C:\\Users\\aalsahee\\Documents\\hello.py, matching the gold object."
+      },
+      "critical_evidence": {
+        "hit": 0,
+        "rationale": "Gold evidence basis is CBC event process_cmdline. Candidate does not cite CBC process_cmdline for python.exe executing hello.py."
+      }
+    },
+    {
+      "gold_step_id": "C11-S06",
+      "matched_candidate_step_ids": [
+        "S2"
+      ],
+      "subject": {
+        "hit": 0,
+        "rationale": "Gold subject is python.exe. Candidate S2 uses cmd.exe as subject and python.exe as child/object."
+      },
+      "action": {
+        "hit": 1,
+        "rationale": "Candidate S2 command_line is python pip install xmltodict, matching the package-install behavior."
+      },
+      "object": {
+        "hit": 1,
+        "rationale": "Candidate S2 names xmltodict, matching the gold package object."
+      },
+      "critical_evidence": {
+        "hit": 0,
+        "rationale": "Gold evidence basis is CBC event process_cmdline. Candidate evidence is audit_logs command_line, not CBC process_cmdline."
+      }
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_step_id": "C11-S01",
+      "after_step_id": "C11-S02",
+      "hit": 0,
+      "rationale": "The candidate does not recover plugin_host.exe spawning the full cmd.exe /c command, so this opening order pair is not demonstrated."
+    },
+    {
+      "before_step_id": "C11-S02",
+      "after_step_id": "C11-S03",
+      "hit": 0,
+      "rationale": "The candidate merges the cmd relay and python child launch into one S1 claim and does not show a separate full /c relay followed by childproc evidence."
+    },
+    {
+      "before_step_id": "C11-S03",
+      "after_step_id": "C11-S04",
+      "hit": 0,
+      "rationale": "The candidate uses the same merged S1 claim for both gold steps and does not distinguish the CBC childproc_name step from the later python.exe alert/event step."
+    },
+    {
+      "before_step_id": "C11-S04",
+      "after_step_id": "C11-S05",
+      "hit": 0,
+      "rationale": "The candidate does not separate cmd.exe starting python.exe from python.exe itself executing hello.py."
+    },
+    {
+      "before_step_id": "C11-S05",
+      "after_step_id": "C11-S06",
+      "hit": 1,
+      "rationale": "The candidate code_sequence places python -u hello.py before python pip install xmltodict, preserving this late behavioral order."
+    }
+  ],
+  "candidate_claims": [
+    {
+      "candidate_claim_id": "CL1",
+      "candidate_step_id": "S1",
+      "claim": "cmd.exe executes python.exe with command_line python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\"; parent_process is reported as explorer.exe and child_process as python.exe.",
+      "slot_scores": [
+        {
+          "kind": "subject",
+          "hit": 1,
+          "matched_gold_step_id": "C11-S03",
+          "rationale": "cmd.exe is a correct subject for the gold cmd-to-python launch steps."
+        },
+        {
+          "kind": "action",
+          "hit": 1,
+          "matched_gold_step_id": "C11-S03",
+          "rationale": "Executing/starting python.exe for hello.py is a correct cmd-to-python action."
+        },
+        {
+          "kind": "object",
+          "hit": 1,
+          "matched_gold_step_id": "C11-S03",
+          "rationale": "The hello.py script path is correct, although the candidate omits the full cmd.exe /c wrapper required by earlier gold steps."
+        },
+        {
+          "kind": "critical_evidence",
+          "hit": 0,
+          "matched_gold_step_id": null,
+          "false_positive_type": "wrong_evidence_type",
+          "rationale": "The evidence uses generic audit_logs command_line, not CBC parent_path/process_cmdline or childproc_name fields."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL2",
+      "candidate_step_id": "S2",
+      "claim": "cmd.exe executes python.exe with command_line python pip install xmltodict.",
+      "slot_scores": [
+        {
+          "kind": "subject",
+          "hit": 0,
+          "matched_gold_step_id": null,
+          "false_positive_type": "actor_mismatch",
+          "rationale": "The gold pip-install subject is python.exe, not cmd.exe."
+        },
+        {
+          "kind": "action",
+          "hit": 1,
+          "matched_gold_step_id": "C11-S06",
+          "rationale": "The pip install action is correct."
+        },
+        {
+          "kind": "object",
+          "hit": 1,
+          "matched_gold_step_id": "C11-S06",
+          "rationale": "The package object xmltodict is correct."
+        },
+        {
+          "kind": "critical_evidence",
+          "hit": 0,
+          "matched_gold_step_id": null,
+          "false_positive_type": "wrong_evidence_type",
+          "rationale": "The candidate does not cite CBC process_cmdline for the pip-install behavior."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL3",
+      "candidate_step_id": "S3",
+      "claim": "cmd.exe performs file_access on C:\\Python27\\python.exe.",
+      "slot_scores": [
+        {
+          "kind": "subject",
+          "hit": 1,
+          "matched_gold_step_id": "C11-S02",
+          "rationale": "The process name cmd.exe is a gold subject elsewhere in the chain, but the rest of this file_access claim is not a gold behavior."
+        },
+        {
+          "kind": "action",
+          "hit": 0,
+          "matched_gold_step_id": null,
+          "false_positive_type": "nearby_unrelated",
+          "rationale": "Gold actions are process launch, script execution, and pip install; file_access to python.exe is not a gold action."
+        },
+        {
+          "kind": "object",
+          "hit": 0,
+          "matched_gold_step_id": null,
+          "false_positive_type": "nearby_unrelated",
+          "rationale": "Gold objects are the full cmd.exe /c hello.py command, hello.py, and xmltodict, not C:\\Python27\\python.exe as a file_access object."
+        },
+        {
+          "kind": "critical_evidence",
+          "hit": 0,
+          "matched_gold_step_id": null,
+          "false_positive_type": "wrong_evidence_type",
+          "rationale": "The evidence supports a non-gold file_access claim and is not CBC chain evidence."
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "action_step_recall_hits": 12,
+    "action_step_recall_total": 24,
+    "action_step_recall": 0.5,
+    "action_step_precision_hits": 6,
+    "action_step_precision_total": 12,
+    "action_step_precision": 0.5,
+    "candidate_claim_precision_hits": 6,
+    "candidate_claim_precision_total": 12,
+    "candidate_claim_precision": 0.5,
+    "overclaim_slot_count": 6,
+    "behavior_sequence_order_hits": 1,
+    "behavior_sequence_order_total": 5,
+    "behavior_sequence_order": 0.2,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 6,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 2,
+    "behavior_step_recall_total": 6,
+    "behavior_step_recall": 0.3333333333333333,
+    "gold_required_item_count": 24,
+    "candidate_action_claim_count": 3,
+    "candidate_action_claim_slot_count": 12,
+    "behavior_step_recall_definition": "A behavior step recall hit requires subject, action, and object all scored 1; critical_evidence is reported separately."
+  },
+  "notes": "No OpenAI API or GPT scoring script was used. Candidate partially recovers the cmd.exe to python.exe hello.py behavior and the pip install xmltodict behavior, but it misses plugin_host.exe -> cmd.exe, the full C:\\Windows\\system32\\cmd.exe /c command line, separate cmd relay versus python execution steps, and all required CBC-specific evidence fields. Candidate timestamps are also earlier than the gold 14:55-15:00 chain window, so matching was limited to behavior slots rather than evidence-level recovery."
+}

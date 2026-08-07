@@ -1,0 +1,321 @@
+{
+  "case_id": "gold_reviewed_10_regexe_20220716t150700z",
+  "judge_summary_ja": "候補は code_steps と code_sequence を空にしており、Discord.exe が reg.exe を起動した親子関係、reg.exe query、reg.exe add/update のいずれも復元できていない。さらに、観測された gold 行動に反して「reg.exe のログが観測されなかった」「discord.exe 関連ログが観測されなかった」とする否定的主張を行っているため、これらを偽陽性として扱う。",
+  "chains": [
+    {
+      "chain_id": "B1",
+      "gold_required_item_scores": [
+        {
+          "item_id": "D1_subject",
+          "step_id": "D1",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "候補は Discord.exe を起点または親プロセスとして復元していない。むしろ discord.exe 関連ログが観測されなかったと否定している。"
+        },
+        {
+          "item_id": "D1_operation",
+          "step_id": "D1",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "Discord.exe が C:\\Windows\\System32\\reg.exe を子プロセスとして起動したという親子関係が復元されていない。"
+        },
+        {
+          "item_id": "D1_object",
+          "step_id": "D1",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "起動対象である C:\\Windows\\System32\\reg.exe が D1 の対象として復元されていない。"
+        },
+        {
+          "item_id": "D1_critical_evidence",
+          "step_id": "D1",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "parent_path、parent_process、parent_command_line、ppid、cbc-edr-alerts など、Discord.exe と reg.exe を結び付ける証拠が提示されていない。"
+        },
+        {
+          "item_id": "D2_subject",
+          "step_id": "D2",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "reg.exe によるレジストリ照会行動が復元されていない。"
+        },
+        {
+          "item_id": "D2_operation",
+          "step_id": "D2",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "Run key の Discord 値を query した行動が復元されていない。"
+        },
+        {
+          "item_id": "D2_object",
+          "step_id": "D2",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord または /v Discord が照会対象として復元されていない。"
+        },
+        {
+          "item_id": "D2_command_line",
+          "step_id": "D2",
+          "kind": "command_line",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord のコマンドラインが復元されていない。"
+        },
+        {
+          "item_id": "D2_critical_evidence",
+          "step_id": "D2",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "CFnKBKLTv6hUkBGFobRdg-565631、Discovery - Query Registry、process_cmdline、2022-07-16T15:07:46 などの照会行動の重要証拠が提示されていない。"
+        },
+        {
+          "item_id": "D3_subject",
+          "step_id": "D3",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "reg.exe による Run key 追加または更新行動が復元されていない。"
+        },
+        {
+          "item_id": "D3_operation",
+          "step_id": "D3",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "Run key の Discord 値を add/update または ACTION_WRITE_VALUE した行動が復元されていない。"
+        },
+        {
+          "item_id": "D3_object",
+          "step_id": "D3",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord と値データ C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe が対象として復元されていない。"
+        },
+        {
+          "item_id": "D3_command_line",
+          "step_id": "D3",
+          "kind": "command_line",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f のコマンドラインが復元されていない。"
+        },
+        {
+          "item_id": "D3_critical_evidence",
+          "step_id": "D3",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": 0,
+          "reason_ja": "FFAGQQZQRmOhg0clEA5V1g-2d17a2b0-5181-48b9-a612-ac16c641d342、ACTION_WRITE_VALUE、regmod_name、Persistence - Regmod Run or Runonce Key Modification などの書き込み行動の重要証拠が提示されていない。"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "C1",
+          "candidate_step_id": "supporting_alert_evidence[0]",
+          "claim_excerpt": "指定された時間範囲およびホスト名、プロセス名条件でreg.exeおよび関連プロセスのログが観測されなかったため、行動連鎖の復元ができなかった。",
+          "normalized_action_claim_ja": "reg.exe および関連プロセスのログは観測されず、行動連鎖は復元できないと主張した。",
+          "slot_scores": [
+            {
+              "slot_id": "C1_operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "reg.exeおよび関連プロセスのログが観測されなかった",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "unsupported_negative",
+              "reason_ja": "gold では reg.exe の query と add/update、および親プロセス文脈が観測されているため、ログ不存在という否定的主張は復元行動ではなく偽陽性である。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C2",
+          "candidate_step_id": "global_limitations[0]",
+          "claim_excerpt": "指定された時間範囲（2022-07-16 14:00から16:00）およびホスト名WIN-32-H1、プロセス名reg.exeの条件で該当ログが存在しなかった。",
+          "normalized_action_claim_ja": "WIN-32-H1 上で reg.exe の該当ログは存在しなかったと主張した。",
+          "slot_scores": [
+            {
+              "slot_id": "C2_operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "プロセス名reg.exeの条件で該当ログが存在しなかった",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "unsupported_negative",
+              "reason_ja": "gold には C:\\Windows\\System32\\reg.exe query と C:\\Windows\\System32\\reg.exe add の観測行動があるため、reg.exe の該当ログが存在しないという主張は矛盾する。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C3",
+          "candidate_step_id": "global_limitations[1]",
+          "claim_excerpt": "discord.exeに関する関連ログも同時間帯で観測されなかったため、関連行動の連鎖を確認できなかった。",
+          "normalized_action_claim_ja": "discord.exe 関連ログは観測されず、関連行動連鎖を確認できないと主張した。",
+          "slot_scores": [
+            {
+              "slot_id": "C3_operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "discord.exeに関する関連ログも同時間帯で観測されなかった",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "unsupported_negative",
+              "reason_ja": "gold では C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe が reg.exe の親プロセスとして重要であるため、関連ログ不存在の主張は観測事実に反する。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C4",
+          "candidate_step_id": "timeline_ja[0]",
+          "claim_excerpt": "2022-07-16 15:07:46付近にreg.exeのログが存在しなかったため、調査範囲を14:00から16:00まで拡大して調査したが、該当するreg.exeの動作記録は観測されなかった。",
+          "normalized_action_claim_ja": "2022-07-16 15:07:46 付近および拡大範囲で reg.exe の動作記録は観測されなかったと主張した。",
+          "slot_scores": [
+            {
+              "slot_id": "C4_operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "該当するreg.exeの動作記録は観測されなかった",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "unsupported_negative",
+              "reason_ja": "gold の対象時刻には reg.exe query と reg.exe add/update が存在するため、動作記録が観測されなかったという否定は矛盾している。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C5",
+          "candidate_step_id": "timeline_ja[1]",
+          "claim_excerpt": "同時間帯にdiscord.exeのプロセス起動やネットワーク接続のログも存在しなかった。",
+          "normalized_action_claim_ja": "discord.exe のプロセス起動ログは存在しなかったと主張した。",
+          "slot_scores": [
+            {
+              "slot_id": "C5_operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "discord.exeのプロセス起動...のログも存在しなかった",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "unsupported_negative",
+              "reason_ja": "gold では Discord.exe が reg.exe の親プロセスとして復元対象であり、プロセス起動・親子関係の不存在主張は矛盾する。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C6",
+          "candidate_step_id": "timeline_ja[1]",
+          "claim_excerpt": "同時間帯にdiscord.exeのプロセス起動やネットワーク接続のログも存在しなかった。",
+          "normalized_action_claim_ja": "discord.exe のネットワーク接続ログは存在しなかったと主張した。",
+          "slot_scores": [
+            {
+              "slot_id": "C6_operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "discord.exeの...ネットワーク接続のログも存在しなかった",
+              "matched_gold_item_id": null,
+              "is_true_positive": 0,
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "gold の行動連鎖は Discord.exe による reg.exe 起動と reg.exe の Run key 操作であり、ネットワーク接続不存在の主張は対象行動に接続されない近傍無関係の主張である。"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "D1",
+          "after_step_id": "D2",
+          "score": 0,
+          "reason_ja": "D1 の Discord.exe→reg.exe 親子関係も D2 の reg.exe query も復元されていないため、相対順序を評価できない。"
+        },
+        {
+          "before_step_id": "D2",
+          "after_step_id": "D3",
+          "score": 0,
+          "reason_ja": "D2 の reg.exe query と D3 の reg.exe add/update のいずれも復元されていないため、query が add/update より前という順序が復元されていない。"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "D1_subject",
+      "D1_operation",
+      "D1_object",
+      "D1_critical_evidence",
+      "D2_subject",
+      "D2_operation",
+      "D2_object",
+      "D2_command_line",
+      "D2_critical_evidence",
+      "D3_subject",
+      "D3_operation",
+      "D3_object",
+      "D3_command_line",
+      "D3_critical_evidence"
+    ],
+    "chain_mixing": false,
+    "hallucinated_claims": [
+      "指定された時間範囲（2022-07-16 14:00から16:00）"
+    ],
+    "unsupported_evidence": [
+      "指定された時間範囲およびホスト名、プロセス名条件でreg.exeおよび関連プロセスのログが観測されなかった",
+      "discord.exeに関する関連ログも同時間帯で観測されなかった",
+      "同時間帯にdiscord.exeのプロセス起動やネットワーク接続のログも存在しなかった"
+    ],
+    "contradicted_evidence": [
+      "reg.exeおよび関連プロセスのログが観測されなかった",
+      "プロセス名reg.exeの条件で該当ログが存在しなかった",
+      "discord.exeに関する関連ログも同時間帯で観測されなかった",
+      "該当するreg.exeの動作記録は観測されなかった",
+      "discord.exeのプロセス起動...のログも存在しなかった"
+    ],
+    "nearby_action_false_positives": [
+      "discord.exeの...ネットワーク接続のログも存在しなかった"
+    ],
+    "weak_grounding": true,
+    "false_positive_claims": [
+      "reg.exeおよび関連プロセスのログが観測されなかった",
+      "プロセス名reg.exeの条件で該当ログが存在しなかった",
+      "discord.exeに関する関連ログも同時間帯で観測されなかった",
+      "該当するreg.exeの動作記録は観測されなかった",
+      "discord.exeのプロセス起動...のログも存在しなかった",
+      "discord.exeの...ネットワーク接続のログも存在しなかった"
+    ],
+    "notes_ja": [
+      "候補の code_steps と code_sequence は空であり、gold の 14 必須項目に対する再構成はない。",
+      "CBC alert report_name を行動として誤用する問題はないが、観測済み行動の不存在を主張している点が主要な誤りである。",
+      "候補が述べた 2022-07-16 14:00から16:00 という拡大調査範囲は入力条件・gold の必須行動復元とは対応しない具体的な時間範囲主張として扱った。"
+    ]
+  },
+  "candidate_action_claim_count": 6,
+  "candidate_action_claim_slot_count": 6,
+  "candidate_action_claim_true_positive_slot_count": 0,
+  "hallucinated_claim_count": 1,
+  "unsupported_evidence_count": 3,
+  "contradicted_evidence_count": 5,
+  "nearby_action_fp_count": 1,
+  "main_missing_items": [
+    "D1_subject",
+    "D1_operation",
+    "D1_object",
+    "D1_critical_evidence",
+    "D2_subject",
+    "D2_operation",
+    "D2_object",
+    "D2_command_line",
+    "D2_critical_evidence",
+    "D3_subject",
+    "D3_operation",
+    "D3_object",
+    "D3_command_line",
+    "D3_critical_evidence"
+  ],
+  "main_false_positive_claims": [
+    "reg.exeおよび関連プロセスのログが観測されなかった",
+    "discord.exeに関する関連ログも同時間帯で観測されなかった",
+    "該当するreg.exeの動作記録は観測されなかった",
+    "discord.exeのプロセス起動やネットワーク接続のログも存在しなかった"
+  ]
+}

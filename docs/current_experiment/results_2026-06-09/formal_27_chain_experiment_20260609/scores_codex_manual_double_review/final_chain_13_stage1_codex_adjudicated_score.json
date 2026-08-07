@@ -1,0 +1,129 @@
+{
+  "case": "chain_13_e09_dns_packet_capture_batch_chain_stage1",
+  "model": "gpt-4.1-mini",
+  "stage": "stage1",
+  "method": "codex_manual_double_review_adjudicated_no_api",
+  "review1_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/scores_codex_manual_double_review/review1/gpt-4.1-mini/stage1/chain_13_e09_dns_packet_capture_batch_chain_stage1/codex_score_result.json",
+  "review2_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/scores_codex_manual_double_review/review2/gpt-4.1-mini/stage1/chain_13_e09_dns_packet_capture_batch_chain_stage1/codex_score_result.json",
+  "adjudication_ja": "Both reviews agree on 10/20 gold item recall and that C13-S05/C13-S06, the second occurrence, are missing. For order, final adopts the stricter existing convention used for earlier DNS chains: if explorer.exe -> cmd.exe and cmd.exe /c batch execution are collapsed into one candidate step, C13-S01 -> C13-S02 is not credited. Therefore final order is 1/4, not 2/4.",
+  "review_totals_observed": {
+    "review1_reported": {
+      "gold_items": "10/20",
+      "behavior_step_recall": "3/5",
+      "critical_evidence": "1/5",
+      "order": "1/4",
+      "candidate_precision": "2/5"
+    },
+    "review2_reported": {
+      "gold_items": "10/20",
+      "behavior_step_recall": "3/5 coarse",
+      "critical_evidence": "1/5",
+      "order": "2/4",
+      "candidate_precision": "10/20"
+    }
+  },
+  "final_totals": {
+    "action_step_recall_hits": 10,
+    "action_step_recall_total": 20,
+    "action_step_recall": 0.5,
+    "action_step_precision_hits": 10,
+    "action_step_precision_total": 20,
+    "action_step_precision": 0.5,
+    "candidate_claim_precision_hits": 10,
+    "candidate_claim_precision_total": 20,
+    "candidate_claim_precision": 0.5,
+    "overclaim_slot_count": 10,
+    "behavior_sequence_order_hits": 1,
+    "behavior_sequence_order_total": 4,
+    "behavior_sequence_order": 0.25,
+    "critical_evidence_recall_hits": 1,
+    "critical_evidence_recall_total": 5,
+    "critical_evidence_recall": 0.2,
+    "behavior_step_recall_hits": 3,
+    "behavior_step_recall_total": 5,
+    "behavior_step_recall": 0.6
+  },
+  "final_gold_step_scores": [
+    {
+      "step_id": "C13-S01",
+      "summary": "explorer.exe starts cmd.exe with full start_dns_logs.bat command",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate S1 gives explorer.exe parent context and the exact cmd.exe /c start_dns_logs.bat command, but cites only CBC command_line, not the required parent_path plus process_cmdline evidence."
+    },
+    {
+      "step_id": "C13-S02",
+      "summary": "cmd.exe runs start_dns_logs.bat via /c",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 1
+      },
+      "reason": "Candidate S1 explicitly has cmd.exe, /c batch execution, start_dns_logs.bat, and command_line/process_cmdline-equivalent evidence."
+    },
+    {
+      "step_id": "C13-S03",
+      "summary": "cmd.exe spawns tshark.exe for DNS capture",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate recovers cmd.exe parent and tshark.exe DNS capture execution, but evidence is Sysmon command_line rather than CBC childproc/object."
+    },
+    {
+      "step_id": "C13-S05",
+      "summary": "second explorer.exe -> cmd.exe start_dns_logs.bat occurrence",
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "reason": "The required second occurrence is not represented as a separate candidate behavior."
+    },
+    {
+      "step_id": "C13-S06",
+      "summary": "second cmd.exe /c start_dns_logs.bat occurrence",
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "reason": "The required second batch execution occurrence is missing."
+    }
+  ],
+  "final_order_pairs": [
+    {
+      "before_step_id": "C13-S01",
+      "after_step_id": "C13-S02",
+      "score": 0,
+      "reason": "Candidate collapses parent launch and /c batch execution into one step, so this adjacent order is not independently recovered."
+    },
+    {
+      "before_step_id": "C13-S02",
+      "after_step_id": "C13-S03",
+      "score": 1,
+      "reason": "Candidate places batch execution before tshark.exe DNS capture behavior."
+    },
+    {
+      "before_step_id": "C13-S03",
+      "after_step_id": "C13-S05",
+      "score": 0,
+      "reason": "The second occurrence C13-S05 is missing."
+    },
+    {
+      "before_step_id": "C13-S05",
+      "after_step_id": "C13-S06",
+      "score": 0,
+      "reason": "Both second-occurrence steps are missing."
+    }
+  ]
+}

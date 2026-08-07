@@ -1,0 +1,164 @@
+{
+  "case_id": "chain_19_e13_python_simplehttpserver_network_chain_stage2",
+  "reviewer": "codex_manual_review1",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "gold_chain": {
+    "chain_id": "chain_19_e13_python_simplehttpserver_network_chain",
+    "chain_type": "python_simplehttpserver_network_chain",
+    "source_gold": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_19_e13_python_simplehttpserver_network_chain/chain_gold.json",
+    "gold_steps": [
+      {
+        "step_id": "C19-S01",
+        "order": 1,
+        "subject": "python.exe",
+        "action": "launches SimpleHTTPServer module",
+        "object": "python  -m SimpleHTTPServer",
+        "critical_evidence": "CBC event process_cmdline"
+      },
+      {
+        "step_id": "C19-S02",
+        "order": 2,
+        "subject": "python.exe",
+        "action": "is detected as network server behavior",
+        "object": "10.193.66.115:59277",
+        "critical_evidence": "CBC event netconn"
+      }
+    ]
+  },
+  "per_gold_step": [
+    {
+      "step_id": "C19-S01",
+      "gold_order": 1,
+      "matched_candidate_claim_ids": [],
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "slot_notes": {
+        "subject": "Final candidate output makes cmd.exe the subject of the python.exe process-start claim; python.exe is only the child/object there.",
+        "action": "Candidate does not claim SimpleHTTPServer module execution in the final code_steps.",
+        "object": "Candidate final output omits the required command line object `python  -m SimpleHTTPServer`.",
+        "critical_evidence": "No CBC event process_cmdline field evidence is cited in the final candidate step."
+      },
+      "step_score": 0,
+      "step_score_max": 4
+    },
+    {
+      "step_id": "C19-S02",
+      "gold_order": 2,
+      "matched_candidate_claim_ids": [
+        "S2"
+      ],
+      "scores": {
+        "subject": 1,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "slot_notes": {
+        "subject": "Candidate S2 correctly uses python.exe as the subject process.",
+        "action": "Candidate S2 claims python.exe executed/spawned flashplayerupdateservice.exe, not network server behavior.",
+        "object": "Candidate object is flashplayerupdateservice.exe, not the gold netconn object 10.193.66.115:59277.",
+        "critical_evidence": "Candidate cites generic audit_logs/process or childproc fields, not CBC event netconn evidence."
+      },
+      "step_score": 1,
+      "step_score_max": 4
+    }
+  ],
+  "order_pairs": [
+    {
+      "gold_pair": [
+        "C19-S01",
+        "C19-S02"
+      ],
+      "candidate_pair": null,
+      "score": 0,
+      "note": "The candidate did not recover both gold behaviors, so the SimpleHTTPServer launch -> netconn/server sequence is absent."
+    }
+  ],
+  "candidate_claims": [
+    {
+      "claim_id": "S1",
+      "order": 1,
+      "time": "2022-07-17 21:09:16",
+      "subject": "cmd.exe",
+      "operation": "process_start",
+      "object": "python.exe",
+      "evidence_summary": "audit_logs process_name/childproc_name fields with event_record_id values",
+      "matches_gold_step": null,
+      "precision_hit": 0,
+      "overclaim_slots": [
+        "subject",
+        "operation",
+        "object",
+        "critical_evidence"
+      ],
+      "note": "Wrong subject/action/object for C19-S01 and outside the gold 20:55-21:00 window."
+    },
+    {
+      "claim_id": "S2",
+      "order": 2,
+      "time": "2022-07-17 20:55:00",
+      "subject": "python.exe",
+      "operation": "process_execution",
+      "object": "flashplayerupdateservice.exe",
+      "evidence_summary": "audit_logs process_name/childproc_name fields with event_record_id values",
+      "matches_gold_step": "C19-S02_subject_only",
+      "precision_hit": 0,
+      "overclaim_slots": [
+        "operation",
+        "object",
+        "critical_evidence"
+      ],
+      "note": "Only the subject overlaps a gold step; the claimed behavior is unrelated to the required netconn/server object."
+    },
+    {
+      "claim_id": "S3",
+      "order": 3,
+      "time": "2022-07-15 13:07:23",
+      "subject": "RepWmiUtils.exe",
+      "operation": "file_access",
+      "object": "ntdsapi.dll",
+      "evidence_summary": "audit_logs filemod_name field",
+      "matches_gold_step": null,
+      "precision_hit": 0,
+      "overclaim_slots": [
+        "subject",
+        "operation",
+        "object",
+        "critical_evidence"
+      ],
+      "note": "Unrelated process, unrelated file access, and outside the target chain window."
+    }
+  ],
+  "totals": {
+    "action_step_recall_hits": 0,
+    "action_step_recall_total": 2,
+    "action_step_recall": 0.0,
+    "action_step_precision_hits": 0,
+    "action_step_precision_total": 3,
+    "action_step_precision": 0.0,
+    "candidate_claim_precision_hits": 0,
+    "candidate_claim_precision_total": 3,
+    "candidate_claim_precision": 0.0,
+    "overclaim_slot_count": 11,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 1,
+    "behavior_step_recall_total": 8,
+    "behavior_step_recall": 0.125
+  },
+  "notes": [
+    "Scoring uses the candidate final output_text code_steps as the answer. Intermediate investigation/tool text is not credited when the final JSON omits the claim.",
+    "The candidate fails to recover the required `python  -m SimpleHTTPServer` process command line and the CBC netconn object `10.193.66.115:59277`.",
+    "Critical evidence requires concrete CBC event process_cmdline or netconn fields; generic audit_logs fields and inferred process relations receive 0.",
+    "S2 receives only one slot of recall for the gold network step because it names python.exe as subject, but its action/object/evidence are unrelated to the gold netconn behavior."
+  ]
+}

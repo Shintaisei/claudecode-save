@@ -1,0 +1,176 @@
+{
+  "case_id": "cbc_non_alert_behavior_chain_gold_2026-06-11",
+  "judge_summary_ja": "候補は code_steps を一切出力せず、「該当時間範囲に cmd.exe の実行ログがなかった」と否定主張を行った。しかし GOLD では非アラートの CBC テレメトリにより3ステップの挙動（explorer.exe→cmd.exe /c start_dns_logs.bat→tshark.exe）が観測されている。よって行動ステップ再現はゼロ、各必須スロット（subject/operation/object）も全欠落、順序評価も全て不一致。否定主張は観測と矛盾するため、contradicted_evidence として記録した。",
+  "chains": [
+    {
+      "chain_id": "chain_01_e01_dns_packet_capture_batch_chain",
+      "gold_required_item_scores": [
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:subject",
+          "step_id": "C01-S01",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "explorer.exe による起動を候補は再現していない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:operation",
+          "step_id": "C01-S01",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "「cmd.exeを子プロセスとして起動した」を候補は出していない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:object",
+          "step_id": "C01-S01",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "対象コマンドライン（C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \")が出力されていない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:critical_evidence",
+          "step_id": "C01-S01",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "非アラートの CBC event による支持を候補は提示していない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:subject",
+          "step_id": "C01-S02",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "cmd.exe を主体とする実行を候補は再現していない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:operation",
+          "step_id": "C01-S02",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "/c によるバッチ実行の動作を候補は示していない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:object",
+          "step_id": "C01-S02",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "start_dns_logs.bat の実行対象を候補は出していない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:critical_evidence",
+          "step_id": "C01-S02",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "非アラートの CBC event 支持（moduleload）を候補は提示していない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:subject",
+          "step_id": "C01-S03",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "cmd.exe を主体とする子プロセス派生を候補は再現していない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:operation",
+          "step_id": "C01-S03",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "「ログ収集系プロセスを派生させた」の動作を候補は出していない。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:object",
+          "step_id": "C01-S03",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "tshark.exe の派生対象が欠落している。"
+        },
+        {
+          "item_id": "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:critical_evidence",
+          "step_id": "C01-S03",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "非アラートの CBC event（procstart）支持を候補は提示していない。"
+        }
+      ],
+      "candidate_action_claim_scores": [],
+      "order_pairs": [
+        {
+          "before_step_id": "C01-S01",
+          "after_step_id": "C01-S02",
+          "score": "0",
+          "reason_ja": "両ステップの行動が候補で未再現のため、順序評価は満たせない。"
+        },
+        {
+          "before_step_id": "C01-S02",
+          "after_step_id": "C01-S03",
+          "score": "0",
+          "reason_ja": "両ステップの行動が候補で未再現のため、順序評価は満たせない。"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:subject",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:operation",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:object",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:subject",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:operation",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:object",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:subject",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:operation",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:object",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:critical_evidence",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:critical_evidence",
+      "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:critical_evidence"
+    ],
+    "chain_mixing": false,
+    "hallucinated_claims": [],
+    "unsupported_evidence": [],
+    "contradicted_evidence": [
+      "指定された時間範囲（2022-07-15 13:15:00 から 13:20:00）に cmd.exe の実行ログが観測されなかったため、コード行動列の復元ができなかった。",
+      "指定された時間範囲内に cmd.exe の実行記録が存在しなかったため、関連するプロセス挙動の復元はできませんでした。"
+    ],
+    "nearby_action_false_positives": [],
+    "weak_grounding": false,
+    "false_positive_claims": [
+      "指定された時間範囲（2022-07-15 13:15:00 から 13:20:00）に cmd.exe の実行ログが観測されなかったため、コード行動列の復元ができなかった。",
+      "指定された時間範囲内に cmd.exe の実行記録が存在しなかったため、関連するプロセス挙動の復元はできませんでした。"
+    ],
+    "notes_ja": [
+      "候補は code_steps を空にし、観測否定の説明のみを出力したが、GOLD には非アラートの CBC テレメトリに基づく明確な観測がある。"
+    ]
+  },
+  "candidate_action_claim_count": 0,
+  "candidate_action_claim_slot_count": 0,
+  "candidate_action_claim_true_positive_slot_count": 0,
+  "hallucinated_claim_count": 0,
+  "unsupported_evidence_count": 0,
+  "contradicted_evidence_count": 2,
+  "nearby_action_fp_count": 0,
+  "main_missing_items": [
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:subject",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:operation",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S01:object",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:subject",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:operation",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S02:object",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:subject",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:operation",
+    "chain_01_e01_dns_packet_capture_batch_chain:C01-S03:object"
+  ],
+  "main_false_positive_claims": [
+    "指定された時間範囲（2022-07-15 13:15:00 から 13:20:00）に cmd.exe の実行ログが観測されなかったため、コード行動列の復元ができなかった。",
+    "指定された時間範囲内に cmd.exe の実行記録が存在しなかったため、関連するプロセス挙動の復元はできませんでした。"
+  ]
+}

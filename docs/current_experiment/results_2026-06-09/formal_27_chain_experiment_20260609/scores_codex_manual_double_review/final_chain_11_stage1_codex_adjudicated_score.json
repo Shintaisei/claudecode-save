@@ -1,0 +1,146 @@
+{
+  "case": "chain_11_e07_sublime_python_script_execution_chain_stage1",
+  "model": "gpt-4.1-mini",
+  "stage": "stage1",
+  "method": "codex_manual_double_review_adjudicated_no_api",
+  "review1_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/scores_codex_manual_double_review/review1/gpt-4.1-mini/stage1/chain_11_e07_sublime_python_script_execution_chain_stage1/codex_score_result.json",
+  "review2_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/scores_codex_manual_double_review/review2/gpt-4.1-mini/stage1/chain_11_e07_sublime_python_script_execution_chain_stage1/codex_score_result.json",
+  "adjudication_ja": "Review1 was step-shaped, Review2 was item-shaped. Final normalizes to the existing item rubric: 6 gold steps x subject/action/object/critical_evidence = 24. The candidate misses plugin_host.exe, the full cmd.exe /c command, and all required CBC evidence. It partially recovers cmd.exe -> python.exe -> hello.py and python pip install xmltodict from audit-log style claims.",
+  "review_totals_observed": {
+    "review1_reported": {
+      "action_step_recall": "4/6 step-shaped",
+      "behavior_step_recall": "2/6",
+      "critical_evidence_recall": "0/6",
+      "order": "0/5",
+      "candidate_precision": "1/5"
+    },
+    "review2_reported": {
+      "action_step_recall": "10/24",
+      "behavior_step_recall": "2/6",
+      "critical_evidence_recall": "0/6",
+      "order": "0/5",
+      "candidate_precision": "6/17"
+    }
+  },
+  "final_totals": {
+    "action_step_recall_hits": 11,
+    "action_step_recall_total": 24,
+    "action_step_recall": 0.4583333333333333,
+    "action_step_precision_hits": 11,
+    "action_step_precision_total": 24,
+    "action_step_precision": 0.4583333333333333,
+    "candidate_claim_precision_hits": 7,
+    "candidate_claim_precision_total": 17,
+    "candidate_claim_precision": 0.4117647058823529,
+    "overclaim_slot_count": 10,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 5,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 6,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 2,
+    "behavior_step_recall_total": 6,
+    "behavior_step_recall": 0.3333333333333333
+  },
+  "final_gold_step_scores": [
+    {
+      "step_id": "C11-S01",
+      "summary": "plugin_host.exe starts cmd.exe with full cmd.exe /c python -u hello.py command",
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate does not recover plugin_host.exe, the plugin_host.exe -> cmd.exe relation, the full cmd.exe /c object, or CBC parent_path/process_cmdline evidence."
+    },
+    {
+      "step_id": "C11-S02",
+      "summary": "cmd.exe runs Python command via /c for hello.py",
+      "scores": {
+        "subject": 1,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate has cmd.exe around the hello.py launch, but omits the /c execution and full cmd.exe /c command object; evidence is not CBC process_cmdline."
+    },
+    {
+      "step_id": "C11-S03",
+      "summary": "cmd.exe starts python.exe child process for hello.py",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate states cmd.exe creates python.exe and includes C:\\Users\\aalsahee\\Documents\\hello.py, but lacks CBC procstart childproc_name evidence."
+    },
+    {
+      "step_id": "C11-S04",
+      "summary": "cmd.exe launches python.exe with hello.py",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate recovers cmd.exe, python.exe process creation, and hello.py path. It incorrectly gives explorer.exe context and does not cite CBC parent_path/process_cmdline evidence."
+    },
+    {
+      "step_id": "C11-S05",
+      "summary": "python.exe executes hello.py",
+      "scores": {
+        "subject": 0,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "The python -u hello.py command supports script execution and the object path, but candidate does not make python.exe the acting subject and lacks CBC process_cmdline evidence."
+    },
+    {
+      "step_id": "C11-S06",
+      "summary": "python.exe performs pip install xmltodict",
+      "scores": {
+        "subject": 0,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate includes python pip install xmltodict, but frames python.exe as a child/object rather than the acting subject and gives no CBC process_cmdline evidence."
+    }
+  ],
+  "final_order_pairs": [
+    {
+      "before_step_id": "C11-S01",
+      "after_step_id": "C11-S02",
+      "score": 0,
+      "reason": "plugin_host.exe -> cmd.exe and cmd.exe /c are not recovered as separate ordered steps."
+    },
+    {
+      "before_step_id": "C11-S02",
+      "after_step_id": "C11-S03",
+      "score": 0,
+      "reason": "The /c step is missing, so the ordered transition to python.exe child creation is not established."
+    },
+    {
+      "before_step_id": "C11-S03",
+      "after_step_id": "C11-S04",
+      "score": 0,
+      "reason": "Candidate collapses the python child creation and launch context into one step."
+    },
+    {
+      "before_step_id": "C11-S04",
+      "after_step_id": "C11-S05",
+      "score": 0,
+      "reason": "Candidate does not separate python.exe executing hello.py as a later subject step."
+    },
+    {
+      "before_step_id": "C11-S05",
+      "after_step_id": "C11-S06",
+      "score": 0,
+      "reason": "The pip install claim appears as a separate nearby cmd.exe action, not as the gold ordered continuation after script execution."
+    }
+  ]
+}

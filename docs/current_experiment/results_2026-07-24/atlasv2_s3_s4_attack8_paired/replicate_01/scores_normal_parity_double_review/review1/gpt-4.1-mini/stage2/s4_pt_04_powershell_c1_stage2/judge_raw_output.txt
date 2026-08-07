@@ -1,0 +1,700 @@
+{
+  "case_id": "s4_pt_04_powershell_c1",
+  "judge_summary_ja": "候補は PowerShell からの子プロセス連鎖（powershell.exe 2976 → powershell.exe 3820 → cmd.exe 2168 → payload.exe 4184 → payload.exe 3652）の一部を再構成できた。一方で、起点の mshta.exe (PID 4724) は欠落し、ネットワーク接続（3820→8443, 3652→9999）は未復元。親子関係を複数箇所で誤って 2976 に帰属させ、\"-EncodedCommand\" など Gold と矛盾するコマンドラインを提示。エビデンスも CBC EDR ではなく audit_logs のみで弱く、critical evidence は未充足。ステップ被覆は 6/7 と見えるが、多くは主語値だけの部分一致であり、操作・対象やネットワークは不足。順序は 4/6 ペアで正しいが、総じて親プロセス誤認と通信未復元が主な弱点。",
+  "chains": [
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "gold_required_item_scores": [
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:subject",
+          "step_id": "s4_09_ps2976_hidden_parent-S01",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "mshta.exe (PID 4724) は候補出力に存在しない。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:operation",
+          "step_id": "s4_09_ps2976_hidden_parent-S01",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "mshta.exe による開始（started）操作の記述がない。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:object",
+          "step_id": "s4_09_ps2976_hidden_parent-S01",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "powershell.exe (PID 2976) を mshta.exe が開始したという対象オブジェクトが復元されていない。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:critical_evidence",
+          "step_id": "s4_09_ps2976_hidden_parent-S01",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBC EDR の正規イベント行が提示されていない（audit_logs のみ）。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:subject",
+          "step_id": "s4_09_ps2976_hidden_parent-S02",
+          "kind": "subject",
+          "matched_candidate_excerpt": "S1: subject_process=powershell.exe pid=2976, operation=process_start, execution_context.child_process=powershell.exe child_pid=3820",
+          "score": "1",
+          "reason_ja": "powershell.exe (PID 2976) が明示され、子として 3820 を開始した旨が示されている。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:operation",
+          "step_id": "s4_09_ps2976_hidden_parent-S02",
+          "kind": "operation",
+          "matched_candidate_excerpt": "S1: operation=process_start",
+          "score": "1",
+          "reason_ja": "process_start を started と同義に解釈できる。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:object",
+          "step_id": "s4_09_ps2976_hidden_parent-S02",
+          "kind": "object",
+          "matched_candidate_excerpt": "S1: execution_context.child_process=powershell.exe child_pid=3820",
+          "score": "1",
+          "reason_ja": "対象オブジェクトとして powershell.exe (PID 3820) が示されている。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:critical_evidence",
+          "step_id": "s4_09_ps2976_hidden_parent-S02",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "S1: evidence source_stream=audit_logs event_record_id=1001",
+          "score": "0",
+          "reason_ja": "提示は audit_logs であり、CBC EDR の正規イベントではない。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:subject",
+          "step_id": "s4_09_ps2976_hidden_parent-S03",
+          "kind": "subject",
+          "matched_candidate_excerpt": "S2: subject_process=powershell.exe pid=3820",
+          "score": "1",
+          "reason_ja": "powershell.exe (PID 3820) の主語値は復元されている。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:operation",
+          "step_id": "s4_09_ps2976_hidden_parent-S03",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "ネットワーク接続（initiated connection）の操作は候補に存在しない。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:object",
+          "step_id": "s4_09_ps2976_hidden_parent-S03",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "ortrta.net / 10.193.66.115:8443 の接続先が復元されていない。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:critical_evidence",
+          "step_id": "s4_09_ps2976_hidden_parent-S03",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "S2: evidence source_stream=audit_logs event_record_id=1002",
+          "score": "0",
+          "reason_ja": "CBC EDR の正規イベントが提示されていない。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:subject",
+          "step_id": "s4_09_ps2976_hidden_parent-S04",
+          "kind": "subject",
+          "matched_candidate_excerpt": "S2: subject_process=powershell.exe pid=3820",
+          "score": "1",
+          "reason_ja": "主語値の powershell.exe (PID 3820) 自体は候補に現れている。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:operation",
+          "step_id": "s4_09_ps2976_hidden_parent-S04",
+          "kind": "operation",
+          "matched_candidate_excerpt": "S3: operation=process_start（親: powershell.exe pid=2976, 子: cmd.exe pid=2168 として記述）",
+          "score": "1",
+          "reason_ja": "started に相当する操作値は復元。なお親 PID は誤って 2976 になっているが、操作値自体は一致。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:object",
+          "step_id": "s4_09_ps2976_hidden_parent-S04",
+          "kind": "object",
+          "matched_candidate_excerpt": "S3: cmd.exe (PID 2168) が親 powershell.exe (PID 2976) の子として示唆",
+          "score": "1",
+          "reason_ja": "対象オブジェクト cmd.exe (PID 2168) は候補に存在（ただし親 PID 帰属は誤り）。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:critical_evidence",
+          "step_id": "s4_09_ps2976_hidden_parent-S04",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "S3: evidence source_stream=audit_logs event_record_id=1003",
+          "score": "0",
+          "reason_ja": "CBC EDR 行が提示されていない。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:subject",
+          "step_id": "s4_09_ps2976_hidden_parent-S05",
+          "kind": "subject",
+          "matched_candidate_excerpt": "S3: subject_process=cmd.exe pid=2168",
+          "score": "1",
+          "reason_ja": "cmd.exe (PID 2168) の主語値が復元されている。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:operation",
+          "step_id": "s4_09_ps2976_hidden_parent-S05",
+          "kind": "operation",
+          "matched_candidate_excerpt": "S4: operation=process_start（payload.exe 開始相当）",
+          "score": "1",
+          "reason_ja": "started に相当する操作値は存在（ただし親は powershell.exe 2976 と誤記）。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:object",
+          "step_id": "s4_09_ps2976_hidden_parent-S05",
+          "kind": "object",
+          "matched_candidate_excerpt": "S4: subject_process=payload.exe pid=4184（子として現れる）",
+          "score": "1",
+          "reason_ja": "対象オブジェクト payload.exe (PID 4184) は候補に存在。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:critical_evidence",
+          "step_id": "s4_09_ps2976_hidden_parent-S05",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "S4: evidence source_stream=audit_logs event_record_id=1004",
+          "score": "0",
+          "reason_ja": "CBC EDR の正規イベントが示されていない。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:subject",
+          "step_id": "s4_09_ps2976_hidden_parent-S06",
+          "kind": "subject",
+          "matched_candidate_excerpt": "S4: subject_process=payload.exe pid=4184",
+          "score": "1",
+          "reason_ja": "payload.exe (PID 4184) の主語値は候補に存在。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:operation",
+          "step_id": "s4_09_ps2976_hidden_parent-S06",
+          "kind": "operation",
+          "matched_candidate_excerpt": "S5: operation=process_start（payload.exe 3652 開始相当）",
+          "score": "1",
+          "reason_ja": "started に相当する操作値は存在（ただし親は誤って powershell.exe 2976 を示唆）。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:object",
+          "step_id": "s4_09_ps2976_hidden_parent-S06",
+          "kind": "object",
+          "matched_candidate_excerpt": "S5: subject_process=payload.exe pid=3652（子として現れる）",
+          "score": "1",
+          "reason_ja": "対象オブジェクト payload.exe (PID 3652) は候補に存在。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:critical_evidence",
+          "step_id": "s4_09_ps2976_hidden_parent-S06",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "S5: evidence source_stream=audit_logs event_record_id=1005",
+          "score": "0",
+          "reason_ja": "CBC EDR の正規イベントが示されていない。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:subject",
+          "step_id": "s4_09_ps2976_hidden_parent-S07",
+          "kind": "subject",
+          "matched_candidate_excerpt": "S5: subject_process=payload.exe pid=3652",
+          "score": "1",
+          "reason_ja": "payload.exe (PID 3652) の主語値は候補に存在。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:operation",
+          "step_id": "s4_09_ps2976_hidden_parent-S07",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "initiated connection は復元されていない。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:object",
+          "step_id": "s4_09_ps2976_hidden_parent-S07",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "ortrta.net / 10.193.66.115:9999 の接続先が復元されていない。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:critical_evidence",
+          "step_id": "s4_09_ps2976_hidden_parent-S07",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBC EDR の正規イベントが提示されていない。"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "C1",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "S1: subject_process=powershell.exe pid=2976, operation=process_start, execution_context.child_process=powershell.exe child_pid=3820",
+          "normalized_action_claim_ja": "powershell.exe (PID 2976) が powershell.exe (PID 3820) を開始した",
+          "slot_scores": [
+            {
+              "slot_id": "C1-subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "powershell.exe (PID 2976)",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "Gold の S02 主語と一致。"
+            },
+            {
+              "slot_id": "C1-operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "process_start（=started）",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:operation",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "S02 の操作 started と一致。"
+            },
+            {
+              "slot_id": "C1-object",
+              "kind": "object",
+              "candidate_slot_excerpt": "powershell.exe (PID 3820)",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:object",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "S02 の対象と一致。"
+            },
+            {
+              "slot_id": "C1-evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "audit_logs event_record_id=1001",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "要求される CBC EDR の正規イベントではない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C2",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "S2: powershell.exe (PID 3820) が Base64エンコードされた圧縮スクリプトを実行（-EncodedCommand）",
+          "normalized_action_claim_ja": "powershell.exe (PID 3820) がエンコード済みスクリプトを実行した",
+          "slot_scores": [
+            {
+              "slot_id": "C2-subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "powershell.exe (PID 3820)",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "S03 主語値と一致。"
+            },
+            {
+              "slot_id": "C2-operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "execute_encoded_command",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "Gold に該当操作はなく、近傍だが別の行動。"
+            },
+            {
+              "slot_id": "C2-object",
+              "kind": "object",
+              "candidate_slot_excerpt": "Base64エンコードされた圧縮スクリプト",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "Gold の対象（接続先など）とは無関係。"
+            },
+            {
+              "slot_id": "C2-command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "powershell.exe -EncodedCommand <Base64エンコードされた圧縮スクリプト>",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "Gold 側で要求されるコマンドライン項目はなく、かつ内容も一致しない。"
+            },
+            {
+              "slot_id": "C2-evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "audit_logs event_record_id=1002",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "CBC EDR の正規イベントではない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C3a",
+          "candidate_step_id": "S3",
+          "claim_excerpt": "S3: subject_process=cmd.exe pid=2168, operation=process_start, object=cmd.exe",
+          "normalized_action_claim_ja": "cmd.exe (PID 2168) が cmd.exe を開始した（自己起動のように記述）",
+          "slot_scores": [
+            {
+              "slot_id": "C3a-subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "cmd.exe (PID 2168)",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "S05 主語値と一致。"
+            },
+            {
+              "slot_id": "C3a-operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "process_start（=started）",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:operation",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "S5 の操作 started と一致。"
+            },
+            {
+              "slot_id": "C3a-object",
+              "kind": "object",
+              "candidate_slot_excerpt": "cmd.exe（PID 不明）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "Gold の対象は PID 2168 まで特定されるが、候補は PID なしで不一致。"
+            },
+            {
+              "slot_id": "C3a-evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "audit_logs event_record_id=1003",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "CBC EDR の正規イベントではない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C3b",
+          "candidate_step_id": "S3",
+          "claim_excerpt": "S3: execution_context.parent_process=powershell.exe parent_pid=2976 ⇒ cmd.exe (PID 2168) を開始",
+          "normalized_action_claim_ja": "powershell.exe (PID 2976) が cmd.exe (PID 2168) を開始した",
+          "slot_scores": [
+            {
+              "slot_id": "C3b-subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "powershell.exe (PID 2976)",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:subject",
+              "is_true_positive": "0",
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "S02 主語は既に C1 で消費済みの重複主張。"
+            },
+            {
+              "slot_id": "C3b-operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "process_start（=started）",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:operation",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "S04 の操作 started と一致（ただし親 PID は Gold と不一致）。"
+            },
+            {
+              "slot_id": "C3b-object",
+              "kind": "object",
+              "candidate_slot_excerpt": "cmd.exe (PID 2168)",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:object",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "S04 の対象と一致。"
+            },
+            {
+              "slot_id": "C3b-evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "audit_logs event_record_id=1003",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "CBC EDR の正規イベントではない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C4a",
+          "candidate_step_id": "S4",
+          "claim_excerpt": "S4: subject_process=payload.exe pid=4184, operation=process_start, object=payload.exe",
+          "normalized_action_claim_ja": "payload.exe (PID 4184) が payload.exe を開始した（自己起動のように記述）",
+          "slot_scores": [
+            {
+              "slot_id": "C4a-subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "payload.exe (PID 4184)",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "S06 主語値と一致。"
+            },
+            {
+              "slot_id": "C4a-operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "process_start（=started）",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:operation",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "S06 の操作 started と一致。"
+            },
+            {
+              "slot_id": "C4a-object",
+              "kind": "object",
+              "candidate_slot_excerpt": "payload.exe（PID 不明）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "Gold の対象は特定 PID（4184 または 3652）だが、候補は PID 不明。"
+            },
+            {
+              "slot_id": "C4a-evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "audit_logs event_record_id=1004",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "CBC EDR の正規イベントではない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C4b",
+          "candidate_step_id": "S4",
+          "claim_excerpt": "S4: execution_context.parent_process=powershell.exe parent_pid=2976 ⇒ payload.exe (PID 4184) を開始",
+          "normalized_action_claim_ja": "powershell.exe (PID 2976) が payload.exe (PID 4184) を開始した",
+          "slot_scores": [
+            {
+              "slot_id": "C4b-subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "powershell.exe (PID 2976)",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:subject",
+              "is_true_positive": "0",
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "S02 主語は既に C1 で消費済みの重複主張。"
+            },
+            {
+              "slot_id": "C4b-operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "process_start（=started）",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:operation",
+              "is_true_positive": "0",
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "S05 の操作 started は C3a で既に消費済みの重複。"
+            },
+            {
+              "slot_id": "C4b-object",
+              "kind": "object",
+              "candidate_slot_excerpt": "payload.exe (PID 4184)",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:object",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "S05 の対象と一致。"
+            },
+            {
+              "slot_id": "C4b-evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "audit_logs event_record_id=1004",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "CBC EDR の正規イベントではない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C5a",
+          "candidate_step_id": "S5",
+          "claim_excerpt": "S5: subject_process=payload.exe pid=3652, operation=process_start, object=payload.exe",
+          "normalized_action_claim_ja": "payload.exe (PID 3652) が payload.exe を開始した（自己起動のように記述）",
+          "slot_scores": [
+            {
+              "slot_id": "C5a-subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "payload.exe (PID 3652)",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "S07 主語値と一致。"
+            },
+            {
+              "slot_id": "C5a-operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "process_start（=started）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "S07 の操作は通信開始であり started ではない。"
+            },
+            {
+              "slot_id": "C5a-object",
+              "kind": "object",
+              "candidate_slot_excerpt": "payload.exe（PID 不明）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "hallucinated_value",
+              "reason_ja": "Gold の対象は通信先であって、プロセスではない。"
+            },
+            {
+              "slot_id": "C5a-evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "audit_logs event_record_id=1005",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "CBC EDR の正規イベントではない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C5b",
+          "candidate_step_id": "S5",
+          "claim_excerpt": "S5: execution_context.parent_process=powershell.exe parent_pid=2976 ⇒ payload.exe (PID 3652) を開始",
+          "normalized_action_claim_ja": "powershell.exe (PID 2976) が payload.exe (PID 3652) を開始した",
+          "slot_scores": [
+            {
+              "slot_id": "C5b-subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "powershell.exe (PID 2976)",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:subject",
+              "is_true_positive": "0",
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "S02 主語は既に C1 で消費済みの重複主張。"
+            },
+            {
+              "slot_id": "C5b-operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "process_start（=started）",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:operation",
+              "is_true_positive": "0",
+              "false_positive_type": "duplicate_claim",
+              "reason_ja": "S06 の操作 started は C4a で既に消費済みの重複。"
+            },
+            {
+              "slot_id": "C5b-object",
+              "kind": "object",
+              "candidate_slot_excerpt": "payload.exe (PID 3652)",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:object",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "S06 の対象と一致。"
+            },
+            {
+              "slot_id": "C5b-evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "audit_logs event_record_id=1005",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "CBC EDR の正規イベントではない。"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "s4_09_ps2976_hidden_parent-S01",
+          "after_step_id": "s4_09_ps2976_hidden_parent-S02",
+          "score": "0",
+          "reason_ja": "S01 が未被覆のため順序評価不可。"
+        },
+        {
+          "before_step_id": "s4_09_ps2976_hidden_parent-S02",
+          "after_step_id": "s4_09_ps2976_hidden_parent-S03",
+          "score": "1",
+          "reason_ja": "S02 を C1（S1, 00:41:14）、S03 を C2（S2, 00:41:15）が被覆し、前後関係が正しい。"
+        },
+        {
+          "before_step_id": "s4_09_ps2976_hidden_parent-S03",
+          "after_step_id": "s4_09_ps2976_hidden_parent-S04",
+          "score": "1",
+          "reason_ja": "S03 を C2（00:41:15）、S04 を C3b（00:42:00）が被覆し、順序が正しい。"
+        },
+        {
+          "before_step_id": "s4_09_ps2976_hidden_parent-S04",
+          "after_step_id": "s4_09_ps2976_hidden_parent-S05",
+          "score": "1",
+          "reason_ja": "S04 を C3b（00:42:00）、S05 を C4b（00:43:00）が被覆し、順序が正しい。"
+        },
+        {
+          "before_step_id": "s4_09_ps2976_hidden_parent-S05",
+          "after_step_id": "s4_09_ps2976_hidden_parent-S06",
+          "score": "1",
+          "reason_ja": "S05 を C4b（00:43:00）、S06 を C5b（00:44:00）が被覆し、順序が正しい。"
+        },
+        {
+          "before_step_id": "s4_09_ps2976_hidden_parent-S06",
+          "after_step_id": "s4_09_ps2976_hidden_parent-S07",
+          "score": "0",
+          "reason_ja": "S06（C5b, 00:44:00）と S07（C5a, 00:44:00）が同時刻で厳密な先後がつかない。"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:subject",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:operation",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:object",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:operation",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:object",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:operation",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:object"
+    ],
+    "chain_mixing": false,
+    "hallucinated_claims": [
+      "S2: command_line=\"powershell.exe -EncodedCommand <Base64エンコードされた圧縮スクリプト>\" は Gold の観測コマンドラインと不一致（Gold は -nop -w hidden -c ...）。"
+    ],
+    "unsupported_evidence": [
+      "S1: audit_logs event_record_id=1001",
+      "S2: audit_logs event_record_id=1002",
+      "S3: audit_logs event_record_id=1003",
+      "S4: audit_logs event_record_id=1004",
+      "S5: audit_logs event_record_id=1005"
+    ],
+    "contradicted_evidence": [],
+    "nearby_action_false_positives": [
+      "S2: powershell.exe (PID 3820) による execute_encoded_command（Gold には該当操作なし）"
+    ],
+    "weak_grounding": true,
+    "false_positive_claims": [
+      "S3: powershell.exe (PID 2976) が cmd.exe (PID 2168) を開始（親 PID 誤り）",
+      "S4: powershell.exe (PID 2976) が payload.exe (PID 4184) を開始（親 PID 誤り）",
+      "S5: powershell.exe (PID 2976) が payload.exe (PID 3652) を開始（親 PID 誤り）",
+      "S3: cmd.exe (PID 2168) が cmd.exe を開始（自己起動のような不自然な主張）",
+      "S4: payload.exe (PID 4184) が payload.exe を開始（自己起動のような不自然な主張）",
+      "S5: payload.exe (PID 3652) が payload.exe を開始（自己起動のような不自然な主張）"
+    ],
+    "notes_ja": [
+      "候補は CBC EDR の正規イベントを引用しておらず、critical evidence は全未達。",
+      "複数の親子関係が 2976 に誤帰属され、Gold の 3820→2168、2168→4184、4184→3652 連鎖と乖離。"
+    ]
+  },
+  "candidate_action_claim_count": 8,
+  "candidate_action_claim_slot_count": 33,
+  "candidate_action_claim_true_positive_slot_count": 13,
+  "hallucinated_claim_count": 1,
+  "unsupported_evidence_count": 5,
+  "contradicted_evidence_count": 0,
+  "nearby_action_fp_count": 1,
+  "main_missing_items": [
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:subject",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:operation",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:object",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:operation",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:object",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:operation",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:object"
+  ],
+  "main_false_positive_claims": [
+    "powershell.exe (PID 2976) が cmd.exe (PID 2168) を開始（Gold では powershell.exe (PID 3820)）",
+    "powershell.exe (PID 2976) が payload.exe (PID 4184) を開始（Gold では cmd.exe (PID 2168)）",
+    "powershell.exe (PID 2976) が payload.exe (PID 3652) を開始（Gold では payload.exe (PID 4184)）",
+    "cmd.exe (PID 2168) が cmd.exe を開始（不自然）",
+    "payload.exe (PID 4184) が payload.exe を開始（不自然）",
+    "payload.exe (PID 3652) が payload.exe を開始（不自然）",
+    "EncodedCommand のコマンドライン提示（Gold の観測内容と不一致）"
+  ]
+}

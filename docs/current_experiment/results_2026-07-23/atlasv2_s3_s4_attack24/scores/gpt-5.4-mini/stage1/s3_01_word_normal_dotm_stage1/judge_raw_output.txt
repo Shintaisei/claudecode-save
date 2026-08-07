@@ -1,0 +1,361 @@
+{
+  "case_id": "s3_01_word_normal_dotm",
+  "judge_summary_ja": "候補は Word による msf.rtf のオープン（S01）の主語・操作・対象を正しく復元した。一方で一時RTFの作成（S02）と削除（S03）については主語のみ一致し、操作・対象パスは出力されていない。クリティカル証拠として要求される「CBC EDR テレメトリ行（Stage 3-visible）」の提示はなく、SysmonやCBCアラートを根拠にしている。近傍だが無関係な /Embedding での別インスタンス起動も混在している。結果として、行動ステップ被覆は3/3だが、アクション項目の再現は5/9に留まり、順序は満たしている。",
+  "chains": [
+    {
+      "chain_id": "s3_01_word_normal_dotm",
+      "gold_required_item_scores": [
+        {
+          "item_id": "s3_01_word_normal_dotm:S3-01-S01:subject",
+          "step_id": "S3-01-S01",
+          "kind": "subject",
+          "matched_candidate_excerpt": "winword.exe (pid=5592)",
+          "score": "1",
+          "reason_ja": "候補S1で winword.exe PID 5592 が提示され、主語と一致。"
+        },
+        {
+          "item_id": "s3_01_word_normal_dotm:S3-01-S01:operation",
+          "step_id": "S3-01-S01",
+          "kind": "operation",
+          "matched_candidate_excerpt": "Word 文書を開いて起動した",
+          "score": "1",
+          "reason_ja": "「開いた」は opened/read に相当し、操作の本質が一致。"
+        },
+        {
+          "item_id": "s3_01_word_normal_dotm:S3-01-S01:object",
+          "step_id": "S3-01-S01",
+          "kind": "object",
+          "matched_candidate_excerpt": "C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf",
+          "score": "1",
+          "reason_ja": "オブジェクトのフルパスが一致。"
+        },
+        {
+          "item_id": "s3_01_word_normal_dotm:S3-01-S01:critical_evidence",
+          "step_id": "S3-01-S01",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "sysmon: command_line=\"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" /n \\\"C:\\\\Users\\\\aalsahee\\\\Downloads\\\\s3take2\\\\msf.rtf\\\"\"",
+          "score": "0",
+          "reason_ja": "要求は「Canonical CBC EDR telemetry event row」だが、候補はSysmon/CBCアラートのみ。"
+        },
+        {
+          "item_id": "s3_01_word_normal_dotm:S3-01-S02:subject",
+          "step_id": "S3-01-S02",
+          "kind": "subject",
+          "matched_candidate_excerpt": "winword.exe (pid=5592)",
+          "score": "1",
+          "reason_ja": "候補S2の主語が WINWORD.EXE (PID 5592) で一致。"
+        },
+        {
+          "item_id": "s3_01_word_normal_dotm:S3-01-S02:operation",
+          "step_id": "S3-01-S02",
+          "kind": "operation",
+          "matched_candidate_excerpt": "Word の一時ファイルおよび復旧関連レジストリを操作した",
+          "score": "0",
+          "reason_ja": "要求は「created」だが、候補は汎用的な「操作した」で一致しない。"
+        },
+        {
+          "item_id": "s3_01_word_normal_dotm:S3-01-S02:object",
+          "step_id": "S3-01-S02",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "要求パス（...\\oice_...\\c586a0f0.rtf）の作成が提示されていない。"
+        },
+        {
+          "item_id": "s3_01_word_normal_dotm:S3-01-S02:critical_evidence",
+          "step_id": "S3-01-S02",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "sysmon: object=\"c:\\users\\aalsahee\\appdata\\local\\microsoft\\windows\\temporary internet files\\content.word\\~wrs{...}.tmp\"",
+          "score": "0",
+          "reason_ja": "要求はCBC EDRイベント行だが、Sysmonの参照のみ。"
+        },
+        {
+          "item_id": "s3_01_word_normal_dotm:S3-01-S03:subject",
+          "step_id": "S3-01-S03",
+          "kind": "subject",
+          "matched_candidate_excerpt": "winword.exe (pid=5592)",
+          "score": "1",
+          "reason_ja": "候補S3の主語が WINWORD.EXE (PID 5592) で一致。"
+        },
+        {
+          "item_id": "s3_01_word_normal_dotm:S3-01-S03:operation",
+          "step_id": "S3-01-S03",
+          "kind": "operation",
+          "matched_candidate_excerpt": "Word のローミング領域にアクセスした",
+          "score": "0",
+          "reason_ja": "要求は「deleted」だが、候補は単なるアクセスで一致しない。"
+        },
+        {
+          "item_id": "s3_01_word_normal_dotm:S3-01-S03:object",
+          "step_id": "S3-01-S03",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "要求パス（...\\oice_...\\c586a0f0.rtf）の削除対象が提示されていない。"
+        },
+        {
+          "item_id": "s3_01_word_normal_dotm:S3-01-S03:critical_evidence",
+          "step_id": "S3-01-S03",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": "cbc-edr-alerts: alert_id=CFnKBKLTv6hUkBGFobRdg-565619",
+          "score": "0",
+          "reason_ja": "要求はCBC EDRイベント行であり、アラート行は不可。"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "C1",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "winword.exe (PID 5592) が C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf を開いた。cmdline=\"\\\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\\\" /n \\\"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\\\"\"",
+          "normalized_action_claim_ja": "WINWORD.EXE (PID 5592) が C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf を開いた。",
+          "slot_scores": [
+            {
+              "slot_id": "C1:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "winword.exe (pid=5592)",
+              "matched_gold_item_id": "s3_01_word_normal_dotm:S3-01-S01:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "主語が一致。"
+            },
+            {
+              "slot_id": "C1:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "開いて起動した",
+              "matched_gold_item_id": "s3_01_word_normal_dotm:S3-01-S01:operation",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "opened/read に相当。"
+            },
+            {
+              "slot_id": "C1:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf",
+              "matched_gold_item_id": "s3_01_word_normal_dotm:S3-01-S01:object",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "対象パスが一致。"
+            },
+            {
+              "slot_id": "C1:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" /n \"C:\\Users\\aalsahee\\Downloads\\s3take2\\msf.rtf\"",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "Gold に command_line 要件はないため一致対象なし（診断的にFP）。"
+            },
+            {
+              "slot_id": "C1:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "sysmon command_line 証跡",
+              "matched_gold_item_id": "s3_01_word_normal_dotm:S3-01-S01:critical_evidence",
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "要求は CBC EDR テレメトリ行だが、Sysmon を提示。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C2",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "winword.exe (PID 5592) が一時ファイル/Resiliency レジストリに対して操作。",
+          "normalized_action_claim_ja": "WINWORD.EXE (PID 5592) が一時ファイル群やResiliency関連レジストリを操作した。",
+          "slot_scores": [
+            {
+              "slot_id": "C2:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "winword.exe (pid=5592)",
+              "matched_gold_item_id": "s3_01_word_normal_dotm:S3-01-S02:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "S02 の主語と一致。"
+            },
+            {
+              "slot_id": "C2:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "操作した",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_inference",
+              "reason_ja": "S02 が要求する created を示さず汎用表現。"
+            },
+            {
+              "slot_id": "C2:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "sysmon: Temporary Internet Files/Resiliency キーの参照",
+              "matched_gold_item_id": "s3_01_word_normal_dotm:S3-01-S02:critical_evidence",
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "CBC EDR テレメトリ行の提示なし。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C3",
+          "candidate_step_id": "S3",
+          "claim_excerpt": "winword.exe (PID 5592) が C:\\Users\\aalsahee\\AppData\\Roaming\\Microsoft\\Word にアクセス。",
+          "normalized_action_claim_ja": "WINWORD.EXE (PID 5592) が Roaming\\Microsoft\\Word にアクセスした。",
+          "slot_scores": [
+            {
+              "slot_id": "C3:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "winword.exe (pid=5592)",
+              "matched_gold_item_id": "s3_01_word_normal_dotm:S3-01-S03:subject",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "S03 の主語と一致。"
+            },
+            {
+              "slot_id": "C3:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "アクセスした",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "S03 が要求する deleted ではない。"
+            },
+            {
+              "slot_id": "C3:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "C:\\Users\\aalsahee\\AppData\\Roaming\\Microsoft\\Word",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "要求対象（oice_...\\c586a0f0.rtf）とは別物。"
+            },
+            {
+              "slot_id": "C3:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "cbc-edr-alerts: alert_id=CFnKBKLTv6hUkBGFobRdg-565619",
+              "matched_gold_item_id": "s3_01_word_normal_dotm:S3-01-S03:critical_evidence",
+              "is_true_positive": "0",
+              "false_positive_type": "unsupported_evidence",
+              "reason_ja": "アラートはクリティカル証拠要件を満たさない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C4",
+          "candidate_step_id": "S4",
+          "claim_excerpt": "winword.exe (PID 3368) が /Embedding で起動。",
+          "normalized_action_claim_ja": "WINWORD.EXE (PID 3368) が /Embedding で起動した。",
+          "slot_scores": [
+            {
+              "slot_id": "C4:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "winword.exe (pid=3368)",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "Gold チェーンの主語（PID 5592）ではない。"
+            },
+            {
+              "slot_id": "C4:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "起動した（/Embedding）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "Gold の要求操作（opened/read, created, deleted）に該当しない。"
+            },
+            {
+              "slot_id": "C4:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "c:\\program files\\microsoft office\\office14\\winword.exe（プロセス）",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "Gold はファイル対象であり、プロセス対象ではない。"
+            },
+            {
+              "slot_id": "C4:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  /Embedding",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "Gold に対応するコマンドライン要件なし。"
+            },
+            {
+              "slot_id": "C4:critical_evidence",
+              "kind": "critical_evidence",
+              "candidate_slot_excerpt": "cbc-edr: command_line=/Embedding",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "Gold のクリティカル証拠項目に対応しない別動作。"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "S3-01-S01",
+          "after_step_id": "S3-01-S02",
+          "score": "1",
+          "reason_ja": "S1（msf.rtf を開く）→S2（その後の操作）の順で候補も提示（order=1,2）。"
+        },
+        {
+          "before_step_id": "S3-01-S02",
+          "after_step_id": "S3-01-S03",
+          "score": "1",
+          "reason_ja": "S2→S3 の順で候補も提示（order=2,3）。"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "s3_01_word_normal_dotm:S3-01-S02:operation",
+      "s3_01_word_normal_dotm:S3-01-S02:object",
+      "s3_01_word_normal_dotm:S3-01-S02:critical_evidence",
+      "s3_01_word_normal_dotm:S3-01-S03:operation",
+      "s3_01_word_normal_dotm:S3-01-S03:object",
+      "s3_01_word_normal_dotm:S3-01-S03:critical_evidence",
+      "s3_01_word_normal_dotm:S3-01-S01:critical_evidence"
+    ],
+    "chain_mixing": true,
+    "hallucinated_claims": [],
+    "unsupported_evidence": [
+      "C1: Sysmon をクリティカル証拠として使用（CBC EDR テレメトリ行ではない）",
+      "C2: Sysmon 一時ファイル/Resiliency キーをクリティカル証拠として使用（不適切）",
+      "C3: CBC アラート行をクリティカル証拠として使用（不適切）",
+      "C4: /Embedding 動作の cbc-edr 証跡はGoldと無関係"
+    ],
+    "contradicted_evidence": [],
+    "nearby_action_false_positives": [
+      "C4: winword.exe (PID 3368) の /Embedding 起動"
+    ],
+    "weak_grounding": true,
+    "false_positive_claims": [
+      "C2: operation=「操作した」（created と不一致）",
+      "C3: operation=「アクセスした」（deleted と不一致）",
+      "C3: object=C:\\Users\\aalsahee\\AppData\\Roaming\\Microsoft\\Word（要求対象と不一致）",
+      "C4: 一連の /Embedding プロセス起動（チェーン外）",
+      "C1: command_line（Gold に対応スロットなし）"
+    ],
+    "notes_ja": [
+      "CBC アラートは補助証拠であり、Gold クリティカル証拠の代替にはならない。"
+    ]
+  },
+  "candidate_action_claim_count": "4",
+  "candidate_action_claim_slot_count": "17",
+  "candidate_action_claim_true_positive_slot_count": "5",
+  "hallucinated_claim_count": "0",
+  "unsupported_evidence_count": "4",
+  "contradicted_evidence_count": "0",
+  "nearby_action_fp_count": "1",
+  "main_missing_items": [
+    "s3_01_word_normal_dotm:S3-01-S02:operation",
+    "s3_01_word_normal_dotm:S3-01-S02:object",
+    "s3_01_word_normal_dotm:S3-01-S03:operation",
+    "s3_01_word_normal_dotm:S3-01-S03:object"
+  ],
+  "main_false_positive_claims": [
+    "winword.exe (PID 3368) の /Embedding 起動",
+    "Roaming\\Microsoft\\Word へのアクセス（要求対象外）",
+    "S2 の汎用操作（created ではない）",
+    "S1 の command_line（対応するGold項目なし）"
+  ]
+}

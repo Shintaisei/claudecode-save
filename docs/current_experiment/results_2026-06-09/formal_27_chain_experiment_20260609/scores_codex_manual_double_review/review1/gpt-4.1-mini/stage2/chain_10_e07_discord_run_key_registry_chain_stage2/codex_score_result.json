@@ -1,0 +1,251 @@
+{
+  "case_id": "chain_10_e07_discord_run_key_registry_chain_stage2",
+  "reviewer": "codex_manual_review1",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "gold_chain": "chain_10_e07_discord_run_key_registry_chain",
+  "scoring_mode": "manual_strict_0_1_no_api",
+  "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage2/chain_10_e07_discord_run_key_registry_chain_stage2_run.json",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_10_e07_discord_run_key_registry_chain/chain_gold.json",
+  "per_gold_step": [
+    {
+      "gold_step_id": "C10-S01",
+      "gold_summary": "discord.exe launches reg.exe child processes used for query/add.",
+      "matched_candidate_step_ids": [
+        "S1"
+      ],
+      "subject": {
+        "hit": 1,
+        "rationale": "Candidate S1 names discord.exe as the subject process, matching the gold parent subject."
+      },
+      "action": {
+        "hit": 1,
+        "rationale": "Candidate S1 represents a discord.exe to reg.exe child-process relationship via operation=process_start and child_process=reg.exe."
+      },
+      "object": {
+        "hit": 0,
+        "rationale": "Candidate gives only object name reg.exe with path=null. It does not recover C:\\Windows\\System32\\reg.exe nor that the child reg.exe instances are the query/add commands."
+      },
+      "critical_evidence": {
+        "hit": 0,
+        "rationale": "Candidate evidence cites audit_logs process_name and Discord's own command_line. It does not show CBC alert/event parent_process_path, parent_command_line, process_name, or reg.exe command_line for the child process."
+      }
+    },
+    {
+      "gold_step_id": "C10-S02",
+      "gold_summary": "reg.exe queries HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord.",
+      "matched_candidate_step_ids": [
+        "S2"
+      ],
+      "subject": {
+        "hit": 1,
+        "rationale": "Candidate S2 names reg.exe as the subject process."
+      },
+      "action": {
+        "hit": 0,
+        "rationale": "Gold requires a registry query. Candidate S2 states registry_write, not query."
+      },
+      "object": {
+        "hit": 1,
+        "rationale": "Candidate S2 identifies HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord, which matches the Run\\Discord registry value path at object level."
+      },
+      "critical_evidence": {
+        "hit": 0,
+        "rationale": "Candidate does not provide the concrete CBC command_line showing `reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord`."
+      }
+    },
+    {
+      "gold_step_id": "C10-S03",
+      "gold_summary": "reg.exe adds/updates Run\\Discord to `C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe`.",
+      "matched_candidate_step_ids": [
+        "S2"
+      ],
+      "subject": {
+        "hit": 1,
+        "rationale": "Candidate S2 names reg.exe as the subject process."
+      },
+      "action": {
+        "hit": 1,
+        "rationale": "Candidate S2 states registry_write, which matches the add/update nature of the gold step."
+      },
+      "object": {
+        "hit": 0,
+        "rationale": "Candidate gives only the Run\\Discord key path and does not recover the required value data `C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe`."
+      },
+      "critical_evidence": {
+        "hit": 0,
+        "rationale": "Candidate does not show the CBC alert add command_line or CBC event regmod_name/ACTION_WRITE_VALUE evidence for the Run\\Discord modification."
+      }
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_gold_step_id": "C10-S01",
+      "after_gold_step_id": "C10-S02",
+      "matched_candidate_before_step_id": "S1",
+      "matched_candidate_after_step_id": null,
+      "hit": 0,
+      "rationale": "Although S1 precedes S2, the candidate does not reconstruct the query step as a query; S2 is a write claim, so the S01-to-S02 gold pair is not recovered."
+    },
+    {
+      "before_gold_step_id": "C10-S02",
+      "after_gold_step_id": "C10-S03",
+      "matched_candidate_before_step_id": null,
+      "matched_candidate_after_step_id": "S2",
+      "hit": 0,
+      "rationale": "The candidate collapses the registry behavior into one write claim and omits the prior Run\\Discord query, so the query-then-add/update order is not demonstrated."
+    }
+  ],
+  "candidate_claims": [
+    {
+      "candidate_claim_id": "CL1",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "discord.exe PID 1204 process_start object reg.exe; child_process=reg.exe; command_line is Discord.exe --squirrel-firstrun.",
+      "normalized_claim": "discord.exe starts reg.exe as a child process.",
+      "slot_scores": [
+        {
+          "slot": "subject",
+          "candidate_value": "discord.exe",
+          "matched_gold_step_id": "C10-S01",
+          "hit": 1,
+          "overclaim": 0,
+          "rationale": "discord.exe is the correct gold parent subject."
+        },
+        {
+          "slot": "action",
+          "candidate_value": "process_start / child_process=reg.exe",
+          "matched_gold_step_id": "C10-S01",
+          "hit": 1,
+          "overclaim": 0,
+          "rationale": "The parent-child launch relation is correct at action level, though underspecified."
+        },
+        {
+          "slot": "object",
+          "candidate_value": "reg.exe",
+          "matched_gold_step_id": "C10-S01",
+          "hit": 1,
+          "overclaim": 0,
+          "rationale": "The claimed child process name reg.exe is true, but it is too underspecified to receive gold object recall credit."
+        },
+        {
+          "slot": "critical_evidence",
+          "candidate_value": "audit_logs process_name=discord.exe and Discord command_line",
+          "matched_gold_step_id": null,
+          "hit": 0,
+          "overclaim": 1,
+          "rationale": "This evidence does not prove the child reg.exe query/add process and is not the required CBC parent/process/command_line evidence."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL2",
+      "candidate_step_id": "S2",
+      "claim_excerpt": "reg.exe registry_write HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord with parent_process=discord.exe.",
+      "normalized_claim": "reg.exe writes the Run\\Discord registry value under discord.exe parent context.",
+      "slot_scores": [
+        {
+          "slot": "subject",
+          "candidate_value": "reg.exe",
+          "matched_gold_step_id": "C10-S03",
+          "hit": 1,
+          "overclaim": 0,
+          "rationale": "reg.exe is the correct gold subject for the registry modification."
+        },
+        {
+          "slot": "action",
+          "candidate_value": "registry_write",
+          "matched_gold_step_id": "C10-S03",
+          "hit": 1,
+          "overclaim": 0,
+          "rationale": "registry_write corresponds to the gold add/update operation."
+        },
+        {
+          "slot": "object",
+          "candidate_value": "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord",
+          "matched_gold_step_id": "C10-S03",
+          "hit": 1,
+          "overclaim": 0,
+          "rationale": "The Run\\Discord key path is correct, but the required value data is missing, so gold object recall remains 0 for C10-S03."
+        },
+        {
+          "slot": "critical_evidence",
+          "candidate_value": "audit_logs object field and synthetic-looking event_record_id=123456",
+          "matched_gold_step_id": null,
+          "hit": 0,
+          "overclaim": 1,
+          "rationale": "The evidence is not the required CBC command_line/regmod_name evidence and does not show the Update.exe --processStart Discord.exe value."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL3",
+      "candidate_step_id": "supporting_alert_evidence",
+      "claim_excerpt": "CBC alert was not found in the investigation.",
+      "normalized_claim": "No CBC alert evidence was found.",
+      "slot_scores": [
+        {
+          "slot": "evidence_availability",
+          "candidate_value": "CBC alert not found",
+          "matched_gold_step_id": null,
+          "hit": 0,
+          "overclaim": 1,
+          "rationale": "Gold contains CBC alert evidence for both Discovery - Query Registry and Persistence - Regmod Run or Runonce Key Modification, so this negative evidence claim is contradicted by the gold file."
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "action_step_recall_hits": 6,
+    "action_step_recall_total": 12,
+    "action_step_recall": 0.5,
+    "action_step_precision_hits": 6,
+    "action_step_precision_total": 8,
+    "action_step_precision": 0.75,
+    "candidate_claim_precision_hits": 6,
+    "candidate_claim_precision_total": 9,
+    "candidate_claim_precision": 0.6666666667,
+    "overclaim_slot_count": 3,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 2,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 3,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 0,
+    "behavior_step_recall_total": 3,
+    "behavior_step_recall": 0.0,
+    "gold_required_item_count": 12,
+    "candidate_action_claim_count": 2,
+    "candidate_action_claim_slot_count": 8,
+    "candidate_action_claim_true_positive_slot_count": 6,
+    "contradicted_evidence_claim_count": 1,
+    "unsupported_evidence_slot_count": 2,
+    "behavior_element_diagnostics": {
+      "subject": {
+        "recall_hits": 3,
+        "recall_total": 3,
+        "precision_hits": 2,
+        "precision_total": 2
+      },
+      "action": {
+        "recall_hits": 2,
+        "recall_total": 3,
+        "precision_hits": 2,
+        "precision_total": 2
+      },
+      "object": {
+        "recall_hits": 1,
+        "recall_total": 3,
+        "precision_hits": 2,
+        "precision_total": 2
+      },
+      "critical_evidence": {
+        "recall_hits": 0,
+        "recall_total": 3,
+        "precision_hits": 0,
+        "precision_total": 2
+      }
+    }
+  },
+  "notes": "Manual Review1 only; no OpenAI API or GPT scoring script was used. The candidate partially recovers discord.exe -> reg.exe and a Run\\Discord registry write, but misses the required query step, the exact C:\\Windows\\System32\\reg.exe query/add command lines, the Update.exe --processStart Discord.exe value data, and all required CBC alert/event field evidence. The source run path was the corrected *_stage2_run.json file."
+}

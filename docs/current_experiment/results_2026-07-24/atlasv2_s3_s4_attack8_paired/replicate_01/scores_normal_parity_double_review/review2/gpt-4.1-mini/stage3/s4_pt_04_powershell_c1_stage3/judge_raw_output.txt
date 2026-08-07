@@ -1,0 +1,610 @@
+{
+  "case_id": "s4_pt_04_powershell_c1",
+  "judge_summary_ja": "候補は mshta→PowerShell→PowerShell→cmd の子プロセス関係を一部叙述し、3つの「開始」操作（S01/S02/S04）のみを回収した。しかし PID、ネットワーク接続、payload.exe に関する一連の動作は未回収。さらに WINWORD/dllhost/HTA ファイル操作など近傍だが無関係な動作を混在させている。CBCの正規EDRイベント列の提示もなく、クリティカル証拠は全て未充足。順序性は同一行に複数主張を混載したため判定不可で全て不成立。",
+  "chains": [
+    {
+      "chain_id": "s4_pt_04_powershell_c1",
+      "gold_required_item_scores": [
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:subject",
+          "step_id": "s4_09_ps2976_hidden_parent-S01",
+          "kind": "subject",
+          "matched_candidate_excerpt": "mshta.exe",
+          "score": "0",
+          "reason_ja": "プロセス名は一致するが PID 4724 を欠落。完全一致要件を満たさず。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:operation",
+          "step_id": "s4_09_ps2976_hidden_parent-S01",
+          "kind": "operation",
+          "matched_candidate_excerpt": "「mshta.exe が親プロセスとなり …」および「子プロセスを生成する」",
+          "score": "1",
+          "reason_ja": "mshta が PowerShell の親（生成）である旨を叙述しており、実質的に「started」に合致。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:object",
+          "step_id": "s4_09_ps2976_hidden_parent-S01",
+          "kind": "object",
+          "matched_candidate_excerpt": "powershell.exe",
+          "score": "0",
+          "reason_ja": "オブジェクトの PID 2976 を欠落し不一致。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:critical_evidence",
+          "step_id": "s4_09_ps2976_hidden_parent-S01",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "「Canonical CBC EDR event row」の提示なし。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:subject",
+          "step_id": "s4_09_ps2976_hidden_parent-S02",
+          "kind": "subject",
+          "matched_candidate_excerpt": "powershell.exe",
+          "score": "0",
+          "reason_ja": "主語の PID 2976 を欠落し不一致。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:operation",
+          "step_id": "s4_09_ps2976_hidden_parent-S02",
+          "kind": "operation",
+          "matched_candidate_excerpt": "「子プロセスを生成する」",
+          "score": "1",
+          "reason_ja": "PowerShell が PowerShell を子プロセス生成と叙述しており「started」に合致。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:object",
+          "step_id": "s4_09_ps2976_hidden_parent-S02",
+          "kind": "object",
+          "matched_candidate_excerpt": "powershell.exe",
+          "score": "0",
+          "reason_ja": "オブジェクトの PID 3820 を欠落し不一致。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:critical_evidence",
+          "step_id": "s4_09_ps2976_hidden_parent-S02",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBC 正規イベント行の引用なし。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:subject",
+          "step_id": "s4_09_ps2976_hidden_parent-S03",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "PowerShell(3820) のネットワーク接続主張が候補に存在しない。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:operation",
+          "step_id": "s4_09_ps2976_hidden_parent-S03",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "「initiated connection」に該当する主張なし。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:object",
+          "step_id": "s4_09_ps2976_hidden_parent-S03",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "ortrta.net / 10.193.66.115:8443 の接続対象が未主張。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:critical_evidence",
+          "step_id": "s4_09_ps2976_hidden_parent-S03",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBC 正規イベント行の引用なし。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:subject",
+          "step_id": "s4_09_ps2976_hidden_parent-S04",
+          "kind": "subject",
+          "matched_candidate_excerpt": "powershell.exe",
+          "score": "0",
+          "reason_ja": "主語の PID 3820 を欠落し不一致。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:operation",
+          "step_id": "s4_09_ps2976_hidden_parent-S04",
+          "kind": "operation",
+          "matched_candidate_excerpt": "「子プロセスを生成する」",
+          "score": "1",
+          "reason_ja": "PowerShell が cmd.exe を子プロセス生成する旨の叙述があり「started」に合致。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:object",
+          "step_id": "s4_09_ps2976_hidden_parent-S04",
+          "kind": "object",
+          "matched_candidate_excerpt": "cmd.exe",
+          "score": "0",
+          "reason_ja": "オブジェクトの PID 2168 を欠落し不一致。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:critical_evidence",
+          "step_id": "s4_09_ps2976_hidden_parent-S04",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBC 正規イベント行の引用なし。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:subject",
+          "step_id": "s4_09_ps2976_hidden_parent-S05",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "cmd.exe (2168) の主張なし。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:operation",
+          "step_id": "s4_09_ps2976_hidden_parent-S05",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "payload.exe の起動主張なし。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:object",
+          "step_id": "s4_09_ps2976_hidden_parent-S05",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "payload.exe (PID 4184) 未回収。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:critical_evidence",
+          "step_id": "s4_09_ps2976_hidden_parent-S05",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBC 正規イベント行の引用なし。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:subject",
+          "step_id": "s4_09_ps2976_hidden_parent-S06",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "payload.exe (4184) の主張なし。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:operation",
+          "step_id": "s4_09_ps2976_hidden_parent-S06",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "payload.exe の自己起動主張なし。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:object",
+          "step_id": "s4_09_ps2976_hidden_parent-S06",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "payload.exe (PID 3652) 未回収。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:critical_evidence",
+          "step_id": "s4_09_ps2976_hidden_parent-S06",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBC 正規イベント行の引用なし。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:subject",
+          "step_id": "s4_09_ps2976_hidden_parent-S07",
+          "kind": "subject",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "payload.exe (3652) の主張なし。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:operation",
+          "step_id": "s4_09_ps2976_hidden_parent-S07",
+          "kind": "operation",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "C2 への接続（initiated connection）主張なし。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:object",
+          "step_id": "s4_09_ps2976_hidden_parent-S07",
+          "kind": "object",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "ortrta.net / 10.193.66.115:9999 未回収。"
+        },
+        {
+          "item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:critical_evidence",
+          "step_id": "s4_09_ps2976_hidden_parent-S07",
+          "kind": "critical_evidence",
+          "matched_candidate_excerpt": null,
+          "score": "0",
+          "reason_ja": "CBC 正規イベント行の引用なし。"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "C1",
+          "candidate_step_id": "S1",
+          "claim_excerpt": "mshta.exe が default[1].hta ファイルに書き込みを行う",
+          "normalized_action_claim_ja": "mshta.exe が default[1].hta に書き込み",
+          "slot_scores": [
+            {
+              "slot_id": "C1:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "mshta.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "金の連鎖はプロセス生成であり、当該ファイル書込み主体は評価対象外。"
+            },
+            {
+              "slot_id": "C1:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "write",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "該当する「started/initiated connection」ではない。"
+            },
+            {
+              "slot_id": "C1:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "default[1].hta",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "評価対象のオブジェクトに一致なし。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C2",
+          "candidate_step_id": "S2",
+          "claim_excerpt": "WINWORD.EXE が default[1].hta ファイルにアクセスする",
+          "normalized_action_claim_ja": "WINWORD.EXE が default[1].hta にアクセス",
+          "slot_scores": [
+            {
+              "slot_id": "C2:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "WINWORD.EXE",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "金の行動連鎖対象外。"
+            },
+            {
+              "slot_id": "C2:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "access",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "該当する操作種別なし。"
+            },
+            {
+              "slot_id": "C2:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "default[1].hta",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "評価対象外のオブジェクト。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C3",
+          "candidate_step_id": "S3",
+          "claim_excerpt": "dllhost.exe が実行/ファイルアクセス（詳細不明）",
+          "normalized_action_claim_ja": "dllhost.exe の実行/ファイルアクセス（不明）",
+          "slot_scores": [
+            {
+              "slot_id": "C3:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "dllhost.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "金の行動連鎖対象外。"
+            },
+            {
+              "slot_id": "C3:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "execute_and_file_access",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "nearby_unrelated",
+              "reason_ja": "操作が金の要件と一致しない。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C4",
+          "candidate_step_id": "S4",
+          "claim_excerpt": "powershell.exe が EncodedCommand を用いてスクリプト実行/プロセス作成（object: powershell.exe）",
+          "normalized_action_claim_ja": "powershell.exe が EncodedCommand でスクリプト実行（powershell.exe を対象とする記述）",
+          "slot_scores": [
+            {
+              "slot_id": "C4:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "powershell.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "PID を欠落し、どの主語スロットにも厳密一致しない。"
+            },
+            {
+              "slot_id": "C4:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "process_creation_and_script_execution",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "金の操作語彙（started/initiated connection）と一致しない。"
+            },
+            {
+              "slot_id": "C4:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "powershell.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "PID を欠落し不一致。"
+            },
+            {
+              "slot_id": "C4:command_line",
+              "kind": "command_line",
+              "candidate_slot_excerpt": "powershell.exe -EncodedCommand ...",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "金には command_line 要件が存在しないため整合先なし。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C5",
+          "candidate_step_id": null,
+          "claim_excerpt": "powershell.exe が子プロセスとして powershell.exe を生成",
+          "normalized_action_claim_ja": "powershell.exe が powershell.exe を開始",
+          "slot_scores": [
+            {
+              "slot_id": "C5:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "powershell.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "PID 欠落で不一致。"
+            },
+            {
+              "slot_id": "C5:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "子プロセスを生成する",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:operation",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "「started」に相当し S02 の操作に合致。"
+            },
+            {
+              "slot_id": "C5:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "powershell.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "PID 欠落で不一致。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C6",
+          "candidate_step_id": null,
+          "claim_excerpt": "powershell.exe が子プロセスとして cmd.exe を生成",
+          "normalized_action_claim_ja": "powershell.exe が cmd.exe を開始",
+          "slot_scores": [
+            {
+              "slot_id": "C6:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "powershell.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "PID 欠落で不一致。"
+            },
+            {
+              "slot_id": "C6:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "子プロセスを生成する",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:operation",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "「started」に相当し S04 の操作に合致。"
+            },
+            {
+              "slot_id": "C6:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "cmd.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "PID 欠落で不一致。"
+            }
+          ]
+        },
+        {
+          "candidate_claim_id": "C7",
+          "candidate_step_id": null,
+          "claim_excerpt": "mshta.exe が親となり powershell.exe を起動",
+          "normalized_action_claim_ja": "mshta.exe が powershell.exe を開始",
+          "slot_scores": [
+            {
+              "slot_id": "C7:subject",
+              "kind": "subject",
+              "candidate_slot_excerpt": "mshta.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "PID 欠落で不一致。"
+            },
+            {
+              "slot_id": "C7:operation",
+              "kind": "operation",
+              "candidate_slot_excerpt": "起動（親となる）",
+              "matched_gold_item_id": "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:operation",
+              "is_true_positive": "1",
+              "false_positive_type": "none",
+              "reason_ja": "mshta が PowerShell を開始した旨で S01 の「started」に合致。"
+            },
+            {
+              "slot_id": "C7:object",
+              "kind": "object",
+              "candidate_slot_excerpt": "powershell.exe",
+              "matched_gold_item_id": null,
+              "is_true_positive": "0",
+              "false_positive_type": "none",
+              "reason_ja": "PID 欠落で不一致。"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "s4_09_ps2976_hidden_parent-S01",
+          "after_step_id": "s4_09_ps2976_hidden_parent-S02",
+          "score": "0",
+          "reason_ja": "両操作は叙述上は存在するが同一行に混載され順序が明示されず、相対順を厳密に確認できない。"
+        },
+        {
+          "before_step_id": "s4_09_ps2976_hidden_parent-S02",
+          "after_step_id": "s4_09_ps2976_hidden_parent-S03",
+          "score": "0",
+          "reason_ja": "S03（ネットワーク接続）が未回収。"
+        },
+        {
+          "before_step_id": "s4_09_ps2976_hidden_parent-S03",
+          "after_step_id": "s4_09_ps2976_hidden_parent-S04",
+          "score": "0",
+          "reason_ja": "S03 が未回収のため順序評価不可。"
+        },
+        {
+          "before_step_id": "s4_09_ps2976_hidden_parent-S04",
+          "after_step_id": "s4_09_ps2976_hidden_parent-S05",
+          "score": "0",
+          "reason_ja": "S05（cmd→payload）が未回収。"
+        },
+        {
+          "before_step_id": "s4_09_ps2976_hidden_parent-S05",
+          "after_step_id": "s4_09_ps2976_hidden_parent-S06",
+          "score": "0",
+          "reason_ja": "S05/S06 が未回収。"
+        },
+        {
+          "before_step_id": "s4_09_ps2976_hidden_parent-S06",
+          "after_step_id": "s4_09_ps2976_hidden_parent-S07",
+          "score": "0",
+          "reason_ja": "S06/S07 が未回収。"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:subject",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:object",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:critical_evidence",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:subject",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:object",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:critical_evidence",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:subject",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:operation",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:object",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:critical_evidence",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:subject",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:object",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:critical_evidence",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:subject",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:operation",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:object",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:critical_evidence",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:subject",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:operation",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:object",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:critical_evidence",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:subject",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:operation",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:object",
+      "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:critical_evidence"
+    ],
+    "chain_mixing": true,
+    "hallucinated_claims": [],
+    "unsupported_evidence": [],
+    "contradicted_evidence": [],
+    "nearby_action_false_positives": [
+      "mshta.exe による default[1].hta への書き込み（S1）",
+      "WINWORD.EXE による default[1].hta へのアクセス（S2）",
+      "dllhost.exe の実行/ファイルアクセス（S3）"
+    ],
+    "weak_grounding": true,
+    "false_positive_claims": [
+      "mshta.exe が default[1].hta に書き込み",
+      "WINWORD.EXE が default[1].hta にアクセス",
+      "dllhost.exe の実行/ファイルアクセス",
+      "powershell.exe の process_creation_and_script_execution（語彙不一致）"
+    ],
+    "notes_ja": [
+      "候補は CBC の正規 EDR イベント行を提示しておらず、クリティカル証拠は全欠落。",
+      "PID を一切提示しないため、主語/客体の厳密一致が成立しない。",
+      "ネットワーク接続（8443/9999）および payload.exe の連鎖は未回収。"
+    ]
+  },
+  "candidate_action_claim_count": "7",
+  "candidate_action_claim_slot_count": "21",
+  "candidate_action_claim_true_positive_slot_count": "3",
+  "hallucinated_claim_count": "0",
+  "unsupported_evidence_count": "0",
+  "contradicted_evidence_count": "0",
+  "nearby_action_fp_count": "3",
+  "main_missing_items": [
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:subject",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:object",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S01:critical_evidence",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:subject",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:object",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S02:critical_evidence",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:subject",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:operation",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:object",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S03:critical_evidence",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:subject",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:object",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S04:critical_evidence",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:subject",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:operation",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:object",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S05:critical_evidence",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:subject",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:operation",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:object",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S06:critical_evidence",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:subject",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:operation",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:object",
+    "s4_pt_04_powershell_c1:s4_09_ps2976_hidden_parent-S07:critical_evidence"
+  ],
+  "main_false_positive_claims": [
+    "mshta.exe が default[1].hta に書き込み",
+    "WINWORD.EXE が default[1].hta にアクセス",
+    "dllhost.exe の実行/ファイルアクセス",
+    "powershell.exe の process_creation_and_script_execution（語彙不一致）"
+  ]
+}

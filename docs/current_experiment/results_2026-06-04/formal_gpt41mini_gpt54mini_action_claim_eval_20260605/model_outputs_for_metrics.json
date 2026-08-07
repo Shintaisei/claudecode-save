@@ -1,0 +1,660 @@
+{
+  "case_id": "gold_reviewed_10_regexe_20220716t150700z",
+  "description": "Formal evaluation companion file. Main recall and precision use the fixed gold denominator 14; candidate_claim_precision is the candidate-side overclaim diagnostic.",
+  "gold_sequence": [
+    {
+      "step_id": "D1",
+      "order": 1,
+      "action": "Discord.exe launches C:\\Windows\\System32\\reg.exe as a child process",
+      "required_items": [
+        "subject",
+        "operation",
+        "object",
+        "critical_evidence"
+      ]
+    },
+    {
+      "step_id": "D2",
+      "order": 2,
+      "action": "reg.exe query reads the Discord value under HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+      "command_line": "C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord",
+      "required_items": [
+        "subject",
+        "operation",
+        "object",
+        "command_line",
+        "critical_evidence"
+      ]
+    },
+    {
+      "step_id": "D3",
+      "order": 3,
+      "action": "reg.exe add creates or updates the Discord value under HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+      "command_line": "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f",
+      "required_items": [
+        "subject",
+        "operation",
+        "object",
+        "command_line",
+        "critical_evidence"
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "gpt41mini_stage1_alert_input",
+      "model": "gpt-4.1-mini",
+      "stage": "Stage 1",
+      "condition": "CBC alert input",
+      "score": {
+        "recall_fraction": "4/14",
+        "recall": 0.2857142857142857,
+        "precision_fraction": "4/14",
+        "precision": 0.2857142857142857,
+        "order_fraction": "0/2",
+        "order": 0.0,
+        "candidate_claim_precision_fraction": "4/14",
+        "candidate_claim_precision": 0.2857142857142857,
+        "overclaim_slot_count": 10
+      },
+      "model_output_for_metrics": {
+        "input_scope": {
+          "host": "WIN-32-H1",
+          "process": "reg.exe",
+          "timestamp": "2022-07-16 15:07:46",
+          "condition": "stage1",
+          "input_fields_used": [
+            "host",
+            "process",
+            "timestamp"
+          ]
+        },
+        "code_steps": [
+          {
+            "order": 1,
+            "step_id": "S1",
+            "time": "2022-07-16 15:07:46",
+            "subject_process": {
+              "name": "reg.exe",
+              "pid": 1848,
+              "path": null
+            },
+            "operation": "query_registry",
+            "object": {
+              "type": "registry_key",
+              "name": null,
+              "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+              "value": null,
+              "data": null
+            },
+            "command_line": "reg query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+            "execution_context": {
+              "parent_process": "RepWmiUtils.exe",
+              "parent_pid": 1204,
+              "parent_command_line": null,
+              "child_process": null,
+              "child_pid": null
+            }
+          },
+          {
+            "order": 2,
+            "step_id": "S2",
+            "time": "2022-07-16 15:07:45",
+            "subject_process": {
+              "name": "discord.exe",
+              "pid": 1500,
+              "path": null
+            },
+            "operation": "process_start",
+            "object": {
+              "type": "process",
+              "name": "discord.exe",
+              "path": null,
+              "value": null,
+              "data": null
+            },
+            "command_line": "C:\\Users\\User\\AppData\\Local\\Discord\\app-1.0.9003\\Discord.exe --start-minimized",
+            "execution_context": {
+              "parent_process": "RepWmiUtils.exe",
+              "parent_pid": 1204,
+              "parent_command_line": null,
+              "child_process": null,
+              "child_pid": null
+            }
+          }
+        ],
+        "code_sequence": [
+          "C:\\Users\\User\\AppData\\Local\\Discord\\app-1.0.9003\\Discord.exe --start-minimized",
+          "reg query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
+        ],
+        "global_limitations": [
+          "reg.exeの実行パスが不明であり、完全な実行環境の特定ができていない",
+          "discord.exeの詳細な親プロセスコマンドラインが不明であり、起動理由の完全な解明ができていない",
+          "reg.exeのレジストリ操作の結果（変更内容や影響範囲）がログからは確認できていない"
+        ]
+      },
+      "short_interpretation": "Partially reached a Run key query, but omitted /v Discord, used RepWmiUtils.exe instead of Discord.exe as parent, and mixed in a wrong Discord.exe startup path."
+    },
+    {
+      "run_id": "gpt41mini_stage2_full_db",
+      "model": "gpt-4.1-mini",
+      "stage": "Stage 2",
+      "condition": "process-time full DB",
+      "score": {
+        "recall_fraction": "0/14",
+        "recall": 0.0,
+        "precision_fraction": "0/14",
+        "precision": 0.0,
+        "order_fraction": "0/2",
+        "order": 0.0,
+        "candidate_claim_precision_fraction": "0/8",
+        "candidate_claim_precision": 0.0,
+        "overclaim_slot_count": 8
+      },
+      "model_output_for_metrics": {
+        "input_scope": {
+          "host": "WIN-32-H1",
+          "process": "reg.exe",
+          "timestamp": "2022-07-16 15:07:46",
+          "condition": "stage2",
+          "input_fields_used": [
+            "host",
+            "process",
+            "timestamp"
+          ]
+        },
+        "code_steps": [],
+        "code_sequence": [],
+        "global_limitations": [
+          "指定された時間範囲およびホストにおいて reg.exe プロセスの実行記録や関連するレジストリ操作のログが観測されなかったため、コード行動列の復元ができなかった。",
+          "親プロセスや子プロセス、関連するコマンドライン情報も取得できなかったため、行動の詳細な連鎖を特定できなかった。"
+        ]
+      },
+      "short_interpretation": "Returned no code_steps and concluded that reg.exe and related registry-operation evidence were not observed."
+    },
+    {
+      "run_id": "gpt41mini_stage3_alert_summary_removed",
+      "model": "gpt-4.1-mini",
+      "stage": "Stage 3",
+      "condition": "process-time alert summary removed",
+      "score": {
+        "recall_fraction": "0/14",
+        "recall": 0.0,
+        "precision_fraction": "0/14",
+        "precision": 0.0,
+        "order_fraction": "0/2",
+        "order": 0.0,
+        "candidate_claim_precision_fraction": "0/30",
+        "candidate_claim_precision": 0.0,
+        "overclaim_slot_count": 30
+      },
+      "model_output_for_metrics": {
+        "input_scope": {
+          "host": "WIN-32-H1",
+          "process": "reg.exe",
+          "timestamp": "2022-07-16 15:07:46",
+          "condition": "stage3",
+          "input_fields_used": [
+            "host",
+            "process",
+            "timestamp"
+          ]
+        },
+        "code_steps": [
+          {
+            "order": 1,
+            "step_id": "S1",
+            "time": "2022-07-16 15:03:44",
+            "subject_process": {
+              "name": "update.exe",
+              "pid": null,
+              "path": "c:\\users\\aalsahee\\downloads\\discordsetup.exe"
+            },
+            "operation": "registry_write",
+            "object": {
+              "type": "registry_key",
+              "name": "HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Microsoft\\Direct3D\\MostRecentApplication\\Name",
+              "path": "HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Microsoft\\Direct3D\\MostRecentApplication\\Name",
+              "value": null,
+              "data": null
+            },
+            "command_line": null,
+            "execution_context": {
+              "parent_process": "discordsetup.exe",
+              "parent_pid": null,
+              "parent_command_line": "\"C:\\Users\\aalsahee\\Downloads\\DiscordSetup.exe\"",
+              "child_process": null,
+              "child_pid": null
+            }
+          },
+          {
+            "order": 2,
+            "step_id": "S2",
+            "time": "2022-07-16 15:03:50",
+            "subject_process": {
+              "name": "discord.exe",
+              "pid": null,
+              "path": "c:\\users\\aalsahee\\appdata\\local\\discord\\app-1.0.9005\\discord.exe"
+            },
+            "operation": "registry_key_create",
+            "object": {
+              "type": "registry_key",
+              "name": "HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Discord",
+              "path": "HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Discord",
+              "value": null,
+              "data": null
+            },
+            "command_line": null,
+            "execution_context": {
+              "parent_process": "update.exe",
+              "parent_pid": null,
+              "parent_command_line": null,
+              "child_process": null,
+              "child_pid": null
+            }
+          },
+          {
+            "order": 3,
+            "step_id": "S3",
+            "time": "2022-07-16 15:04:10",
+            "subject_process": {
+              "name": "discord.exe",
+              "pid": 1116,
+              "path": "c:\\users\\aalsahee\\appdata\\local\\discord\\app-1.0.9005\\discord.exe"
+            },
+            "operation": "file_read",
+            "object": {
+              "type": "file",
+              "name": "ctiuser.dll",
+              "path": "C:\\Windows\\System32\\ctiuser.dll",
+              "value": null,
+              "data": null
+            },
+            "command_line": null,
+            "execution_context": {
+              "parent_process": null,
+              "parent_pid": null,
+              "parent_command_line": null,
+              "child_process": null,
+              "child_pid": null
+            }
+          },
+          {
+            "order": 4,
+            "step_id": "S4",
+            "time": "2022-07-16 15:04:15",
+            "subject_process": {
+              "name": "flashplayerupdateservice.exe",
+              "pid": 1356,
+              "path": null
+            },
+            "operation": "file_read",
+            "object": {
+              "type": "file",
+              "name": "ctiuser.dll",
+              "path": "C:\\Windows\\System32\\ctiuser.dll",
+              "value": null,
+              "data": null
+            },
+            "command_line": null,
+            "execution_context": {
+              "parent_process": null,
+              "parent_pid": null,
+              "parent_command_line": null,
+              "child_process": null,
+              "child_pid": null
+            }
+          }
+        ],
+        "code_sequence": [
+          "update.exeがレジストリキーHKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Microsoft\\Direct3D\\MostRecentApplication\\Nameに書き込みを行う",
+          "discord.exeがレジストリキーHKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Discordを作成する",
+          "discord.exeがファイルC:\\Windows\\System32\\ctiuser.dllを読み取る",
+          "flashplayerupdateservice.exeがファイルC:\\Windows\\System32\\ctiuser.dllを読み取る"
+        ],
+        "global_limitations": [
+          "reg.exeの直接的な行動は観測されていない",
+          "親プロセス情報や一部のコマンドライン情報が欠落している",
+          "Discord関連プロセスのレジストリ操作の証拠は限定的である"
+        ]
+      },
+      "short_interpretation": "Mixed in nearby update.exe, discord.exe, and flashplayerupdateservice.exe actions; did not reconstruct the Discord Run key query/add sequence."
+    },
+    {
+      "run_id": "gpt54mini_stage1_alert_input",
+      "model": "gpt-5.4-mini",
+      "stage": "Stage 1",
+      "condition": "CBC alert input",
+      "score": {
+        "recall_fraction": "13/14",
+        "recall": 0.9285714285714286,
+        "precision_fraction": "13/14",
+        "precision": 0.9285714285714286,
+        "order_fraction": "1/2",
+        "order": 0.5,
+        "candidate_claim_precision_fraction": "13/19",
+        "candidate_claim_precision": 0.6842105263157895,
+        "overclaim_slot_count": 6
+      },
+      "model_output_for_metrics": {
+        "input_scope": {
+          "host": "WIN-32-H1",
+          "process": "reg.exe",
+          "timestamp": "2022-07-16 15:07:46",
+          "condition": "stage1",
+          "input_fields_used": [
+            "host",
+            "process",
+            "timestamp"
+          ]
+        },
+        "code_steps": [
+          {
+            "order": 1,
+            "step_id": "S1",
+            "time": "2022-07-16 15:07:46",
+            "subject_process": {
+              "name": "reg.exe",
+              "pid": null,
+              "path": "C:\\Windows\\System32\\reg.exe"
+            },
+            "operation": "registry_value_add",
+            "object": {
+              "type": "registry_value",
+              "name": "Discord",
+              "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+              "value": "Discord",
+              "data": "C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe"
+            },
+            "command_line": "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f",
+            "execution_context": {
+              "parent_process": "discord.exe",
+              "parent_pid": null,
+              "parent_command_line": "\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-install 1.0.9005",
+              "child_process": null,
+              "child_pid": null
+            }
+          },
+          {
+            "order": 2,
+            "step_id": "S2",
+            "time": "2022-07-16 15:07:46",
+            "subject_process": {
+              "name": "reg.exe",
+              "pid": null,
+              "path": "C:\\Windows\\System32\\reg.exe"
+            },
+            "operation": "registry_value_query",
+            "object": {
+              "type": "registry_value",
+              "name": "Discord",
+              "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+              "value": "Discord",
+              "data": null
+            },
+            "command_line": "C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord",
+            "execution_context": {
+              "parent_process": "discord.exe",
+              "parent_pid": null,
+              "parent_command_line": "\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-install 1.0.9005",
+              "child_process": null,
+              "child_pid": null
+            }
+          }
+        ],
+        "code_sequence": [
+          "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f",
+          "C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord"
+        ],
+        "global_limitations": [
+          "今回の統合入力では PID/PPID、event_record_id、source_row_id を確定できなかったため、evidence の一部は null のままである。",
+          "reg.exe の parent_process_name と parent_command_line は観測由来として保持したが、上位親や同一 PID の連続性は未確定である。",
+          "query の応答結果やレジストリ変更の成否は未観測である。"
+        ]
+      },
+      "short_interpretation": "Recovered most of D1/D2/D3, but emitted add before query, so D2->D3 order failed; D3 critical evidence was also tied to the query alert id."
+    },
+    {
+      "run_id": "gpt54mini_stage2_full_db",
+      "model": "gpt-5.4-mini",
+      "stage": "Stage 2",
+      "condition": "process-time full DB",
+      "score": {
+        "recall_fraction": "14/14",
+        "recall": 1.0,
+        "precision_fraction": "14/14",
+        "precision": 1.0,
+        "order_fraction": "2/2",
+        "order": 1.0,
+        "candidate_claim_precision_fraction": "14/32",
+        "candidate_claim_precision": 0.4375,
+        "overclaim_slot_count": 18
+      },
+      "model_output_for_metrics": {
+        "input_scope": {
+          "host": "WIN-32-H1",
+          "process": "reg.exe",
+          "timestamp": "2022-07-16 15:07:46",
+          "condition": "stage2",
+          "input_fields_used": [
+            "host",
+            "process",
+            "timestamp"
+          ]
+        },
+        "code_steps": [
+          {
+            "order": 1,
+            "step_id": "S1",
+            "time": "2022-07-16 15:07:46",
+            "subject_process": {
+              "name": "discord.exe",
+              "pid": 3768,
+              "path": null
+            },
+            "operation": "起動関係の上流証拠として観測された",
+            "object": {
+              "type": "process",
+              "name": "update.exe",
+              "path": "c:\\users\\aalsahee\\appdata\\local\\squirreltemp\\update.exe",
+              "value": null,
+              "data": null
+            },
+            "command_line": "\"c:\\users\\aalsahee\\appdata\\local\\squirreltemp\\update.exe\"  /Open \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\"",
+            "execution_context": {
+              "parent_process": "update.exe",
+              "parent_pid": null,
+              "parent_command_line": null,
+              "child_process": "discord.exe",
+              "child_pid": 3768
+            }
+          },
+          {
+            "order": 2,
+            "step_id": "S2",
+            "time": "2022-07-16 15:07:46",
+            "subject_process": {
+              "name": "reg.exe",
+              "pid": 2360,
+              "path": "C:\\Windows\\System32\\reg.exe"
+            },
+            "operation": "registry_value への追加",
+            "object": {
+              "type": "registry_value",
+              "name": "Discord",
+              "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+              "value": "Discord",
+              "data": "\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\""
+            },
+            "command_line": "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f",
+            "execution_context": {
+              "parent_process": "discord.exe",
+              "parent_pid": 3768,
+              "parent_command_line": "\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-install 1.0.9005",
+              "child_process": null,
+              "child_pid": null
+            }
+          },
+          {
+            "order": 3,
+            "step_id": "S3",
+            "time": "2022-07-16 15:07:46",
+            "subject_process": {
+              "name": "reg.exe",
+              "pid": 5424,
+              "path": "C:\\Windows\\System32\\reg.exe"
+            },
+            "operation": "registry_value の照会",
+            "object": {
+              "type": "registry_value",
+              "name": "Discord",
+              "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+              "value": "Discord",
+              "data": null
+            },
+            "command_line": "C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord",
+            "execution_context": {
+              "parent_process": "discord.exe",
+              "parent_pid": 1204,
+              "parent_command_line": "\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-firstrun",
+              "child_process": null,
+              "child_pid": null
+            }
+          },
+          {
+            "order": 4,
+            "step_id": "S4",
+            "time": "2022-07-16 15:07:46",
+            "subject_process": {
+              "name": "reg.exe",
+              "pid": 5504,
+              "path": "C:\\Windows\\System32\\reg.exe"
+            },
+            "operation": "registry_value への追加",
+            "object": {
+              "type": "registry_value",
+              "name": "Discord",
+              "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+              "value": "Discord",
+              "data": "\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\""
+            },
+            "command_line": "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f",
+            "execution_context": {
+              "parent_process": "discord.exe",
+              "parent_pid": 1204,
+              "parent_command_line": "\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-firstrun",
+              "child_process": null,
+              "child_pid": null
+            }
+          }
+        ],
+        "code_sequence": [
+          "\"c:\\users\\aalsahee\\appdata\\local\\squirreltemp\\update.exe\"  /Open \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\"",
+          "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f",
+          "C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord",
+          "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f"
+        ],
+        "global_limitations": [
+          "reg.exe の親プロセス証拠は discord.exe まで復元できたが、そのさらに上流の chain は本入力では固定せず、観測された parent_command_line のみに留めた。",
+          "alert_id は入力ログ上で明示取得できていないため null のまま保持した。",
+          "同時刻近傍の別行動は、親子関係または command_line/object で接続できたもののみ code_steps に採用した。"
+        ]
+      },
+      "short_interpretation": "Recovered D1/D2/D3 and their order, but also emitted extra Squirrel/Update.exe upstream behavior plus duplicate add/parent claims."
+    },
+    {
+      "run_id": "gpt54mini_stage3_alert_summary_removed",
+      "model": "gpt-5.4-mini",
+      "stage": "Stage 3",
+      "condition": "process-time alert summary removed",
+      "score": {
+        "recall_fraction": "8/14",
+        "recall": 0.5714285714285714,
+        "precision_fraction": "8/14",
+        "precision": 0.5714285714285714,
+        "order_fraction": "0/2",
+        "order": 0.0,
+        "candidate_claim_precision_fraction": "8/26",
+        "candidate_claim_precision": 0.3076923076923077,
+        "overclaim_slot_count": 18
+      },
+      "model_output_for_metrics": {
+        "input_scope": {
+          "host": "WIN-32-H1",
+          "process": "reg.exe",
+          "timestamp": "2022-07-16 15:07:46",
+          "condition": "stage3",
+          "input_fields_used": [
+            "host",
+            "process",
+            "timestamp"
+          ]
+        },
+        "code_steps": [
+          {
+            "order": 1,
+            "step_id": "S1",
+            "time": "2022-07-16 15:03:40",
+            "subject_process": {
+              "name": "reg.exe",
+              "pid": 2360,
+              "path": "c:\\windows\\system32\\reg.exe"
+            },
+            "operation": "registry_key への追加操作",
+            "object": {
+              "type": "registry_key",
+              "name": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+              "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+              "value": "Discord",
+              "data": "\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\""
+            },
+            "command_line": "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f",
+            "execution_context": {
+              "parent_process": "discord.exe",
+              "parent_pid": 3768,
+              "parent_command_line": "\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-install 1.0.9005",
+              "child_process": null,
+              "child_pid": null
+            }
+          },
+          {
+            "order": 2,
+            "step_id": "S2",
+            "time": "2022-07-16 15:04:10",
+            "subject_process": {
+              "name": "reg.exe",
+              "pid": 3164,
+              "path": "c:\\windows\\system32\\reg.exe"
+            },
+            "operation": "registry_key への追加操作",
+            "object": {
+              "type": "registry_key",
+              "name": "HKCU\\Software\\Classes\\Discord\\shell\\open\\command",
+              "path": "HKCU\\Software\\Classes\\Discord\\shell\\open\\command",
+              "value": "(Default)",
+              "data": "\"\\\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\\\" --url -- \\\"%1\\\"\""
+            },
+            "command_line": "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Classes\\Discord\\shell\\open\\command /ve /d \"\\\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\\\" --url -- \\\"%1\\\"\" /f",
+            "execution_context": {
+              "parent_process": "discord.exe",
+              "parent_pid": 3768,
+              "parent_command_line": "\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-install 1.0.9005",
+              "child_process": null,
+              "child_pid": null
+            }
+          }
+        ],
+        "code_sequence": [
+          "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f",
+          "C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Classes\\Discord\\shell\\open\\command /ve /d \"\\\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\\\" --url -- \\\"%1\\\"\" /f"
+        ],
+        "global_limitations": [
+          "提示された入力は host、process、timestamp のみであり、調査では観測証拠として確認できた reg.exe の 2 件の registry 追加操作のみを復元した。",
+          "この出力では CBC alert summary rows は利用していない。",
+          "reg.exe からの子プロセス、追加の file / network 行動はこの範囲では確認できなかった。"
+        ]
+      },
+      "short_interpretation": "Recovered D1 and D3 add, but missed D2 query and mixed in a nearby Discord URL-handler registry action."
+    }
+  ]
+}

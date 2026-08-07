@@ -1,0 +1,436 @@
+{
+  "reviewer": "codex_manual_review1",
+  "scoring_mode": "manual_strict_0_1_no_api",
+  "stage": "stage2",
+  "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage2/chain_03_e02_dns_packet_capture_batch_chain_stage2_run.json",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_03_e02_dns_packet_capture_batch_chain/chain_gold.json",
+  "case_id": "chain_03_e02_dns_packet_capture_batch_chain_stage2",
+  "chain_id": "chain_03_e02_dns_packet_capture_batch_chain",
+  "model": "gpt-4.1-mini",
+  "judge_summary": "Gold requires explorer.exe launching the exact cmd.exe command C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \" and then cmd.exe executing start_dns_logs.bat via /c, grounded in CBC alert/event parent_path plus process_cmdline or process_cmdline evidence. The candidate does not recover that command or the explorer.exe parent. It reports a generic cmd.exe process_start under RepWmiUtils.exe, unrelated SimpleHTTPServer and Flash/Rep activity, and nearby tshark/dumpcap packet-capture artifacts. Under strict exact-command/evidence scoring, only the bare cmd.exe subject for the second gold step receives credit; all action, object, critical evidence, order, and precision-heavy overclaim checks fail.",
+  "gold_required_item_scores": [
+    {
+      "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S01:subject",
+      "step_id": "C03-S01",
+      "kind": "subject",
+      "gold_value": "explorer.exe",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason": "Candidate names RepWmiUtils.exe as the parent for the generic cmd.exe and never identifies explorer.exe as the actor that launched the gold cmd.exe command."
+    },
+    {
+      "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S01:action",
+      "step_id": "C03-S01",
+      "kind": "action",
+      "gold_value": "launch cmd.exe as a child process",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason": "A generic cmd.exe process_start under RepWmiUtils.exe is not the required explorer.exe -> cmd.exe launch, and the exact start_dns_logs.bat command is missing."
+    },
+    {
+      "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S01:object",
+      "step_id": "C03-S01",
+      "kind": "object",
+      "gold_value": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason": "Candidate does not provide the exact cmd.exe /c start_dns_logs.bat command line. Its cmd.exe object is null and its nearby packet-capture process claims are not the gold object."
+    },
+    {
+      "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S01:critical_evidence",
+      "step_id": "C03-S01",
+      "kind": "critical_evidence",
+      "gold_value": "CBC alert / CBC event parent_path plus process_cmdline",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason": "Candidate cites audit_logs pname/ppid fragments and does not show the CBC parent_path plus process_cmdline evidence needed for the exact explorer.exe -> cmd.exe /c start_dns_logs.bat launch."
+    },
+    {
+      "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S02:subject",
+      "step_id": "C03-S02",
+      "kind": "subject",
+      "gold_value": "cmd.exe",
+      "matched_candidate_excerpt": "S3.subject_process.name=cmd.exe",
+      "score": 1,
+      "reason": "Candidate includes a cmd.exe subject in code_steps. This is only bare subject credit; the associated command line, action, object, and evidence are not recovered."
+    },
+    {
+      "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S02:action",
+      "step_id": "C03-S02",
+      "kind": "action",
+      "gold_value": "execute a batch file via /c",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason": "Candidate does not state that cmd.exe executed a batch file via /c. It reports only a generic process_start and unrelated downstream/nearby activity."
+    },
+    {
+      "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S02:object",
+      "step_id": "C03-S02",
+      "kind": "object",
+      "gold_value": "start_dns_logs.bat",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason": "start_dns_logs.bat is absent from candidate code_steps and code_sequence."
+    },
+    {
+      "item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S02:critical_evidence",
+      "step_id": "C03-S02",
+      "kind": "critical_evidence",
+      "gold_value": "process_cmdline",
+      "matched_candidate_excerpt": null,
+      "score": 0,
+      "reason": "Candidate explicitly lacks the cmd.exe command line for the generic cmd.exe step and therefore does not provide process_cmdline evidence for /c start_dns_logs.bat."
+    }
+  ],
+  "candidate_action_claim_scores": [
+    {
+      "candidate_claim_id": "CL1",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "RepWmiUtils.exe PID 2032 process_start at 2022-07-15 13:28:16",
+      "normalized_action_claim": "RepWmiUtils.exe starts",
+      "slot_scores": [
+        {
+          "slot_id": "CL1:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "RepWmiUtils.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason": "RepWmiUtils.exe is not a gold subject."
+        },
+        {
+          "slot_id": "CL1:action",
+          "kind": "action",
+          "candidate_slot_excerpt": "process_start",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason": "This earlier RepWmiUtils start is outside the gold behavior chain."
+        },
+        {
+          "slot_id": "CL1:evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs pid=2032",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_evidence",
+          "reason": "This is not CBC parent_path/process_cmdline or process_cmdline evidence for the gold command."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL2",
+      "candidate_step_id": "S2",
+      "claim_excerpt": "RepWmiUtils.exe PID 3652 process_start at 2022-07-15 17:45:44",
+      "normalized_action_claim": "RepWmiUtils.exe starts",
+      "slot_scores": [
+        {
+          "slot_id": "CL2:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "RepWmiUtils.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason": "RepWmiUtils.exe is not a gold subject."
+        },
+        {
+          "slot_id": "CL2:action",
+          "kind": "action",
+          "candidate_slot_excerpt": "process_start",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason": "This earlier RepWmiUtils start is outside the gold behavior chain."
+        },
+        {
+          "slot_id": "CL2:evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs pid=3652",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_evidence",
+          "reason": "This is not evidence for the required cmd.exe /c start_dns_logs.bat execution."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL3",
+      "candidate_step_id": "S3",
+      "claim_excerpt": "cmd.exe process_start at 2022-07-15 20:35:00 with parent_process=RepWmiUtils.exe PID 2032 and no command_line",
+      "normalized_action_claim": "RepWmiUtils.exe starts generic cmd.exe",
+      "slot_scores": [
+        {
+          "slot_id": "CL3:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "cmd.exe",
+          "matched_gold_item_id": "chain_03_e02_dns_packet_capture_batch_chain:C03-S02:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason": "The bare cmd.exe subject matches C03-S02 subject only."
+        },
+        {
+          "slot_id": "CL3:action",
+          "kind": "action",
+          "candidate_slot_excerpt": "process_start under RepWmiUtils.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_parent_and_missing_command",
+          "reason": "The gold action is explorer.exe launching cmd.exe /c start_dns_logs.bat and cmd.exe executing that batch; the candidate gives a different parent and no /c batch command."
+        },
+        {
+          "slot_id": "CL3:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "object null",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "missing_object",
+          "reason": "No start_dns_logs.bat or exact cmd.exe command line is present."
+        },
+        {
+          "slot_id": "CL3:parent_context",
+          "kind": "parent_context",
+          "candidate_slot_excerpt": "parent_process=RepWmiUtils.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "contradicted_parent",
+          "reason": "Gold requires explorer.exe as the parent/subject for the launch."
+        },
+        {
+          "slot_id": "CL3:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "audit_logs field=pname value=cmd.exe ppid=2032",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_evidence",
+          "reason": "The candidate does not provide CBC parent_path plus process_cmdline or process_cmdline for /c start_dns_logs.bat."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL4",
+      "candidate_step_id": "S4",
+      "claim_excerpt": "python.exe process_start with command_line python -m SimpleHTTPServer under cmd.exe",
+      "normalized_action_claim": "cmd.exe starts SimpleHTTPServer",
+      "slot_scores": [
+        {
+          "slot_id": "CL4:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "python.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason": "SimpleHTTPServer is not part of this dns_packet_capture_batch_chain gold."
+        },
+        {
+          "slot_id": "CL4:action",
+          "kind": "action",
+          "candidate_slot_excerpt": "process_start",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason": "This is a different behavior chain."
+        },
+        {
+          "slot_id": "CL4:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "python -m SimpleHTTPServer",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason": "The gold object is start_dns_logs.bat / exact cmd.exe command, not SimpleHTTPServer."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL5",
+      "candidate_step_id": "S5",
+      "claim_excerpt": "tshark.exe file_access to wireshark pcapng at 2022-07-15 20:35:02",
+      "normalized_action_claim": "tshark.exe accesses pcapng file",
+      "slot_scores": [
+        {
+          "slot_id": "CL5:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "tshark.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason": "tshark.exe appears nearby but is not one of the two finalized gold steps for this case."
+        },
+        {
+          "slot_id": "CL5:action",
+          "kind": "action",
+          "candidate_slot_excerpt": "file_access",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason": "The gold actions are cmd launch and /c batch execution, not pcapng file access."
+        },
+        {
+          "slot_id": "CL5:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "wireshark_DE145F66-537B-427D-820A-707CC694DA57_20220715155212_a02384.pcapng",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason": "This pcapng file is not the gold start_dns_logs.bat object."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL6",
+      "candidate_step_id": "S6",
+      "claim_excerpt": "dumpcap.exe process_start with parent_process=tshark.exe at 2022-07-15 20:35:03",
+      "normalized_action_claim": "tshark.exe starts dumpcap.exe",
+      "slot_scores": [
+        {
+          "slot_id": "CL6:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "dumpcap.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason": "dumpcap.exe is not a gold subject for the finalized two-step chain."
+        },
+        {
+          "slot_id": "CL6:action",
+          "kind": "action",
+          "candidate_slot_excerpt": "process_start",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason": "The candidate adds packet-capture child activity instead of the required cmd /c batch execution."
+        },
+        {
+          "slot_id": "CL6:parent_context",
+          "kind": "parent_context",
+          "candidate_slot_excerpt": "parent_process=tshark.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "nearby_unrelated",
+          "reason": "The required parent for C03-S01 is explorer.exe, and C03-S02 requires cmd.exe executing start_dns_logs.bat."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL7",
+      "candidate_step_id": "S7",
+      "claim_excerpt": "flashplayerupdateservice.exe process_start with parent_process=RepWmiUtils.exe",
+      "normalized_action_claim": "RepWmiUtils.exe starts Flash updater service",
+      "slot_scores": [
+        {
+          "slot_id": "CL7:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "flashplayerupdateservice.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason": "Flash updater activity is unrelated to the gold chain."
+        },
+        {
+          "slot_id": "CL7:action",
+          "kind": "action",
+          "candidate_slot_excerpt": "process_start",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason": "This is not cmd.exe batch execution."
+        },
+        {
+          "slot_id": "CL7:parent_context",
+          "kind": "parent_context",
+          "candidate_slot_excerpt": "parent_process=RepWmiUtils.exe",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unrelated_overclaim",
+          "reason": "This parent context is unrelated to explorer.exe -> cmd.exe /c start_dns_logs.bat."
+        }
+      ]
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_step_id": "C03-S01",
+      "after_step_id": "C03-S02",
+      "matched_candidate_before_claim_id": null,
+      "matched_candidate_after_claim_id": "CL3",
+      "score": 0,
+      "reason": "Candidate never recovers the explorer.exe -> exact cmd.exe /c start_dns_logs.bat launch, and the later cmd.exe /c batch execution is only a bare cmd.exe subject with no command line. The gold order cannot be verified."
+    }
+  ],
+  "totals": {
+    "behavior_step_recall": 0.0,
+    "behavior_step_recall_hits": 0,
+    "behavior_step_recall_total": 2,
+    "action_step_recall": 0.125,
+    "action_step_recall_hits": 1,
+    "action_step_recall_total": 8,
+    "action_step_precision": 0.125,
+    "action_step_precision_hits": 1,
+    "action_step_precision_total": 8,
+    "gold_required_item_count": 8,
+    "candidate_claim_precision": 0.043478260869565216,
+    "candidate_claim_precision_hits": 1,
+    "candidate_claim_precision_total": 23,
+    "overclaim_slot_count": 22,
+    "candidate_action_claim_true_positive_slot_count": 1,
+    "candidate_action_claim_slot_count": 23,
+    "candidate_action_claim_raw_slot_count": 23,
+    "candidate_action_claim_duplicate_true_positive_slot_count": 0,
+    "behavior_sequence_order": 0.0,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "critical_evidence_recall": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "coarse_action_step_coverage": 0.5,
+    "coarse_action_step_coverage_hits": 1,
+    "coarse_action_step_coverage_total": 2,
+    "hallucinated_claim_count": 0,
+    "unsupported_evidence_count": 2,
+    "contradicted_evidence_count": 1,
+    "nearby_action_fp_count": 3,
+    "unrelated_action_fp_count": 4,
+    "behavior_element_diagnostics": {
+      "subject": {
+        "recall_hits": 1,
+        "recall_total": 2,
+        "precision_hits": 1,
+        "precision_total": 7
+      },
+      "action": {
+        "recall_hits": 0,
+        "recall_total": 2,
+        "precision_hits": 0,
+        "precision_total": 7
+      },
+      "object": {
+        "recall_hits": 0,
+        "recall_total": 2,
+        "precision_hits": 0,
+        "precision_total": 4
+      },
+      "parent_context": {
+        "recall_hits": 0,
+        "recall_total": 0,
+        "precision_hits": 0,
+        "precision_total": 4
+      },
+      "critical_evidence": {
+        "recall_hits": 0,
+        "recall_total": 2,
+        "precision_hits": 0,
+        "precision_total": 3
+      }
+    }
+  },
+  "candidate_action_claim_count": 7,
+  "candidate_action_claim_slot_count": 23,
+  "candidate_action_claim_true_positive_slot_count": 1,
+  "notes": [
+    "No OpenAI/API scorer was called; this is a local manual Review1 score.",
+    "The exact command C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \" is required for object credit and is absent.",
+    "Alert names or nearby tshark/dumpcap artifacts are not accepted as substitutes for the required cmd.exe /c batch execution evidence.",
+    "The candidate's SimpleHTTPServer, RepWmiUtils, Flash updater, tshark, and dumpcap claims are counted as precision/overclaim penalties rather than gold recovery.",
+    "The bare cmd.exe subject is credited once for C03-S02 subject only; it is not enough for action, object, critical evidence, or order credit."
+  ]
+}

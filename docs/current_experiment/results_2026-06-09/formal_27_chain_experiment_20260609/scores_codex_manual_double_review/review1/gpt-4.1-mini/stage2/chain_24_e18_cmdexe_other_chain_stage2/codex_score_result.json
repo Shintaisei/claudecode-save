@@ -1,0 +1,279 @@
+{
+  "case_id": "chain_24_e18_cmdexe_other_chain_stage2",
+  "reviewer": "codex_manual_review1",
+  "scoring_mode": "manual_strict_0_1_no_api",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage2/chain_24_e18_cmdexe_other_chain_stage2_run.json",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_24_e18_cmdexe_other_chain/chain_gold.json",
+  "gold_chain": {
+    "chain_id": "chain_24_e18_cmdexe_other_chain",
+    "chain_type": "cmdexe_other_chain",
+    "gold_steps": [
+      {
+        "step_id": "C24-S01",
+        "order": 1,
+        "subject": "explorer.exe",
+        "action": "starts cmd.exe as a child process",
+        "object": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\run_http_server.bat\" \"",
+        "critical_evidence": "CBC alert / CBC event parent_path and process_cmdline"
+      },
+      {
+        "step_id": "C24-S02",
+        "order": 2,
+        "subject": "cmd.exe",
+        "action": "executes a batch file with /c",
+        "object": "run_http_server.bat",
+        "critical_evidence": "process_cmdline"
+      },
+      {
+        "step_id": "C24-S03",
+        "order": 3,
+        "subject": "cmd.exe",
+        "action": "spawns a Python process",
+        "object": "python.exe",
+        "critical_evidence": "CBC event childproc/object"
+      }
+    ]
+  },
+  "per_gold_step": [
+    {
+      "step_id": "C24-S01",
+      "matched_candidate_claim_ids": [
+        "CL1",
+        "CL2"
+      ],
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "step_total": 2,
+      "step_max": 4,
+      "behavior_step_match": 0,
+      "reason": "The candidate says explorer.exe starts cmd.exe, but it does not recover the full gold object command line C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\run_http_server.bat\" \". Its cited sysmon/process_name evidence is not the required CBC alert/CBC event parent_path plus process_cmdline basis."
+    },
+    {
+      "step_id": "C24-S02",
+      "matched_candidate_claim_ids": [
+        "CL2"
+      ],
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "step_total": 2,
+      "step_max": 4,
+      "behavior_step_match": 0,
+      "reason": "The candidate has cmd.exe executing a batch file with /c, but the object is the generic/wrong C:\\Users\\User\\script.bat rather than run_http_server.bat. The command_line evidence therefore supports the wrong object and receives no critical-evidence credit."
+    },
+    {
+      "step_id": "C24-S03",
+      "matched_candidate_claim_ids": [
+        "CL3"
+      ],
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "step_total": 3,
+      "step_max": 4,
+      "behavior_step_match": 1,
+      "reason": "The candidate recovers cmd.exe spawning python.exe. Critical evidence is still 0 because it cites sysmon command_line/ppid style evidence, not a CBC event childproc/object field."
+    }
+  ],
+  "order_pairs": [
+    {
+      "before_step_id": "C24-S01",
+      "after_step_id": "C24-S02",
+      "matched_candidate_before_claim_id": "CL1",
+      "matched_candidate_after_claim_id": "CL2",
+      "score": 0,
+      "reason": "Although the candidate orders a cmd.exe launch before a batch execution, the batch object/command is wrong and the launch lacks the full run_http_server command object, so the exact gold adjacent pair is not recovered under strict cmdexe_other scoring."
+    },
+    {
+      "before_step_id": "C24-S02",
+      "after_step_id": "C24-S03",
+      "matched_candidate_before_claim_id": "CL2",
+      "matched_candidate_after_claim_id": "CL3",
+      "score": 0,
+      "reason": "The candidate places python.exe after a cmd.exe batch step, but the parent command is the wrong script.bat command rather than cmd.exe /c run_http_server.bat; therefore the exact gold C24-S02 -> C24-S03 pair is not credited."
+    }
+  ],
+  "candidate_claims": [
+    {
+      "candidate_claim_id": "CL1",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "explorer.exe starts cmd.exe at 2022-07-18 21:00:15, with sysmon process_name evidence and EventRecordID 1001",
+      "slot_scores": [
+        {
+          "slot": "subject",
+          "candidate_value": "explorer.exe",
+          "matched_gold_step_id": "C24-S01",
+          "is_true_positive": 1,
+          "reason": "Matches the gold parent subject."
+        },
+        {
+          "slot": "operation",
+          "candidate_value": "process_start of cmd.exe",
+          "matched_gold_step_id": "C24-S01",
+          "is_true_positive": 1,
+          "reason": "Matches the parent-child launch action at the process-name level."
+        },
+        {
+          "slot": "object",
+          "candidate_value": "cmd.exe",
+          "matched_gold_step_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "underspecified_object",
+          "reason": "The gold object is the full cmd.exe /c run_http_server.bat command line; a bare cmd.exe object is insufficient."
+        },
+        {
+          "slot": "critical_evidence",
+          "candidate_value": "source_stream=sysmon, field=process_name, EventRecordID=1001",
+          "matched_gold_step_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_evidence_type",
+          "reason": "Critical evidence must be concrete CBC alert/event parent_path plus process_cmdline, not generic sysmon/process_name evidence or a placeholder EventRecordID."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL2",
+      "candidate_step_id": "S2",
+      "claim_excerpt": "cmd.exe executes C:\\Users\\User\\script.bat with command_line cmd.exe /c C:\\Users\\User\\script.bat and parent_process=explorer.exe",
+      "slot_scores": [
+        {
+          "slot": "subject",
+          "candidate_value": "cmd.exe",
+          "matched_gold_step_id": "C24-S02",
+          "is_true_positive": 1,
+          "reason": "Matches the gold acting process for the batch execution step."
+        },
+        {
+          "slot": "operation",
+          "candidate_value": "execute_batch_file with /c",
+          "matched_gold_step_id": "C24-S02",
+          "is_true_positive": 1,
+          "reason": "Matches the gold operation type."
+        },
+        {
+          "slot": "object",
+          "candidate_value": "C:\\Users\\User\\script.bat",
+          "matched_gold_step_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_object",
+          "reason": "The gold object is run_http_server.bat, not script.bat."
+        },
+        {
+          "slot": "command_line",
+          "candidate_value": "cmd.exe /c C:\\Users\\User\\script.bat",
+          "matched_gold_step_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_command",
+          "reason": "The gold command is C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\run_http_server.bat\" \"; this candidate command points to the wrong user/path/script."
+        },
+        {
+          "slot": "parent_context",
+          "candidate_value": "parent_process=explorer.exe",
+          "matched_gold_step_id": "C24-S01",
+          "is_true_positive": 1,
+          "reason": "The parent context itself matches the gold explorer.exe parent."
+        },
+        {
+          "slot": "critical_evidence",
+          "candidate_value": "source_stream=msft-security, field=command_line, EventRecordID=1010",
+          "matched_gold_step_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_evidence_value",
+          "reason": "The candidate cites a command line for script.bat, not the process_cmdline for run_http_server.bat; it also does not provide CBC alert/event field grounding."
+        }
+      ]
+    },
+    {
+      "candidate_claim_id": "CL3",
+      "candidate_step_id": "S3",
+      "claim_excerpt": "cmd.exe starts python.exe with command_line python.exe -m http.server 8000 and parent_command_line cmd.exe /c C:\\Users\\User\\script.bat",
+      "slot_scores": [
+        {
+          "slot": "subject",
+          "candidate_value": "cmd.exe",
+          "matched_gold_step_id": "C24-S03",
+          "is_true_positive": 1,
+          "reason": "Matches the gold parent process for python.exe."
+        },
+        {
+          "slot": "operation",
+          "candidate_value": "process_start / child_process python.exe",
+          "matched_gold_step_id": "C24-S03",
+          "is_true_positive": 1,
+          "reason": "Matches cmd.exe spawning a Python process."
+        },
+        {
+          "slot": "object",
+          "candidate_value": "python.exe",
+          "matched_gold_step_id": "C24-S03",
+          "is_true_positive": 1,
+          "reason": "Matches the gold process object."
+        },
+        {
+          "slot": "command_line",
+          "candidate_value": "python.exe -m http.server 8000",
+          "matched_gold_step_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "extra_unsupported_detail",
+          "reason": "The gold step only requires python.exe as the child process; the HTTP-server command line is not supported by the gold slot and is not backed by the required CBC childproc/object evidence."
+        },
+        {
+          "slot": "parent_command_line",
+          "candidate_value": "cmd.exe /c C:\\Users\\User\\script.bat",
+          "matched_gold_step_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_parent_command",
+          "reason": "The parent command line names script.bat rather than run_http_server.bat."
+        },
+        {
+          "slot": "critical_evidence",
+          "candidate_value": "source_stream=sysmon, field=command_line, EventRecordID=1020, ppid=3724",
+          "matched_gold_step_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "wrong_evidence_type",
+          "reason": "The required critical evidence is CBC event childproc/object. A sysmon command_line/ppid citation is not enough."
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "action_step_recall_hits": 7,
+    "action_step_recall_total": 12,
+    "action_step_recall": 0.5833333333333334,
+    "action_step_precision_hits": 8,
+    "action_step_precision_total": 16,
+    "action_step_precision": 0.5,
+    "candidate_claim_precision_hits": 8,
+    "candidate_claim_precision_total": 16,
+    "candidate_claim_precision": 0.5,
+    "overclaim_slot_count": 8,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 2,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 3,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 1,
+    "behavior_step_recall_total": 3,
+    "behavior_step_recall": 0.3333333333333333
+  },
+  "notes": [
+    "No OpenAI API or GPT scoring script was used; this is a manual Codex review.",
+    "The candidate output uses generic or placeholder-looking values: 2022-07-18 21:00:15/21:01:00/21:02:30, PID 3724/4000, EventRecordID 1001/1010/1020, and C:\\Users\\User\\script.bat.",
+    "The gold command/object for this cmdexe_other chain is strict: C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\run_http_server.bat\" \" and run_http_server.bat. The candidate's script.bat command is not credited for those object slots.",
+    "Critical evidence receives no credit because the candidate does not cite concrete CBC alert/event parent_path, process_cmdline, or childproc/object fields for the relevant gold behavior.",
+    "The only complete behavior step recovered at subject/action/object level is cmd.exe spawning python.exe."
+  ]
+}

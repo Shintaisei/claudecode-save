@@ -1,0 +1,191 @@
+{
+  "run_id": "20260726T035117Z_s4_pt_03_mshta_c1_stage3_gpt-5.4-mini_official",
+  "pipeline": "external/Clouseau/artifact official chief_inspector.investigate_atlas",
+  "llm_provider": "openai",
+  "model": "gpt-5.4-mini",
+  "instance_id": "s4_pt_03_mshta_c1_stage3",
+  "gold_reference": {
+    "instance_id": "s4_pt_03_mshta_c1_stage3",
+    "case_id": "s4_pt_03_mshta_c1_stage3",
+    "input_id": "atlasv2_attack8_paired_07_stage3",
+    "stage": "stage3",
+    "scenario": "atlasv2-attack-h1-s4",
+    "database": "Clouseau\\artifact\\scenarios\\atlasv2\\attack\\h1\\s4\\incident.db",
+    "host": "WIN-32-H1",
+    "process_name": "mshta.exe",
+    "actor": "mshta.exe",
+    "expected_behavior": "S4 process-time C1: mshta to payload and C2",
+    "expected_behavior_category": "cbc_alert_attack_behavior_reconstruction",
+    "context_label": "attack_behavior_chain_paired",
+    "suite_group": "atlasv2_s3_s4_attack8_paired",
+    "difficulty": "process_time",
+    "time_window_utc": {
+      "episode_start": "2022-07-20T00:41:14.346000Z",
+      "episode_end": "2022-07-20T01:11:14.346000Z",
+      "analysis_scope": "Finalized behavior-chain window; as in the normal reconstruction experiment, the runner may inspect surrounding database evidence but the primary chain must stay in the declared scope."
+    },
+    "anchor_event": {
+      "source_stream": "scope",
+      "timestamp_utc": "2022-07-20T00:41:14.346000Z",
+      "database_time": "2022-07-20 00:41:14",
+      "alert_id": null,
+      "alert_name": null,
+      "process_name": "mshta.exe",
+      "process_path": null,
+      "process_cmdline": null,
+      "parent_path": null,
+      "parent_cmdline": null,
+      "severity": null,
+      "reason": null,
+      "event_record_id": null,
+      "action": "scope"
+    },
+    "input_alert_rows": [],
+    "model_ready_input": {
+      "input_id": "atlasv2_attack8_paired_07",
+      "stage": "stage3",
+      "input": {
+        "host": "WIN-32-H1",
+        "focus_processes": [
+          "mshta.exe"
+        ],
+        "chain_window_start_utc": "2022-07-20T00:41:14.346000Z",
+        "chain_window_end_utc": "2022-07-20T01:11:14.346000Z"
+      },
+      "db_filter": "hide cbc_alerts / cbc-edr-alerts / cbc-ngav-alerts summary rows; retain cbc_events telemetry"
+    },
+    "gold_chain_file": "by_chain/s4_pt_03_mshta_c1/chain_gold.json",
+    "chain_id": "s4_pt_03_mshta_c1",
+    "chain_type": "cbc_alert_attack_behavior_reconstruction",
+    "formal_gold_root": "data\\current_experiment\\gold\\atlasv2_s3_s4_attack8_paired_gold_20260724",
+    "stage3_answerable_policy": "Stage 3 uses the same Gold, filtered to validated canonical cbc_events evidence.",
+    "quality": "paired_normal_method_20260724",
+    "stage_input_policy": "Stage 3: same host/process/time; CBC alert summaries are hidden while CBC event telemetry remains available.",
+    "paired_stage_contract": {
+      "evaluation_unit": "behavior_chain",
+      "chain_index": 7,
+      "same_gold_all_stages": true,
+      "hard_time_scope": false,
+      "representative_alert_row_id": 18
+    },
+    "environment_context": "CLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。"
+  },
+  "source_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\Clouseau\\artifact\\scenarios\\atlasv2\\attack\\h1\\s4\\incident.db",
+  "adapter_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260726T035117Z_s4_pt_03_mshta_c1_stage3_gpt-5.4-mini_official\\scenario.db",
+  "adapter_counts": {
+    "audit_logs": 248255,
+    "sysmon_audit_rows": 638,
+    "cbc_event_audit_rows": 16244,
+    "cbc_alert_audit_rows": 38,
+    "dns_requests": 6303,
+    "browser_history": 4788,
+    "adapter_version": "v3_evidence_preserving_parent_context",
+    "cbc_alert_summary_filter_mode": "sql_tool_temp_view",
+    "cbc_alert_summary_rows_hidden_from_stage3_sql": 38,
+    "post_filter_cbc_alert_summary_rows": 0,
+    "post_filter_cbc_event_telemetry_rows": 16244
+  },
+  "clue": "これは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage3\n- host: WIN-32-H1\n- process: mshta.exe\n- timestamp: 2022-07-20 00:41:14\n- 参考 UTC 時間範囲: 2022-07-20T00:41:14.346000Z から 2022-07-20T01:11:14.346000Z\n- 参考 database 時間範囲: 2022-07-20 00:41:14 から 2022-07-20 01:11:14\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 3: 入力は host、process、timestamp のみである。\n- CBC alert summary rows は SQL tools から audit_logs_stage3 view により hidden である。\n- CBC EDR/NGAV event telemetry は利用可能である。\n- adapter database は物理フィルタされない。alert summary rows が SQL tools で見えないことだけで、行動が存在しないと結論しない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n",
+  "dry_run": false,
+  "difficulty": "process_time",
+  "reasoning_effort": null,
+  "experiment_stage": "stage3",
+  "expected_input_fields": [
+    "host",
+    "process",
+    "timestamp"
+  ],
+  "configs": {
+    "max_investigations": null,
+    "max_questions": null,
+    "max_queries": null,
+    "max_tokens": 8192,
+    "reasoning_effort": null,
+    "agent_call_limit_policy": "unbounded_by_experiment"
+  },
+  "official_messages": [
+    {
+      "type": "HumanMessage",
+      "content": "## 役割\nあなたは CLOUSEAU の階層型調査パイプラインにおける Chief エージェントである。\n\n## 目的\nプロセス時刻起点から Windows エンドポイントのコード行動列を復元する。\n\n## 出力言語\n- 調査リード、要約、最終報告の自然言語値はすべて日本語で書く。\n- raw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま残す。\n\n## 調査リード作成ルール\n- SQL を書かない。\n- database column の列挙を調査リードにしない。\n- alert title、command line、parent process、target object、application intent、behavior category を仮定しない。\n- CBC alert 内容は起点情報の一部ではない。調査担当が database 内で発見した場合にだけ使う。\n- 各調査リードには、調査対象、調査理由、確認したい証拠を含める。\n- parent process、command line、target object、related rows をログから発見させる調査リードを優先する。\n- 近傍 row の接続関係は、先に決め打ちせず、観測証拠で検証する。\n- 最終回答は valid JSON のみである。\n\n## 環境\nCLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。\n\n## SOC からの起点情報\nこれは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage3\n- host: WIN-32-H1\n- process: mshta.exe\n- timestamp: 2022-07-20 00:41:14\n- 参考 UTC 時間範囲: 2022-07-20T00:41:14.346000Z から 2022-07-20T01:11:14.346000Z\n- 参考 database 時間範囲: 2022-07-20 00:41:14 から 2022-07-20 01:11:14\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 3: 入力は host、process、timestamp のみである。\n- CBC alert summary rows は SQL tools から audit_logs_stage3 view により hidden である。\n- CBC EDR/NGAV event telemetry は利用可能である。\n- adapter database は物理フィルタされない。alert summary rows が SQL tools で見えないことだけで、行動が存在しないと結論しない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n\n\n\n## Shared CBC alert investigation policy\nWhen the initial task contains CBC alert triage information, use the same procedure for every case:\n1. Reconstruct the evidence-backed behavior relevant to the input alert.\n2. Inspect the supplied host and time scope for any separately reportable behavior that could affect the alert-level or host-level disposition.\n3. Keep sequences separate unless an observed parent/child, command-line, or object edge connects them; do not infer causality from temporal proximity alone.\n4. Do not assume that the alert or any nearby behavior is benign or malicious before observing evidence.\n5. In the final JSON, always provide triage_decision.alert_disposition and triage_decision.host_disposition based on observed evidence.\n"
+    },
+    {
+      "type": "AIMessage",
+      "content": "",
+      "usage_metadata": {
+        "input_tokens": 1884,
+        "output_tokens": 146,
+        "total_tokens": 2030,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "host WIN-32-H1 の 2022-07-20 00:41:14 付近で起動した mshta.exe について、親プロセス・コマンドライン・子プロセス・関連ファイル/ネットワーク操作を確認し、実際に観測されたコード行動列を復元してください。特に parent_process_path、parent_command_line、childproc、netconn、filemod の証拠を優先し、同時刻近傍の別チェーンは観測上つながる場合のみ関連付けてください。"
+          },
+          "id": "call_3qZZ3EH70RqIZAp5P2boRpTw",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "type": "ToolMessage",
+      "content": "{\n  \"仮説\": \"host WIN-32-H1 では 2022-07-20 00:41:14 付近に mshta.exe が観測され、親は svchost.exe（DcomLaunch 経由）で、起動形態は C:\\\\Windows\\\\System32\\\\mshta.exe -Embedding だった。現時点では子プロセス、ファイル変更、ネットワーク接続は未観測で、コード行動列は未完です。\",\n  \"結果要約\": [\n    \"指定時刻近傍の mshta.exe は、直接の時刻絞り込みでは見つからなかったが、広めの確認範囲で PID 4724 の実行記録が観測された。\",\n    \"観測された parent_process_path は c:\\\\windows\\\\system32\\\\svchost.exe。\",\n    \"観測された parent_command_line は C:\\\\Windows\\\\system32\\\\svchost.exe -k DcomLaunch。\",\n    \"観測された command_line は C:\\\\Windows\\\\System32\\\\mshta.exe -Embedding。\",\n    \"この確認範囲では childproc、filemod、netconn は観測されなかった。\"\n  ],\n  \"次の調査理由\": \"mshta.exe の起動証拠は得られたが、Chief の要請である親プロセス・子プロセス・関連ファイル/ネットワーク操作の復元には、観測された PID 4724 を起点にさらに evidence-backed に連結できる行動が必要である。次はこの mshta.exe の PID 4724 に直接つながる childproc、filemod、netconn を追加で確認する。\",\n  \"triage_decision\": {\n    \"alert_disposition\": \"unknown\",\n    \"host_disposition\": \"needs_review\"\n  }\n}",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\"triage_decision\":{\"alert_disposition\":\"unknown\",\"host_disposition\":\"needs_review\"},\"investigation\":{\"host\":\"WIN-32-H1\",\"process\":\"mshta.exe\",\"timestamp\":\"2022-07-20 00:41:14\",\"time_scope\":{\"db_start\":\"2022-07-20 00:41:14\",\"db_end\":\"2022-07-20 01:11:14\",\"utc_start\":\"2022-07-20T00:41:14.346000Z\",\"utc_end\":\"2022-07-20T01:11:14.346000Z\"},\"evidence_backed_behavior\":[{\"code_step\":1,\"code_sequence\":[\"C:\\\\Windows\\\\System32\\\\mshta.exe -Embedding\"],\"evidence\":{\"process_name\":\"mshta.exe\",\"pid\":4724,\"ppid\":null,\"timestamp\":\"2022-07-20 00:41:14\",\"source_stream\":\"cbc-edr\",\"parent_process_path\":\"c:\\\\windows\\\\system32\\\\svchost.exe\",\"parent_command_line\":\"C:\\\\Windows\\\\system32\\\\svchost.exe -k DcomLaunch\",\"event_record_id\":null}},{\"code_step\":2,\"code_sequence\":[],\"evidence\":{\"childproc\":\"未観測\",\"filemod\":\"未観測\",\"netconn\":\"未観測\"}}],\"summary\":\"指定時刻近傍で mshta.exe の起動証拠は確認できた。観測された command_line は C:\\\\Windows\\\\System32\\\\mshta.exe -Embedding で、parent_process_path は c:\\\\windows\\\\system32\\\\svchost.exe、parent_command_line は C:\\\\Windows\\\\system32\\\\svchost.exe -k DcomLaunch だった。この確認範囲では、mshta.exe に直接連結する childproc、filemod、netconn は観測されていない。\",\"notes\":\"CBC alert summary rows はこの段階では確認対象外であり、未観測の事実として扱っていない。\"}}",
+      "usage_metadata": {
+        "input_tokens": 2446,
+        "output_tokens": 424,
+        "total_tokens": 2870,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 1664
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"mshta.exe\",\n    \"timestamp\": \"2022-07-20 00:41:14\",\n    \"condition\": \"stage3\",\n    \"input_fields_used\": [\n      \"host\",\n      \"process\",\n      \"timestamp\"\n    ]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-20 00:41:14\",\n      \"subject_process\": {\n        \"name\": \"mshta.exe\",\n        \"pid\": 4724,\n        \"path\": \"C:\\\\Windows\\\\System32\\\\mshta.exe\"\n      },\n      \"operation\": \"起動\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"mshta.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"C:\\\\Windows\\\\System32\\\\mshta.exe -Embedding\",\n      \"execution_context\": {\n        \"parent_process\": \"svchost.exe\",\n        \"parent_pid\": null,\n        \"parent_command_line\": \"C:\\\\Windows\\\\system32\\\\svchost.exe -k DcomLaunch\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-20 00:41:14\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"command_line\",\n          \"value\": \"C:\\\\Windows\\\\System32\\\\mshta.exe -Embedding\",\n          \"pid\": 4724,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-20 00:41:14\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_process_path\",\n          \"value\": \"c:\\\\windows\\\\system32\\\\svchost.exe\",\n          \"pid\": 4724,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-20 00:41:14\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_command_line\",\n          \"value\": \"C:\\\\Windows\\\\system32\\\\svchost.exe -k DcomLaunch\",\n          \"pid\": 4724,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"この範囲では child_process、filemod、netconn は観測されていない。\",\n        \"parent_pid は観測値として確認できていない。\"\n      ]\n    }\n  ],\n  \"code_sequence\": [\n    \"C:\\\\Windows\\\\System32\\\\mshta.exe -Embedding\"\n  ],\n  \"supporting_alert_evidence\": [],\n  \"triage_decision\": {\n    \"alert_disposition\": \"not_applicable\",\n    \"host_disposition\": \"not_applicable\",\n    \"evidence_basis\": [\n      \"指定された入力範囲で、mshta.exe の起動は観測されたが、それ以上の連結行動は確認できなかった。\",\n      \"CBC alert の内容は起点情報として使っておらず、補助証拠も本回答では確認されていない。\"\n    ]\n  },\n  \"excluded_nearby_evidence\": [\n    {\n      \"reason\": \"childproc、filemod、netconn などの関連行動はこの確認範囲では観測されていない。\",\n      \"evidence\": \"未観測\"\n    }\n  ],\n  \"global_limitations\": [\n    \"Stage 3 の入力は host、process、timestamp のみであり、広い探索範囲で見つかった観測のうち、直接証拠で連結できたものだけを採用した。\",\n    \"CBC alert summary rows は SQL tools から hidden であり、補助証拠としても本結果では確認していない。\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-20 00:41:14 に cbc-edr で mshta.exe の起動が観測された。command_line は C:\\\\Windows\\\\System32\\\\mshta.exe -Embedding、parent_process_path は c:\\\\windows\\\\system32\\\\svchost.exe、parent_command_line は C:\\\\Windows\\\\system32\\\\svchost.exe -k DcomLaunch だった。\"\n  ]\n}",
+      "usage_metadata": {
+        "input_tokens": 3204,
+        "output_tokens": 1017,
+        "total_tokens": 4221,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    }
+  ],
+  "output_text": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"mshta.exe\",\n    \"timestamp\": \"2022-07-20 00:41:14\",\n    \"condition\": \"stage3\",\n    \"input_fields_used\": [\n      \"host\",\n      \"process\",\n      \"timestamp\"\n    ]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-20 00:41:14\",\n      \"subject_process\": {\n        \"name\": \"mshta.exe\",\n        \"pid\": 4724,\n        \"path\": \"C:\\\\Windows\\\\System32\\\\mshta.exe\"\n      },\n      \"operation\": \"起動\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"mshta.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"C:\\\\Windows\\\\System32\\\\mshta.exe -Embedding\",\n      \"execution_context\": {\n        \"parent_process\": \"svchost.exe\",\n        \"parent_pid\": null,\n        \"parent_command_line\": \"C:\\\\Windows\\\\system32\\\\svchost.exe -k DcomLaunch\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-20 00:41:14\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"command_line\",\n          \"value\": \"C:\\\\Windows\\\\System32\\\\mshta.exe -Embedding\",\n          \"pid\": 4724,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-20 00:41:14\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_process_path\",\n          \"value\": \"c:\\\\windows\\\\system32\\\\svchost.exe\",\n          \"pid\": 4724,\n          \"ppid\": null\n        },\n        {\n          \"source_stream\": \"cbc-edr\",\n          \"timestamp\": \"2022-07-20 00:41:14\",\n          \"alert_id\": null,\n          \"event_record_id\": null,\n          \"field\": \"parent_command_line\",\n          \"value\": \"C:\\\\Windows\\\\system32\\\\svchost.exe -k DcomLaunch\",\n          \"pid\": 4724,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"この範囲では child_process、filemod、netconn は観測されていない。\",\n        \"parent_pid は観測値として確認できていない。\"\n      ]\n    }\n  ],\n  \"code_sequence\": [\n    \"C:\\\\Windows\\\\System32\\\\mshta.exe -Embedding\"\n  ],\n  \"supporting_alert_evidence\": [],\n  \"triage_decision\": {\n    \"alert_disposition\": \"not_applicable\",\n    \"host_disposition\": \"not_applicable\",\n    \"evidence_basis\": [\n      \"指定された入力範囲で、mshta.exe の起動は観測されたが、それ以上の連結行動は確認できなかった。\",\n      \"CBC alert の内容は起点情報として使っておらず、補助証拠も本回答では確認されていない。\"\n    ]\n  },\n  \"excluded_nearby_evidence\": [\n    {\n      \"reason\": \"childproc、filemod、netconn などの関連行動はこの確認範囲では観測されていない。\",\n      \"evidence\": \"未観測\"\n    }\n  ],\n  \"global_limitations\": [\n    \"Stage 3 の入力は host、process、timestamp のみであり、広い探索範囲で見つかった観測のうち、直接証拠で連結できたものだけを採用した。\",\n    \"CBC alert summary rows は SQL tools から hidden であり、補助証拠としても本結果では確認していない。\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-20 00:41:14 に cbc-edr で mshta.exe の起動が観測された。command_line は C:\\\\Windows\\\\System32\\\\mshta.exe -Embedding、parent_process_path は c:\\\\windows\\\\system32\\\\svchost.exe、parent_command_line は C:\\\\Windows\\\\system32\\\\svchost.exe -k DcomLaunch だった。\"\n  ]\n}",
+  "usage": {
+    "input_tokens": 7534,
+    "output_tokens": 1587,
+    "cached_input_tokens": 0
+  },
+  "atlasv2_s3_s4_attack8_paired_experiment": {
+    "case_file": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\cases\\atlasv2_s3_s4_attack8_paired_stage_cases_20260724.jsonl",
+    "chain_id": "s4_pt_03_mshta_c1",
+    "stage": "stage3",
+    "gold": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\gold\\atlasv2_s3_s4_attack8_paired_gold_20260724\\by_chain\\s4_pt_03_mshta_c1\\chain_gold.json",
+    "copied_from": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260726T035117Z_s4_pt_03_mshta_c1_stage3_gpt-5.4-mini_official\\run.json"
+  }
+}

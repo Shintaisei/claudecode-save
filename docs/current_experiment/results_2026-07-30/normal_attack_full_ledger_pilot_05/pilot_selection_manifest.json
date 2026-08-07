@@ -1,0 +1,105 @@
+{
+  "schema_version": "normal_attack_full_ledger_pilot05_v1",
+  "created_at_utc": "2026-07-30T05:02:36.658802+00:00",
+  "design": "four case/model pairs x three stages = 12 runs",
+  "purpose": "verify unrestricted multi-lead operation, full role-level LLM ledger, runtime accounting, and scoring readiness",
+  "interpretation_limit": "Cases are assigned to models, so cross-model score differences are case-confounded and are not a model-superiority comparison.",
+  "supersedes_incomplete_pilot": {
+    "pilot": "normal_attack_full_ledger_pilot_04",
+    "reason": "missing persisted per-role LLM API call counts and exact run wall-clock timestamps",
+    "completed_runs_reexecuted": 0
+  },
+  "normal_population": {
+    "chain_count": 21,
+    "all_case_windows_minutes": 5,
+    "exclusion_manifest": "docs/current_experiment/cbc_21_five_minute_normal_suite_manifest_20260730.json"
+  },
+  "pairs": [
+    {
+      "pair_id": "normal_chain10_gpt41",
+      "scenario_group": "normal",
+      "chain_id": "chain_10_e07_discord_run_key_registry_chain",
+      "model": "gpt-4.1-mini",
+      "cases": "data\\current_experiment\\cases\\normal8_observable_component_v3_stage_cases_20260726.jsonl",
+      "cases_sha256": "a21c47047656ebd30e527529f67a3e0f95ad0336420edf7b15117c175e257fef",
+      "validation": "docs\\current_experiment\\normal8_observable_component_v3_stage3_validation_steps_20260726.csv",
+      "validation_sha256": "a7dd78e598dd2e1041e22c113d37b2695058f244015e044ae419d3a1a29ba766",
+      "instance_ids": [
+        "chain_10_e07_discord_run_key_registry_chain_stage1",
+        "chain_10_e07_discord_run_key_registry_chain_stage2",
+        "chain_10_e07_discord_run_key_registry_chain_stage3"
+      ]
+    },
+    {
+      "pair_id": "attack_s4pt03_gpt41",
+      "scenario_group": "attack",
+      "chain_id": "s4_pt_03_mshta_c1",
+      "model": "gpt-4.1-mini",
+      "cases": "data\\current_experiment\\cases\\atlasv2_s3_s4_attack8_process_chain_v5_formal_stage_cases_20260727.jsonl",
+      "cases_sha256": "85b9251cfc2ed2fb45e2ed53fd2bf8fb18821134a5cf215c959fa5dc3c888576",
+      "validation": "docs\\current_experiment\\atlasv2_s3_s4_attack8_process_chain_v5_formal_stage3_validation_steps_20260727.csv",
+      "validation_sha256": "2086cfebc19358320b0e4079517904ad34f45ee9deae99f59267e250a8775c32",
+      "instance_ids": [
+        "s4_pt_03_mshta_c1_stage1",
+        "s4_pt_03_mshta_c1_stage2",
+        "s4_pt_03_mshta_c1_stage3"
+      ]
+    },
+    {
+      "pair_id": "normal_chain02_gpt54",
+      "scenario_group": "normal",
+      "chain_id": "chain_02_e01_python_simplehttpserver_network_chain",
+      "model": "gpt-5.4-mini",
+      "cases": "data\\current_experiment\\cases\\normal8_observable_component_v3_stage_cases_20260726.jsonl",
+      "cases_sha256": "a21c47047656ebd30e527529f67a3e0f95ad0336420edf7b15117c175e257fef",
+      "validation": "docs\\current_experiment\\normal8_observable_component_v3_stage3_validation_steps_20260726.csv",
+      "validation_sha256": "a7dd78e598dd2e1041e22c113d37b2695058f244015e044ae419d3a1a29ba766",
+      "instance_ids": [
+        "chain_02_e01_python_simplehttpserver_network_chain_stage1",
+        "chain_02_e01_python_simplehttpserver_network_chain_stage2",
+        "chain_02_e01_python_simplehttpserver_network_chain_stage3"
+      ]
+    },
+    {
+      "pair_id": "attack_s3pt01_gpt54",
+      "scenario_group": "attack",
+      "chain_id": "s3_pt_01_word_document_processing",
+      "model": "gpt-5.4-mini",
+      "cases": "data\\current_experiment\\cases\\atlasv2_s3_s4_attack8_process_chain_v5_formal_stage_cases_20260727.jsonl",
+      "cases_sha256": "85b9251cfc2ed2fb45e2ed53fd2bf8fb18821134a5cf215c959fa5dc3c888576",
+      "validation": "docs\\current_experiment\\atlasv2_s3_s4_attack8_process_chain_v5_formal_stage3_validation_steps_20260727.csv",
+      "validation_sha256": "2086cfebc19358320b0e4079517904ad34f45ee9deae99f59267e250a8775c32",
+      "instance_ids": [
+        "s3_pt_01_word_document_processing_stage1",
+        "s3_pt_01_word_document_processing_stage2",
+        "s3_pt_01_word_document_processing_stage3"
+      ]
+    }
+  ],
+  "run_count": 12,
+  "replicates_per_case_model_stage": 1,
+  "gpt_5_5_excluded": true,
+  "required_run_ledger": {
+    "roles": [
+      "chief",
+      "investigator",
+      "sql_qa"
+    ],
+    "per_role_llm_call_count": true,
+    "per_role_input_output_cached_tokens": true,
+    "per_role_cost_derivable_from_call_ledger": true,
+    "started_finished_elapsed_time": true,
+    "cross_agent_activity": true
+  },
+  "execution_contract": {
+    "max_tokens": 24576,
+    "sql_playbook": "none",
+    "agent_call_limit_policy": "unbounded_by_experiment",
+    "lead_guard": {
+      "max_investigator_questions_per_lead": 20,
+      "max_wall_seconds_per_lead": 1200,
+      "on_trigger": "return collected evidence and unresolved frontier to Chief"
+    },
+    "stage3_alert_summary_hidden": true
+  }
+}

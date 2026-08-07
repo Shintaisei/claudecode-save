@@ -1,0 +1,131 @@
+{
+  "reviewer": "codex_review2",
+  "scoring_mode": "manual_strict_0_1_no_api",
+  "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage1/chain_25_e18_dns_packet_capture_batch_chain_stage1_run.json",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_25_e18_dns_packet_capture_batch_chain/chain_gold.json",
+  "case_id": "chain_25_e18_dns_packet_capture_batch_chain_stage1",
+  "chain_id": "chain_25_e18_dns_packet_capture_batch_chain",
+  "model": "gpt-4.1-mini",
+  "stage": "stage1",
+  "method": "Manual strict local-file review against chain_gold.json and candidate run JSON. No OpenAI/API scorer used. Gold items scored subject/action/object/critical_evidence as 0/1.",
+  "judge_summary": "The candidate recovers the core cmd.exe /c start_dns_logs.bat execution and gives explorer.exe as parent context for the cmd.exe process, but it collapses the explorer launch and batch execution into one candidate step and does not provide the required CBC parent_path evidence. It also mentions tshark.exe under cmd.exe only as an inferred/weak child-process link with no CBC childproc/object evidence. The batch execution step is strong; parent-launch evidence and tshark evidence are strict zeros.",
+  "final_totals": {
+    "gold_item_hits": 10,
+    "gold_item_total": 12,
+    "behavior_step_recall_hits": 3,
+    "behavior_step_recall_total": 3,
+    "critical_evidence_recall_hits": 1,
+    "critical_evidence_recall_total": 3,
+    "behavior_sequence_order_hits": 1,
+    "behavior_sequence_order_total": 2,
+    "candidate_claim_precision_hits": 2,
+    "candidate_claim_precision_total": 2,
+    "overclaim_slot_count": 0,
+    "unsupported_evidence_count": 1,
+    "contradicted_evidence_count": 0
+  },
+  "gold_item_scores": [
+    {
+      "step_id": "C25-S01",
+      "gold_summary": "explorer.exe launches cmd.exe with the exact cmd.exe /c start_dns_logs.bat command line",
+      "matched_candidate_excerpt": "S1 subject_process.name=cmd.exe; execution_context.parent_process=explorer.exe; command_line=\"C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\"\"\"",
+      "subject": {
+        "score": 1,
+        "reason": "The candidate provides explorer.exe as the parent process in execution_context, so the gold parent subject is recoverable, although not separated as its own subject_process."
+      },
+      "action": {
+        "score": 1,
+        "reason": "The candidate represents cmd.exe as running under explorer.exe, which captures the parent launching the cmd.exe child."
+      },
+      "object": {
+        "score": 1,
+        "reason": "The full cmd.exe /c command line targeting C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat is present."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "reason": "The candidate cites cbc-edr-alerts command_line only and does not show the required CBC alert / CBC event parent_path plus process_cmdline evidence for explorer.exe -> cmd.exe."
+      },
+      "step_total": 3
+    },
+    {
+      "step_id": "C25-S02",
+      "gold_summary": "cmd.exe runs start_dns_logs.bat via /c",
+      "matched_candidate_excerpt": "S1 subject_process.name=cmd.exe; operation=execute; object.name=start_dns_logs.bat; command_line includes /c and start_dns_logs.bat; evidence field=command_line",
+      "subject": {
+        "score": 1,
+        "reason": "The candidate identifies cmd.exe as the executing process."
+      },
+      "action": {
+        "score": 1,
+        "reason": "The execute operation and /c command line capture cmd.exe running the batch file."
+      },
+      "object": {
+        "score": 1,
+        "reason": "The candidate names start_dns_logs.bat and gives its Desktop path."
+      },
+      "critical_evidence": {
+        "score": 1,
+        "reason": "The candidate provides process command-line evidence containing /c and start_dns_logs.bat, satisfying this step's process_cmdline basis."
+      },
+      "step_total": 4
+    },
+    {
+      "step_id": "C25-S03",
+      "gold_summary": "cmd.exe spawns tshark.exe",
+      "matched_candidate_excerpt": "S2 subject_process.name=tshark.exe; execution_context.parent_process=cmd.exe; confidence=inferred_from_observed_links; evidence=[]",
+      "subject": {
+        "score": 1,
+        "reason": "The candidate links the tshark.exe process to cmd.exe as parent context, recovering cmd.exe as the spawner."
+      },
+      "action": {
+        "score": 1,
+        "reason": "The candidate states tshark.exe execution under cmd.exe, matching the spawn/logging-process action at the behavior level."
+      },
+      "object": {
+        "score": 1,
+        "reason": "Although object fields are unknown, the candidate's step and code_sequence explicitly identify tshark.exe as the spawned process."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "reason": "The tshark.exe step has empty evidence and is marked inferred; it does not provide the required CBC event childproc/object evidence."
+      },
+      "step_total": 3
+    }
+  ],
+  "order_pairs": [
+    {
+      "pair": "C25-S01->C25-S02",
+      "score": 0,
+      "reason": "The candidate collapses the explorer.exe parent launch and the cmd.exe /c batch execution into S1, so these two gold behaviors are not represented as ordered separate steps."
+    },
+    {
+      "pair": "C25-S02->C25-S03",
+      "score": 1,
+      "reason": "The candidate orders the batch execution claim before the inferred tshark.exe child-process claim."
+    }
+  ],
+  "candidate_claim_scores": [
+    {
+      "claim_id": "CL01",
+      "candidate_claim": "cmd.exe PID 6028 runs C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat using C:\\Windows\\system32\\cmd.exe /c, with explorer.exe as parent.",
+      "precision": 1,
+      "overclaim": 0,
+      "matched_gold": "C25-S01/C25-S02",
+      "reason": "The behavioral claim matches the gold parent context and batch execution, even though the parent-launch critical evidence is incomplete."
+    },
+    {
+      "claim_id": "CL02",
+      "candidate_claim": "tshark.exe PID 6072 is launched under cmd.exe, but details are unknown and the claim is inferred from observed links.",
+      "precision": 1,
+      "overclaim": 0,
+      "matched_gold": "C25-S03",
+      "reason": "The cmd.exe -> tshark.exe behavior matches gold at the claim level. It is not treated as an overclaim because the candidate labels it inferred and limited, but its critical evidence receives 0."
+    }
+  ],
+  "notes": [
+    "OpenAI/API scorer was not used; this is based only on local gold and candidate JSON files.",
+    "Strict parent-launch scoring: explorer.exe parent context is credited for subject/action/object recall, but missing CBC parent_path plus process_cmdline support makes C25-S01 critical_evidence 0.",
+    "Strict CBC childproc/object scoring: the tshark.exe behavior is credited as a matching inferred claim, but C25-S03 critical_evidence is 0 because the candidate provides no childproc/object evidence.",
+    "The first two gold steps are behaviorally collapsed into one candidate step, so C25-S01->C25-S02 order is 0."
+  ]
+}

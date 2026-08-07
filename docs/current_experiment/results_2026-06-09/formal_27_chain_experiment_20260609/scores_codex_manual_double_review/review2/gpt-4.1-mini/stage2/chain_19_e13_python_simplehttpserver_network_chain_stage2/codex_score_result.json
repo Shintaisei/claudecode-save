@@ -1,0 +1,182 @@
+{
+  "case_id": "chain_19_e13_python_simplehttpserver_network_chain_stage2",
+  "reviewer": "codex_manual_review2",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "gold_chain": {
+    "chain_id": "chain_19_e13_python_simplehttpserver_network_chain",
+    "chain_type": "python_simplehttpserver_network_chain",
+    "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_19_e13_python_simplehttpserver_network_chain/chain_gold.json",
+    "run_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage2/chain_19_e13_python_simplehttpserver_network_chain_stage2_run.json",
+    "gold_steps": [
+      {
+        "step_id": "C19-S01",
+        "order": 1,
+        "subject": "python.exe",
+        "action": "launches/runs the SimpleHTTPServer module",
+        "object": "python  -m SimpleHTTPServer",
+        "critical_evidence": "CBC event process_cmdline"
+      },
+      {
+        "step_id": "C19-S02",
+        "order": 2,
+        "subject": "python.exe",
+        "action": "observed as network server behavior",
+        "object": "10.193.66.115:59277",
+        "critical_evidence": "CBC event netconn"
+      }
+    ]
+  },
+  "per_gold_step": [
+    {
+      "gold_step_id": "C19-S01",
+      "gold_order": 1,
+      "matched_candidate_claim_ids": [
+        "S2"
+      ],
+      "scores": {
+        "subject": 1,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "slot_notes": {
+        "subject": "Candidate S2 uses python.exe as the subject process.",
+        "action": "Candidate says python.exe executed/created flashplayerupdateservice.exe, not that python.exe was launched with the SimpleHTTPServer module.",
+        "object": "Candidate object is flashplayerupdateservice.exe; it never identifies the required command object 'python  -m SimpleHTTPServer'.",
+        "critical_evidence": "Candidate cites only generic audit_logs fields and does not explicitly cite a CBC event process_cmdline field."
+      },
+      "step_score": 1,
+      "step_score_max": 4
+    },
+    {
+      "gold_step_id": "C19-S02",
+      "gold_order": 2,
+      "matched_candidate_claim_ids": [],
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "slot_notes": {
+        "subject": "No final candidate code_step represents the python.exe network-server/netconn behavior.",
+        "action": "The candidate states that python.exe network connection records were not found, so it does not claim the required network server behavior.",
+        "object": "The required netconn object 10.193.66.115:59277 is absent from the final code_steps and code_sequence.",
+        "critical_evidence": "No CBC event netconn field or concrete netconn evidence is cited for this step."
+      },
+      "step_score": 0,
+      "step_score_max": 4
+    }
+  ],
+  "order_pairs": [
+    {
+      "gold_pair": [
+        "C19-S01",
+        "C19-S02"
+      ],
+      "candidate_pair": null,
+      "score": 0,
+      "note": "Candidate sequence is cmd.exe starting python.exe, python.exe starting flashplayerupdateservice.exe, and RepWmiUtils.exe file access; it does not recover the SimpleHTTPServer launch followed by netconn/network-server behavior."
+    }
+  ],
+  "candidate_claims": [
+    {
+      "claim_id": "S1",
+      "order": 1,
+      "subject": "cmd.exe",
+      "action": "process_start",
+      "object": "python.exe",
+      "evidence_summary": "audit_logs timestamp 2022-07-17 21:09:16 field=process_name value=cmd.exe and field=childproc_name value=python.exe",
+      "matched_gold_step_id": null,
+      "slot_precision": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "is_full_gold_match": false,
+      "overclaim_slots": [
+        "subject",
+        "action",
+        "object",
+        "critical_evidence"
+      ],
+      "note": "This is a parent/child process claim, not the gold python.exe SimpleHTTPServer command-line launch."
+    },
+    {
+      "claim_id": "S2",
+      "order": 2,
+      "subject": "python.exe",
+      "action": "process_execution",
+      "object": "flashplayerupdateservice.exe",
+      "evidence_summary": "audit_logs timestamp 2022-07-17 20:55:00 field=process_name value=python.exe and field=childproc_name value=flashplayerupdateservice.exe",
+      "matched_gold_step_id": "C19-S01",
+      "slot_precision": {
+        "subject": 1,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "is_full_gold_match": false,
+      "overclaim_slots": [
+        "action",
+        "object",
+        "critical_evidence"
+      ],
+      "note": "Only the subject process matches a gold slot. The claimed child-process behavior is not the SimpleHTTPServer launch and not the netconn/network-server step."
+    },
+    {
+      "claim_id": "S3",
+      "order": 3,
+      "subject": "RepWmiUtils.exe",
+      "action": "file_access",
+      "object": "ntdsapi.dll",
+      "evidence_summary": "audit_logs timestamp 2022-07-15 13:07:23 field=filemod_name value=ntdsapi.dll",
+      "matched_gold_step_id": null,
+      "slot_precision": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "is_full_gold_match": false,
+      "overclaim_slots": [
+        "subject",
+        "action",
+        "object",
+        "critical_evidence"
+      ],
+      "note": "This file-access claim is unrelated to the gold Python SimpleHTTPServer network chain."
+    }
+  ],
+  "totals": {
+    "action_step_recall_hits": 0,
+    "action_step_recall_total": 2,
+    "action_step_recall": 0,
+    "action_step_precision_hits": 0,
+    "action_step_precision_total": 3,
+    "action_step_precision": 0,
+    "candidate_claim_precision_hits": 1,
+    "candidate_claim_precision_total": 12,
+    "candidate_claim_precision": 0.08333333333333333,
+    "overclaim_slot_count": 11,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0,
+    "behavior_step_recall_hits": 1,
+    "behavior_step_recall_total": 8,
+    "behavior_step_recall": 0.125
+  },
+  "notes": [
+    "Manual Review2 only; no OpenAI API or GPT scoring script was used.",
+    "Gold requires two behavior steps: python.exe launched as 'python  -m SimpleHTTPServer' with CBC event process_cmdline evidence, then python.exe netconn/network-server behavior to 10.193.66.115:59277 with CBC event netconn evidence.",
+    "Candidate final code_steps instead claim cmd.exe started python.exe, python.exe started flashplayerupdateservice.exe, and RepWmiUtils.exe accessed ntdsapi.dll.",
+    "The candidate does not recover the required SimpleHTTPServer command line, the required 10.193.66.115:59277 network object, or either critical CBC event evidence field.",
+    "Generic audit_logs evidence was not credited as critical evidence under the requested strict rule.",
+    "The candidate's statement that python.exe network connection records were not found is treated as a false negative, not as recovered network behavior."
+  ]
+}

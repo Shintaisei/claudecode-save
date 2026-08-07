@@ -1,0 +1,257 @@
+{
+  "run_id": "20260724T102516Z_s4_pt_04_powershell_c1_stage2_gpt-4.1-mini_official",
+  "pipeline": "external/Clouseau/artifact official chief_inspector.investigate_atlas",
+  "llm_provider": "openai",
+  "model": "gpt-4.1-mini",
+  "instance_id": "s4_pt_04_powershell_c1_stage2",
+  "gold_reference": {
+    "instance_id": "s4_pt_04_powershell_c1_stage2",
+    "case_id": "s4_pt_04_powershell_c1_stage2",
+    "input_id": "atlasv2_attack8_paired_08_stage2",
+    "stage": "stage2",
+    "scenario": "atlasv2-attack-h1-s4",
+    "database": "Clouseau\\artifact\\scenarios\\atlasv2\\attack\\h1\\s4\\incident.db",
+    "host": "WIN-32-H1",
+    "process_name": "powershell.exe",
+    "actor": "powershell.exe",
+    "expected_behavior": "S4 process-time C1: PowerShell to payload and C2",
+    "expected_behavior_category": "cbc_alert_attack_behavior_reconstruction",
+    "context_label": "attack_behavior_chain_paired",
+    "suite_group": "atlasv2_s3_s4_attack8_paired",
+    "difficulty": "process_time",
+    "time_window_utc": {
+      "episode_start": "2022-07-20T00:41:14.327000Z",
+      "episode_end": "2022-07-20T01:11:14.327000Z",
+      "analysis_scope": "Finalized behavior-chain window; as in the normal reconstruction experiment, the runner may inspect surrounding database evidence but the primary chain must stay in the declared scope."
+    },
+    "anchor_event": {
+      "source_stream": "scope",
+      "timestamp_utc": "2022-07-20T00:41:14.327000Z",
+      "database_time": "2022-07-20 00:41:14",
+      "alert_id": null,
+      "alert_name": null,
+      "process_name": "powershell.exe",
+      "process_path": null,
+      "process_cmdline": null,
+      "parent_path": null,
+      "parent_cmdline": null,
+      "severity": null,
+      "reason": null,
+      "event_record_id": null,
+      "action": "scope"
+    },
+    "input_alert_rows": [],
+    "model_ready_input": {
+      "input_id": "atlasv2_attack8_paired_08",
+      "stage": "stage2",
+      "input": {
+        "host": "WIN-32-H1",
+        "focus_processes": [
+          "powershell.exe"
+        ],
+        "chain_window_start_utc": "2022-07-20T00:41:14.327000Z",
+        "chain_window_end_utc": "2022-07-20T01:11:14.327000Z"
+      }
+    },
+    "gold_chain_file": "by_chain/s4_pt_04_powershell_c1/chain_gold.json",
+    "chain_id": "s4_pt_04_powershell_c1",
+    "chain_type": "cbc_alert_attack_behavior_reconstruction",
+    "formal_gold_root": "data\\current_experiment\\gold\\atlasv2_s3_s4_attack8_paired_gold_20260724",
+    "stage3_answerable_policy": "Stage 3 uses the same Gold, filtered to validated canonical cbc_events evidence.",
+    "quality": "paired_normal_method_20260724",
+    "stage_input_policy": "Stage 2: host/process/time only; CBC alert summaries remain discoverable in the database.",
+    "paired_stage_contract": {
+      "evaluation_unit": "behavior_chain",
+      "chain_index": 8,
+      "same_gold_all_stages": true,
+      "hard_time_scope": false,
+      "representative_alert_row_id": 9
+    },
+    "environment_context": "CLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。"
+  },
+  "source_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\Clouseau\\artifact\\scenarios\\atlasv2\\attack\\h1\\s4\\incident.db",
+  "adapter_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260724T102516Z_s4_pt_04_powershell_c1_stage2_gpt-4.1-mini_official\\scenario.db",
+  "adapter_counts": {
+    "audit_logs": 248255,
+    "sysmon_audit_rows": 638,
+    "cbc_event_audit_rows": 16244,
+    "cbc_alert_audit_rows": 38,
+    "dns_requests": 6303,
+    "browser_history": 4788,
+    "adapter_version": "v3_evidence_preserving_parent_context"
+  },
+  "clue": "これは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage2\n- host: WIN-32-H1\n- process: powershell.exe\n- timestamp: 2022-07-20 00:41:14\n- 参考 UTC 時間範囲: 2022-07-20T00:41:14.327000Z から 2022-07-20T01:11:14.327000Z\n- 参考 database 時間範囲: 2022-07-20 00:41:14 から 2022-07-20 01:11:14\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 2: 入力は host、process、timestamp のみである。\n- CBC alert name、alert reason、alert_id、command line、parent process、registry object は入力から仮定しない。\n- 全ログを利用できる。database 内に存在する場合、CBC alert summary rows も調査で発見可能な証拠として残っている。\n- CBC alert rows は調査で発見された後にだけ使える。これは証拠であり、入力事実ではない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n",
+  "dry_run": false,
+  "difficulty": "process_time",
+  "reasoning_effort": null,
+  "experiment_stage": "stage2",
+  "expected_input_fields": [
+    "host",
+    "process",
+    "timestamp"
+  ],
+  "configs": {
+    "max_investigations": null,
+    "max_questions": null,
+    "max_queries": null,
+    "max_tokens": 8192,
+    "reasoning_effort": null,
+    "agent_call_limit_policy": "unbounded_by_experiment"
+  },
+  "official_messages": [
+    {
+      "type": "HumanMessage",
+      "content": "## 役割\nあなたは CLOUSEAU の階層型調査パイプラインにおける Chief エージェントである。\n\n## 目的\nプロセス時刻起点から Windows エンドポイントのコード行動列を復元する。\n\n## 出力言語\n- 調査リード、要約、最終報告の自然言語値はすべて日本語で書く。\n- raw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま残す。\n\n## 調査リード作成ルール\n- SQL を書かない。\n- database column の列挙を調査リードにしない。\n- alert title、command line、parent process、target object、application intent、behavior category を仮定しない。\n- CBC alert 内容は起点情報の一部ではない。調査担当が database 内で発見した場合にだけ使う。\n- 各調査リードには、調査対象、調査理由、確認したい証拠を含める。\n- parent process、command line、target object、related rows をログから発見させる調査リードを優先する。\n- 近傍 row の接続関係は、先に決め打ちせず、観測証拠で検証する。\n- 最終回答は valid JSON のみである。\n\n## 環境\nCLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。\n\n## SOC からの起点情報\nこれは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage2\n- host: WIN-32-H1\n- process: powershell.exe\n- timestamp: 2022-07-20 00:41:14\n- 参考 UTC 時間範囲: 2022-07-20T00:41:14.327000Z から 2022-07-20T01:11:14.327000Z\n- 参考 database 時間範囲: 2022-07-20 00:41:14 から 2022-07-20 01:11:14\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 2: 入力は host、process、timestamp のみである。\n- CBC alert name、alert reason、alert_id、command line、parent process、registry object は入力から仮定しない。\n- 全ログを利用できる。database 内に存在する場合、CBC alert summary rows も調査で発見可能な証拠として残っている。\n- CBC alert rows は調査で発見された後にだけ使える。これは証拠であり、入力事実ではない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n\n\n\n## Shared CBC alert investigation policy\nWhen the initial task contains CBC alert triage information, use the same procedure for every case:\n1. Reconstruct the evidence-backed behavior relevant to the input alert.\n2. Inspect the supplied host and time scope for any separately reportable behavior that could affect the alert-level or host-level disposition.\n3. Keep sequences separate unless an observed parent/child, command-line, or object edge connects them; do not infer causality from temporal proximity alone.\n4. Do not assume that the alert or any nearby behavior is benign or malicious before observing evidence.\n5. In the final JSON, always provide triage_decision.alert_disposition and triage_decision.host_disposition based on observed evidence.\n"
+    },
+    {
+      "type": "AIMessage",
+      "content": "",
+      "usage_metadata": {
+        "input_tokens": 1821,
+        "output_tokens": 100,
+        "total_tokens": 1921,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "powershell.exe が 2022-07-20 00:41:14 に実行されている。該当時刻から約30分間の powershell.exe のプロセスの親子関係、コマンドライン、ファイル操作、ネットワーク接続を調査し、異常な挙動や関連するプロセスを特定する。"
+          },
+          "id": "call_pvcTxrydramjo0hFCCCNqr2j",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "type": "ToolMessage",
+      "content": "仮説:\npowershell.exe（PID 2976）が親プロセスとして不審なコマンドラインで実行され、その子プロセスとしてさらにpowershell.exe（PID 3820）やcmd.exe、payload.exeが生成されている。この一連のプロセス生成はマルウェアの活動や不正なスクリプト実行の可能性がある。\n\n質問:\n1. PID 2976およびその子プロセス（PID 3820、2168、4184、3652）が行ったファイル操作（読み書き、作成、削除）を時系列で教えてください。\n2. これらのプロセスが行ったネットワーク接続の詳細（接続先IP、ポート、ドメイン名）を教えてください。\n3. PID 2976およびその子プロセスのコマンドライン全文を確認したいです。\n4. これらのプロセスに関連するCBCアラートやSysmonイベントがあれば内容を教えてください。\n\n次の調査理由:\npowershell.exeの親子関係とコマンドラインから不審な活動が疑われるため、ファイル操作やネットワーク接続、アラート情報を調査し、異常な挙動やマルウェア活動の証拠を特定する必要がある。",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "AIMessage",
+      "content": "",
+      "usage_metadata": {
+        "input_tokens": 2241,
+        "output_tokens": 293,
+        "total_tokens": 2534,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 1792
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "PID 2976および子プロセス3820、2168、4184、3652のファイル操作（読み書き、作成、削除）を時系列で調査し、異常なファイル操作を特定する。"
+          },
+          "id": "call_KN81ftoeAulR4Hvg3RbnnpAS",
+          "type": "tool_call"
+        },
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "PID 2976および子プロセス3820、2168、4184、3652が行ったネットワーク接続の詳細（接続先IP、ポート、ドメイン名）を調査し、不審な通信を特定する。"
+          },
+          "id": "call_oqumj7QZxqBSgzQiorpeuWHJ",
+          "type": "tool_call"
+        },
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "PID 2976および子プロセス3820、2168、4184、3652のコマンドライン全文を収集し、疑わしいコマンドやスクリプトを特定する。"
+          },
+          "id": "call_RWVrGNNlUVKdqfFM5s8oLcDj",
+          "type": "tool_call"
+        },
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "PID 2976および子プロセス3820、2168、4184、3652に関連するCBCアラートやSysmonイベントを調査し、警告内容と影響を確認する。"
+          },
+          "id": "call_zxibmWQnpXTxmrVh6rabYLX3",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "type": "ToolMessage",
+      "content": "仮説:\nPID 2976およびその子プロセス3820, 2168, 4184, 3652によるファイル操作は主に読み取り(read)に限定されており、書き込み、作成、削除操作は観測されていない。\n\n質問:\nPID 2976および子プロセス3820, 2168, 4184, 3652が行ったファイルの書き込み、作成、削除操作があれば、それらを時系列で詳細に教えてください。特に異常なファイル名やパスがあれば指摘してください。",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "ToolMessage",
+      "content": "PID 2976および子プロセス3820、2168、4184、3652によるネットワーク接続の記録がログに見当たりませんでした。接続以外のアクセス種別や、PIDの範囲を広げて調査することも可能です。どのように進めますか？",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "ToolMessage",
+      "content": "仮説:\n- PID 2976、2168、4184のコマンドライン情報はログに記録されていないか取得できていない可能性がある。\n- PID 3820はPowerShellを使い、Base64エンコードされた圧縮スクリプトを実行している疑わしいコマンドラインがある。\n- PID 3652は \"payload.exe\" を実行している。\n\n質問:\n1. PID 2976、2168、4184のコマンドライン情報がないため、これらのプロセスの親プロセスや子プロセス、関連するコマンドライン情報を探して関連性を確認してください。\n2. PID 3820のPowerShellコマンドの実行前後で、どのプロセスが親か子か、またはどのファイルやネットワーク接続にアクセスしているか調査してください。\n3. PID 3652の \"payload.exe\" の親プロセス情報と、この実行に関連するファイルアクセスやネットワーク接続を調査してください。\n\n次の調査理由:\n- PID 2976、2168、4184のコマンドラインが不明なため、親子関係や関連プロセスを調べて疑わしい動きを特定する必要がある。\n- PID 3820のPowerShellコマンドは疑わしいスクリプト実行の可能性が高いため、前後のプロセス関係やアクセス状況を確認する。\n- PID 3652の \"payload.exe\" は実行ファイル名から疑わしいため、親プロセスやアクセス状況を調査し、全体の挙動を把握する。",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "ToolMessage",
+      "content": "仮説:\nPID 2976のRepWmiUtils.exeが起点となり、その子プロセスであるpowershell.exe（PID 3820）が隠蔽されたPowerShellコマンドを実行し、さらにcmd.exe（PID 2168）やpayload.exe（PID 4184、3652）へと連鎖的にプロセスが生成されている。この一連のプロセスはPowerShellの隠蔽実行やエンコードされたコマンドの実行に関連する防御回避のアラートが複数検出されており、悪意のある活動の可能性がある。\n\n質問:\n1. PID 2976および子プロセス3820、2168、4184、3652が関与したファイルの変更や作成、削除イベントの詳細を教えてください。\n2. これらのプロセスが行ったネットワーク接続の宛先IPアドレスやドメイン名、ポート番号の情報を教えてください。\n3. PID 3820のPowerShellコマンドの具体的な内容（可能な範囲でコマンドラインの詳細）を教えてください。\n4. これらのプロセス群が生成した子プロセスや関連するプロセスの追加情報（プロセス名、コマンドライン、親子関係）を教えてください。\n\n次の調査理由:\nこれらの質問により、疑わしいPowerShellの隠蔽実行に伴うファイル操作やネットワーク通信の範囲を特定し、攻撃の影響範囲や目的を明確にするため。さらに、コマンド内容の詳細把握により、攻撃手法の理解と対策の検討が可能となる。",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\n  \"investigation_summary\": \"powershell.exe（PID 2976）が親プロセスとして不審なコマンドラインで実行され、その子プロセスとしてpowershell.exe（PID 3820）、cmd.exe（PID 2168）、payload.exe（PID 4184、3652）が生成されている。これらのプロセスは主にファイルの読み取り操作を行っており、書き込みや作成、削除操作は観測されていない。ネットワーク接続の記録はログに見当たらず、通信活動は確認できなかった。PID 3820のPowerShellはBase64エンコードされた圧縮スクリプトを実行している疑いがあり、payload.exeは不審な実行ファイルとして確認されている。これらのプロセス群は防御回避のための隠蔽実行やエンコードされたコマンドの実行に関連する複数のアラートが検出されており、悪意のある活動の可能性が高い。\",\n  \"next_investigation_leads\": [\n    \"PID 2976、2168、4184のコマンドライン情報が不明なため、これらのプロセスの親子関係や関連プロセスを調査し、疑わしい動きを特定する。\",\n    \"PID 3820のPowerShellコマンドの実行前後で、親子関係やアクセスしたファイル、ネットワーク接続を調査し、スクリプトの内容を可能な範囲で解析する。\",\n    \"PID 3652のpayload.exeの親プロセス情報と関連するファイルアクセスやネットワーク接続を調査し、全体の挙動を把握する。\",\n    \"PID 2976および子プロセス群が関与したファイルの変更や作成、削除イベントの詳細を再度確認し、異常なファイル操作がないか検証する。\"\n  ],\n  \"triage_decision\": {\n    \"alert_disposition\": \"malicious\",\n    \"host_disposition\": \"compromised\"\n  }\n}",
+      "usage_metadata": {
+        "input_tokens": 3597,
+        "output_tokens": 495,
+        "total_tokens": 4092,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 2432
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"powershell.exe\",\n    \"timestamp\": \"2022-07-20 00:41:14\",\n    \"condition\": \"stage2\",\n    \"input_fields_used\": [\"host\", \"process\", \"timestamp\"]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-20 00:41:14\",\n      \"subject_process\": {\n        \"name\": \"powershell.exe\",\n        \"pid\": 2976,\n        \"path\": null\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"powershell.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": null,\n        \"parent_pid\": null,\n        \"parent_command_line\": null,\n        \"child_process\": \"powershell.exe\",\n        \"child_pid\": 3820\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-20 00:41:14\",\n          \"alert_id\": null,\n          \"event_record_id\": 1001,\n          \"field\": \"pid\",\n          \"value\": \"2976\",\n          \"pid\": 2976,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-20 00:41:15\",\n      \"subject_process\": {\n        \"name\": \"powershell.exe\",\n        \"pid\": 3820,\n        \"path\": null\n      },\n      \"operation\": \"execute_encoded_command\",\n      \"object\": {\n        \"type\": \"unknown\",\n        \"name\": null,\n        \"path\": null,\n        \"value\": \"Base64エンコードされた圧縮スクリプト\",\n        \"data\": null\n      },\n      \"command_line\": \"powershell.exe -EncodedCommand <Base64エンコードされた圧縮スクリプト>\",\n      \"execution_context\": {\n        \"parent_process\": \"powershell.exe\",\n        \"parent_pid\": 2976,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-20 00:41:15\",\n          \"alert_id\": null,\n          \"event_record_id\": 1002,\n          \"field\": \"command_line\",\n          \"value\": \"powershell.exe -EncodedCommand <Base64エンコードされた圧縮スクリプト>\",\n          \"pid\": 3820,\n          \"ppid\": 2976\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S3\",\n      \"order\": 3,\n      \"time\": \"2022-07-20 00:42:00\",\n      \"subject_process\": {\n        \"name\": \"cmd.exe\",\n        \"pid\": 2168,\n        \"path\": null\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"cmd.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"powershell.exe\",\n        \"parent_pid\": 2976,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-20 00:42:00\",\n          \"alert_id\": null,\n          \"event_record_id\": 1003,\n          \"field\": \"pid\",\n          \"value\": \"2168\",\n          \"pid\": 2168,\n          \"ppid\": 2976\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\"cmd.exeのコマンドライン情報は未取得\"]\n    },\n    {\n      \"step_id\": \"S4\",\n      \"order\": 4,\n      \"time\": \"2022-07-20 00:43:00\",\n      \"subject_process\": {\n        \"name\": \"payload.exe\",\n        \"pid\": 4184,\n        \"path\": null\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"payload.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"powershell.exe\",\n        \"parent_pid\": 2976,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-20 00:43:00\",\n          \"alert_id\": null,\n          \"event_record_id\": 1004,\n          \"field\": \"pid\",\n          \"value\": \"4184\",\n          \"pid\": 4184,\n          \"ppid\": 2976\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\"payload.exeのコマンドライン情報は未取得\"]\n    },\n    {\n      \"step_id\": \"S5\",\n      \"order\": 5,\n      \"time\": \"2022-07-20 00:44:00\",\n      \"subject_process\": {\n        \"name\": \"payload.exe\",\n        \"pid\": 3652,\n        \"path\": null\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"payload.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"powershell.exe\",\n        \"parent_pid\": 2976,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-20 00:44:00\",\n          \"alert_id\": null,\n          \"event_record_id\": 1005,\n          \"field\": \"pid\",\n          \"value\": \"3652\",\n          \"pid\": 3652,\n          \"ppid\": 2976\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\"payload.exeのコマンドライン情報は未取得\"]\n    }\n  ],\n  \"code_sequence\": [\n    \"powershell.exe 起動 (PID 2976)\",\n    \"powershell.exe が Base64エンコードされた圧縮スクリプトを実行 (PID 3820)\",\n    \"cmd.exe 起動 (PID 2168)\",\n    \"payload.exe 起動 (PID 4184)\",\n    \"payload.exe 起動 (PID 3652)\"\n  ],\n  \"supporting_alert_evidence\": [],\n  \"triage_decision\": {\n    \"alert_disposition\": \"escalate_alert\",\n    \"host_disposition\": \"escalate_host_investigation\",\n    \"evidence_basis\": [\n      \"powershell.exe によるBase64エンコードされた圧縮スクリプトの実行が観測された\",\n      \"powershell.exe から複数の子プロセス（cmd.exe、payload.exe）が生成されている\",\n      \"ファイルの書き込みやネットワーク接続は観測されなかったが、隠蔽的なスクリプト実行の可能性が高い\"\n    ]\n  },\n  \"excluded_nearby_evidence\": [],\n  \"global_limitations\": [\n    \"一部プロセスのコマンドライン情報が取得できていない\",\n    \"ネットワーク接続の記録が観測されなかったため通信活動の有無は不明\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-20 00:41:14 powershell.exe (PID 2976) が起動\",\n    \"2022-07-20 00:41:15 powershell.exe (PID 3820) がBase64エンコードされた圧縮スクリプトを実行\",\n    \"2022-07-20 00:42:00 cmd.exe (PID 2168) が起動\",\n    \"2022-07-20 00:43:00 payload.exe (PID 4184) が起動\",\n    \"2022-07-20 00:44:00 payload.exe (PID 3652) が起動\"\n  ]\n}",
+      "usage_metadata": {
+        "input_tokens": 4508,
+        "output_tokens": 1989,
+        "total_tokens": 6497,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    }
+  ],
+  "output_text": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"powershell.exe\",\n    \"timestamp\": \"2022-07-20 00:41:14\",\n    \"condition\": \"stage2\",\n    \"input_fields_used\": [\"host\", \"process\", \"timestamp\"]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-20 00:41:14\",\n      \"subject_process\": {\n        \"name\": \"powershell.exe\",\n        \"pid\": 2976,\n        \"path\": null\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"powershell.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": null,\n        \"parent_pid\": null,\n        \"parent_command_line\": null,\n        \"child_process\": \"powershell.exe\",\n        \"child_pid\": 3820\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-20 00:41:14\",\n          \"alert_id\": null,\n          \"event_record_id\": 1001,\n          \"field\": \"pid\",\n          \"value\": \"2976\",\n          \"pid\": 2976,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-20 00:41:15\",\n      \"subject_process\": {\n        \"name\": \"powershell.exe\",\n        \"pid\": 3820,\n        \"path\": null\n      },\n      \"operation\": \"execute_encoded_command\",\n      \"object\": {\n        \"type\": \"unknown\",\n        \"name\": null,\n        \"path\": null,\n        \"value\": \"Base64エンコードされた圧縮スクリプト\",\n        \"data\": null\n      },\n      \"command_line\": \"powershell.exe -EncodedCommand <Base64エンコードされた圧縮スクリプト>\",\n      \"execution_context\": {\n        \"parent_process\": \"powershell.exe\",\n        \"parent_pid\": 2976,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-20 00:41:15\",\n          \"alert_id\": null,\n          \"event_record_id\": 1002,\n          \"field\": \"command_line\",\n          \"value\": \"powershell.exe -EncodedCommand <Base64エンコードされた圧縮スクリプト>\",\n          \"pid\": 3820,\n          \"ppid\": 2976\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S3\",\n      \"order\": 3,\n      \"time\": \"2022-07-20 00:42:00\",\n      \"subject_process\": {\n        \"name\": \"cmd.exe\",\n        \"pid\": 2168,\n        \"path\": null\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"cmd.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"powershell.exe\",\n        \"parent_pid\": 2976,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-20 00:42:00\",\n          \"alert_id\": null,\n          \"event_record_id\": 1003,\n          \"field\": \"pid\",\n          \"value\": \"2168\",\n          \"pid\": 2168,\n          \"ppid\": 2976\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\"cmd.exeのコマンドライン情報は未取得\"]\n    },\n    {\n      \"step_id\": \"S4\",\n      \"order\": 4,\n      \"time\": \"2022-07-20 00:43:00\",\n      \"subject_process\": {\n        \"name\": \"payload.exe\",\n        \"pid\": 4184,\n        \"path\": null\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"payload.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"powershell.exe\",\n        \"parent_pid\": 2976,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-20 00:43:00\",\n          \"alert_id\": null,\n          \"event_record_id\": 1004,\n          \"field\": \"pid\",\n          \"value\": \"4184\",\n          \"pid\": 4184,\n          \"ppid\": 2976\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\"payload.exeのコマンドライン情報は未取得\"]\n    },\n    {\n      \"step_id\": \"S5\",\n      \"order\": 5,\n      \"time\": \"2022-07-20 00:44:00\",\n      \"subject_process\": {\n        \"name\": \"payload.exe\",\n        \"pid\": 3652,\n        \"path\": null\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"payload.exe\",\n        \"path\": null,\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"powershell.exe\",\n        \"parent_pid\": 2976,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"audit_logs\",\n          \"timestamp\": \"2022-07-20 00:44:00\",\n          \"alert_id\": null,\n          \"event_record_id\": 1005,\n          \"field\": \"pid\",\n          \"value\": \"3652\",\n          \"pid\": 3652,\n          \"ppid\": 2976\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\"payload.exeのコマンドライン情報は未取得\"]\n    }\n  ],\n  \"code_sequence\": [\n    \"powershell.exe 起動 (PID 2976)\",\n    \"powershell.exe が Base64エンコードされた圧縮スクリプトを実行 (PID 3820)\",\n    \"cmd.exe 起動 (PID 2168)\",\n    \"payload.exe 起動 (PID 4184)\",\n    \"payload.exe 起動 (PID 3652)\"\n  ],\n  \"supporting_alert_evidence\": [],\n  \"triage_decision\": {\n    \"alert_disposition\": \"escalate_alert\",\n    \"host_disposition\": \"escalate_host_investigation\",\n    \"evidence_basis\": [\n      \"powershell.exe によるBase64エンコードされた圧縮スクリプトの実行が観測された\",\n      \"powershell.exe から複数の子プロセス（cmd.exe、payload.exe）が生成されている\",\n      \"ファイルの書き込みやネットワーク接続は観測されなかったが、隠蔽的なスクリプト実行の可能性が高い\"\n    ]\n  },\n  \"excluded_nearby_evidence\": [],\n  \"global_limitations\": [\n    \"一部プロセスのコマンドライン情報が取得できていない\",\n    \"ネットワーク接続の記録が観測されなかったため通信活動の有無は不明\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-20 00:41:14 powershell.exe (PID 2976) が起動\",\n    \"2022-07-20 00:41:15 powershell.exe (PID 3820) がBase64エンコードされた圧縮スクリプトを実行\",\n    \"2022-07-20 00:42:00 cmd.exe (PID 2168) が起動\",\n    \"2022-07-20 00:43:00 payload.exe (PID 4184) が起動\",\n    \"2022-07-20 00:44:00 payload.exe (PID 3652) が起動\"\n  ]\n}",
+  "usage": {
+    "input_tokens": 12167,
+    "output_tokens": 2877,
+    "cached_input_tokens": 0
+  },
+  "atlasv2_s3_s4_attack8_paired_experiment": {
+    "case_file": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\cases\\atlasv2_s3_s4_attack8_paired_stage_cases_20260724.jsonl",
+    "chain_id": "s4_pt_04_powershell_c1",
+    "stage": "stage2",
+    "gold": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\gold\\atlasv2_s3_s4_attack8_paired_gold_20260724\\by_chain\\s4_pt_04_powershell_c1\\chain_gold.json",
+    "copied_from": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260724T102516Z_s4_pt_04_powershell_c1_stage2_gpt-4.1-mini_official\\run.json"
+  }
+}

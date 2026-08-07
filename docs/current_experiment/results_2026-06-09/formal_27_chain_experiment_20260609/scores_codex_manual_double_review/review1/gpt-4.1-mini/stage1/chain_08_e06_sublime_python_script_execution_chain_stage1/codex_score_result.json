@@ -1,0 +1,264 @@
+{
+  "reviewer": "codex_manual_review1",
+  "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage1/chain_08_e06_sublime_python_script_execution_chain_stage1_run.json",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_08_e06_sublime_python_script_execution_chain/chain_gold.json",
+  "stage": "stage1",
+  "judge_summary_ja": "候補は後段の cmd.exe が python.exe を起動したことと python.exe が hello.py を実行したことは部分的に復元している。一方で、gold の先頭である plugin_host.exe が cmd.exe を起動した事実、cmd.exe の /c による完全な Python 実行コマンド、観測根拠としての parent_path/process_cmdline は復元できていない。CBC alert 名は supporting evidence としては記載されているが、それだけでは行動復元スロットとしては採点しない。",
+  "gold_required_item_scores": [
+    {
+      "gold_step_id": "C08-S01",
+      "gold_order": 1,
+      "gold_step_summary": "plugin_host.exe が cmd.exe を子プロセスとして起動した。対象は C:\\Windows\\system32\\cmd.exe /c \"python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\"\"。",
+      "items": [
+        {
+          "item": "subject",
+          "expected": "plugin_host.exe",
+          "score": 0,
+          "matched_candidate": null,
+          "reason_ja": "候補は cmd.exe の親を不明としており、plugin_host.exe を復元していない。"
+        },
+        {
+          "item": "action",
+          "expected": "cmd.exeを子プロセスとして起動した",
+          "score": 0,
+          "matched_candidate": null,
+          "reason_ja": "plugin_host.exe から cmd.exe を起動した行動がない。"
+        },
+        {
+          "item": "object",
+          "expected": "C:\\Windows\\system32\\cmd.exe /c \"python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\"\"",
+          "score": 0,
+          "matched_candidate": null,
+          "reason_ja": "cmd.exe の完全なパスと /c Python 実行コマンドを復元していない。"
+        },
+        {
+          "item": "evidence",
+          "expected": "CBC alert / CBC event の parent_path と process_cmdline",
+          "score": 0,
+          "matched_candidate": null,
+          "reason_ja": "parent_path と process_cmdline に基づく plugin_host.exe -> cmd.exe の根拠がない。"
+        }
+      ],
+      "step_hits": 0,
+      "step_total": 4
+    },
+    {
+      "gold_step_id": "C08-S02",
+      "gold_order": 2,
+      "gold_step_summary": "cmd.exe が /c で Python 実行コマンドを起動した。対象は C:\\Windows\\system32\\cmd.exe /c \"python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\"\"。",
+      "items": [
+        {
+          "item": "subject",
+          "expected": "cmd.exe",
+          "score": 0,
+          "matched_candidate": null,
+          "reason_ja": "候補の cmd.exe は python.exe 起動の主体としては出るが、/c Python 実行コマンドのステップとして分離されていない。"
+        },
+        {
+          "item": "action",
+          "expected": "/cでPython実行コマンドを起動した",
+          "score": 0,
+          "matched_candidate": null,
+          "reason_ja": "候補は /c や python -u を含むコマンド実行を復元していない。"
+        },
+        {
+          "item": "object",
+          "expected": "C:\\Windows\\system32\\cmd.exe /c \"python -u \"C:\\Users\\aalsahee\\Documents\\hello.py\"\"",
+          "score": 0,
+          "matched_candidate": null,
+          "reason_ja": "完全な cmd.exe コマンドラインがない。"
+        },
+        {
+          "item": "evidence",
+          "expected": "CBC alert / CBC event process_cmdline",
+          "score": 0,
+          "matched_candidate": null,
+          "reason_ja": "process_cmdline 根拠を提示していない。"
+        }
+      ],
+      "step_hits": 0,
+      "step_total": 4
+    },
+    {
+      "gold_step_id": "C08-S03",
+      "gold_order": 3,
+      "gold_step_summary": "cmd.exe が python.exe を起動した。対象は C:\\Users\\aalsahee\\Documents\\hello.py。",
+      "items": [
+        {
+          "item": "subject",
+          "expected": "cmd.exe",
+          "score": 1,
+          "matched_candidate": "S1.subject_process.name=cmd.exe",
+          "reason_ja": "候補 S1 は cmd.exe を主体としている。"
+        },
+        {
+          "item": "action",
+          "expected": "python.exeを起動した",
+          "score": 1,
+          "matched_candidate": "S1.operation=process_start; S1.object.name=python.exe",
+          "reason_ja": "候補 S1 は cmd.exe が python.exe を起動したという行動を復元している。"
+        },
+        {
+          "item": "object",
+          "expected": "C:\\Users\\aalsahee\\Documents\\hello.py",
+          "score": 0,
+          "matched_candidate": "S1.object.name=python.exe",
+          "reason_ja": "このステップの対象である hello.py は S1 の object には入っていない。"
+        },
+        {
+          "item": "evidence",
+          "expected": "CBC alert / CBC event parent_path",
+          "score": 0,
+          "matched_candidate": "S1.evidence uses cbc-edr-alerts alert_pid",
+          "reason_ja": "alert_pid と alert_id はあるが、parent_path に基づく根拠ではない。alert 名や alert PID だけではこの evidence スロットは満たさない。"
+        }
+      ],
+      "step_hits": 2,
+      "step_total": 4
+    },
+    {
+      "gold_step_id": "C08-S04",
+      "gold_order": 4,
+      "gold_step_summary": "python.exe が Python スクリプトを実行した。対象は C:\\Users\\aalsahee\\Documents\\hello.py。",
+      "items": [
+        {
+          "item": "subject",
+          "expected": "python.exe",
+          "score": 1,
+          "matched_candidate": "S2.subject_process.name=python.exe",
+          "reason_ja": "候補 S2 は python.exe を主体としている。"
+        },
+        {
+          "item": "action",
+          "expected": "Pythonスクリプトを実行した",
+          "score": 1,
+          "matched_candidate": "S2.operation=script_execution",
+          "reason_ja": "候補 S2 は script_execution として復元している。"
+        },
+        {
+          "item": "object",
+          "expected": "C:\\Users\\aalsahee\\Documents\\hello.py",
+          "score": 1,
+          "matched_candidate": "S2.object.path=C:\\Users\\aalsahee\\Documents\\hello.py",
+          "reason_ja": "対象ファイル hello.py のパスを復元している。"
+        },
+        {
+          "item": "evidence",
+          "expected": "process_cmdline",
+          "score": 0,
+          "matched_candidate": "S2.evidence field=file_path; command_line=null",
+          "reason_ja": "gold の根拠は process_cmdline だが、候補は command_line を null とし、file_path 根拠に留まっている。"
+        }
+      ],
+      "step_hits": 3,
+      "step_total": 4
+    }
+  ],
+  "candidate_action_claim_scores": [
+    {
+      "candidate_id": "S1.subject",
+      "claim": "cmd.exe",
+      "mapped_gold_item": "C08-S03.subject",
+      "score": 1,
+      "reason_ja": "cmd.exe が python.exe 起動の主体である点は gold 後段と一致する。"
+    },
+    {
+      "candidate_id": "S1.action",
+      "claim": "process_start python.exe",
+      "mapped_gold_item": "C08-S03.action",
+      "score": 1,
+      "reason_ja": "python.exe 起動は復元できている。"
+    },
+    {
+      "candidate_id": "S1.object",
+      "claim": "object process python.exe",
+      "mapped_gold_item": null,
+      "score": 0,
+      "reason_ja": "gold の C08-S03 object は hello.py であり、C08-S02 object は完全な cmd.exe /c コマンドであるため、この object claim は必要スロットを満たさない。"
+    },
+    {
+      "candidate_id": "S1.evidence",
+      "claim": "cbc-edr-alerts alert_pid values for PID 2228 and PID 3332",
+      "mapped_gold_item": null,
+      "score": 0,
+      "reason_ja": "alert PID/alert ID は補助証拠だが、gold が要求する parent_path/process_cmdline evidence ではない。"
+    },
+    {
+      "candidate_id": "S2.subject",
+      "claim": "python.exe",
+      "mapped_gold_item": "C08-S04.subject",
+      "score": 1,
+      "reason_ja": "python.exe 主体は一致する。"
+    },
+    {
+      "candidate_id": "S2.action",
+      "claim": "script_execution",
+      "mapped_gold_item": "C08-S04.action",
+      "score": 1,
+      "reason_ja": "Python スクリプト実行として復元している。"
+    },
+    {
+      "candidate_id": "S2.object",
+      "claim": "C:\\Users\\aalsahee\\Documents\\hello.py",
+      "mapped_gold_item": "C08-S04.object",
+      "score": 1,
+      "reason_ja": "hello.py の対象パスは一致する。"
+    },
+    {
+      "candidate_id": "S2.evidence",
+      "claim": "audit_logs file_path evidence; command_line=null",
+      "mapped_gold_item": null,
+      "score": 0,
+      "reason_ja": "process_cmdline 根拠ではなく、候補自身も command_line を null としている。"
+    },
+    {
+      "candidate_id": "global_limitations.network_or_child_process_absent",
+      "claim": "関連するネットワーク接続や子プロセス生成の証拠は観測されていない",
+      "mapped_gold_item": null,
+      "score": 0,
+      "reason_ja": "gold required item ではなく、特に子プロセス生成については本チェーンの cmd.exe -> python.exe と衝突しうる負の断定なので overclaim として数える。"
+    }
+  ],
+  "order_pairs": [
+    {
+      "gold_pair": "C08-S01 -> C08-S02",
+      "score": 0,
+      "reason_ja": "plugin_host.exe -> cmd.exe と cmd.exe /c Python 実行の前段が候補にない。"
+    },
+    {
+      "gold_pair": "C08-S02 -> C08-S03",
+      "score": 0,
+      "reason_ja": "C08-S02 が独立ステップとして復元されていないため、この相対順序は採点できない。"
+    },
+    {
+      "gold_pair": "C08-S03 -> C08-S04",
+      "score": 1,
+      "reason_ja": "候補は cmd.exe が python.exe を起動し、その後 python.exe が hello.py を実行する順序で記述している。"
+    }
+  ],
+  "totals": {
+    "action_step_recall_hits": 5,
+    "action_step_recall_total": 16,
+    "action_step_recall": 0.3125,
+    "action_step_precision_hits": 5,
+    "action_step_precision_total": 16,
+    "action_step_precision": 0.3125,
+    "candidate_claim_precision_hits": 5,
+    "candidate_claim_precision_total": 9,
+    "candidate_claim_precision": 0.5555555555555556,
+    "overclaim_slot_count": 4,
+    "behavior_sequence_order_hits": 1,
+    "behavior_sequence_order_total": 3,
+    "behavior_sequence_order": 0.3333333333333333,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 4,
+    "critical_evidence_recall": 0.0
+  },
+  "notes_ja": [
+    "Review 1 manual scoring only. OpenAI API と score_element_order_with_gpt.py は使用していない。",
+    "CBC alert 名や alert_id は supporting evidence としては扱うが、行動復元スロットの subject/action/object には数えない。",
+    "候補の S1 は C08-S03 の subject/action のみを満たす。C08-S03 の object である hello.py と parent_path evidence は不足。",
+    "候補の S2 は C08-S04 の subject/action/object を満たすが、process_cmdline evidence は不足。",
+    "plugin_host.exe 起点と cmd.exe の完全な /c Python 実行コマンドが欠落しているため、前段2ステップは全未回収。"
+  ]
+}

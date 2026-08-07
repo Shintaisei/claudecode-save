@@ -1,0 +1,93 @@
+{
+  "case": "chain_24_e18_cmdexe_other_chain_stage1",
+  "model": "gpt-4.1-mini",
+  "stage": "stage1",
+  "method": "codex_manual_double_review_adjudicated_no_api",
+  "review1_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/scores_codex_manual_double_review/review1/gpt-4.1-mini/stage1/chain_24_e18_cmdexe_other_chain_stage1/codex_score_result.json",
+  "review2_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/scores_codex_manual_double_review/review2/gpt-4.1-mini/stage1/chain_24_e18_cmdexe_other_chain_stage1/codex_score_result.json",
+  "adjudication_ja": "Reviews agree the core explorer.exe -> cmd.exe /c run_http_server.bat -> python.exe chain is recovered and ordered. Final adopts the stricter evidence accounting from Review2: only one of three critical evidence slots is credited because candidate evidence is mostly audit_logs rather than the exact CBC parent_path/process_cmdline or CBC childproc/object basis. start_dns_logs/tshark/dumpcap/DNS-write claims are nearby unrelated overclaims.",
+  "review_totals_observed": {
+    "review1_reported": {
+      "gold_items": "11/12",
+      "critical_evidence": "2/3",
+      "order": "2/2",
+      "candidate_precision": "8/22"
+    },
+    "review2_reported": {
+      "gold_items": "10/12",
+      "critical_evidence": "1/3",
+      "order": "2/2",
+      "candidate_precision": "10/27"
+    }
+  },
+  "final_totals": {
+    "action_step_recall_hits": 10,
+    "action_step_recall_total": 12,
+    "action_step_recall": 0.8333333333333334,
+    "action_step_precision_hits": 10,
+    "action_step_precision_total": 12,
+    "action_step_precision": 0.8333333333333334,
+    "candidate_claim_precision_hits": 10,
+    "candidate_claim_precision_total": 27,
+    "candidate_claim_precision": 0.37037037037037035,
+    "overclaim_slot_count": 17,
+    "behavior_sequence_order_hits": 2,
+    "behavior_sequence_order_total": 2,
+    "behavior_sequence_order": 1.0,
+    "critical_evidence_recall_hits": 1,
+    "critical_evidence_recall_total": 3,
+    "critical_evidence_recall": 0.3333333333333333,
+    "behavior_step_recall_hits": 3,
+    "behavior_step_recall_total": 3,
+    "behavior_step_recall": 1.0
+  },
+  "final_gold_step_scores": [
+    {
+      "step_id": "C24-S01",
+      "summary": "explorer.exe starts cmd.exe with full run_http_server.bat command",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate recovers explorer.exe parent context and full command, but not strict CBC parent_path/process_cmdline evidence."
+    },
+    {
+      "step_id": "C24-S02",
+      "summary": "cmd.exe runs run_http_server.bat via /c",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 1
+      },
+      "reason": "Candidate recovers cmd.exe /c run_http_server.bat and command_line evidence."
+    },
+    {
+      "step_id": "C24-S03",
+      "summary": "cmd.exe spawns python.exe",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate recovers python.exe child process from the run_http_server chain, but not strict CBC childproc/object evidence."
+    }
+  ],
+  "final_order_pairs": [
+    {
+      "before_step_id": "C24-S01",
+      "after_step_id": "C24-S02",
+      "score": 1,
+      "reason": "Candidate orders explorer/cmd launch before batch execution."
+    },
+    {
+      "before_step_id": "C24-S02",
+      "after_step_id": "C24-S03",
+      "score": 1,
+      "reason": "Candidate orders run_http_server.bat execution before python.exe child process."
+    }
+  ]
+}

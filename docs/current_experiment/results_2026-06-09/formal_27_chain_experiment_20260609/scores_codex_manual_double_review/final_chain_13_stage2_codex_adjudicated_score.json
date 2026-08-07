@@ -1,0 +1,113 @@
+{
+  "case": "chain_13_e09_dns_packet_capture_batch_chain_stage2",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "method": "codex_manual_double_review_adjudicated_no_api",
+  "review1_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/scores_codex_manual_double_review/review1/gpt-4.1-mini/stage2/chain_13_e09_dns_packet_capture_batch_chain_stage2/codex_score_result.json",
+  "review2_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/scores_codex_manual_double_review/review2/gpt-4.1-mini/stage2/chain_13_e09_dns_packet_capture_batch_chain_stage2/codex_score_result.json",
+  "adjudication_ja": "Both reviews agree on item recall: candidate partially recovers the first explorer.exe/cmd.exe start_dns_logs.bat behavior and cmd.exe -> tshark.exe, but misses the full /c command object, all CBC critical evidence, and the second W20 start_dns_logs.bat occurrence. Behavior-step recall is adjudicated at 2/5 because C13-S01 lacks the required object. Order is adjudicated strictly at 0/4: the parent launch and batch execution are collapsed into one step, S02->S03 is interrupted by an out-of-scope python claim, and the W20 pairs are absent.",
+  "final_totals": {
+    "action_step_recall_hits": 8,
+    "action_step_recall_total": 20,
+    "action_step_recall": 0.4,
+    "action_step_precision_hits": 8,
+    "action_step_precision_total": 24,
+    "action_step_precision": 0.3333333333333333,
+    "candidate_claim_precision_hits": 8,
+    "candidate_claim_precision_total": 24,
+    "candidate_claim_precision": 0.3333333333333333,
+    "overclaim_slot_count": 16,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 4,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 5,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 2,
+    "behavior_step_recall_total": 5,
+    "behavior_step_recall": 0.4
+  },
+  "final_gold_step_scores": [
+    {
+      "step_id": "C13-S01",
+      "summary": "explorer.exe starts cmd.exe with full /c start_dns_logs.bat command",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate identifies explorer.exe as parent of cmd.exe, but gives only the batch file path and command_line=null, not the full C:\\Windows\\system32\\cmd.exe /c command or CBC parent_path/process_cmdline evidence."
+    },
+    {
+      "step_id": "C13-S02",
+      "summary": "cmd.exe executes start_dns_logs.bat",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate says cmd.exe executes C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat, but does not cite the required process_cmdline evidence."
+    },
+    {
+      "step_id": "C13-S03",
+      "summary": "cmd.exe spawns tshark.exe",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate recovers cmd.exe as parent of tshark.exe and the tshark.exe object, but evidence is generic audit_logs/placeholder event ids rather than CBC childproc/object evidence."
+    },
+    {
+      "step_id": "C13-S05",
+      "summary": "second W20 explorer.exe starts cmd.exe with full /c start_dns_logs.bat command",
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate does not recover the second DNS batch launch; the later run_http_server.bat claim is out of scope."
+    },
+    {
+      "step_id": "C13-S06",
+      "summary": "second W20 cmd.exe executes start_dns_logs.bat",
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "reason": "Candidate does not recover a second cmd.exe /c start_dns_logs.bat execution."
+    }
+  ],
+  "final_order_pairs": [
+    {
+      "before_step_id": "C13-S01",
+      "after_step_id": "C13-S02",
+      "score": 0,
+      "reason": "Candidate collapses the explorer.exe parent launch and cmd.exe batch execution into one step."
+    },
+    {
+      "before_step_id": "C13-S02",
+      "after_step_id": "C13-S03",
+      "score": 0,
+      "reason": "Candidate mentions start_dns_logs.bat and tshark.exe in that broad order, but an out-of-scope python.exe step intervenes, so the gold adjacent pair is not preserved."
+    },
+    {
+      "before_step_id": "C13-S03",
+      "after_step_id": "C13-S05",
+      "score": 0,
+      "reason": "The second W20 DNS batch launch after tshark.exe is not recovered."
+    },
+    {
+      "before_step_id": "C13-S05",
+      "after_step_id": "C13-S06",
+      "score": 0,
+      "reason": "Both W20 steps are missing."
+    }
+  ]
+}

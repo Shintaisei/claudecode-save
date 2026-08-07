@@ -1,0 +1,295 @@
+{
+  "case_id": "chain_25_e18_dns_packet_capture_batch_chain_stage2",
+  "reviewer": "codex_manual_review1",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "gold_chain": {
+    "chain_id": "chain_25_e18_dns_packet_capture_batch_chain",
+    "chain_type": "dns_packet_capture_batch_chain",
+    "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_25_e18_dns_packet_capture_batch_chain/chain_gold.json",
+    "gold_steps": [
+      {
+        "step_id": "C25-S01",
+        "order": 1,
+        "subject": "explorer.exe",
+        "action": "start cmd.exe as child process",
+        "object": "C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+        "critical_evidence_required": "CBC alert/event parent_path and process_cmdline"
+      },
+      {
+        "step_id": "C25-S02",
+        "order": 2,
+        "subject": "cmd.exe",
+        "action": "execute the batch file via /c",
+        "object": "start_dns_logs.bat",
+        "critical_evidence_required": "process_cmdline"
+      },
+      {
+        "step_id": "C25-S03",
+        "order": 3,
+        "subject": "cmd.exe",
+        "action": "spawn log-collection process",
+        "object": "tshark.exe",
+        "critical_evidence_required": "CBC event childproc/object"
+      }
+    ]
+  },
+  "per_gold_step": [
+    {
+      "gold_step_id": "C25-S01",
+      "candidate_mapping": "Candidate S1: cmd.exe execute_batch_file start_dns_logs.bat, with execution_context.parent_process=explorer.exe.",
+      "subject": {
+        "score": 1,
+        "note": "The candidate identifies explorer.exe as the parent process in execution_context."
+      },
+      "action": {
+        "score": 0,
+        "note": "The candidate collapses this parent launch into the batch execution step and does not separately claim explorer.exe started cmd.exe as a child process."
+      },
+      "object": {
+        "score": 0,
+        "note": "The candidate gives only the batch file path/name, not the full gold cmd.exe /c command line."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "note": "Evidence is generic audit_logs process_name data and does not cite CBC alert/event parent_path or process_cmdline fields."
+      },
+      "step_total": 1,
+      "step_max": 4
+    },
+    {
+      "gold_step_id": "C25-S02",
+      "candidate_mapping": "Candidate S1: cmd.exe execute_batch_file start_dns_logs.bat.",
+      "subject": {
+        "score": 1,
+        "note": "Correctly names cmd.exe as the executing process."
+      },
+      "action": {
+        "score": 1,
+        "note": "Captures batch-file execution by cmd.exe, although it does not explicitly preserve the /c switch."
+      },
+      "object": {
+        "score": 1,
+        "note": "Correctly identifies start_dns_logs.bat."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "note": "Evidence is generic audit_logs data and does not cite the concrete CBC process_cmdline field."
+      },
+      "step_total": 3,
+      "step_max": 4
+    },
+    {
+      "gold_step_id": "C25-S03",
+      "candidate_mapping": "Candidate S3: tshark.exe process_start with execution_context.parent_process=cmd.exe.",
+      "subject": {
+        "score": 1,
+        "note": "The candidate explicitly gives cmd.exe as the parent process for the tshark.exe start."
+      },
+      "action": {
+        "score": 1,
+        "note": "The tshark.exe process start captures the gold log-collection process spawn behavior."
+      },
+      "object": {
+        "score": 1,
+        "note": "Correctly identifies tshark.exe."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "note": "Evidence is generic audit_logs process_name/ppid data and does not cite CBC event childproc/object fields."
+      },
+      "step_total": 3,
+      "step_max": 4
+    }
+  ],
+  "order_pairs": {
+    "gold_adjacent_pairs": [
+      {
+        "pair": [
+          "C25-S01",
+          "C25-S02"
+        ],
+        "candidate_pair": [
+          "S1(collapsed)"
+        ],
+        "score": 0,
+        "note": "The candidate merges explorer.exe -> cmd.exe launch and cmd.exe /c batch execution into one step, so the parent-to-batch adjacent order pair is not creditable."
+      },
+      {
+        "pair": [
+          "C25-S02",
+          "C25-S03"
+        ],
+        "candidate_pair": [
+          "S1",
+          "S3"
+        ],
+        "score": 0,
+        "note": "Although S1 precedes S3, the out-of-scope run_http_server.bat claim S2 is inserted between them, so the gold adjacent pair is not preserved."
+      }
+    ],
+    "candidate_adjacent_pairs": [
+      {
+        "pair": [
+          "S1",
+          "S2"
+        ],
+        "precision_hit": 0,
+        "note": "Transitions from in-scope start_dns_logs.bat to out-of-scope run_http_server.bat."
+      },
+      {
+        "pair": [
+          "S2",
+          "S3"
+        ],
+        "precision_hit": 0,
+        "note": "Starts from an out-of-scope run_http_server.bat claim."
+      },
+      {
+        "pair": [
+          "S3",
+          "S4"
+        ],
+        "precision_hit": 0,
+        "note": "Adds dumpcap.exe as an extra process not present as a gold step for this chain."
+      },
+      {
+        "pair": [
+          "S4",
+          "S5"
+        ],
+        "precision_hit": 0,
+        "note": "Adds an out-of-scope python.exe process."
+      }
+    ],
+    "candidate_adjacent_precision_hits": 0,
+    "candidate_adjacent_precision_total": 4,
+    "candidate_adjacent_precision": 0.0
+  },
+  "candidate_claims": [
+    {
+      "candidate_step_id": "S1",
+      "claim": "cmd.exe executes C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat with explorer.exe as parent context",
+      "mapped_gold_step": "C25-S02",
+      "precision_hit": 1,
+      "slot_hits": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": [
+        "critical_evidence"
+      ],
+      "note": "The batch execution behavior is in scope, but the claim is collapsed with the parent launch and uses only generic audit_logs evidence."
+    },
+    {
+      "candidate_step_id": "S2",
+      "claim": "cmd.exe executes run_http_server.bat",
+      "mapped_gold_step": null,
+      "precision_hit": 0,
+      "slot_hits": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": [
+        "subject",
+        "action",
+        "object",
+        "critical_evidence"
+      ],
+      "note": "run_http_server.bat belongs to a nearby out-of-scope chain, not this DNS packet capture batch chain."
+    },
+    {
+      "candidate_step_id": "S3",
+      "claim": "tshark.exe process_start with cmd.exe as parent",
+      "mapped_gold_step": "C25-S03",
+      "precision_hit": 1,
+      "slot_hits": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": [
+        "critical_evidence"
+      ],
+      "note": "Behavior matches the tshark.exe spawn step, but evidence is generic audit_logs rather than CBC childproc/object evidence."
+    },
+    {
+      "candidate_step_id": "S4",
+      "claim": "dumpcap.exe process_start with cmd.exe as parent",
+      "mapped_gold_step": null,
+      "precision_hit": 0,
+      "slot_hits": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": [
+        "subject",
+        "action",
+        "object",
+        "critical_evidence"
+      ],
+      "note": "dumpcap.exe is not a gold step/object for this finalized chain."
+    },
+    {
+      "candidate_step_id": "S5",
+      "claim": "python.exe process_start with cmd.exe as parent",
+      "mapped_gold_step": null,
+      "precision_hit": 0,
+      "slot_hits": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "overclaim_slots": [
+        "subject",
+        "action",
+        "object",
+        "critical_evidence"
+      ],
+      "note": "python.exe is explicitly out of scope for this DNS batch chain."
+    }
+  ],
+  "totals": {
+    "action_step_recall_hits/total": "2/3",
+    "action_step_recall_hits": 2,
+    "action_step_recall_total": 3,
+    "action_step_recall": 0.666667,
+    "action_step_precision_hits/total": "2/5",
+    "action_step_precision_hits": 2,
+    "action_step_precision_total": 5,
+    "action_step_precision": 0.4,
+    "candidate_claim_precision_hits/total": "6/20",
+    "candidate_claim_precision_hits": 6,
+    "candidate_claim_precision_total": 20,
+    "candidate_claim_precision": 0.3,
+    "overclaim_slot_count": 14,
+    "behavior_sequence_order_hits/total": "0/2",
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 2,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits/total": "0/3",
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 3,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits/total": "7/12",
+    "behavior_step_recall_hits": 7,
+    "behavior_step_recall_total": 12,
+    "behavior_step_recall": 0.583333
+  },
+  "notes": [
+    "Manual Review1 only; no OpenAI API or GPT scoring script was used.",
+    "The candidate recovered the batch execution and tshark.exe spawn behavior, but it collapsed the explorer.exe -> cmd.exe launch with cmd.exe /c batch execution.",
+    "Per the DNS batch chain rule, the collapsed parent launch and batch execution does not receive parent-to-batch adjacent order credit.",
+    "The candidate omits the full C25-S01 object command line: C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \".",
+    "Critical evidence is 0 for all gold steps because the candidate cites generic audit_logs fields rather than concrete CBC alert/event fields such as parent_path, process_cmdline, childproc, or object.",
+    "run_http_server.bat and python.exe are out-of-scope overclaims; dumpcap.exe is also counted as an extra non-gold process claim for this finalized chain."
+  ]
+}

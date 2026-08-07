@@ -1,0 +1,209 @@
+{
+  "case": "chain_13_e09_dns_packet_capture_batch_chain_stage1",
+  "model": "gpt-4.1-mini",
+  "stage": "stage1",
+  "reviewer": "review1",
+  "method": "Manual strict local-file review against chain_gold.json and candidate run JSON. No OpenAI/API scorer used. Each gold step is scored for subject, action, object, and critical_evidence as 0/1. DNS batch duplicate occurrences are not double-counted unless the candidate explicitly represents the second occurrence.",
+  "final_totals": {
+    "gold_item_hits": 10,
+    "gold_item_total": 20,
+    "behavior_step_recall_hits": 3,
+    "behavior_step_recall_total": 5,
+    "critical_evidence_recall_hits": 1,
+    "critical_evidence_recall_total": 5,
+    "behavior_sequence_order_hits": 1,
+    "behavior_sequence_order_total": 4,
+    "candidate_claim_precision_hits": 2,
+    "candidate_claim_precision_total": 5,
+    "overclaim_slot_count": 3
+  },
+  "gold_item_scores": [
+    {
+      "step_id": "C13-S01",
+      "source_window_id": "W18",
+      "gold_summary": "explorer.exe -> cmd.exe with exact cmd.exe /c start_dns_logs.bat command line",
+      "matched_candidate_excerpt": "S1 execution_context.parent_process=explorer.exe; subject_process.name=cmd.exe; command_line=C:\\Windows\\system32\\cmd.exe /c \"\"C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat\" \"",
+      "subject": {
+        "score": 1,
+        "reason": "The candidate identifies explorer.exe as the parent process in execution_context."
+      },
+      "action": {
+        "score": 1,
+        "reason": "The candidate represents the explorer.exe -> cmd.exe parent-child launch relationship through parent_process plus subject_process.name."
+      },
+      "object": {
+        "score": 1,
+        "reason": "The exact cmd.exe /c command line for start_dns_logs.bat is present."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "reason": "The candidate cites cbc-edr-alerts command_line but does not provide the required CBC alert / CBC event parent_path plus process_cmdline evidence basis."
+      },
+      "step_total": 3
+    },
+    {
+      "step_id": "C13-S02",
+      "source_window_id": "W18",
+      "gold_summary": "cmd.exe executes start_dns_logs.bat via /c",
+      "matched_candidate_excerpt": "S1 subject_process.name=cmd.exe; operation=execute; object.name=start_dns_logs.bat; command_line includes /c and start_dns_logs.bat",
+      "subject": {
+        "score": 1,
+        "reason": "The execution subject is cmd.exe."
+      },
+      "action": {
+        "score": 1,
+        "reason": "The candidate's execute operation with the /c command line captures batch-file execution."
+      },
+      "object": {
+        "score": 1,
+        "reason": "The object is start_dns_logs.bat, with its Desktop path."
+      },
+      "critical_evidence": {
+        "score": 1,
+        "reason": "The evidence includes the process command line containing /c and start_dns_logs.bat, satisfying the process_cmdline basis."
+      },
+      "step_total": 4
+    },
+    {
+      "step_id": "C13-S03",
+      "source_window_id": "W18",
+      "gold_summary": "cmd.exe spawns tshark.exe as the logging/capture process",
+      "matched_candidate_excerpt": "S3 subject_process.name=tshark.exe; execution_context.parent_process=cmd.exe; object.name=tshark.exe",
+      "subject": {
+        "score": 1,
+        "reason": "The candidate links tshark.exe to cmd.exe as its parent, recovering cmd.exe as the spawning process."
+      },
+      "action": {
+        "score": 1,
+        "reason": "The candidate represents tshark.exe execution under cmd.exe, which matches the spawn/logging-process action."
+      },
+      "object": {
+        "score": 1,
+        "reason": "The object is tshark.exe."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "reason": "The candidate uses sysmon command_line evidence, not the required CBC event childproc/object evidence basis."
+      },
+      "step_total": 3
+    },
+    {
+      "step_id": "C13-S05",
+      "source_window_id": "W20",
+      "gold_summary": "second occurrence: explorer.exe -> cmd.exe with exact cmd.exe /c start_dns_logs.bat command line",
+      "matched_candidate_excerpt": null,
+      "subject": {
+        "score": 0,
+        "reason": "The candidate does not explicitly represent the second W20 explorer.exe -> cmd.exe occurrence."
+      },
+      "action": {
+        "score": 0,
+        "reason": "The single candidate batch execution cannot be reused as the required duplicate/second occurrence."
+      },
+      "object": {
+        "score": 0,
+        "reason": "Although the same command line appears once, it is not tied to a distinct second occurrence."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "reason": "No evidence is provided for the W20 duplicate occurrence."
+      },
+      "step_total": 0
+    },
+    {
+      "step_id": "C13-S06",
+      "source_window_id": "W20",
+      "gold_summary": "second occurrence: cmd.exe executes start_dns_logs.bat via /c",
+      "matched_candidate_excerpt": null,
+      "subject": {
+        "score": 0,
+        "reason": "The candidate does not explicitly represent a second W20 cmd.exe batch execution."
+      },
+      "action": {
+        "score": 0,
+        "reason": "The duplicate /c execution is omitted rather than separately recovered."
+      },
+      "object": {
+        "score": 0,
+        "reason": "The start_dns_logs.bat object is not attached to a separate second occurrence."
+      },
+      "critical_evidence": {
+        "score": 0,
+        "reason": "No process_cmdline evidence is supplied for the W20 duplicate occurrence."
+      },
+      "step_total": 0
+    }
+  ],
+  "order_pairs": [
+    {
+      "pair": "C13-S01->C13-S02",
+      "score": 0,
+      "reason": "Both behaviors are collapsed into candidate S1, so the parent-launch step is not ordered as a separate predecessor of the /c batch execution step."
+    },
+    {
+      "pair": "C13-S02->C13-S03",
+      "score": 1,
+      "reason": "The candidate orders the batch execution claim before the tshark.exe child-process claim."
+    },
+    {
+      "pair": "C13-S03->C13-S05",
+      "score": 0,
+      "reason": "The second W20 occurrence is missing, so the transition from first tshark step to second explorer/cmd occurrence is not recovered."
+    },
+    {
+      "pair": "C13-S05->C13-S06",
+      "score": 0,
+      "reason": "Both second-occurrence steps are missing as distinct candidate steps."
+    }
+  ],
+  "candidate_claim_scores": [
+    {
+      "claim_id": "CL01",
+      "candidate_claim": "cmd.exe executes C:\\Users\\aalsahee\\Desktop\\start_dns_logs.bat with explorer.exe as parent and the exact cmd.exe /c command line.",
+      "precision": 1,
+      "overclaim": 0,
+      "matched_gold": "C13-S01/C13-S02 first-occurrence behavior",
+      "reason": "This core behavioral claim matches the first gold occurrence, despite incomplete CBC parent evidence."
+    },
+    {
+      "claim_id": "CL02",
+      "candidate_claim": "The batch execution is at 2022-07-16 21:12:04 with cmd.exe PID 4280.",
+      "precision": 0,
+      "overclaim": 1,
+      "matched_gold": null,
+      "reason": "The candidate mixes occurrence details: the input alerts show the 21:12 occurrence with PID 3652 and PID 4280 on the later 21:22 alert, so this exact PID/time claim is not reliable."
+    },
+    {
+      "claim_id": "CL03",
+      "candidate_claim": "cmd.exe creates/writes C:\\Users\\aalsahee\\Desktop\\logs\\dns.",
+      "precision": 0,
+      "overclaim": 1,
+      "matched_gold": null,
+      "reason": "This file create/write action is not one of the gold chain steps."
+    },
+    {
+      "claim_id": "CL04",
+      "candidate_claim": "cmd.exe launches tshark.exe for DNS capture.",
+      "precision": 1,
+      "overclaim": 0,
+      "matched_gold": "C13-S03",
+      "reason": "The parent cmd.exe and tshark.exe child/object claim matches the gold behavior, though the cited evidence basis is not the required CBC childproc/object basis."
+    },
+    {
+      "claim_id": "CL05",
+      "candidate_claim": "dumpcap.exe creates/writes a Wireshark pcapng file under tshark.exe.",
+      "precision": 0,
+      "overclaim": 1,
+      "matched_gold": null,
+      "reason": "dumpcap/pcapng file creation is extra detail outside the five scored gold steps for this chain."
+    }
+  ],
+  "notes_ja": [
+    "OpenAI/API scorer は使用せず、ローカルの gold と candidate JSON だけで手採点した。",
+    "候補は first occurrence の explorer.exe -> cmd.exe、cmd.exe /c start_dns_logs.bat、cmd.exe -> tshark.exe は概ね復元している。",
+    "ただし critical_evidence は C13-S02 以外で gold 指定の CBC alert/CBC event parent_path/process_cmdline または CBC event childproc/object を満たさないため 0 とした。",
+    "gold には W20 の duplicate/second occurrence として C13-S05/C13-S06 があるが、候補は明示的に2回目を分離していないため、これらは全 item 0 とした。",
+    "候補の logs\\dns 作成と dumpcap/pcapng 書き込みは周辺事実かもしれないが、今回の scored gold steps にはないため overclaim として数えた。",
+    "候補は PID 4280 を 21:12:04 の実行に結び付けており、入力 alert rows の occurrence 情報と混ざっているため、claim precision では別途 overclaim とした。"
+  ]
+}

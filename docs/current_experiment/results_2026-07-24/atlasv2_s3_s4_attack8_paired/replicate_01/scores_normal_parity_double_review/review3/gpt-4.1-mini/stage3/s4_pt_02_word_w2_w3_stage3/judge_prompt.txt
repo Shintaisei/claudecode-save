@@ -1,0 +1,713 @@
+You are a strict evaluator for Windows endpoint behavior-chain reconstruction.
+
+Score CANDIDATE_OUTPUT against GOLD using action-claim metrics.
+
+Core definitions:
+- An action_claim is the smallest behavior assertion where one subject performs one operation against one object.
+- A candidate code_step may contain multiple action_claims. Split it when it contains multiple subjects, operations, objects, command lines, or unrelated behaviors.
+- The candidate's surface output is code_steps/code_sequence. The scoring unit is the action_claim you extract from those outputs.
+- Each action_claim can have at most these scoring slots: subject, operation, object, command_line, critical_evidence.
+- command_line is an attribute of the relevant action_claim. It is not an independent behavior step.
+- critical_evidence is one slot per action_claim. If the candidate lists many evidence rows for the same claim, select the best support and score only one critical_evidence slot. Do not increase the denominator because evidence is verbose.
+
+Primary metrics:
+- behavior_step_recall: step-level recall over GOLD.gold_step_count. A gold step is covered when at least one required item from that step is recovered.
+- action_step_recall: for every non-evidence GOLD.gold_required_items item (subject/operation/object/command_line), score 1 if the candidate reconstructs the same substantive value, otherwise 0.
+- action_step_precision: score gold-aligned correctness on the same dynamic non-evidence required-item denominator as recall. The numerator is the number of unique true-positive candidate subject/operation/object/command_line slots that match gold required items.
+- critical_evidence_recall: score critical_evidence separately. It is not part of the action_step_recall or action_step_precision denominator.
+- candidate_claim_precision is a diagnostic: for every non-null candidate action_claim slot you list, mark it as true positive or false positive against gold. This diagnostic keeps the candidate-side denominator.
+- behavior_sequence_order: score each gold order pair as 1 only when the related action claims are recovered and their relative order is correct.
+
+Extraction and denominator rules:
+- Action recall denominator is the number of non-critical-evidence GOLD.gold_required_items in the GOLD block. In this run it is 15.
+- Main action precision denominator is the same non-critical-evidence required-item count. In this run it is 15.
+- Step-level behavior_step_recall / coarse action-step coverage denominator is GOLD.gold_step_count. In this run it is 5.
+- Behavior order denominator is GOLD.gold_order_pair_count. In this run it is 3.
+- Candidate-side overclaiming is not folded into the main precision denominator. It is reported by candidate_claim_precision and overclaim_slot_count.
+- Do not list null, unknown, not observed, absent, or explicitly uncertain placeholder values as candidate slots.
+- If a candidate says an observed gold value does not exist, or makes a negative claim that contradicts observed evidence, list that negative claim as a false positive slot.
+- If the candidate mixes in a nearby unrelated behavior, split that nearby behavior into its own action_claims and score their slots as false positives unless they match gold.
+- Duplicate true-positive slots may match the same gold item only once for the numerator. Repeated duplicate claims do not increase the main precision denominator; they remain in the candidate_claim_precision denominator and overclaim diagnostics.
+- Do not score precision at the sentence, paragraph, major-claim, or coarse-step level.
+
+Evidence policy:
+- Gold uses critical_evidence, not arbitrary evidence count.
+- Candidate evidence verbosity must not expand recall or precision denominators.
+- CBC alert report_name/reason is evidence only.
+- If GOLD critical_evidence_policy excludes CBC alerts or the gold evaluation unit contains "non_alert", then CBC alert report_name, reason, alert_name, alert_id, and watchlist.hit rows are not valid true-positive critical_evidence.
+- If an alert name such as "Discovery - Query Registry" or "Persistence - Regmod Run or Runonce Key Modification" is emitted as the behavior operation, mark that operation slot as false positive with false_positive_type=alert_name_as_behavior.
+- Fabricated concrete PID, event_id, alert_id, path, command line, process relation, registry path, or timestamp must reduce precision and be listed in hallucinated_claims.
+- A real-but-noncritical extra evidence citation for an otherwise correct action_claim should not create additional denominator slots; unsupported or contradicted evidence should be counted in unsupported_evidence or contradicted_evidence diagnostics.
+
+Scoring style:
+- Give 0 for missing, ambiguous, partially wrong, unrelated-chain, or unsupported values. Do not use 0.5.
+- Return JSON only. All scores must be integer 0 or 1.
+- Use Japanese for reasons and summaries. Preserve raw paths, command lines, alert IDs, source_stream values, and timestamps exactly.
+
+Expected JSON schema:
+{
+  "case_id": "string",
+  "judge_summary_ja": "string",
+  "chains": [
+    {
+      "chain_id": "string",
+      "gold_required_item_scores": [
+        {
+          "item_id": "string",
+          "step_id": "string",
+          "kind": "subject|operation|object|command_line|critical_evidence",
+          "matched_candidate_excerpt": "string|null",
+          "score": "0|1",
+          "reason_ja": "string"
+        }
+      ],
+      "candidate_action_claim_scores": [
+        {
+          "candidate_claim_id": "string",
+          "candidate_step_id": "string|null",
+          "claim_excerpt": "string",
+          "normalized_action_claim_ja": "string",
+          "slot_scores": [
+            {
+              "slot_id": "string",
+              "kind": "subject|operation|object|command_line|critical_evidence",
+              "candidate_slot_excerpt": "string",
+              "matched_gold_item_id": "string|null",
+              "is_true_positive": "0|1",
+              "false_positive_type": "nearby_unrelated|hallucinated_value|alert_name_as_behavior|unsupported_negative|unsupported_inference|unsupported_evidence|contradicted_evidence|duplicate_claim|none",
+              "reason_ja": "string"
+            }
+          ]
+        }
+      ],
+      "order_pairs": [
+        {
+          "before_step_id": "string",
+          "after_step_id": "string",
+          "score": "0|1",
+          "reason_ja": "string"
+        }
+      ]
+    }
+  ],
+  "error_flags": {
+    "target_missing": [
+      "item_id"
+    ],
+    "chain_mixing": "boolean",
+    "hallucinated_claims": [
+      "string"
+    ],
+    "unsupported_evidence": [
+      "string"
+    ],
+    "contradicted_evidence": [
+      "string"
+    ],
+    "nearby_action_false_positives": [
+      "string"
+    ],
+    "weak_grounding": "boolean",
+    "false_positive_claims": [
+      "string"
+    ],
+    "notes_ja": [
+      "string"
+    ]
+  },
+  "candidate_action_claim_count": "integer",
+  "candidate_action_claim_slot_count": "integer",
+  "candidate_action_claim_true_positive_slot_count": "integer",
+  "hallucinated_claim_count": "integer",
+  "unsupported_evidence_count": "integer",
+  "contradicted_evidence_count": "integer",
+  "nearby_action_fp_count": "integer",
+  "main_missing_items": [
+    "string"
+  ],
+  "main_false_positive_claims": [
+    "string"
+  ]
+}
+
+GOLD:
+{
+  "evaluation_unit": "action_claim_required_items",
+  "case_id": null,
+  "gold_step_count": 5,
+  "gold_required_item_count": 20,
+  "gold_action_required_item_count": 15,
+  "gold_order_pair_count": 3,
+  "gold_required_items": [
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S01",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w2_word5980-S01:subject",
+      "kind": "subject",
+      "gold_value": "werfault.exe (PID 528)",
+      "acceptable_terms": [
+        "werfault.exe (PID 528)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S01",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w2_word5980-S01:operation",
+      "kind": "operation",
+      "gold_value": "started",
+      "acceptable_terms": [
+        "started"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S01",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w2_word5980-S01:object",
+      "kind": "object",
+      "gold_value": "winword.exe (PID 5980)",
+      "acceptable_terms": [
+        "winword.exe (PID 5980)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S01",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w2_word5980-S01:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR event row",
+      "acceptable_terms": [
+        "Canonical CBC EDR event row"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S02",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w2_word5980-S02:subject",
+      "kind": "subject",
+      "gold_value": "winword.exe (PID 5980)",
+      "acceptable_terms": [
+        "winword.exe (PID 5980)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S02",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w2_word5980-S02:operation",
+      "kind": "operation",
+      "gold_value": "started",
+      "acceptable_terms": [
+        "started"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S02",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w2_word5980-S02:object",
+      "kind": "object",
+      "gold_value": "winword.exe (PID 3784)",
+      "acceptable_terms": [
+        "winword.exe (PID 3784)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S02",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w2_word5980-S02:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR event row",
+      "acceptable_terms": [
+        "Canonical CBC EDR event row"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S03",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w2_word5980-S03:subject",
+      "kind": "subject",
+      "gold_value": "winword.exe (PID 5980)",
+      "acceptable_terms": [
+        "winword.exe (PID 5980)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S03",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w2_word5980-S03:operation",
+      "kind": "operation",
+      "gold_value": "initiated connection",
+      "acceptable_terms": [
+        "initiated connection"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S03",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w2_word5980-S03:object",
+      "kind": "object",
+      "gold_value": "10.193.66.115:8080",
+      "acceptable_terms": [
+        "10.193.66.115:8080"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S03",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w2_word5980-S03:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR event row",
+      "acceptable_terms": [
+        "Canonical CBC EDR event row"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w3_word2608-S04",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w3_word2608-S04:subject",
+      "kind": "subject",
+      "gold_value": "winword.exe (PID 2608)",
+      "acceptable_terms": [
+        "winword.exe (PID 2608)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w3_word2608-S04",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w3_word2608-S04:operation",
+      "kind": "operation",
+      "gold_value": "started",
+      "acceptable_terms": [
+        "started"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w3_word2608-S04",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w3_word2608-S04:object",
+      "kind": "object",
+      "gold_value": "winword.exe (PID 3060)",
+      "acceptable_terms": [
+        "winword.exe (PID 3060)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w3_word2608-S04",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w3_word2608-S04:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR event row",
+      "acceptable_terms": [
+        "Canonical CBC EDR event row"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w3_word2608-S05",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w3_word2608-S05:subject",
+      "kind": "subject",
+      "gold_value": "winword.exe (PID 2608)",
+      "acceptable_terms": [
+        "winword.exe (PID 2608)"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w3_word2608-S05",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w3_word2608-S05:operation",
+      "kind": "operation",
+      "gold_value": "initiated connection",
+      "acceptable_terms": [
+        "initiated connection"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w3_word2608-S05",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w3_word2608-S05:object",
+      "kind": "object",
+      "gold_value": "10.193.66.115:8080",
+      "acceptable_terms": [
+        "10.193.66.115:8080"
+      ]
+    },
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "step_id": "s4_pt_02_word_w2_w3-s4_w3_word2608-S05",
+      "item_id": "s4_pt_02_word_w2_w3:s4_pt_02_word_w2_w3-s4_w3_word2608-S05:critical_evidence",
+      "kind": "critical_evidence",
+      "gold_value": "Canonical CBC EDR event row",
+      "acceptable_terms": [
+        "Canonical CBC EDR event row"
+      ]
+    }
+  ],
+  "critical_evidence_policy": null,
+  "chains": [
+    {
+      "chain_id": "s4_pt_02_word_w2_w3",
+      "chain_title": "S4 process-time W2+W3: two separate Word local clusters",
+      "gold_steps": [
+        {
+          "step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S01",
+          "order": 1,
+          "subject": "werfault.exe (PID 528)",
+          "action": "started",
+          "object": "winword.exe (PID 5980)",
+          "segment": "s4_w2_word5980",
+          "evidence_basis": "Canonical CBC EDR event row",
+          "confidence": "observed",
+          "process_code_object": "winword.exe (PID 5980)",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 4543,
+              "timestamp_utc": "2022-07-20T00:50:37.9148731Z",
+              "action": "ACTION_CREATE_PROCESS",
+              "process_path": "c:\\windows\\system32\\werfault.exe",
+              "process_pid": 528,
+              "parent_path": "c:\\windows\\system32\\svchost.exe",
+              "parent_pid": 5912,
+              "process_cmdline": "werfault.exe /h /shared Global\\fa145d01437842be9cae200f7cf2c642",
+              "object_name": "c:\\program files\\microsoft office\\office14\\winword.exe",
+              "remote_ip": null,
+              "remote_port": null,
+              "netconn_domain": null,
+              "childproc_name": "c:\\program files\\microsoft office\\office14\\winword.exe",
+              "childproc_pid": 5980
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=4543 time=2022-07-20T00:50:37.9148731Z action=ACTION_CREATE_PROCESS process=c:\\windows\\system32\\werfault.exe pid=528 parent_path=c:\\windows\\system32\\svchost.exe parent_pid=5912 process_cmdline=werfault.exe /h /shared Global\\fa145d01437842be9cae200f7cf2c642 object_name=c:\\program files\\microsoft office\\office14\\winword.exe childproc_name=c:\\program files\\microsoft office\\office14\\winword.exe childproc_pid=5980"
+            ]
+          }
+        },
+        {
+          "step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S02",
+          "order": 2,
+          "subject": "winword.exe (PID 5980)",
+          "action": "started",
+          "object": "winword.exe (PID 3784)",
+          "segment": "s4_w2_word5980",
+          "evidence_basis": "Canonical CBC EDR event row",
+          "confidence": "observed",
+          "process_code_object": "winword.exe (PID 3784)",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 4636,
+              "timestamp_utc": "2022-07-20T00:50:42.616142Z",
+              "action": "ACTION_CREATE_PROCESS",
+              "process_path": "c:\\program files\\microsoft office\\office14\\winword.exe",
+              "process_pid": 5980,
+              "parent_path": "c:\\windows\\system32\\werfault.exe",
+              "parent_pid": 528,
+              "process_cmdline": "\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" ",
+              "object_name": "c:\\program files\\microsoft office\\office14\\winword.exe",
+              "remote_ip": null,
+              "remote_port": null,
+              "netconn_domain": null,
+              "childproc_name": "c:\\program files\\microsoft office\\office14\\winword.exe",
+              "childproc_pid": 3784
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=4636 time=2022-07-20T00:50:42.616142Z action=ACTION_CREATE_PROCESS process=c:\\program files\\microsoft office\\office14\\winword.exe pid=5980 parent_path=c:\\windows\\system32\\werfault.exe parent_pid=528 process_cmdline=\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  object_name=c:\\program files\\microsoft office\\office14\\winword.exe childproc_name=c:\\program files\\microsoft office\\office14\\winword.exe childproc_pid=3784"
+            ]
+          }
+        },
+        {
+          "step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S03",
+          "order": 3,
+          "subject": "winword.exe (PID 5980)",
+          "action": "initiated connection",
+          "object": "10.193.66.115:8080",
+          "segment": "s4_w2_word5980",
+          "evidence_basis": "Canonical CBC EDR event row",
+          "confidence": "observed",
+          "process_code_object": "10.193.66.115:8080",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 516,
+              "timestamp_utc": "2022-07-20T00:50:45.2822945Z",
+              "action": "ACTION_CONNECTION_CREATE",
+              "process_path": "c:\\program files\\microsoft office\\office14\\winword.exe",
+              "process_pid": 5980,
+              "parent_path": "c:\\windows\\system32\\werfault.exe",
+              "parent_pid": 528,
+              "process_cmdline": "\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" ",
+              "object_name": "10.193.66.115:8080",
+              "remote_ip": "10.193.66.115",
+              "remote_port": 8080,
+              "netconn_domain": "",
+              "childproc_name": null,
+              "childproc_pid": null
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=516 time=2022-07-20T00:50:45.2822945Z action=ACTION_CONNECTION_CREATE process=c:\\program files\\microsoft office\\office14\\winword.exe pid=5980 parent_path=c:\\windows\\system32\\werfault.exe parent_pid=528 process_cmdline=\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  object_name=10.193.66.115:8080 remote_ip=10.193.66.115 remote_port=8080 netconn_domain="
+            ]
+          }
+        },
+        {
+          "step_id": "s4_pt_02_word_w2_w3-s4_w3_word2608-S04",
+          "order": 4,
+          "subject": "winword.exe (PID 2608)",
+          "action": "started",
+          "object": "winword.exe (PID 3060)",
+          "segment": "s4_w3_word2608",
+          "evidence_basis": "Canonical CBC EDR event row",
+          "confidence": "observed",
+          "process_code_object": "winword.exe (PID 3060)",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 2378,
+              "timestamp_utc": "2022-07-20T00:53:29.3496786Z",
+              "action": "ACTION_CREATE_PROCESS",
+              "process_path": "c:\\program files\\microsoft office\\office14\\winword.exe",
+              "process_pid": 2608,
+              "parent_path": "c:\\windows\\explorer.exe",
+              "parent_pid": 1592,
+              "process_cmdline": "\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" ",
+              "object_name": "c:\\program files\\microsoft office\\office14\\winword.exe",
+              "remote_ip": null,
+              "remote_port": null,
+              "netconn_domain": null,
+              "childproc_name": "c:\\program files\\microsoft office\\office14\\winword.exe",
+              "childproc_pid": 3060
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=2378 time=2022-07-20T00:53:29.3496786Z action=ACTION_CREATE_PROCESS process=c:\\program files\\microsoft office\\office14\\winword.exe pid=2608 parent_path=c:\\windows\\explorer.exe parent_pid=1592 process_cmdline=\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  object_name=c:\\program files\\microsoft office\\office14\\winword.exe childproc_name=c:\\program files\\microsoft office\\office14\\winword.exe childproc_pid=3060"
+            ]
+          }
+        },
+        {
+          "step_id": "s4_pt_02_word_w2_w3-s4_w3_word2608-S05",
+          "order": 5,
+          "subject": "winword.exe (PID 2608)",
+          "action": "initiated connection",
+          "object": "10.193.66.115:8080",
+          "segment": "s4_w3_word2608",
+          "evidence_basis": "Canonical CBC EDR event row",
+          "confidence": "observed",
+          "process_code_object": "10.193.66.115:8080",
+          "scoring_template": {
+            "subject": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "action": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "object": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "evidence": {
+              "max": 1,
+              "score": null,
+              "note": ""
+            },
+            "step_total": {
+              "max": 4,
+              "score": null
+            }
+          },
+          "canonical_evidence": [
+            {
+              "source_stream": "cbc-edr",
+              "source_table": "cbc_events",
+              "source_row_id": 3493,
+              "timestamp_utc": "2022-07-20T00:53:38.81422Z",
+              "action": "ACTION_CONNECTION_CREATE",
+              "process_path": "c:\\program files\\microsoft office\\office14\\winword.exe",
+              "process_pid": 2608,
+              "parent_path": "c:\\windows\\explorer.exe",
+              "parent_pid": 1592,
+              "process_cmdline": "\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\" ",
+              "object_name": "10.193.66.115:8080",
+              "remote_ip": "10.193.66.115",
+              "remote_port": 8080,
+              "netconn_domain": "",
+              "childproc_name": null,
+              "childproc_pid": null
+            }
+          ],
+          "supporting_evidence": {
+            "source_types": [
+              "CBC event"
+            ],
+            "sample_logs": [
+              "cbc-edr table=cbc_events row_id=3493 time=2022-07-20T00:53:38.81422Z action=ACTION_CONNECTION_CREATE process=c:\\program files\\microsoft office\\office14\\winword.exe pid=2608 parent_path=c:\\windows\\explorer.exe parent_pid=1592 process_cmdline=\"C:\\Program Files\\Microsoft Office\\Office14\\WINWORD.EXE\"  object_name=10.193.66.115:8080 remote_ip=10.193.66.115 remote_port=8080 netconn_domain="
+            ]
+          }
+        }
+      ],
+      "gold_order_pairs": [
+        {
+          "before_step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S01",
+          "after_step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S02"
+        },
+        {
+          "before_step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S02",
+          "after_step_id": "s4_pt_02_word_w2_w3-s4_w2_word5980-S03"
+        },
+        {
+          "before_step_id": "s4_pt_02_word_w2_w3-s4_w3_word2608-S04",
+          "after_step_id": "s4_pt_02_word_w2_w3-s4_w3_word2608-S05"
+        }
+      ]
+    }
+  ]
+}
+
+CANDIDATE_OUTPUT:
+{
+  "source_run_json": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\docs\\current_experiment\\results_2026-07-24\\atlasv2_s3_s4_attack8_paired\\replicate_01\\runs\\gpt-4.1-mini\\stage3\\s4_pt_02_word_w2_w3_stage3_run.json",
+  "run_id": "20260724T095905Z_s4_pt_02_word_w2_w3_stage3_gpt-4.1-mini_official",
+  "model": "gpt-4.1-mini",
+  "instance_id": "s4_pt_02_word_w2_w3_stage3",
+  "difficulty": "process_time",
+  "experiment_stage": "stage3",
+  "expected_input_fields": [
+    "host",
+    "process",
+    "timestamp"
+  ],
+  "clue": "これは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage3\n- host: WIN-32-H1\n- process: winword.exe\n- timestamp: 2022-07-20 00:41:14\n- 参考 UTC 時間範囲: 2022-07-20T00:41:14.426000Z から 2022-07-20T01:11:14.426000Z\n- 参考 database 時間範囲: 2022-07-20 00:41:14 から 2022-07-20 01:11:14\n- 注記: この時間範囲は探索補助情報であり、SOC からの入力は host、process、timestamp のままである。\n- Stage 3: 入力は host、process、timestamp のみである。\n- CBC alert summary rows は SQL tools から audit_logs_stage3 view により hidden である。\n- CBC EDR/NGAV event telemetry は利用可能である。\n- adapter database は物理フィルタされない。alert summary rows が SQL tools で見えないことだけで、行動が存在しないと結論しない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n",
+  "output_text": "{\n  \"input_scope\": {\n    \"host\": \"WIN-32-H1\",\n    \"process\": \"winword.exe\",\n    \"timestamp\": \"2022-07-20 00:41:14\",\n    \"condition\": \"stage3\",\n    \"input_fields_used\": [\"host\", \"process\", \"timestamp\"]\n  },\n  \"code_steps\": [\n    {\n      \"step_id\": \"S1\",\n      \"order\": 1,\n      \"time\": \"2022-07-19 23:15:42\",\n      \"subject_process\": {\n        \"name\": \"winword.exe\",\n        \"pid\": 2608,\n        \"path\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\"\n      },\n      \"operation\": \"process_start\",\n      \"object\": {\n        \"type\": \"process\",\n        \"name\": \"winword.exe\",\n        \"path\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"\",\n      \"execution_context\": {\n        \"parent_process\": null,\n        \"parent_pid\": null,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-19 23:15:42\",\n          \"alert_id\": null,\n          \"event_record_id\": 123456,\n          \"field\": \"process_name\",\n          \"value\": \"winword.exe\",\n          \"pid\": 2608,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": [\n        \"親プロセス情報がログに存在しないため、起動元は不明\"\n      ]\n    },\n    {\n      \"step_id\": \"S2\",\n      \"order\": 2,\n      \"time\": \"2022-07-19 23:16:10\",\n      \"subject_process\": {\n        \"name\": \"winword.exe\",\n        \"pid\": 2608,\n        \"path\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\"\n      },\n      \"operation\": \"file_read\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": \"Document1.docx\",\n        \"path\": \"C:\\\\Users\\\\User\\\\Documents\\\\Document1.docx\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"winword.exe\",\n        \"parent_pid\": 2608,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-19 23:16:10\",\n          \"alert_id\": null,\n          \"event_record_id\": 123457,\n          \"field\": \"file_path\",\n          \"value\": \"C:\\\\Users\\\\User\\\\Documents\\\\Document1.docx\",\n          \"pid\": 2608,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S3\",\n      \"order\": 3,\n      \"time\": \"2022-07-19 23:20:05\",\n      \"subject_process\": {\n        \"name\": \"winword.exe\",\n        \"pid\": 2608,\n        \"path\": \"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\"\n      },\n      \"operation\": \"file_write\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": \"Document1.docx\",\n        \"path\": \"C:\\\\Users\\\\User\\\\Documents\\\\Document1.docx\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": \"winword.exe\",\n        \"parent_pid\": 2608,\n        \"parent_command_line\": \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\"\",\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-19 23:20:05\",\n          \"alert_id\": null,\n          \"event_record_id\": 123458,\n          \"field\": \"file_path\",\n          \"value\": \"C:\\\\Users\\\\User\\\\Documents\\\\Document1.docx\",\n          \"pid\": 2608,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S4\",\n      \"order\": 4,\n      \"time\": \"2022-07-19 23:25:30\",\n      \"subject_process\": {\n        \"name\": \"explorer.exe\",\n        \"pid\": 1592,\n        \"path\": \"C:\\\\Windows\\\\explorer.exe\"\n      },\n      \"operation\": \"network_connect\",\n      \"object\": {\n        \"type\": \"network\",\n        \"name\": null,\n        \"path\": null,\n        \"value\": \"23.61.187.27\",\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": null,\n        \"parent_pid\": null,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-19 23:25:30\",\n          \"alert_id\": null,\n          \"event_record_id\": 123459,\n          \"field\": \"remote_ip\",\n          \"value\": \"23.61.187.27\",\n          \"pid\": 1592,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S5\",\n      \"order\": 5,\n      \"time\": \"2022-07-19 23:30:00\",\n      \"subject_process\": {\n        \"name\": \"explorer.exe\",\n        \"pid\": 1592,\n        \"path\": \"C:\\\\Windows\\\\explorer.exe\"\n      },\n      \"operation\": \"registry_write\",\n      \"object\": {\n        \"type\": \"registry_key\",\n        \"name\": \"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\",\n        \"path\": \"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": null,\n        \"parent_pid\": null,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"msft-security\",\n          \"timestamp\": \"2022-07-19 23:30:00\",\n          \"alert_id\": null,\n          \"event_record_id\": 123460,\n          \"field\": \"regmod_name\",\n          \"value\": \"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\",\n          \"pid\": 1592,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    },\n    {\n      \"step_id\": \"S6\",\n      \"order\": 6,\n      \"time\": \"2022-07-19 23:35:00\",\n      \"subject_process\": {\n        \"name\": \"WerFault.exe\",\n        \"pid\": 528,\n        \"path\": \"C:\\\\Windows\\\\System32\\\\WerFault.exe\"\n      },\n      \"operation\": \"file_read\",\n      \"object\": {\n        \"type\": \"file\",\n        \"name\": \"faultrep.dll\",\n        \"path\": \"C:\\\\Windows\\\\System32\\\\faultrep.dll\",\n        \"value\": null,\n        \"data\": null\n      },\n      \"command_line\": null,\n      \"execution_context\": {\n        \"parent_process\": null,\n        \"parent_pid\": null,\n        \"parent_command_line\": null,\n        \"child_process\": null,\n        \"child_pid\": null\n      },\n      \"evidence\": [\n        {\n          \"source_stream\": \"sysmon\",\n          \"timestamp\": \"2022-07-19 23:35:00\",\n          \"alert_id\": null,\n          \"event_record_id\": 123461,\n          \"field\": \"file_path\",\n          \"value\": \"C:\\\\Windows\\\\System32\\\\faultrep.dll\",\n          \"pid\": 528,\n          \"ppid\": null\n        }\n      ],\n      \"confidence\": \"observed\",\n      \"limitations\": []\n    }\n  ],\n  \"code_sequence\": [\n    \"\\\"C:\\\\Program Files\\\\Microsoft Office\\\\Office14\\\\WINWORD.EXE\\\" 起動\",\n    \"C:\\\\Users\\\\User\\\\Documents\\\\Document1.docx を読み取り\",\n    \"C:\\\\Users\\\\User\\\\Documents\\\\Document1.docx に書き込み\",\n    \"explorer.exe が IP 23.61.187.27 にネットワーク接続\",\n    \"explorer.exe がレジストリキー HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run に書き込み\",\n    \"WerFault.exe が C:\\\\Windows\\\\System32\\\\faultrep.dll を読み取り\"\n  ],\n  \"supporting_alert_evidence\": [\n    {\n      \"alert_id\": null,\n      \"alert_name\": null,\n      \"source_stream\": null,\n      \"why_supporting_only\": \"本調査では CBC alert は直接の行動復元に使用せず、補助証拠としてのみ扱ったため\"\n    }\n  ],\n  \"triage_decision\": {\n    \"alert_disposition\": \"not_applicable\",\n    \"host_disposition\": \"not_applicable\",\n    \"evidence_basis\": [\n      \"winword.exe の起動とファイルアクセスは観測されたが、悪意のある挙動や攻撃関連の明確な証拠は見つかっていない\",\n      \"explorer.exe と WerFault.exe の活動は通常のシステム動作の範囲内と判断される\",\n      \"ネットワーク接続やレジストリ書き込みはあるが、これらが悪意のあるものとは断定できない\"\n    ]\n  },\n  \"excluded_nearby_evidence\": [],\n  \"global_limitations\": [\n    \"winword.exe の親プロセス情報が欠落しているため、起動経路の完全な特定ができていない\",\n    \"一部のファイルアクセスやプロセス起動の詳細がログに記録されていない可能性がある\"\n  ],\n  \"timeline_ja\": [\n    \"2022-07-19 23:15:42 に winword.exe が起動した。\",\n    \"2022-07-19 23:16:10 に winword.exe がユーザ文書ファイルを読み取った。\",\n    \"2022-07-19 23:20:05 に winword.exe がユーザ文書ファイルに書き込みを行った。\",\n    \"2022-07-19 23:25:30 に explorer.exe が外部 IP 23.61.187.27 にネットワーク接続を行った。\",\n    \"2022-07-19 23:30:00 に explorer.exe がレジストリキーに書き込みを行った。\",\n    \"2022-07-19 23:35:00 に WerFault.exe がシステムファイルを読み取った。\"\n  ]\n}",
+  "usage": {
+    "input_tokens": 19674,
+    "output_tokens": 4546,
+    "cached_input_tokens": 0
+  }
+}

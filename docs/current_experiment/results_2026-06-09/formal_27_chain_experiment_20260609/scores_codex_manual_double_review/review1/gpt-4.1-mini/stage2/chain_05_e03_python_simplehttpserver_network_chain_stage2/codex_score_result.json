@@ -1,0 +1,143 @@
+{
+  "reviewer": "review1",
+  "case_id": "chain_05_e03_python_simplehttpserver_network_chain_stage2",
+  "chain_id": "chain_05_e03_python_simplehttpserver_network_chain",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_05_e03_python_simplehttpserver_network_chain/chain_gold.json",
+  "candidate_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage2/chain_05_e03_python_simplehttpserver_network_chain_stage2_run.json",
+  "scoring_basis": "Manual local-file review only. No OpenAI/API scorer was used. Item rubric is subject/action/object/critical_evidence, each scored 0 or 1. Strict credit requires the SimpleHTTPServer command for C05-S01 and netconn/network-server evidence for C05-S02.",
+  "rubric": {
+    "item_kinds": [
+      "subject",
+      "action",
+      "object",
+      "critical_evidence"
+    ],
+    "per_item_max": 1,
+    "gold_steps": 2,
+    "item_score_max": 8,
+    "sequence_score_max": 3,
+    "case_score_max": 11
+  },
+  "candidate_summary": "The candidate output contains only generic python.exe process_execution and file_access steps. It does not recover the observed command line python -m SimpleHTTPServer, does not report a SimpleHTTPServer launch action, and does not provide CBC event netconn or network-server evidence. It also expands the time window to 20:45-21:00 and claims file access as a second behavior, which is not the target chain.",
+  "item_scores": [
+    {
+      "gold_step_id": "C05-S01",
+      "gold_step_order": 1,
+      "gold_requirement": "python.exe starts the SimpleHTTPServer module with command line python -m SimpleHTTPServer, supported by CBC event process_cmdline evidence.",
+      "matched_candidate_step_id": "S1",
+      "candidate_excerpt": "S1: subject_process.name=python.exe, operation=process_execution, object.name=python.exe, command_line=null, evidence field=process_name value=python.exe",
+      "scores": {
+        "subject": 1,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "item_total": 1,
+      "item_max": 4,
+      "reason": "The candidate names python.exe as the subject, but only as a generic process execution. It omits the SimpleHTTPServer action, the required python -m SimpleHTTPServer command/object, and process_cmdline evidence."
+    },
+    {
+      "gold_step_id": "C05-S02",
+      "gold_step_order": 2,
+      "gold_requirement": "python.exe is detected as network-server behavior, supported by CBC event netconn/network evidence and CBC alert reason.",
+      "matched_candidate_step_id": null,
+      "candidate_excerpt": "No candidate step reports netconn, remote endpoint, listening/server behavior, or CBC alert network-server evidence. S2 is only generic file_access.",
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "item_total": 0,
+      "item_max": 4,
+      "reason": "The candidate never produces the target network-server/netconn step. Generic python.exe file access cannot be mapped to the network behavior step, and the candidate explicitly lacks network connection evidence."
+    }
+  ],
+  "sequence_scores": {
+    "temporal_order": {
+      "score": 0,
+      "max": 1,
+      "reason": "The candidate orders generic process_execution before file_access, not SimpleHTTPServer execution followed by network-server/netconn behavior."
+    },
+    "step_separation": {
+      "score": 0,
+      "max": 1,
+      "reason": "The second candidate step is unrelated file access and is not a separated target chain step."
+    },
+    "limitations": {
+      "score": 1,
+      "max": 1,
+      "reason": "The candidate includes limitations noting missing command-line, parent, and network evidence instead of asserting a full network chain."
+    },
+    "sequence_total": 1,
+    "sequence_max": 3
+  },
+  "precision_and_overclaims": {
+    "overclaim_slot_count": 7,
+    "overclaims": [
+      {
+        "candidate_step_id": "S1",
+        "kind": "action",
+        "claim": "generic process_execution",
+        "reason": "This does not establish SimpleHTTPServer module execution."
+      },
+      {
+        "candidate_step_id": "S1",
+        "kind": "object",
+        "claim": "object.name=python.exe",
+        "reason": "The target object is the command python -m SimpleHTTPServer, not the executable name alone."
+      },
+      {
+        "candidate_step_id": "S1",
+        "kind": "critical_evidence",
+        "claim": "process_name evidence",
+        "reason": "The target evidence is the observed process command line."
+      },
+      {
+        "candidate_step_id": "S2",
+        "kind": "subject",
+        "claim": "python.exe file_access subject",
+        "reason": "This is not attached to the target network-server step."
+      },
+      {
+        "candidate_step_id": "S2",
+        "kind": "action",
+        "claim": "file_access",
+        "reason": "File access is not part of the gold SimpleHTTPServer network chain."
+      },
+      {
+        "candidate_step_id": "S2",
+        "kind": "object",
+        "claim": "unspecified file object",
+        "reason": "The target second-step object is limited network communication details, not a file."
+      },
+      {
+        "candidate_step_id": "S2",
+        "kind": "critical_evidence",
+        "claim": "access=read/write/execute",
+        "reason": "This is not CBC event netconn or network-server evidence."
+      }
+    ],
+    "precision_note": "Only the bare python.exe subject for C05-S01 is credited. The candidate misses all command, SimpleHTTPServer, and network evidence required for the chain."
+  },
+  "totals": {
+    "item_score": 1,
+    "item_score_max": 8,
+    "sequence_score": 1,
+    "sequence_score_max": 3,
+    "case_score": 2,
+    "case_score_max": 11,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.0,
+    "subject_hits": 1,
+    "subject_total": 2,
+    "action_hits": 0,
+    "action_total": 2,
+    "object_hits": 0,
+    "object_total": 2
+  },
+  "overall_assessment": "Strict review: the candidate does not recover the SimpleHTTPServer network chain. It only identifies a generic python.exe process and unrelated generic file access, with no SimpleHTTPServer command and no netconn/network-server evidence."
+}

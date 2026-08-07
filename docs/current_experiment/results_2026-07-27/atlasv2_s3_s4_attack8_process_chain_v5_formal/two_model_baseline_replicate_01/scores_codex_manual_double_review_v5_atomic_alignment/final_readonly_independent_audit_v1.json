@@ -1,0 +1,221 @@
+{
+  "schema_version": "v5_final_readonly_independent_audit_v1",
+  "audit_type": "independent_read_only_recomputation",
+  "scope": "v5 two-model formal score root, formal result report, Section 21 contract appendix, and run audit provenance",
+  "overall_status": "FAIL",
+  "blocker": true,
+  "blocker_summary": "The formal report names detailed_failure_analysis_gpt41_v1.json and detailed_failure_analysis_gpt54_v1.json, but neither path was readable/resolvable during this audit (Test-Path=false and JSON parsing therefore impossible). Their Markdown counterparts were readable. The detailed-analysis JSON artifacts must be materialized and valid before the release can pass the requested JSON-validity audit.",
+  "findings": [
+    {
+      "id": "F-001",
+      "severity": "blocker",
+      "status": "FAIL",
+      "path": "scores_codex_manual_double_review_v5_atomic_alignment/detailed_failure_analysis_gpt41_v1.json",
+      "finding": "Artifact is referenced by the formal report but could not be resolved or read; JSON validity and detailed-report JSON consistency could not be verified."
+    },
+    {
+      "id": "F-002",
+      "severity": "blocker",
+      "status": "FAIL",
+      "path": "scores_codex_manual_double_review_v5_atomic_alignment/detailed_failure_analysis_gpt54_v1.json",
+      "finding": "Artifact is referenced by the formal report but could not be resolved or read; JSON validity and detailed-report JSON consistency could not be verified."
+    }
+  ],
+  "checks": [
+    {
+      "id": "C-001",
+      "status": "PASS",
+      "name": "Required primary JSON validity",
+      "artifacts": [
+        "atlasv2_s3_s4_attack8_process_chain_v5_two_model_formal_results_20260728.json",
+        "formal_aggregate_v5.json",
+        "metrics_by_model_stage_case_v5.json",
+        "merge_validation_v5.json",
+        "adjudication_manifest_v5.json",
+        "review3_targeted_v5.json"
+      ],
+      "result": "All six parsed as JSON."
+    },
+    {
+      "id": "C-002",
+      "status": "PASS",
+      "name": "Adopted-ledger row and coverage counts",
+      "recomputed": {
+        "rows": 48,
+        "unique_queue_ids": 48,
+        "by_model": {
+          "gpt-4.1-mini": 24,
+          "gpt-5.4-mini": 24
+        },
+        "by_stage": {
+          "stage1": 16,
+          "stage2": 16,
+          "stage3": 16
+        },
+        "by_use_case": {
+          "s3_pt_01_word_document_processing": 6,
+          "s3_pt_02_regsvr32_remote_sct": 6,
+          "s3_pt_03_regsvr32_long_chain": 6,
+          "s3_pt_04_powershell_mid_chain": 6,
+          "s4_pt_01_word_w1": 6,
+          "s4_pt_02_word_w3": 6,
+          "s4_pt_03_mshta_c1": 6,
+          "s4_pt_04_powershell_c1": 6
+        },
+        "by_model_stage": {
+          "gpt-4.1-mini/stage1": 8,
+          "gpt-4.1-mini/stage2": 8,
+          "gpt-4.1-mini/stage3": 8,
+          "gpt-5.4-mini/stage1": 8,
+          "gpt-5.4-mini/stage2": 8,
+          "gpt-5.4-mini/stage3": 8
+        }
+      },
+      "result": "Matches the reported 48-run, two-model, three-stage, eight-use-case design and merge validation."
+    },
+    {
+      "id": "C-003",
+      "status": "PASS",
+      "name": "Independent overall score recomputation from formal_adopted_reviews_v5.jsonl",
+      "recomputed": {
+        "candidate_slot_denominator": 414,
+        "candidate_slot_tp": 182,
+        "candidate_slot_fp": 232,
+        "gold_action_denominator": 774,
+        "gold_action_hits": 182,
+        "behavior_step_denominator": 258,
+        "behavior_step_hits": 36,
+        "critical_evidence_denominator": 258,
+        "critical_evidence_hits": 48,
+        "order_pair_denominator": 210,
+        "order_pair_hits": 24,
+        "duplicate_tp_slot_count": 0,
+        "false_positive_types": {
+          "duplicate": 25,
+          "unsupported": 161,
+          "wrong_relation": 8,
+          "wrong_value": 38
+        },
+        "rates": {
+          "action_recall": 0.2351421188630491,
+          "candidate_precision": 0.4396135265700483,
+          "behavior_step_recall": 0.13953488372093023,
+          "critical_evidence_recall": 0.18604651162790697,
+          "order_recall": 0.11428571428571428
+        }
+      },
+      "result": "Matches formal_aggregate_v5.json, metrics_by_model_stage_case_v5.json, the formal result JSON, and the published model/stage/use-case tables."
+    },
+    {
+      "id": "C-004",
+      "status": "PASS",
+      "name": "All reported model/stage/use-case metric cells",
+      "result": "Recomputed candidate denominator/TP/FP, action, behavior-step, critical-evidence, and order hits/denominators/rates matched every by_model, by_stage, by_use_case, by_model_stage, and by_model_use_case cell in metrics_by_model_stage_case_v5.json; formal_aggregate_v5.json model, stage, and model-stage cells also matched."
+    },
+    {
+      "id": "C-005",
+      "status": "PASS",
+      "name": "Atomic score consistency",
+      "recomputed": {
+        "gold1_without_tp": 0,
+        "tp_gold0": 0,
+        "duplicate_tp_slot_count": 0
+      },
+      "result": "Every scored Gold subject/operation/object item was checked against adopted included TP matched_gold_item_id coverage."
+    },
+    {
+      "id": "C-006",
+      "status": "PASS",
+      "name": "Targeted adjudication reconciliation",
+      "recomputed": {
+        "candidate_slots": 29,
+        "critical_evidence": 12,
+        "order_pairs": 6,
+        "total": 47,
+        "unresolved": 0,
+        "stale": 0,
+        "rejected": 0,
+        "conservative_fallback_count": 6
+      },
+      "result": "All 47 adjudication-manifest targets existed in the adopted ledger and each adopted decision/score matched. review3 expected and actual counts were 29/12/6 and its run/gold hash checks were PASS."
+    },
+    {
+      "id": "C-007",
+      "status": "PASS",
+      "name": "Run-resource recomputation",
+      "recomputed_from_48_run_json_files": {
+        "input_tokens": 1135936,
+        "output_tokens": 169774,
+        "cached_input_tokens": 0,
+        "total_tokens": 1305710,
+        "code_steps": 140,
+        "empty_runs": 4
+      },
+      "recomputed_from_clouseau_api_costs_csv": {
+        "matched_unique_run_ids": 48,
+        "cost_usd": 1.07064845
+      },
+      "by_model": {
+        "gpt-4.1-mini": {
+          "input_tokens": 898659,
+          "output_tokens": 79571,
+          "total_tokens": 978230,
+          "code_steps": 77,
+          "empty_runs": 3,
+          "cost_usd": 0.486777
+        },
+        "gpt-5.4-mini": {
+          "input_tokens": 237277,
+          "output_tokens": 90203,
+          "total_tokens": 327480,
+          "code_steps": 63,
+          "empty_runs": 1,
+          "cost_usd": 0.583868
+        }
+      },
+      "result": "Matches the formal report, formal result JSON, and pass-status run_audit_v5_two_model_baseline_v3.json."
+    },
+    {
+      "id": "C-008",
+      "status": "PASS",
+      "name": "Failure-count arithmetic and readable detailed-report summaries",
+      "recomputed": {
+        "gpt-4.1-mini": {
+          "action_miss": 289,
+          "incomplete_behavior_step": 110,
+          "critical_evidence_miss": 108,
+          "order_miss": 92,
+          "false_positive_slots": 130
+        },
+        "gpt-5.4-mini": {
+          "action_miss": 303,
+          "incomplete_behavior_step": 112,
+          "critical_evidence_miss": 102,
+          "order_miss": 94,
+          "false_positive_slots": 102
+        }
+      },
+      "result": "These equal denominator minus hits (or candidate FP) and agree with the readable Markdown detailed reports and formal report table. This check does not waive F-001/F-002 for the unavailable JSON sidecars."
+    },
+    {
+      "id": "C-009",
+      "status": "PASS",
+      "name": "Provenance hashes",
+      "recomputed_sha256": {
+        "review1.jsonl": "9e6eea4d2d02aa7fb263513cda9563d1a5d8f4aad73e4cf5274f77d543c5220c",
+        "review2.jsonl": "2e56743bac7f20a5b660a982e5f4ab49b13fb923df6ddd02dd9252e1942ea443",
+        "review3_targeted_v5.json": "c2f4c6365ec98d231260c557191b898aab20db99ecc539ec6a0ad1eb659611c2",
+        "manifest.json": "adf6481f672b86141139e4176519b666be41761ce3f8d3af3bcd99b9f8769ef7",
+        "formal_adopted_reviews_v5.jsonl": "c7a53f95b88ecab9ad92f03c809c14b41f36470faf3004095240df33dda56635"
+      },
+      "result": "Matches merge_validation_v5.json, adjudication_manifest_v5.json, and the source-binding manifest where applicable."
+    },
+    {
+      "id": "C-010",
+      "status": "PASS",
+      "name": "Claim-scope review",
+      "result": "The reports say the 43 Gold steps are traceable and that no clear defect explaining these misses was detected; they do not claim universal Gold truth. They explicitly state that normal-versus-attack case count, chain length, model, and repetitions do not fully match and prohibit interpreting numerical differences as an attack-only causal effect. No overclaim was found."
+    }
+  ],
+  "release_condition": "Replace or materialize both referenced detailed-analysis JSON files and rerun this read-only audit; all other audited numerical, adjudication, provenance, resource, and claim-scope checks passed."
+}

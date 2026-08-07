@@ -1,0 +1,394 @@
+{
+  "run_id": "20260604T083208Z_gold_reviewed_10_regexe_20220716t150700z_gpt-5.4-mini_official",
+  "pipeline": "external/Clouseau/artifact official chief_inspector.investigate_atlas",
+  "model": "gpt-5.4-mini",
+  "instance_id": "gold_reviewed_10_regexe_20220716t150700z",
+  "gold_reference": {
+    "instance_id": "gold_reviewed_10_regexe_20220716t150700z",
+    "case_id": "gold_reviewed_10_regexe_20220716t150700z",
+    "usecase_id": "cbc_dense_usecase_010",
+    "scenario": "benign-h1-cbc-dense",
+    "database": "Clouseau/artifact/scenarios/atlasv2/benign/h1/benign-1/incident.db",
+    "host": "WIN-32-H1",
+    "process_name": "reg.exe",
+    "actor": "reg.exe",
+    "expected_behavior": "アプリ更新/設定登録に伴うレジストリ操作",
+    "expected_behavior_category": "application_update_registry_configuration",
+    "context_label": "normal_alert_context",
+    "quality": "high",
+    "time_window_utc": {
+      "episode_start": "2022-07-16T15:07:00Z",
+      "primary_start": "2022-07-16 15:07:46",
+      "analysis_scope": "CBC dense episode +/- 5 minutes; primary matching +/- 2 minutes"
+    },
+    "anchor_event": {
+      "source_stream": "cbc-edr-alerts",
+      "timestamp_utc": "2022-07-16T15:07:46.468Z",
+      "database_time": "2022-07-16 15:07:46",
+      "alert_id": "CFnKBKLTv6hUkBGFobRdg-565631",
+      "alert_name": "Discovery - Query Registry",
+      "process_name": "reg.exe",
+      "process_path": "c:\\windows\\system32\\reg.exe",
+      "process_cmdline": "C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord",
+      "parent_path": "c:\\users\\aalsahee\\appdata\\local\\discord\\app-1.0.9005\\discord.exe",
+      "parent_cmdline": "\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-firstrun",
+      "severity": "1",
+      "reason": "Discovery - Query Registry",
+      "event_record_id": "CFnKBKLTv6hUkBGFobRdg-565631",
+      "action": "cbc_alert"
+    },
+    "poi": "C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord",
+    "gold_file": "DOC_ACTIVE\\02_gold_data\\cbc_dense_10_formal_gold_reviewed\\gold_10_regexe_20220716t150700z.json",
+    "evidence_pack_dir": "DOC_ACTIVE\\02_gold_data\\cbc_dense_10_formal_gold_reviewed\\case_evidence_packs\\gold_reviewed_10_regexe_20220716t150700z",
+    "evidence_counts": {
+      "cbc_alerts_episode": 2,
+      "cbc_events_primary_5min": 10,
+      "security_context_11min": 393,
+      "sysmon_context_11min": 0,
+      "dns_context_11min": 0,
+      "browser_context_11min": 0
+    },
+    "gold_expected": {
+      "summary": "discord.exe が reg.exeを子プロセスとして起動した 対象=C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord -> reg.exe が レジストリ値を照会した 対象=HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord -> reg.exe が レジストリ値を追加/更新した 対象=HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord = \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\"",
+      "background_category_id": "application_update_registry_configuration",
+      "background_category": "アプリ更新/設定登録に伴うレジストリ操作",
+      "background_difference": "同じdual-useでも、cmd/pythonのようなスクリプト実行ではなく、永続化に見えるRun key操作を正常アプリ文脈で説明できるかを見るケースである。",
+      "responder_viewpoints": [
+        "親プロセスがDiscord.exeであるか。",
+        "対象レジストリがDiscordやUpdate.exeに閉じているか。",
+        "Run key登録を悪性永続化と断定せず、アプリ更新文脈として説明できるか。"
+      ],
+      "subjects": [
+        "C:\\Windows\\System32\\reg.exe",
+        "aalsahee",
+        "discord.exe",
+        "reg.exe"
+      ],
+      "actions": [
+        "discord.exe が reg.exeを子プロセスとして起動した 対象=C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord -> reg.exe が レジストリ値を照会した 対象=HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord -> reg.exe が レジストリ値を追加/更新した 対象=HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord = \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\"",
+        "reg.exeを子プロセスとして起動した",
+        "レジストリ値を照会した",
+        "レジストリ値を追加/更新した"
+      ],
+      "objects": [
+        "C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord",
+        "C:\\Windows\\System32\\sechost.dll",
+        "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord",
+        "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord = \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\"",
+        "HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord",
+        "c:\\windows\\system32\\api-ms-win-core-synch-l1-2-0.dll",
+        "c:\\windows\\system32\\ctiuser.dll",
+        "c:\\windows\\system32\\fltlib.dll",
+        "c:\\windows\\system32\\reg.exe"
+      ],
+      "parents": [
+        "discord.exe"
+      ],
+      "children": [],
+      "command_lines": [
+        "C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord",
+        "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord = \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\""
+      ],
+      "target_artifacts": [
+        "C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord",
+        "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord",
+        "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord = \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\""
+      ],
+      "atomic_steps": [
+        {
+          "number": 1,
+          "subject": "discord.exe",
+          "action": "reg.exeを子プロセスとして起動した",
+          "object": "C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord",
+          "basis": "CBC alert parent_path / process_cmdline",
+          "confidence": "観測"
+        },
+        {
+          "number": 2,
+          "subject": "reg.exe",
+          "action": "レジストリ値を照会した",
+          "object": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord",
+          "basis": "CBC alert process_cmdline",
+          "confidence": "観測"
+        },
+        {
+          "number": 3,
+          "subject": "reg.exe",
+          "action": "レジストリ値を追加/更新した",
+          "object": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord = \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\"",
+          "basis": "CBC alert / CBC event regmod",
+          "confidence": "観測"
+        }
+      ],
+      "background_basis": [
+        "代表コマンド: C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord / C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f / C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f | C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord",
+        "親プロセス: c:\\users\\aalsahee\\appdata\\local\\discord\\app-1.0.9005\\discord.exe / -",
+        "関連対象: C:\\Windows\\System32\\sechost.dll / C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord / HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord / c:\\windows\\system32\\ctiuser.dll",
+        "CBC alert: Persistence - Regmod Run or Runonce Key Modification; Discovery - Query Registry"
+      ],
+      "limitations": [
+        "これはログから根拠付きで説明できる背景であり、ユーザの内心や業務目的の断定ではない。",
+        "同じプロセス名でも、親プロセス、コマンドライン、対象、CBC eventの違いで背景を分けている。"
+      ]
+    },
+    "evaluation_targets": {
+      "alert_terms": [
+        "Discovery",
+        "Query",
+        "Registry",
+        "CFnKBKLTv6hUkBGFobRdg-565631"
+      ],
+      "subject_terms": [
+        "C:\\Windows\\System32\\reg.exe",
+        "aalsahee",
+        "discord.exe",
+        "reg.exe"
+      ],
+      "action_terms": [
+        "discord.exe",
+        "reg.exeを子プロセスとして起動した",
+        "対象=C:\\Windows\\System32\\reg.exe",
+        "query",
+        "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+        "Discord",
+        "reg.exe",
+        "レジストリ値を照会した",
+        "対象=HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord",
+        "レジストリ値を追加/更新した",
+        "C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe",
+        "--processStart"
+      ],
+      "object_terms": [
+        "C:\\Windows\\System32\\reg.exe",
+        "query",
+        "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+        "Discord",
+        "C:\\Windows\\System32\\sechost.dll",
+        "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord",
+        "C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe",
+        "--processStart",
+        "Discord.exe",
+        "HKU\\S-1-5-21-450080267-1945256726-3465656282-1000\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord",
+        "c:\\windows\\system32\\api-ms-win-core-synch-l1-2-0.dll",
+        "c:\\windows\\system32\\ctiuser.dll",
+        "c:\\windows\\system32\\fltlib.dll"
+      ],
+      "parent_terms": [
+        "discord.exe"
+      ],
+      "child_terms": [],
+      "commandline_terms": [
+        "C:\\Windows\\System32\\reg.exe",
+        "query",
+        "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+        "Discord",
+        "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord",
+        "C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe",
+        "--processStart",
+        "Discord.exe"
+      ],
+      "target_artifact_terms": [
+        "C:\\Windows\\System32\\reg.exe",
+        "query",
+        "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+        "Discord",
+        "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Discord",
+        "C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe",
+        "--processStart",
+        "Discord.exe"
+      ],
+      "background_terms": [
+        "application_update_registry_configuration",
+        "アプリ更新/設定登録に伴うレジストリ操作",
+        "同じdual-useでも、cmd/pythonのようなスクリプト実行ではなく、永続化に見えるRun",
+        "key操作を正常アプリ文脈で説明できるかを見るケースである。"
+      ],
+      "limitation_terms": [
+        "これはログから根拠付きで説明できる背景であり、ユーザの内心や業務目的の断定ではない。",
+        "同じプロセス名でも、親プロセス、コマンドライン、対象、CBC",
+        "eventの違いで背景を分けている。"
+      ]
+    },
+    "notes": [
+      "CBC alert is an investigation starting point, not a maliciousness label.",
+      "Security/Sysmon/CBC event rows are evidence; DNS/Firefox are auxiliary only if present.",
+      "The evaluation is component-level and does not require final benign/malicious certainty."
+    ],
+    "environment_context": "CLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。"
+  },
+  "source_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\Clouseau\\artifact\\scenarios\\atlasv2\\benign\\h1\\benign-1\\incident.db",
+  "adapter_db": "C:\\Users\\komat\\OneDrive\\Desktop\\ATLAS以外のデータセット\\data\\current_experiment\\runs\\clouseau_reconstruction_outputs\\20260604T083208Z_gold_reviewed_10_regexe_20220716t150700z_gpt-5.4-mini_official\\scenario.db",
+  "adapter_counts": {
+    "audit_logs": 7531007,
+    "sysmon_audit_rows": 6406,
+    "cbc_event_audit_rows": 1010918,
+    "cbc_alert_audit_rows": 232,
+    "dns_requests": 82410,
+    "browser_history": 53069,
+    "adapter_version": "v3_evidence_preserving_parent_context"
+  },
+  "clue": "これは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nCBC alert の内容、alert title、alert reason、alert_id、command line、parent process、child process、registry object、file object、network object、behavior category は入力から仮定しない。\nそれらの値は、存在するなら log から発見する必要がある。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage1_full_logs\n- host: WIN-32-H1\n- process: reg.exe\n- timestamp: 2022-07-16 15:07:46\n- 参考時間範囲: なし\n- 注記: timestamp 付近から始め、観測された process、command、target-object の接続だけで展開する。\n- 全ログを利用できる。database 内に存在する場合、CBC alert summary rows も調査で発見可能な証拠として残っている。\n- CBC alert rows は調査で発見された後にだけ使える。これは証拠であり、入力事実ではない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n",
+  "dry_run": false,
+  "difficulty": "process_time",
+  "configs": {
+    "max_investigations": 8,
+    "max_questions": 12,
+    "max_queries": 20,
+    "max_tokens": 8192
+  },
+  "official_messages": [
+    {
+      "type": "HumanMessage",
+      "content": "## 役割\nあなたは CLOUSEAU の階層型調査パイプラインにおける Chief エージェントである。\n\n## 目的\nプロセス時刻起点から Windows エンドポイントのコード行動列を復元する。\n\n## 出力言語\n- 調査リード、要約、最終報告の自然言語値はすべて日本語で書く。\n- raw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま残す。\n\n## 調査リード作成ルール\n- SQL を書かない。\n- database column の列挙を調査リードにしない。\n- alert title、command line、parent process、target object、application intent、behavior category を仮定しない。\n- CBC alert 内容は起点情報の一部ではない。調査担当が database 内で発見した場合にだけ使う。\n- 各調査リードには、調査対象、調査理由、確認したい証拠を含める。\n- parent process、command line、target object、related rows をログから発見させる調査リードを優先する。\n- 近傍 row の接続関係は、先に決め打ちせず、観測証拠で検証する。\n- 調査は最大 8 回までである。\n- 最終回答は valid JSON のみである。\n\n## 環境\nCLOUSEAU 用に変換された ATLASv2 Windows host logs を分析する。SQLite database には audit_logs、browser_history、dns_requests がある。Security、Sysmon、CBC EDR/NGAV events、CBC alerts は audit_logs に正規化されている。source_stream で証拠 source を区別する。主な値は msft-security、sysmon、cbc-edr、cbc-ngav、cbc-edr-alerts、cbc-ngav-alerts である。audit_logs の基本 column は time、pid、ppid、pname、process_name、access、object、event_record_id、event_id、subject_user_name、source_stream、source_object_type、command_line、hashes である。証拠保持 adapter は parent_process_name、parent_process_path、parent_command_line、process_guid、parent_process_guid、alert_name、alert_reason、alert_category、raw_event_type、filemod_name、regmod_name、modload_name、childproc_name、netconn_domain、remote_ip、remote_port、original_table、source_row_id、adapter_version も保持する。ppid は parent PID を意味する。parent_process_path と parent_command_line は明示的な parent evidence である。CBC alert rows は access='cbc_alert' を持つ。source_row_id または hashes に alert_id が入ることがある。alert_name と alert_reason は alert title/reason を含むが、code step ではない。これは log からの behavior-chain 復元である。証拠確認前に normal、malicious、attack-related、user intent を推定しない。\n\n## SOC からの起点情報\nこれは Windows エンドポイントログからコード行動列を復元するタスクである。\n起点情報は探索範囲を示すだけであり、未観測の事実ではない。\nCBC alert の内容、alert title、alert reason、alert_id、command line、parent process、child process、registry object、file object、network object、behavior category は入力から仮定しない。\nそれらの値は、存在するなら log から発見する必要がある。\nraw path、command line、process name、source_stream、alert_id、event_record_id、PID/PPID、timestamp は観測値をそのまま保持する。\n最終 JSON の自然言語値は日本語で書き、JSON の項目名は ASCII のままにする。\n\n## 入力条件\n- condition: stage1_full_logs\n- host: WIN-32-H1\n- process: reg.exe\n- timestamp: 2022-07-16 15:07:46\n- 参考時間範囲: なし\n- 注記: timestamp 付近から始め、観測された process、command、target-object の接続だけで展開する。\n- 全ログを利用できる。database 内に存在する場合、CBC alert summary rows も調査で発見可能な証拠として残っている。\n- CBC alert rows は調査で発見された後にだけ使える。これは証拠であり、入力事実ではない。\n\n## 復元対象\n- 観測 log から関連 behavior chain の code_steps と code_sequence を復元する。\n- code_sequence には、観測された command line または対象操作だけを入れる。\n- CBC alert の report name/reason は code_sequence に入れない。\n- 同時刻近傍の behavior は、観測された parent/child、command、target-object evidence で接続できない限り分ける。\n\n"
+    },
+    {
+      "type": "AIMessage",
+      "content": "",
+      "usage_metadata": {
+        "input_tokens": 1708,
+        "output_tokens": 157,
+        "total_tokens": 1865,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "ホスト WIN-32-H1 における 2022-07-16 15:07:46 付近の reg.exe を起点に、同時刻前後の関連プロセス、親子関係、実行コマンド、対象オブジェクトを確認し、連続した code 行動列を復元してください。観測された証拠だけで接続できるプロセス作成、ファイル/レジストリ操作、ネットワーク接続があれば特定し、その根拠となる timestamp、PID/PPID、command line、target object を提示してください。"
+          },
+          "id": "call_dmVRmKgpu07puJiXYLGLKAcI",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "type": "ToolMessage",
+      "content": "## 仮説\n2022-07-16 15:07:46 付近で、`discord.exe` を親とする `reg.exe` が `HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run` の `Discord` 値を追加・確認しており、同時刻近傍には `discord.exe` 系列のファイル操作や子プロセス生成が連続して観測されている。\n\n## 観測事実\n### `reg.exe` の観測\n- 2022-07-16 15:07:46\n  - PID `2360` / PPID `3768`\n  - process 名: `reg.exe`\n  - command line: `C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f`\n  - target object: `report_name=Persistence - Regmod Run or Runonce Key Modification | parent_path=c:\\users\\aalsahee\\appdata\\local\\discord\\app-1.0.9005\\discord.exe | parent_cmdline=\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-install 1.0.9005`\n  - source_stream: `cbc-edr-alerts`\n\n- 2022-07-16 15:07:46\n  - PID `5504` / PPID `1204`\n  - process 名: `reg.exe`\n  - command line: `C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f`\n  - target object: `report_name=Persistence - Regmod Run or Runonce Key Modification | parent_path=c:\\users\\aalsahee\\appdata\\local\\discord\\app-1.0.9005\\discord.exe | parent_cmdline=\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-firstrun`\n  - source_stream: `cbc-edr-alerts`\n\n- 2022-07-16 15:07:46\n  - PID `5424` / PPID `1204`\n  - process 名: `reg.exe`\n  - command line: `C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord`\n  - target object: `report_name=Discovery - Query Registry | parent_path=c:\\users\\aalsahee\\appdata\\local\\discord\\app-1.0.9005\\discord.exe | parent_cmdline=\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-firstrun`\n  - source_stream: `cbc-edr-alerts`\n\n### 近傍の関連観測\n- 2022-07-16 15:07:20\n  - `discord.exe` PID `4044`\n  - target object: `c:\\users\\aalsahee\\appdata\\roaming\\discord\\1d2a6589-3228-4ea5-aaab-641d26e8e193.tmp`\n  - access: `ACTION_FILE_CREATE | ACTION_FILE_MOD_OPEN | ACTION_FILE_OPEN_READ | ACTION_FILE_OPEN_WRITE | ACTION_FILE_OPEN_DELETE | ACTION_FILE_OPEN_SET_ATTRIBUTES`\n  - source_stream: `cbc-edr`\n\n- 近傍で `discord.exe` を親とする子プロセスとして `cmd.exe` や `firefox.exe` も観測されている。\n  - `cmd.exe` PID `4872`\n    - command line: `C:\\Windows\\system32\\cmd.exe /q /d /s /c \"undefined\\NVIDIA^ Corporation\\NVSMI\\nvidia-smi.exe\"`\n  - `firefox.exe` PID `4924`\n    - command line: `C:\\Program Files\\Mozilla Firefox\\firefox.exe -osint -url \"https://discordapp.com/handoff?rpc=6463&key=b37d3452-eb6b-46f2-a524-3d18188259b2\"`\n\n## 解釈\n- `reg.exe` は `discord.exe` から起動された形で観測されている。\n- `HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run` の `Discord` 値に対する追加と確認が、同時刻に連続している。\n- 同じ `discord.exe` 系列で、前後に一時ファイル操作や子プロセス生成が見えるため、単独の `reg.exe` ではなく、`discord.exe` 起点の一連の動作として接続できる。\n\n## 限界\n- `reg.exe` 自身の生ログではなく、観測は `cbc-edr-alerts` 中心だった。\n- `reg.exe` とネットワーク接続の直接証拠は今回の結果では確認できていない。\n- `parent_process_path` / `parent_command_line` は明示的な親証拠だが、同一時刻のすべての行が同一実体を指すとは限らないため、個別行ごとの接続は慎重に扱う必要がある。\n\n## 次の調査理由\n次は、`discord.exe` の直前直後をさらに広げて、`reg.exe` へ至る親子関係の起点と、同時刻の他のプロセス作成・レジストリ操作・ネットワーク接続が実際に連続しているかを、観測値ベースで確認するのが有効です。",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "AIMessage",
+      "content": "",
+      "usage_metadata": {
+        "input_tokens": 3173,
+        "output_tokens": 261,
+        "total_tokens": 3434,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 1664
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "ホスト WIN-32-H1 の 2022-07-16 15:07:46 付近で観測された reg.exe と、その明示的な親証拠として出ている discord.exe の実行系列を確認してください。親子関係、同時刻前後の子プロセス生成、ファイル操作、レジストリ操作、ネットワーク接続の連続性を観測証拠だけで検証し、code_steps と code_sequence を復元してください。"
+          },
+          "id": "call_17RMqHSg4Bt5NailwKwYEouJ",
+          "type": "tool_call"
+        },
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "ホスト WIN-32-H1 で 2022-07-16 15:07:46 付近に存在する reg.exe の近傍で、同一系列に接続できる browser_history または dns_requests があれば確認してください。reg.exe と直接または親子関係でつながるプロセスのネットワーク/ブラウザ活動を、timestamp と PID/PPID を含めて検証してください。"
+          },
+          "id": "call_e5CSI40BU0oT6S2sQyMRaOzG",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "type": "ToolMessage",
+      "content": "### 仮説\nホスト `WIN-32-H1` の `2022-07-16 15:07:46` 前後では、`discord.exe` を親に持つ `reg.exe` が `HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run` に `Discord` の自動起動登録を行い、その値に `Update.exe --processStart Discord.exe` が使われている連続性が観測できる可能性があります。  \nただし、ここでは **観測証拠のみ** で整理し、意図や悪性判定はしません。\n\n### 観測事実\n#### 1) `reg.exe` と `discord.exe` の親子関係\n- `2022-07-16 15:07:46`\n- `pid`: `2360`\n- `ppid`: `3768`\n- `process_name`: `c:\\windows\\system32\\reg.exe`\n- `pname`: `reg.exe`\n- `command_line`: `C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f`\n- `parent_process_name`: `discord.exe`\n- `parent_process_path`: `c:\\users\\aalsahee\\appdata\\local\\discord\\app-1.0.9005\\discord.exe`\n- `parent_command_line`: `\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-install 1.0.9005`\n- `source_stream`: `cbc-edr-alerts`\n- `event_id`: `3`\n- `access`: `cbc_alert`\n\n同時刻帯に同様の `reg.exe` 観測が複数ありました。\n- `pid`: `5504`\n- `ppid`: `1204`\n- `parent_process_name`: `discord.exe`\n- `parent_command_line`: `\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-firstrun`\n- `command_line`: 同じく `reg.exe add ... Update.exe --processStart Discord.exe`\n\n- `pid`: `5424`\n- `ppid`: `1204`\n- `parent_process_name`: `discord.exe`\n- `parent_command_line`: `\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-firstrun`\n- `command_line`: `C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord`\n\n#### 2) `discord.exe` 起点の実行系列\n直前回答で、`Discord.exe` 自体の起点と、その子プロセスが観測されています。\n\n- `process_name`: `C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe`\n- `pname`: `Discord.exe`\n- `pid`: `1204`\n- `source_stream`: `msft-security`\n\nその子として:\n- `pid`: `2644`\n- `ppid`: `1204`\n- `parent_process_name`: `discord.exe`\n- `parent_process_path`: `c:\\users\\aalsahee\\appdata\\local\\discord\\app-1.0.9005\\discord.exe`\n- `parent_command_line`: `\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-firstrun`\n- `command_line`: `\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --type=crashpad-handler ...`\n- `source_stream`: `cbc-edr-alerts`\n- `event_id`: `1`\n\nまた、別の `discord.exe` 系生成も観測されています。\n- `pid`: `4044`\n- `ppid`: `1204`\n- `parent_process_name`: `discord.exe`\n- `command_line`: `\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --type=utility ...`\n- `source_stream`: `cbc-edr`\n\n- `pid`: `4872`\n- `ppid`: `4424`\n- `process_name`: `c:\\windows\\system32\\cmd.exe`\n- `parent_process_name`: `discord.exe`\n- `parent_command_line`: `\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --type=renderer ...`\n- `command_line`: `C:\\Windows\\system32\\cmd.exe /q /d /s /c \"undefined\\NVIDIA^ Corporation\\NVSMI\\nvidia-smi.exe\"`\n- `source_stream`: `cbc-edr-alerts`\n\n### 結果要約\n- `discord.exe` が明示的な親証拠として `reg.exe` の親になっています。\n- `reg.exe` のコマンドラインには `Update.exe --processStart Discord.exe` が含まれています。\n- 同時刻帯に `reg.exe add` と `reg.exe query` があり、Run キーを対象にした操作連続性が観測されました。\n- `discord.exe` 自体の派生プロセスも複数観測され、`Discord.exe` → 子プロセス群 → `reg.exe` の近傍関係は確認できます。\n\n### code_steps\n1. `Discord.exe` の実行\n2. `Discord.exe` から派生した子プロセスの生成\n3. `reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord ...`\n4. `reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord`\n5. `Update.exe --processStart Discord.exe` を使う自動起動連鎖の痕跡\n\n### code_sequence\n`Discord.exe`  \n→ `discord.exe` 系の子プロセス生成  \n→ `reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f`  \n→ `reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord`\n\n### 次の調査理由\nこの段階では `Update.exe` 自体の直接実行行は見えていません。  \nそのため次は、`2022-07-16 15:07:46` 前後で **`Update.exe` の直接起動**、または **`Discord.exe` / `Update.exe` のファイル操作・ネットワーク接続** が実際に記録されているかを観測証拠で確認するのが有効です。",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "ToolMessage",
+      "content": "### 仮説\n- 2022-07-16 15:07:46 付近の `reg.exe` は、`discord.exe` 系プロセスから起動されている。\n- 同一系列で `browser_history` / `dns_requests` に接続できる可能性があるのは、`discord.exe` 直下のブラウザ利用または Discord 関連通信だが、今回の近傍時刻では DNS は確認できなかった。\n\n### 観測事実\n#### reg.exe の近傍観測\n- `2022-07-16 15:07:46` に `reg.exe` 関連の観測が 3 件あった。\n- いずれも `parent_process_name: discord.exe`。\n- 観測された raw value は以下。\n  - `pid 2360 / ppid 3768`\n    - `command_line: C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\" /f`\n    - `source_stream: cbc-edr-alerts`\n    - `access: cbc_alert`\n    - `object: report_name=Persistence - Regmod Run or Runonce Key Modification | parent_path=c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\discord\\\\app-1.0.9005\\\\discord.exe | parent_cmdline=\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\" --squirrel-install 1.0.9005`\n  - `pid 5424 / ppid 1204`\n    - `command_line: C:\\\\Windows\\\\System32\\\\reg.exe query HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord`\n    - `source_stream: cbc-edr-alerts`\n    - `access: cbc_alert`\n    - `object: report_name=Discovery - Query Registry | parent_path=c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\discord\\\\app-1.0.9005\\\\discord.exe | parent_cmdline=\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\" --squirrel-firstrun`\n  - `pid 5504 / ppid 1204`\n    - `command_line: C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\" /f`\n    - `source_stream: cbc-edr-alerts`\n    - `access: cbc_alert`\n    - `object: report_name=Persistence - Regmod Run or Runonce Key Modification | parent_path=c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\discord\\\\app-1.0.9005\\\\discord.exe | parent_cmdline=\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\" --squirrel-firstrun`\n\n#### browser_history\n- `browser_history` では、`reg.exe` と直接または親子関係でつながる記録は確認できなかった。\n- ただし、時刻条件や突合条件が厳しすぎた可能性がある。\n\n#### dns_requests\n- 近傍時刻の `dns_requests` では、上記プロセスに紐づく DNS request domain / response は確認できなかった。\n\n### 解釈\n- `reg.exe` の実行は `discord.exe` から派生しており、`Run` キーへの `Discord` 登録やクエリが見えている。\n- `browser_history` / `dns_requests` の結果からは、少なくとも今回の狭い時刻範囲では、同系列のネットワーク/ブラウザ活動は観測できなかった。\n- `firefox.exe` の観測は別途見えているが、今回の問いに対する DNS 接続証拠は出ていない。\n\n### 限界\n- `browser_history` と `dns_requests` は、今回の条件では 0 件または非該当だったため、同系列の活動が本当に無いのか、条件が厳しすぎたのかは断定できない。\n- `access='cbc_alert'` と `object` は通常のファイル/レジストリアクセスではなく、アラート正規化の表記である。\n\n### 次の調査理由\n- 次は、`discord.exe` を起点にして時刻範囲を少し広げ、`browser_history` と `dns_requests` に `discord.exe` 直下の活動があるかを確認するのが妥当。\n- 特に `pid 2360`, `pid 5424`, `pid 5504` の前後で、`parent_process_name: discord.exe` の他プロセスや関連通信を探すと、同一系列の接続有無をより確実に検証できる。",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "AIMessage",
+      "content": "",
+      "usage_metadata": {
+        "input_tokens": 6302,
+        "output_tokens": 133,
+        "total_tokens": 6435,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 3200
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "investigate_lead",
+          "args": {
+            "lead": "ホスト WIN-32-H1 で 2022-07-16 15:07:46 付近の reg.exe 系列について、実際の audit_logs 行を基準に最終的な code_steps と code_sequence を確定してください。特に reg.exe add/query の観測順、親子関係の一致、関連するファイル生成やプロセス生成があれば timestamp・PID/PPID・source_stream を添えて整理し、重複や推定を避けてください。"
+          },
+          "id": "call_ps4mPXS4ik7ParEQp9h46Be3",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "type": "ToolMessage",
+      "content": "以下、観測事実ベースで整理します。\n\n## 仮説\n2022-07-16 15:07:46 付近の `reg.exe` 系列は、`Discord.exe` 起点の親子関係で発生しており、`HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run` への `add` と `query` が同時刻に記録されている。\n\n## 観測事実\n### 1) `reg.exe` の実際の記録\n`WIN-32-H1` で `2022-07-16 15:07:46` に観測された `reg.exe` 関連行は 3 件でした。\n\n| time | pid | ppid | process_name | command_line | source_stream | access |\n|---|---:|---:|---|---|---|---|\n| 2022-07-16 15:07:46 | 2360 | 3768 | c:\\windows\\system32\\reg.exe | `C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f` | cbc-edr-alerts | cbc_alert |\n| 2022-07-16 15:07:46 | 5504 | 1204 | c:\\windows\\system32\\reg.exe | `C:\\Windows\\System32\\reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f` | cbc-edr-alerts | cbc_alert |\n| 2022-07-16 15:07:46 | 5424 | 1204 | c:\\windows\\system32\\reg.exe | `C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord` | cbc-edr-alerts | cbc_alert |\n\n### 2) 親子関係\n観測された親情報では、`reg.exe` の親は `discord.exe` でした。\n\n- `pid 2360`\n  - parent_process_name: `discord.exe`\n  - parent_process_path: `c:\\users\\aalsahee\\appdata\\local\\discord\\app-1.0.9005\\discord.exe`\n  - parent_command_line: `\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-install 1.0.9005`\n- `pid 5504`\n  - parent_process_name: `discord.exe`\n  - parent_process_path: `c:\\users\\aalsahee\\appdata\\local\\discord\\app-1.0.9005\\discord.exe`\n  - parent_command_line: `\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-firstrun`\n- `pid 5424`\n  - parent_process_name: `discord.exe`\n  - parent_process_path: `c:\\users\\aalsahee\\appdata\\local\\discord\\app-1.0.9005\\discord.exe`\n  - parent_command_line: `\"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\app-1.0.9005\\Discord.exe\" --squirrel-firstrun`\n\n### 3) 周辺の `Discord.exe` 観測\n`Discord.exe` 起点の関連行として、`--squirrel-install 1.0.9005` と `--squirrel-firstrun` を含む行が複数ありました。  \nまた、同時刻帯には `discord.exe` の別プロセスや crashpad-handler も観測されています。\n\n### 4) ファイル生成・新規プロセス生成\n今回確認できた範囲では、`reg.exe` から発生した `filemod_name` や `childproc_name` を示す観測はありませんでした。  \nしたがって、**レジストリ操作は確認できるが、今回の検索結果だけではファイル生成や新規プロセス生成の接続は未確認**です。\n\n## 解釈\n- `add` は `HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run` に `Discord` を登録する内容で、`query` は同キーの値確認に見えます。\n- ただし、`cbc_alert` 行の `object` はレジストリキーそのものではなく、アラート要約文字列として記録されています。\n- `pid 2360` と `pid 5504` の両方が `add` ですが、`ppid` と親情報が異なるため、**同一実行の重複とは断定せず、別実行として扱う**のが安全です。\n\n## code_steps\n1. `reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f`\n2. `reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord /d \"C:\\Users\\aalsahee\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe\" /f`\n3. `reg.exe query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Discord`\n\n## code_sequence\n- `2022-07-16 15:07:46 | pid 2360 | ppid 3768 | source_stream cbc-edr-alerts`\n- `2022-07-16 15:07:46 | pid 5504 | ppid 1204 | source_stream cbc-edr-alerts`\n- `2022-07-16 15:07:46 | pid 5424 | ppid 1204 | source_stream cbc-edr-alerts`\n\n## 次の調査理由\n`reg.exe` の `add/query` は確認できましたが、`pid 2360` と `pid 5504` が別親である理由、そして `pid 3768` と `pid 1204` という親系統の違いが残っています。  \n次は、`pid 3768` と `pid 1204` の上流プロセスを追って、`Discord.exe` 系列のどの実行が `reg.exe` を起動したのかを、`timestamp`・`pid/ppid`・`source_stream` で分けて確認するのが有効です。",
+      "name": "investigate_lead"
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\"host\":\"WIN-32-H1\",\"input\":{\"process\":\"reg.exe\",\"timestamp\":\"2022-07-16 15:07:46\"},\"code_steps\":[{\"step\":1,\"timestamp\":\"2022-07-16 15:07:46\",\"pid\":2360,\"ppid\":3768,\"process_name\":\"c:\\\\windows\\\\system32\\\\reg.exe\",\"source_stream\":\"cbc-edr-alerts\",\"command_line\":\"C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\\\" /f\",\"target_object\":\"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\"},{\"step\":2,\"timestamp\":\"2022-07-16 15:07:46\",\"pid\":5504,\"ppid\":1204,\"process_name\":\"c:\\\\windows\\\\system32\\\\reg.exe\",\"source_stream\":\"cbc-edr-alerts\",\"command_line\":\"C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\\\" /f\",\"target_object\":\"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\"},{\"step\":3,\"timestamp\":\"2022-07-16 15:07:46\",\"pid\":5424,\"ppid\":1204,\"process_name\":\"c:\\\\windows\\\\system32\\\\reg.exe\",\"source_stream\":\"cbc-edr-alerts\",\"command_line\":\"C:\\\\Windows\\\\System32\\\\reg.exe query HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord\",\"target_object\":\"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord\"}],\"code_sequence\":[\"2022-07-16 15:07:46 | pid 2360 | ppid 3768 | cbc-edr-alerts | C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\\\" /f\",\"2022-07-16 15:07:46 | pid 5504 | ppid 1204 | cbc-edr-alerts | C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\\\" /f\",\"2022-07-16 15:07:46 | pid 5424 | ppid 1204 | cbc-edr-alerts | C:\\\\Windows\\\\System32\\\\reg.exe query HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord\"],\"evidence_summary\":\"2022-07-16 15:07:46 に `reg.exe` の観測が3件あり、いずれも `HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run` を対象としていた。`pid 2360` は `ppid 3768`、`pid 5504` と `pid 5424` は `ppid 1204` で、親証拠として `discord.exe` 系列が付与されていた。今回の確認範囲では、`reg.exe` からの追加ファイル生成や子プロセス生成、直接のネットワーク接続は未確認で、接続できるのはレジストリ操作と親子関係のみだった。\",\"limitations\":[\"CBC alert 正規化行のため、`object` はアラート要約を含む。\",\"同一 command line の `add` が2件あるが、`ppid` が異なるため別実行として扱った。\",\"今回の調査範囲では browser_history と dns_requests に `reg.exe` 系列へ直接つながる証拠は確認できなかった。\"]}",
+      "usage_metadata": {
+        "input_tokens": 7931,
+        "output_tokens": 889,
+        "total_tokens": 8820,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 6272
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    },
+    {
+      "type": "AIMessage",
+      "content": "{\"input_scope\":{\"host\":\"WIN-32-H1\",\"process\":\"reg.exe\",\"timestamp\":\"2022-07-16 15:07:46\",\"condition\":\"stage1_full_logs\",\"input_fields_used\":[\"host\",\"process\",\"timestamp\"]},\"code_steps\":[{\"step_id\":\"S1\",\"order\":1,\"time\":\"2022-07-16 15:07:46\",\"subject_process\":{\"name\":\"c:\\\\windows\\\\system32\\\\reg.exe\",\"pid\":2360,\"path\":null},\"operation\":\"レジストリ値の追加\",\"object\":{\"type\":\"registry_key\",\"name\":\"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\",\"path\":\"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\",\"value\":\"Discord\",\"data\":\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\"},\"command_line\":\"C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\\\" /f\",\"execution_context\":{\"parent_process\":\"discord.exe\",\"parent_pid\":3768,\"parent_command_line\":\"\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-install 1.0.9005\",\"child_process\":null,\"child_pid\":null},\"evidence\":[{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"command_line\",\"value\":\"C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\\\" /f\",\"pid\":2360,\"ppid\":3768},{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"parent_process_path\",\"value\":\"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\discord\\\\app-1.0.9005\\\\discord.exe\",\"pid\":2360,\"ppid\":3768},{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"parent_command_line\",\"value\":\"\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-install 1.0.9005\",\"pid\":2360,\"ppid\":3768},{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"object\",\"value\":\"report_name=Persistence - Regmod Run or Runonce Key Modification | parent_path=c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\discord\\\\app-1.0.9005\\\\discord.exe | parent_cmdline=\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-install 1.0.9005\",\"pid\":2360,\"ppid\":3768}],\"confidence\":\"observed\",\"limitations\":[\"CBC alert 正規化行を補助証拠として用いているため、object の一部はアラート要約を含む。\",\"この行だけではファイル生成やネットワーク接続は確認できない。\"]},{\"step_id\":\"S2\",\"order\":2,\"time\":\"2022-07-16 15:07:46\",\"subject_process\":{\"name\":\"c:\\\\windows\\\\system32\\\\reg.exe\",\"pid\":5504,\"path\":null},\"operation\":\"レジストリ値の追加\",\"object\":{\"type\":\"registry_key\",\"name\":\"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\",\"path\":\"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\",\"value\":\"Discord\",\"data\":\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\"},\"command_line\":\"C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\\\" /f\",\"execution_context\":{\"parent_process\":\"discord.exe\",\"parent_pid\":1204,\"parent_command_line\":\"\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-firstrun\",\"child_process\":null,\"child_pid\":null},\"evidence\":[{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"command_line\",\"value\":\"C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\\\" /f\",\"pid\":5504,\"ppid\":1204},{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"parent_process_path\",\"value\":\"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\discord\\\\app-1.0.9005\\\\discord.exe\",\"pid\":5504,\"ppid\":1204},{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"parent_command_line\",\"value\":\"\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-firstrun\",\"pid\":5504,\"ppid\":1204},{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"object\",\"value\":\"report_name=Persistence - Regmod Run or Runonce Key Modification | parent_path=c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\discord\\\\app-1.0.9005\\\\discord.exe | parent_cmdline=\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-firstrun\",\"pid\":5504,\"ppid\":1204}],\"confidence\":\"observed\",\"limitations\":[\"CBC alert 正規化行を補助証拠として用いているため、object の一部はアラート要約を含む。\",\"同一 command_line の別実行として観測されたが、より上流の実体はこの結果だけでは確定できない。\"]},{\"step_id\":\"S3\",\"order\":3,\"time\":\"2022-07-16 15:07:46\",\"subject_process\":{\"name\":\"c:\\\\windows\\\\system32\\\\reg.exe\",\"pid\":5424,\"path\":null},\"operation\":\"レジストリ値の照会\",\"object\":{\"type\":\"registry_value\",\"name\":\"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord\",\"path\":\"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\",\"value\":\"Discord\",\"data\":null},\"command_line\":\"C:\\\\Windows\\\\System32\\\\reg.exe query HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord\",\"execution_context\":{\"parent_process\":\"discord.exe\",\"parent_pid\":1204,\"parent_command_line\":\"\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-firstrun\",\"child_process\":null,\"child_pid\":null},\"evidence\":[{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"command_line\",\"value\":\"C:\\\\Windows\\\\System32\\\\reg.exe query HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord\",\"pid\":5424,\"ppid\":1204},{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"parent_process_path\",\"value\":\"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\discord\\\\app-1.0.9005\\\\discord.exe\",\"pid\":5424,\"ppid\":1204},{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"parent_command_line\",\"value\":\"\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-firstrun\",\"pid\":5424,\"ppid\":1204},{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"object\",\"value\":\"report_name=Discovery - Query Registry | parent_path=c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\discord\\\\app-1.0.9005\\\\discord.exe | parent_cmdline=\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-firstrun\",\"pid\":5424,\"ppid\":1204}],\"confidence\":\"observed\",\"limitations\":[\"CBC alert 正規化行を補助証拠として用いているため、object の一部はアラート要約を含む。\",\"この行では query の結果値そのものは観測できない。\"]}],\"code_sequence\":[\"2022-07-16 15:07:46 | pid 2360 | ppid 3768 | cbc-edr-alerts | C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\\\" /f\",\"2022-07-16 15:07:46 | pid 5504 | ppid 1204 | cbc-edr-alerts | C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\\\" /f\",\"2022-07-16 15:07:46 | pid 5424 | ppid 1204 | cbc-edr-alerts | C:\\\\Windows\\\\System32\\\\reg.exe query HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord\"],\"supporting_alert_evidence\":[{\"alert_id\":null,\"alert_name\":\"Persistence - Regmod Run or Runonce Key Modification\",\"source_stream\":\"cbc-edr-alerts\",\"why_supporting_only\":\"reg.exe add の補助証拠として一致しているが、コード列そのものではない。\"},{\"alert_id\":null,\"alert_name\":\"Discovery - Query Registry\",\"source_stream\":\"cbc-edr-alerts\",\"why_supporting_only\":\"reg.exe query の補助証拠として一致しているが、コード列そのものではない。\"}],\"excluded_nearby_evidence\":[{\"time\":\"2022-07-16 15:07:20\",\"source_stream\":\"cbc-edr\",\"description\":\"discord.exe PID 4044 による一時ファイル c:\\\\users\\\\aalsahee\\\\appdata\\\\roaming\\\\discord\\\\1d2a6589-3228-4ea5-aaab-641d26e8e193.tmp へのアクセス。reg.exe の直接接続は観測できない。\"},{\"time\":\"2022-07-16 15:07:46 近傍\",\"source_stream\":\"cbc-edr-alerts\",\"description\":\"discord.exe 直下の cmd.exe PID 4872 や firefox.exe PID 4924 の観測があるが、reg.exe との親子関係や対象オブジェクトで直接接続できないため code_sequence から除外した。\"}],\"global_limitations\":[\"この調査で確実に復元できたのは reg.exe によるレジストリ追加 2 件と照会 1 件のみである。\",\"browser_history と dns_requests に、reg.exe 系列へ直接つながる観測証拠は確認できなかった。\",\"CBC alert 正規化行は補助証拠として扱い、alert title/reason を code_sequence には転記していない。\"],\"timeline_ja\":[\"2022-07-16 15:07:46 に reg.exe add が 2 件、reg.exe query が 1 件観測された。\",\"2 件の add はどちらも HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run の Discord 値を対象としており、data は C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe だった。\",\"query は HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord を照会していた。\"]}",
+      "usage_metadata": {
+        "input_tokens": 8952,
+        "output_tokens": 2948,
+        "total_tokens": 11900,
+        "input_token_details": {
+          "audio": 0,
+          "cache_read": 0
+        },
+        "output_token_details": {
+          "audio": 0,
+          "reasoning": 0
+        }
+      }
+    }
+  ],
+  "output_text": "{\"input_scope\":{\"host\":\"WIN-32-H1\",\"process\":\"reg.exe\",\"timestamp\":\"2022-07-16 15:07:46\",\"condition\":\"stage1_full_logs\",\"input_fields_used\":[\"host\",\"process\",\"timestamp\"]},\"code_steps\":[{\"step_id\":\"S1\",\"order\":1,\"time\":\"2022-07-16 15:07:46\",\"subject_process\":{\"name\":\"c:\\\\windows\\\\system32\\\\reg.exe\",\"pid\":2360,\"path\":null},\"operation\":\"レジストリ値の追加\",\"object\":{\"type\":\"registry_key\",\"name\":\"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\",\"path\":\"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\",\"value\":\"Discord\",\"data\":\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\"},\"command_line\":\"C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\\\" /f\",\"execution_context\":{\"parent_process\":\"discord.exe\",\"parent_pid\":3768,\"parent_command_line\":\"\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-install 1.0.9005\",\"child_process\":null,\"child_pid\":null},\"evidence\":[{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"command_line\",\"value\":\"C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\\\" /f\",\"pid\":2360,\"ppid\":3768},{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"parent_process_path\",\"value\":\"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\discord\\\\app-1.0.9005\\\\discord.exe\",\"pid\":2360,\"ppid\":3768},{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"parent_command_line\",\"value\":\"\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-install 1.0.9005\",\"pid\":2360,\"ppid\":3768},{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"object\",\"value\":\"report_name=Persistence - Regmod Run or Runonce Key Modification | parent_path=c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\discord\\\\app-1.0.9005\\\\discord.exe | parent_cmdline=\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-install 1.0.9005\",\"pid\":2360,\"ppid\":3768}],\"confidence\":\"observed\",\"limitations\":[\"CBC alert 正規化行を補助証拠として用いているため、object の一部はアラート要約を含む。\",\"この行だけではファイル生成やネットワーク接続は確認できない。\"]},{\"step_id\":\"S2\",\"order\":2,\"time\":\"2022-07-16 15:07:46\",\"subject_process\":{\"name\":\"c:\\\\windows\\\\system32\\\\reg.exe\",\"pid\":5504,\"path\":null},\"operation\":\"レジストリ値の追加\",\"object\":{\"type\":\"registry_key\",\"name\":\"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\",\"path\":\"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\",\"value\":\"Discord\",\"data\":\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\"},\"command_line\":\"C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\\\" /f\",\"execution_context\":{\"parent_process\":\"discord.exe\",\"parent_pid\":1204,\"parent_command_line\":\"\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-firstrun\",\"child_process\":null,\"child_pid\":null},\"evidence\":[{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"command_line\",\"value\":\"C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\\\" /f\",\"pid\":5504,\"ppid\":1204},{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"parent_process_path\",\"value\":\"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\discord\\\\app-1.0.9005\\\\discord.exe\",\"pid\":5504,\"ppid\":1204},{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"parent_command_line\",\"value\":\"\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-firstrun\",\"pid\":5504,\"ppid\":1204},{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"object\",\"value\":\"report_name=Persistence - Regmod Run or Runonce Key Modification | parent_path=c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\discord\\\\app-1.0.9005\\\\discord.exe | parent_cmdline=\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-firstrun\",\"pid\":5504,\"ppid\":1204}],\"confidence\":\"observed\",\"limitations\":[\"CBC alert 正規化行を補助証拠として用いているため、object の一部はアラート要約を含む。\",\"同一 command_line の別実行として観測されたが、より上流の実体はこの結果だけでは確定できない。\"]},{\"step_id\":\"S3\",\"order\":3,\"time\":\"2022-07-16 15:07:46\",\"subject_process\":{\"name\":\"c:\\\\windows\\\\system32\\\\reg.exe\",\"pid\":5424,\"path\":null},\"operation\":\"レジストリ値の照会\",\"object\":{\"type\":\"registry_value\",\"name\":\"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord\",\"path\":\"HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run\",\"value\":\"Discord\",\"data\":null},\"command_line\":\"C:\\\\Windows\\\\System32\\\\reg.exe query HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord\",\"execution_context\":{\"parent_process\":\"discord.exe\",\"parent_pid\":1204,\"parent_command_line\":\"\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-firstrun\",\"child_process\":null,\"child_pid\":null},\"evidence\":[{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"command_line\",\"value\":\"C:\\\\Windows\\\\System32\\\\reg.exe query HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord\",\"pid\":5424,\"ppid\":1204},{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"parent_process_path\",\"value\":\"c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\discord\\\\app-1.0.9005\\\\discord.exe\",\"pid\":5424,\"ppid\":1204},{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"parent_command_line\",\"value\":\"\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-firstrun\",\"pid\":5424,\"ppid\":1204},{\"source_stream\":\"cbc-edr-alerts\",\"timestamp\":\"2022-07-16 15:07:46\",\"alert_id\":null,\"event_record_id\":null,\"field\":\"object\",\"value\":\"report_name=Discovery - Query Registry | parent_path=c:\\\\users\\\\aalsahee\\\\appdata\\\\local\\\\discord\\\\app-1.0.9005\\\\discord.exe | parent_cmdline=\\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\app-1.0.9005\\\\Discord.exe\\\" --squirrel-firstrun\",\"pid\":5424,\"ppid\":1204}],\"confidence\":\"observed\",\"limitations\":[\"CBC alert 正規化行を補助証拠として用いているため、object の一部はアラート要約を含む。\",\"この行では query の結果値そのものは観測できない。\"]}],\"code_sequence\":[\"2022-07-16 15:07:46 | pid 2360 | ppid 3768 | cbc-edr-alerts | C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\\\" /f\",\"2022-07-16 15:07:46 | pid 5504 | ppid 1204 | cbc-edr-alerts | C:\\\\Windows\\\\System32\\\\reg.exe add HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord /d \\\"C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe\\\" /f\",\"2022-07-16 15:07:46 | pid 5424 | ppid 1204 | cbc-edr-alerts | C:\\\\Windows\\\\System32\\\\reg.exe query HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord\"],\"supporting_alert_evidence\":[{\"alert_id\":null,\"alert_name\":\"Persistence - Regmod Run or Runonce Key Modification\",\"source_stream\":\"cbc-edr-alerts\",\"why_supporting_only\":\"reg.exe add の補助証拠として一致しているが、コード列そのものではない。\"},{\"alert_id\":null,\"alert_name\":\"Discovery - Query Registry\",\"source_stream\":\"cbc-edr-alerts\",\"why_supporting_only\":\"reg.exe query の補助証拠として一致しているが、コード列そのものではない。\"}],\"excluded_nearby_evidence\":[{\"time\":\"2022-07-16 15:07:20\",\"source_stream\":\"cbc-edr\",\"description\":\"discord.exe PID 4044 による一時ファイル c:\\\\users\\\\aalsahee\\\\appdata\\\\roaming\\\\discord\\\\1d2a6589-3228-4ea5-aaab-641d26e8e193.tmp へのアクセス。reg.exe の直接接続は観測できない。\"},{\"time\":\"2022-07-16 15:07:46 近傍\",\"source_stream\":\"cbc-edr-alerts\",\"description\":\"discord.exe 直下の cmd.exe PID 4872 や firefox.exe PID 4924 の観測があるが、reg.exe との親子関係や対象オブジェクトで直接接続できないため code_sequence から除外した。\"}],\"global_limitations\":[\"この調査で確実に復元できたのは reg.exe によるレジストリ追加 2 件と照会 1 件のみである。\",\"browser_history と dns_requests に、reg.exe 系列へ直接つながる観測証拠は確認できなかった。\",\"CBC alert 正規化行は補助証拠として扱い、alert title/reason を code_sequence には転記していない。\"],\"timeline_ja\":[\"2022-07-16 15:07:46 に reg.exe add が 2 件、reg.exe query が 1 件観測された。\",\"2 件の add はどちらも HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run の Discord 値を対象としており、data は C:\\\\Users\\\\aalsahee\\\\AppData\\\\Local\\\\Discord\\\\Update.exe --processStart Discord.exe だった。\",\"query は HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run /v Discord を照会していた。\"]}",
+  "usage": {
+    "input_tokens": 28066,
+    "output_tokens": 4388,
+    "cached_input_tokens": 0
+  }
+}

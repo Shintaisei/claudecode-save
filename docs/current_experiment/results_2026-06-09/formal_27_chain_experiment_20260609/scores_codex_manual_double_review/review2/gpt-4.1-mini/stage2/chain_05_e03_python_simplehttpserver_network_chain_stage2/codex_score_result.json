@@ -1,0 +1,111 @@
+{
+  "reviewer": "review2",
+  "method": "codex_manual_double_review_no_api",
+  "case_id": "chain_05_e03_python_simplehttpserver_network_chain_stage2",
+  "chain_id": "chain_05_e03_python_simplehttpserver_network_chain",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_05_e03_python_simplehttpserver_network_chain/chain_gold.json",
+  "candidate_file": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage2/chain_05_e03_python_simplehttpserver_network_chain_stage2_run.json",
+  "scoring_policy": "Strict local manual scoring. Credit only recovered behavior items in candidate code_steps/code_sequence or equivalent positive supporting text. Input scope alone and limitation text do not satisfy subject/action/object/critical_evidence. Generic python.exe process_execution is not enough for the SimpleHTTPServer launch action/object/evidence, and generic file_access is not the required netconn/network-server behavior.",
+  "judge_summary": "The candidate reports only generic python.exe process_execution and file_access. It never states the SimpleHTTPServer command line, never identifies python -m SimpleHTTPServer as the object, and never recovers the CBC event netconn/network-server step. The bare python.exe subject in S1 is the only credited item. The file_access step, inferred parent context, broad time window, and negative/no-network statements are overclaims or contradicted by the gold behavior.",
+  "candidate_observation": {
+    "code_steps_count": 2,
+    "code_sequence_count": 2,
+    "positive_recovered_core": "S1 names python.exe with operation process_execution; S2 names python.exe with operation file_access.",
+    "missing_core": [
+      "No SimpleHTTPServer command line or python -m SimpleHTTPServer object.",
+      "No netconn/network-server/network-listen step.",
+      "No CBC event process_cmdline or CBC event netconn evidence."
+    ]
+  },
+  "gold_item_scores": [
+    {
+      "gold_step_id": "C05-S01",
+      "gold_order": 1,
+      "gold_expected": {
+        "subject": "python.exe",
+        "action": "launches/runs the SimpleHTTPServer module",
+        "object": "python  -m SimpleHTTPServer",
+        "critical_evidence": "CBC event process_cmdline"
+      },
+      "matched_candidate": "S1.subject_process.name=python.exe; S1.operation=process_execution; S1.command_line=null; S1.object.name=python.exe; evidence field=process_name value=python.exe",
+      "scores": {
+        "subject": 1,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "step_total": 1,
+      "step_total_max": 4,
+      "reason": "The candidate identifies python.exe as a recovered process, but only as generic process_execution. It does not recover the SimpleHTTPServer module action, the python -m SimpleHTTPServer command/object, or process_cmdline evidence."
+    },
+    {
+      "gold_step_id": "C05-S02",
+      "gold_order": 2,
+      "gold_expected": {
+        "subject": "python.exe",
+        "action": "network server/netconn behavior",
+        "object": "receive/communication peer details limited",
+        "critical_evidence": "CBC event netconn"
+      },
+      "matched_candidate": "No matching network/netconn code_step or code_sequence item. Candidate S2 is file_access with object path null and evidence field=access value=read/write/execute.",
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "step_total": 0,
+      "step_total_max": 4,
+      "reason": "The candidate does not assert a python.exe netconn/network-server behavior step. A generic file_access step is unrelated and cannot satisfy the network step's subject/action/object/evidence slots."
+    }
+  ],
+  "sequence_score": {
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 0.0,
+    "reason": "The required order is SimpleHTTPServer launch followed by network/netconn behavior. Neither required action is recovered, so no order credit is possible."
+  },
+  "overclaims": [
+    {
+      "candidate_step_id": "S1",
+      "claim": "python.exe process_execution over 2022-07-15 20:45:00 - 21:00:00 with parent_process=cmd.exe but no command line.",
+      "classification": "unsupported_or_too_generic",
+      "reason": "Gold requires the specific SimpleHTTPServer command and process_cmdline evidence; the candidate gives only process name and broad time."
+    },
+    {
+      "candidate_step_id": "S2",
+      "claim": "python.exe file_access read/write/execute with no file path.",
+      "classification": "unrelated_overclaim",
+      "reason": "The gold chain has no file_access behavior step; the second step should be network/netconn behavior."
+    },
+    {
+      "candidate_step_id": "global_limitations",
+      "claim": "Network connection logs were not observed.",
+      "classification": "contradicted_by_gold",
+      "reason": "Gold C05-S02 is explicitly based on CBC event netconn/network-server behavior."
+    }
+  ],
+  "metrics": {
+    "item_recall_hits": 1,
+    "item_recall_total": 8,
+    "item_recall": 0.125,
+    "behavior_step_recall_hits": 0,
+    "behavior_step_recall_total": 2,
+    "behavior_step_recall": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.0,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 0.0,
+    "candidate_claim_precision_hits": 1,
+    "candidate_claim_precision_total": 8,
+    "candidate_claim_precision": 0.125,
+    "overclaim_slot_count": 7,
+    "case_score": 1,
+    "case_score_max": 9
+  },
+  "overall_assessment": "Strict score: 1/9. The candidate earns only the S1 python.exe subject item; all action, object, critical evidence, network behavior, order, and generic/extra claims fail under the rubric."
+}

@@ -1,0 +1,155 @@
+{
+  "case_id": "chain_16_e11_python_simplehttpserver_network_chain_stage2",
+  "reviewer": "codex_review1",
+  "model": "gpt-4.1-mini",
+  "stage": "stage2",
+  "gold_chain": {
+    "chain_id": "chain_16_e11_python_simplehttpserver_network_chain",
+    "chain_type": "python_simplehttpserver_network_chain",
+    "gold_file": "data/current_experiment/gold/cbc_alert_behavior_chain_gold/by_chain/chain_16_e11_python_simplehttpserver_network_chain/chain_gold.json",
+    "run_json": "docs/current_experiment/results_2026-06-09/formal_27_chain_experiment_20260609/runs/gpt-4.1-mini/stage2/chain_16_e11_python_simplehttpserver_network_chain_stage2_run.json",
+    "steps": [
+      {
+        "step_id": "C16-S01",
+        "order": 1,
+        "subject": "python.exe",
+        "action": "SimpleHTTPServerモジュールを指定して起動した",
+        "object": "python  -m SimpleHTTPServer",
+        "critical_evidence": "CBC event process_cmdline"
+      },
+      {
+        "step_id": "C16-S02",
+        "order": 2,
+        "subject": "python.exe",
+        "action": "ネットワークサーバ挙動として検知された",
+        "object": "10.193.66.115:51647",
+        "critical_evidence": "CBC event netconn"
+      }
+    ]
+  },
+  "per_gold_step": [
+    {
+      "step_id": "C16-S01",
+      "order": 1,
+      "matched_candidate_claim_id": "cand-S1-simplehttpserver-start",
+      "scores": {
+        "subject": 1,
+        "action": 1,
+        "object": 1,
+        "critical_evidence": 0
+      },
+      "slot_notes": {
+        "subject": "候補S1は subject_process.name=python.exe を明示しており一致する。",
+        "action": "候補S1は operation=process_start と command_line=python -m SimpleHTTPServer を示しており、SimpleHTTPServer起動として一致する。",
+        "object": "goldは python  -m SimpleHTTPServer だが、候補の command_line=python -m SimpleHTTPServer は空白差を除き同じ起動コマンドを復元しているため一致とした。",
+        "critical_evidence": "候補evidenceは source_stream=audit_logs, field=process_start, event_record_id=123456 であり、goldが要求するCBC event process_cmdlineを具体フィールド根拠として示していない。"
+      },
+      "step_item_score": 3,
+      "step_item_total": 4,
+      "behavior_step_recovered_without_evidence": 1
+    },
+    {
+      "step_id": "C16-S02",
+      "order": 2,
+      "matched_candidate_claim_id": null,
+      "scores": {
+        "subject": 0,
+        "action": 0,
+        "object": 0,
+        "critical_evidence": 0
+      },
+      "slot_notes": {
+        "subject": "候補はpython.exe一般を出しているが、netconn/network server検知ステップとしての候補claimが無いため、このstepのsubject一致には数えない。",
+        "action": "ネットワークサーバ挙動として検知された、またはnetconnが確立されたという行動を候補はcode_stepsに含めていない。",
+        "object": "gold objectの 10.193.66.115:51647 が候補に無い。",
+        "critical_evidence": "CBC event netconnの具体フィールド根拠が候補に無い。"
+      },
+      "step_item_score": 0,
+      "step_item_total": 4,
+      "behavior_step_recovered_without_evidence": 0
+    }
+  ],
+  "order_pairs": [
+    {
+      "pair_id": "C16-S01->C16-S02",
+      "before_step_id": "C16-S01",
+      "after_step_id": "C16-S02",
+      "score": 0,
+      "reason_ja": "候補はSimpleHTTPServer起動に相当するS01のみを出し、後続のnetconn/network server objectステップを出していないため、隣接順序ペアは復元されていない。"
+    }
+  ],
+  "candidate_claims": [
+    {
+      "candidate_claim_id": "cand-S1-simplehttpserver-start",
+      "candidate_step_id": "S1",
+      "claim_excerpt": "subject_process.name=python.exe; operation=process_start; command_line=python -m SimpleHTTPServer; evidence source_stream=audit_logs field=process_start value=python.exe",
+      "normalized_action_claim_ja": "python.exeがSimpleHTTPServerモジュール指定で起動した。",
+      "slot_scores": [
+        {
+          "slot_id": "cand-S1-simplehttpserver-start:subject",
+          "kind": "subject",
+          "candidate_slot_excerpt": "subject_process.name=python.exe",
+          "matched_gold_item_id": "chain_16_e11_python_simplehttpserver_network_chain:C16-S01:subject",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "gold S01 subjectのpython.exeと一致する。"
+        },
+        {
+          "slot_id": "cand-S1-simplehttpserver-start:action",
+          "kind": "action",
+          "candidate_slot_excerpt": "operation=process_start; command_line=python -m SimpleHTTPServer",
+          "matched_gold_item_id": "chain_16_e11_python_simplehttpserver_network_chain:C16-S01:action",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "SimpleHTTPServerモジュール指定の起動としてgold S01 actionに対応する。"
+        },
+        {
+          "slot_id": "cand-S1-simplehttpserver-start:object",
+          "kind": "object",
+          "candidate_slot_excerpt": "command_line=python -m SimpleHTTPServer",
+          "matched_gold_item_id": "chain_16_e11_python_simplehttpserver_network_chain:C16-S01:object",
+          "is_true_positive": 1,
+          "false_positive_type": "none",
+          "reason_ja": "空白差はあるが、SimpleHTTPServer起動コマンドを復元している。"
+        },
+        {
+          "slot_id": "cand-S1-simplehttpserver-start:critical_evidence",
+          "kind": "critical_evidence",
+          "candidate_slot_excerpt": "evidence source_stream=audit_logs timestamp=2022-07-17 14:38:07 field=process_start value=python.exe event_record_id=123456",
+          "matched_gold_item_id": null,
+          "is_true_positive": 0,
+          "false_positive_type": "unsupported_evidence",
+          "reason_ja": "CBC event process_cmdlineではなく、audit_logs一般のprocess_start根拠である。event_record_idもgold sampleのSecurity EventRecordIDと一致しない。"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "action_step_recall_hits": 3,
+    "action_step_recall_total": 8,
+    "action_step_recall": 0.375,
+    "action_step_precision_hits": 3,
+    "action_step_precision_total": 4,
+    "action_step_precision": 0.75,
+    "candidate_claim_precision_hits": 3,
+    "candidate_claim_precision_total": 4,
+    "candidate_claim_precision": 0.75,
+    "overclaim_slot_count": 1,
+    "behavior_sequence_order_hits": 0,
+    "behavior_sequence_order_total": 1,
+    "behavior_sequence_order": 0.0,
+    "critical_evidence_recall_hits": 0,
+    "critical_evidence_recall_total": 2,
+    "critical_evidence_recall": 0.0,
+    "behavior_step_recall_hits": 1,
+    "behavior_step_recall_total": 2,
+    "behavior_step_recall": 0.5
+  },
+  "notes": [
+    "OpenAI APIやGPT採点スクリプトは使用せず、Codex上で手動採点した。",
+    "gold denominatorは2 steps x 4 slots = 8。",
+    "critical_evidenceは、候補がCBC event process_cmdlineまたはCBC event netconnなどの具体フィールド根拠を明示した場合のみ1とした。",
+    "候補はcode_stepsとしてSimpleHTTPServer起動を1件だけ出しており、gold S02のnetconn object 10.193.66.115:51647 は復元していない。",
+    "候補の excluded_nearby_evidence/timeline にはCBC alertが観測されないという記述があるが、これは正解goldとは矛盾する。ただし正のbehavior claimではないためcandidate_claim_precisionの分母には含めず、notesで記録した。"
+  ]
+}
